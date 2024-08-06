@@ -86,7 +86,7 @@ Queue *outq;
 Queue *inq;
 int verbose = 0;
 int logging = 0;
-int msize = 8192;
+int msize = 8192+24;
 u32int xafid = NOFID;
 int attached;
 int versioned;
