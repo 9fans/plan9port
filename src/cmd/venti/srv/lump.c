@@ -118,10 +118,8 @@ writelump(Packet *p, u8int *score, int type, u32int creator, uint ms)
 		return 0;
 	}
 
-#ifdef XXX // we want to avoid inclusion of lumpqueue.o
 	if(queuewrites)
 		return queuewrite(u, p, creator, ms);
-#endif
 
 	ok = writeqlump(u, p, creator, ms);
 

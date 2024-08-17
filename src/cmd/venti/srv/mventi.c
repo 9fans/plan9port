@@ -14,7 +14,7 @@ int mainstacksize = 256*1024;
 VtSrv *ventisrv;
 
 void trie_init(void);
-extern unsigned long long int totalclumps;
+u64int totalclumps;
 unsigned int trie_insert(unsigned char *, uvlong*); 
 unsigned int trie_retrieve(unsigned char *, uvlong*); 
 
@@ -558,3 +558,6 @@ int minicachesleeptime = 0;
 
 void		delaykickicache(void) {}
 
+// from lumpqueue.c
+int
+queuewrite(Lump *u, Packet *p, int creator, uint ms) {return 0;}
