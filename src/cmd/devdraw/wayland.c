@@ -94,6 +94,11 @@ static struct wl_shm *wl_shm;
 static struct wl_compositor *wl_compositor;
 static struct xdg_wm_base *xdg_wm_base;
 static struct wl_seat *wl_seat;
+static struct wl_data_device_manager *wl_data_device_manager;
+static struct wl_data_device *wl_data_device;
+
+static char *snarf;
+uint32_t keyboard_enter_serial;
 
 // Optional global wayland objects.
 // Need to NULL check them before using.
@@ -153,6 +158,9 @@ static void registry_global(void *data, struct wl_registry *wl_registry,
 	} else if (strcmp(interface, wl_seat_interface.name) == 0) {
 		wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
 
+	} else if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
+		wl_data_device_manager = wl_registry_bind(wl_registry, name, &wl_data_device_manager_interface, 2);
+
 	} else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
 		decoration_manager = wl_registry_bind(wl_registry, name,
 			&zxdg_decoration_manager_v1_interface, 1);
@@ -205,6 +213,132 @@ static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32
 
 static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 	.ping = xdg_wm_base_ping,
+};
+
+void wl_data_device_listener_data_offer(void *data,
+	struct wl_data_device *wl_data_device, struct wl_data_offer *id) {}
+
+void wl_data_device_listener_data_enter(void *data,
+	struct wl_data_device *wl_data_device, uint32_t serial,
+	struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y,
+	struct wl_data_offer *id) {}
+
+void wl_data_device_listener_data_leave(void *data,
+	struct wl_data_device *wl_data_device) {}
+
+void wl_data_device_listener_data_motion(void *data,
+	struct wl_data_device *wl_data_device, uint32_t time,
+	wl_fixed_t x, wl_fixed_t y) {}
+
+void wl_data_device_listener_data_drop(void *data,
+	struct wl_data_device *wl_data_device) {}
+
+void wl_data_device_listener_selection(void *data,
+	struct wl_data_device *wl_data_device, struct wl_data_offer *id) {
+	DEBUG("wl_data_device_listener_selection\n");
+
+	if (id == NULL) {
+		qlock(&wayland_lock);
+		free(snarf);
+		snarf = NULL;
+		qunlock(&wayland_lock);
+		DEBUG("wl_data_device_listener_selection: no data\n");
+		return;
+	}
+
+	int fds[2];
+	if (pipe(fds) < 0) {
+		sysfatal("Failed to create pipe");
+	}
+	wl_data_offer_receive(id, "text/plain", fds[1]);
+	close(fds[1]);
+	wl_display_roundtrip(wl_display);
+
+	qlock(&wayland_lock);
+
+	int total = 0;
+	snarf = NULL;
+	for (; ;) {
+		char buf[128];
+		int n = read(fds[0], &buf, sizeof(buf));
+		if (n < 0 && errno == EAGAIN) {
+			continue;
+		}
+		if (n < 0) {
+			sysfatal("Read failed");
+		}
+		if (n == 0) {
+			break;
+		}
+		// +1 to ensure it's always at least null terminated.
+		char *tmp = calloc(1, total + n + 1);
+		if (snarf != NULL) {
+			strncpy(tmp, snarf, total);
+		}
+		memcpy(tmp+total, buf, n);
+		total += n;
+		snarf = tmp;
+	}
+
+	DEBUG("wl_data_device_listener_selection: read [%s]\n", snarf);
+	qunlock(&wayland_lock);
+	close(fds[0]);
+}
+
+static const struct wl_data_device_listener wl_data_device_listener = {
+	.data_offer = wl_data_device_listener_data_offer,
+	.enter = wl_data_device_listener_data_enter,
+	.leave = wl_data_device_listener_data_leave,
+	.motion = wl_data_device_listener_data_motion,
+	.drop = wl_data_device_listener_data_drop,
+	.selection = wl_data_device_listener_selection,
+};
+
+void wl_data_source_target(void *data,
+	struct wl_data_source *wl_data_source,
+	const char *mime_type) {}
+
+void wl_data_source_send(void *data,
+	struct wl_data_source *wl_data_source,
+	const char *mime_type, int32_t fd) {
+	DEBUG("wl_data_source_send(mime_type=%s)\n", mime_type);
+
+	if (strcmp(mime_type, "text/plain") != 0) {
+		DEBUG("unknown mime type\n");
+		close(fd);
+		return;
+	}
+
+	qlock(&wayland_lock);
+
+	int total = 0;
+	if (snarf != NULL) {
+		total = strlen(snarf);
+	}
+	DEBUG("wl_data_source_send: writing %d bytes\n", total);
+	char *p = snarf;
+	while (total > 0) {
+		int n = write(fd, p, total);
+		if (n < 0 && errno == EAGAIN) {
+			continue;
+		}
+		if (n < 0) {
+			sysfatal("Write error");
+		}
+		p += n;
+		total -= n;
+	}
+
+	qunlock(&wayland_lock);
+	close(fd);
+}
+
+void wl_data_source_cancelled(void *data, struct wl_data_source *wl_data_source) {}
+
+static const struct wl_data_source_listener wl_data_source_listener = {
+	.target = wl_data_source_target,
+	.send = wl_data_source_send,
+	.cancelled = wl_data_source_cancelled,
 };
 
 void delete_buffer(WaylandBuffer *b) {
@@ -503,6 +637,9 @@ void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
 void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard,
 	uint32_t serial, struct wl_surface *surface, struct wl_array *keys) {
 	DEBUG("wl_keyboard_enter\n");
+	qlock(&wayland_lock);
+	keyboard_enter_serial = serial;
+	qunlock(&wayland_lock);
 }
 
 void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard,
@@ -697,8 +834,14 @@ void	gfx_main(void) {
 	if (wl_seat == NULL) {
 		sysfatal("Unable to bind wl_seat");
 	}
+	if (wl_data_device_manager == NULL) {
+		sysfatal("Unable to bind wl_data_device_manager");
+	}
 	wl_output_add_listener(wl_output, &wl_output_listener, NULL);
 	xdg_wm_base_add_listener(xdg_wm_base, &xdg_wm_base_listener, NULL);
+	wl_data_device = wl_data_device_manager_get_data_device(
+		wl_data_device_manager, wl_seat);
+	wl_data_device_add_listener(wl_data_device, &wl_data_device_listener, NULL);
 	wl_display_roundtrip(wl_display);
 
 	entered_gfx_loop = 1;
@@ -954,11 +1097,36 @@ Memimage *rpc_attach(Client *c, char *label, char *winsize) {
 
 char *rpc_getsnarf(void) {
 	DEBUG("rpc_getsnarf\n");
-	return NULL;
+	qlock(&wayland_lock);
+
+	if (snarf == NULL) {
+		qunlock(&wayland_lock);
+		return NULL;
+	}
+
+	int n = strlen(snarf);
+	char *copy = calloc(1, n+1);
+	strncpy(copy, snarf, n);
+	qunlock(&wayland_lock);
+	return copy;
 }
 
-void	rpc_putsnarf(char*) {
+void	rpc_putsnarf(char *snarf_in) {
 	DEBUG("rpc_putsnarf\n");
+	qlock(&wayland_lock);
+
+	int n = strlen(snarf_in);
+	free(snarf);
+	snarf = calloc(1, n+1);
+	strncpy(snarf, snarf_in, n);
+
+	struct wl_data_source *source =
+		wl_data_device_manager_create_data_source(wl_data_device_manager);
+	wl_data_source_add_listener(source, &wl_data_source_listener, NULL);
+	wl_data_source_offer(source, "text/plain");
+	wl_data_device_set_selection(wl_data_device, source, keyboard_enter_serial);
+
+	qunlock(&wayland_lock);
 }
 
 void	rpc_shutdown(void) {
