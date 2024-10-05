@@ -313,7 +313,7 @@ mkhandle(Nfs3Handle *h, u64int ino)
 static u32int
 byte2u32(uchar *p)
 {
-	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
+	return ((u32int)p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
 
 static Nfs3Status
@@ -787,7 +787,7 @@ ext2readlink(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char **link)
 static u32int
 l32(uchar *p)
 {
-	return p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24);
+	return p[0] | (p[1]<<8) | (p[2]<<16) | ((u32int)p[3]<<24);
 }
 
 static u16int

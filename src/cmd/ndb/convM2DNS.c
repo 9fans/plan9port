@@ -70,7 +70,7 @@ glong(Scan *sp)
 		sp->err = toolong;
 		return 0;
 	}
-	x = (sp->p[0]<<24) | (sp->p[1]<<16) | (sp->p[2]<<8) | sp->p[3];
+	x = ((ulong)sp->p[0]<<24) | (sp->p[1]<<16) | (sp->p[2]<<8) | sp->p[3];
 	sp->p += 4;
 	return x;
 }

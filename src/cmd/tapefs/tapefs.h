@@ -1,11 +1,11 @@
 #define getpass tapefs_getpass
 
-#define	g2byte(x)	(((x)[1]<<8) + (x)[0])		/* little-endian */
-#define	g3byte(x)	(((x)[2]<<16) + ((x)[1]<<8) + (x)[0])
-#define	g4byte(x)	(((x)[3]<<24) + ((x)[2]<<16) + ((x)[1]<<8) + (x)[0])
+#define	g2byte(x)	(((x)[1]<<8) | (x)[0])		/* little-endian */
+#define	g3byte(x)	(((x)[2]<<16) | ((x)[1]<<8) | (x)[0])
+#define	g4byte(x)	(((u32int)(x)[3]<<24) | ((x)[2]<<16) | ((x)[1]<<8) | (x)[0])
 
 /* big endian */
-#define	b4byte(x)	(((x)[0]<<24) + ((x)[1]<<16) + ((x)[2]<<8) + (x)[3])
+#define	b4byte(x)	(((u32int)(x)[0]<<24) | ((x)[1]<<16) | ((x)[2]<<8) | (x)[3])
 #define	b8byte(x)	(((vlong)b4byte(x)<<32) | (u32int)b4byte((x)+4))
 
 enum

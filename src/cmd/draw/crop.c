@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 		red = getint(ARGF())&0xFF;
 		green = getint(ARGF())&0xFF;
 		blue = getint(ARGF())&0xFF;
-		bg = (red<<24)|(green<<16)|(blue<<8)|0xFF;
+		bg = ((uint32)red<<24)|(green<<16)|(blue<<8)|0xFF;
 		break;
 	case 'c':
 		if(cropval != 0)
@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 		red = getint(ARGF())&0xFF;
 		green = getint(ARGF())&0xFF;
 		blue = getint(ARGF())&0xFF;
-		cropval = (red<<24)|(green<<16)|(blue<<8)|0xFF;
+		cropval = ((uint32)red<<24)|(green<<16)|(blue<<8)|0xFF;
 		break;
 	case 'i':
 		if(mode != None)

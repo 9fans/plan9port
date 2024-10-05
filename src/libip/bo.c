@@ -64,7 +64,7 @@ nhgetl(void *p)
 	uchar *a;
 
 	a = p;
-	return (a[0]<<24)|(a[1]<<16)|(a[2]<<8)|(a[3]<<0);
+	return ((uint)a[0]<<24)|(a[1]<<16)|(a[2]<<8)|(a[3]<<0);
 }
 
 ushort
