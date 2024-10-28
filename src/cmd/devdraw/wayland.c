@@ -448,8 +448,9 @@ static void wl_callback_done(void *data, struct wl_callback *wl_callback, uint32
 		wl->repeat_scroll_count--;
 		if (wl->repeat_scroll_count == 0) {
 			wl->repeat_scroll_button = 0;
+		} else {
+			wl->repeat_scroll_next_ms = time + scroll_repeat_ms/wl->repeat_scroll_count;
 		}
-		wl->repeat_scroll_next_ms = time + scroll_repeat_ms/wl->repeat_scroll_count;
 	}
 
 	qunlock(&wayland_lock);
