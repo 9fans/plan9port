@@ -39,12 +39,24 @@ main(int argc, char *argv[])
 		break;
 	case 'e':
 		pattern = strdup(EARGF(usage()));
+		if(pattern == nil){
+			fprint(2, "split: out of memory\n");
+			exits("memory");
+		}
 		break;
 	case 'f':
 		stem = strdup(EARGF(usage()));
+		if(stem == nil){
+			fprint(2, "split: out of memory\n");
+			exits("memory");
+		}
 		break;
 	case 's':
 		suffix = strdup(EARGF(usage()));
+		if(suffix == nil){
+			fprint(2, "split: out of memory\n");
+			exits("memory");
+		}
 		break;
 	case 'x':
 		xflag++;
