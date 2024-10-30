@@ -7,13 +7,14 @@
 
 char *url = "";
 int aflag;
+int Iflag;
 int width = 70;
 int defcharset;
 
 void
 usage(void)
 {
-	fprint(2, "usage: htmlfmt [-c charset] [-u URL] [-a] [-l length] [file ...]\n");
+	fprint(2, "usage: htmlfmt [-c charset] [-u URL] [-aI] [-l length] [file ...]\n");
 	exits("usage");
 }
 
@@ -32,6 +33,9 @@ main(int argc, char *argv[])
 		p = smprint("<meta charset=\"%s\">", EARGF(usage()));
 		defcharset = charset(p);
 		free(p);
+		break;
+	case 'I':
+		Iflag++;
 		break;
 	case 'l': case 'w':
 		err = EARGF(usage());
