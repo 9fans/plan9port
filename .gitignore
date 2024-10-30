@@ -123,6 +123,7 @@ bin/mk
 bin/mk9660
 bin/mkdir
 bin/mklatinkbd
+bin/mntgen
 bin/mtime
 bin/namespace
 bin/ndbipquery
