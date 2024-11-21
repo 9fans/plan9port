@@ -4,6 +4,7 @@
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xft/Xft.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -46,15 +47,27 @@ ungrab(XButtonEvent *e)
 	curtime = e->time;
 }
 
+static int
+XftTextWidth(Display *dpy, XftFont *font, char *string, int count)
+{
+	XGlyphInfo ext;
+
+	XftTextExtentsUtf8(dpy, font, (XftChar8 *)string, count, &ext);
+	return ext.xOff;
+}
+
 static void
 drawstring(Display *dpy, ScreenInfo *s, Menu *m, int wide, int high, int i, int selected)
 {
 	int tx, ty;
+	XftDraw *xftDraw;
 
-	tx = (wide - XTextWidth(font, m->item[i], strlen(m->item[i])))/2;
-	ty = i*high + font->ascent + 1;
+	tx = (wide - XftTextWidth(dpy, s->font, m->item[i], strlen(m->item[i])))/2;
+	ty = i*high + s->font->ascent + 1;
 	XFillRectangle(dpy, s->menuwin, selected ? s->gcmenubgs : s->gcmenubg, 0, i*high, wide, high);
-	XDrawString(dpy, s->menuwin, selected ? s->gcmenufgs : s->gcmenufg, tx, ty, m->item[i], strlen(m->item[i]));
+	xftDraw = XftDrawCreate(dpy, s->menuwin, s->vis, s->def_cmap);
+	XftDrawString8(xftDraw, selected ? &s->menufgs : &s->menufg, s->font,
+		tx, ty, (XftChar8 *)m->item[i], strlen(m->item[i]));
 }
 
 int
@@ -65,15 +78,16 @@ menuhit(XButtonEvent *e, Menu *m)
 	int x, y, dx, dy, xmax, ymax;
 	ScreenInfo *s;
 
-	if(font == 0)
-		return -1;
 	s = getscreen(e->root);
 	if(s == 0 || e->window == s->menuwin)	   /* ugly event mangling */
 		return -1;
 
+	if(s->font == 0)
+		return -1;
+
 	dx = 0;
 	for(n = 0; m->item[n]; n++){
-		wide = XTextWidth(font, m->item[n], strlen(m->item[n])) + 4;
+		wide = XftTextWidth(dpy, s->font, m->item[n], strlen(m->item[n])) + 4*2;
 		if(wide > dx)
 			dx = wide;
 	}
@@ -82,7 +96,7 @@ menuhit(XButtonEvent *e, Menu *m)
 	if(cur >= n)
 		cur = n - 1;
 
-	high = font->ascent + font->descent + 1;
+	high = s->font->ascent + s->font->descent + 4 + 2;
 	dy = n*high;
 	x = e->x - wide/2;
 	y = e->y - cur*high - high/2;
