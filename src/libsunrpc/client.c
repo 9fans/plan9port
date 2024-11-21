@@ -71,7 +71,7 @@ netThread(void *v)
 		n = ioreadn(io, cli->fd, buf, 4);
 		if(n != 4)
 			break;
-		n = (buf[0]<<24)|(buf[1]<<16)|(buf[2]<<8)|buf[3];
+		n = ((uint)buf[0]<<24)|(buf[1]<<16)|(buf[2]<<8)|buf[3];
 		if(cli->chatty)
 			fprint(2, "%.8ux...", n);
 		done = n&0x80000000;
@@ -259,7 +259,7 @@ if(cli->chatty) fprint(2, "resend %lux %lud %lud\n", o->xid, t, o->t);
 
 		case 3:	/* buf = <-readchan */
 			p = buf;
-			n = (p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];
+			n = ((uint)p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];
 			p += 4;
 			ep = p+n;
 			if(sunrpcunpack(p, ep, &p, &rpc) != SunSuccess){

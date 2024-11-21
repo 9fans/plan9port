@@ -360,9 +360,9 @@ invlong(int n)
 {
 	vlong v;
 
-	v = (indata[n+7]<<24) | (indata[n+6]<<16) | (indata[n+5]<<8) | indata[n+4];
+	v = ((uvlong)indata[n+7]<<24) | (indata[n+6]<<16) | (indata[n+5]<<8) | indata[n+4];
 	v = (v<<16) | (indata[n+3]<<8) | indata[n+2];
-	v = (v<<16) | (indata[n+1]<<8) | indata[n];
+	v = ((uvlong)v<<16) | (indata[n+1]<<8) | indata[n];
 	return v;
 }
 

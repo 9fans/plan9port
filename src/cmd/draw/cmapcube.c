@@ -52,9 +52,9 @@ readcolmap(Display *d, RGB *cmap)
 		r = rgb>>16;
 		g = (rgb>>8)&0xFF;
 		b = rgb & 0xFF;
-		cmap[i].red = r|(r<<8)|(r<<16)|(r<<24);
-		cmap[i].green = g|(g<<8)|(g<<16)|(g<<24);
-		cmap[i].blue = b|(b<<8)|(b<<16)|(b<<24);
+		cmap[i].red = r|(r<<8)|(r<<16)|((u32int)r<<24);
+		cmap[i].green = g|(g<<8)|(g<<16)|((u32int)g<<24);
+		cmap[i].blue = b|(b<<8)|(b<<16)|((u32int)b<<24);
 	}
 }
 

@@ -1593,7 +1593,7 @@ readbyte(Param *p, uchar *buf, int y)
 	krepl = replbit[img->nbits[CGrey]];
 
 	for(i=0; i<dx; i++){
-		u = r[0] | (r[1]<<8) | (r[2]<<16) | (r[3]<<24);
+		u = r[0] | (r[1]<<8) | (r[2]<<16) | ((u32int)r[3]<<24);
 		if(copyalpha)
 			*w++ = arepl[(u>>img->shift[CAlpha]) & img->mask[CAlpha]];
 
@@ -1671,18 +1671,18 @@ writebyte(Param *p, uchar *w, Buffer src)
 	}
 
 	for(i=0; i<dx; i++){
-		u = w[0] | (w[1]<<8) | (w[2]<<16) | (w[3]<<24);
+		u = w[0] | (w[1]<<8) | (w[2]<<16) | ((u32int)w[3]<<24);
 DBG print("u %.8lux...", u);
 		u &= mask;
 DBG print("&mask %.8lux...", u);
 		if(isgrey){
-			u |= ((*grey >> (8-img->nbits[CGrey])) & img->mask[CGrey]) << img->shift[CGrey];
+			u |= (u32int)((*grey >> (8-img->nbits[CGrey])) & img->mask[CGrey]) << img->shift[CGrey];
 DBG print("|grey %.8lux...", u);
 			grey += delta;
 		}else{
-			u |= ((*red >> (8-img->nbits[CRed])) & img->mask[CRed]) << img->shift[CRed];
-			u |= ((*grn >> (8-img->nbits[CGreen])) & img->mask[CGreen]) << img->shift[CGreen];
-			u |= ((*blu >> (8-img->nbits[CBlue])) & img->mask[CBlue]) << img->shift[CBlue];
+			u |= (u32int)((*red >> (8-img->nbits[CRed])) & img->mask[CRed]) << img->shift[CRed];
+			u |= (u32int)((*grn >> (8-img->nbits[CGreen])) & img->mask[CGreen]) << img->shift[CGreen];
+			u |= (u32int)((*blu >> (8-img->nbits[CBlue])) & img->mask[CBlue]) << img->shift[CBlue];
 			red += delta;
 			grn += delta;
 			blu += delta;
@@ -1690,7 +1690,7 @@ DBG print("|rgb %.8lux...", u);
 		}
 
 		if(isalpha){
-			u |= ((*alpha >> (8-img->nbits[CAlpha])) & img->mask[CAlpha]) << img->shift[CAlpha];
+			u |= (u32int)((*alpha >> (8-img->nbits[CAlpha])) & img->mask[CAlpha]) << img->shift[CAlpha];
 			alpha += adelta;
 DBG print("|alpha %.8lux...", u);
 		}
@@ -1936,7 +1936,7 @@ _pixelbits(Memimage *i, Point pt)
 		val = p[0]|(p[1]<<8)|(p[2]<<16);
 		break;
 	case 32:
-		val = p[0]|(p[1]<<8)|(p[2]<<16)|(p[3]<<24);
+		val = p[0]|(p[1]<<8)|(p[2]<<16)|((u32int)p[3]<<24);
 		break;
 	}
 	while(bpp<32){
@@ -2055,7 +2055,7 @@ _imgtorgba(Memimage *img, u32int val)
 			break;
 		}
 	}
-	return (r<<24)|(g<<16)|(b<<8)|a;
+	return ((u32int)r<<24)|(g<<16)|(b<<8)|a;
 }
 
 u32int
@@ -2076,25 +2076,25 @@ _rgbatoimg(Memimage *img, u32int rgba)
 		nb = NBITS(chan);
 		switch(TYPE(chan)){
 		case CRed:
-			v |= (r>>(8-nb))<<d;
+			v |= (u32int)(r>>(8-nb))<<d;
 			break;
 		case CGreen:
-			v |= (g>>(8-nb))<<d;
+			v |= (u32int)(g>>(8-nb))<<d;
 			break;
 		case CBlue:
-			v |= (b>>(8-nb))<<d;
+			v |= (u32int)(b>>(8-nb))<<d;
 			break;
 		case CAlpha:
-			v |= (a>>(8-nb))<<d;
+			v |= (u32int)(a>>(8-nb))<<d;
 			break;
 		case CMap:
 			p = img->cmap->rgb2cmap;
 			m = p[(r>>4)*256+(g>>4)*16+(b>>4)];
-			v |= (m>>(8-nb))<<d;
+			v |= (u32int)(m>>(8-nb))<<d;
 			break;
 		case CGrey:
 			m = RGB2K(r,g,b);
-			v |= (m>>(8-nb))<<d;
+			v |= (u32int)(m>>(8-nb))<<d;
 			break;
 		}
 		d += nb;

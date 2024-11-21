@@ -36,7 +36,7 @@
 /* read big-endian binary integers; args must be (uchar *) */
 #define	G2BEBYTE(x)	(((x)[0]<<8)  |  (x)[1])
 #define	G3BEBYTE(x)	(((x)[0]<<16) | ((x)[1]<<8)  |  (x)[2])
-#define	G4BEBYTE(x)	(((x)[0]<<24) | ((x)[1]<<16) | ((x)[2]<<8) | (x)[3])
+#define	G4BEBYTE(x)	(((u32int)(x)[0]<<24) | ((x)[1]<<16) | ((x)[2]<<8) | (x)[3])
 #define	G8BEBYTE(x)	(((vlong)G4BEBYTE(x)<<32) | (u32int)G4BEBYTE((x)+4))
 
 typedef vlong Off;

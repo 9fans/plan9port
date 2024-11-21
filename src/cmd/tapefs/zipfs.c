@@ -335,7 +335,7 @@ get4(Biobuf *b)
 		c = Bgetc(b);
 		if(c < 0)
 			sysfatal("unexpected eof");
-		v |= c << (i * 8);
+		v |= (u32int)c << (i * 8);
 	}
 	return v;
 }
@@ -350,7 +350,7 @@ get2(Biobuf *b)
 		c = Bgetc(b);
 		if(c < 0)
 			sysfatal("unexpected eof");
-		v |= c << (i * 8);
+		v |= (u32int)c << (i * 8);
 	}
 	return v;
 }
