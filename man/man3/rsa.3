@@ -2,7 +2,7 @@
 .SH NAME
 asn1dump,
 asn1toRSApriv,
-decodepem,
+decodePEM,
 decodepemchain,
 rsadecrypt,
 rsaencrypt,
@@ -65,7 +65,7 @@ RSApriv*	asn1toRSApriv(uchar *priv, int npriv)
 void		asn1dump(uchar *der, int len)
 .PP
 .B
-uchar*	decodepem(char *s, char *type, int *len)
+uchar*	decodePEM(char *s, char *type, int *len)
 .PP
 .B
 PEMChain*	decodepemchain(char *s, char *type)
@@ -103,7 +103,7 @@ using his private key:
 	{
 		RSApub	pub;
 		mpint	*dk;	// exp (decryption key)
-	
+
 		// precomputed crt values
 		mpint	*p;
 		mpint	*q;
