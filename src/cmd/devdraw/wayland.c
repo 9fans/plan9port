@@ -65,6 +65,9 @@ struct WaylandClient {
 	struct xdg_surface *xdg_surface;
 	struct xdg_toplevel *xdg_toplevel;
 
+	// Initial configure call is complete
+	int configured;
+
 	// A callback when wl_surface is ready for the next frame.
 	// Currently this is not used for drawing,
 	// but as a hack for implementing key repeat
@@ -368,10 +371,11 @@ static const struct wl_buffer_listener wl_buffer_listener = {
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial) {
 	DEBUG("xdg_surface_configure\n");
 	const Client* c = data;
-	const WaylandClient *wl = c->view;
+	WaylandClient *wl = (WaylandClient*) c->view;
 	qlock(&wayland_lock);
 
 	xdg_surface_ack_configure(wl->xdg_surface, serial);
+	wl->configured = 1;
 
 	qunlock(&wayland_lock);
 	DEBUG("xdg_surface_configure: returned\n");
@@ -981,7 +985,15 @@ static void rpc_setmouse(Client *c, Point p) {
 	wl_surface_commit(wl->wl_surface);
 	zwp_locked_pointer_v1_destroy(lock);
 
+	wl->mouse_x = wl_fixed_to_int(x) * wl_output_scale_factor;
+	wl->mouse_y = wl_fixed_to_int(y) * wl_output_scale_factor;
+
+	int mx = wl->mouse_x;
+	int my = wl->mouse_y;
+	int mb = wl->buttons;
+
 	qunlock(&wayland_lock);
+	gfx_mousetrack(c, mx, my, mb, nsec()/1000000);
 }
 
 static void rpc_topwin(Client*) {
@@ -1017,14 +1029,16 @@ static void rpc_flush(Client *c, Rectangle r) {
 	WaylandClient *wl = (WaylandClient*) c->view;
 	qlock(&wayland_lock);
 
-	int w = Dx(wl->memimage->r);
-	int h = Dy(wl->memimage->r);
-	WaylandBuffer *b = get_xrgb8888_buffer(w, h);
-	memcpy(b->data, (char*) wl->memimage->data->bdata, b->size);
-	wl_surface_attach(wl->wl_surface, b->wl_buffer, 0, 0);
-	wl_surface_damage_buffer(wl->wl_surface, r.min.x, r.min.y, Dx(r), Dy(r));
-	wl_surface_commit(wl->wl_surface);
-	wl_display_flush(wl_display);
+	if (wl->configured) {
+		int w = Dx(wl->memimage->r);
+		int h = Dy(wl->memimage->r);
+		WaylandBuffer *b = get_xrgb8888_buffer(w, h);
+		memcpy(b->data, (char*) wl->memimage->data->bdata, b->size);
+		wl_surface_attach(wl->wl_surface, b->wl_buffer, 0, 0);
+		wl_surface_damage_buffer(wl->wl_surface, r.min.x, r.min.y, Dx(r), Dy(r));
+		wl_surface_commit(wl->wl_surface);
+		wl_display_flush(wl_display);
+	}
 
 	qunlock(&wayland_lock);
 }
@@ -1091,6 +1105,7 @@ Memimage *rpc_attach(Client *c, char *label, char *winsize) {
 	c->displaydpi = 110 * wl_output_scale_factor;
 	wl_surface_set_buffer_scale(wl->wl_surface, wl_output_scale_factor);
 	wl_surface_commit(wl->wl_surface);
+	wl_display_flush(wl_display);
 
 	qunlock(&wayland_lock);
 	return wl->memimage;
