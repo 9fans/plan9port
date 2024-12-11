@@ -22,6 +22,8 @@ loadhtml(int fd)
 	int n;
 	char buf[4096];
 
+	if((n = read(fd, buf, sizeof buf)) <= 0)
+		return nil;	/* empty file */
 	u = emalloc(sizeof(URLwin));
 	u->infd = fd;
 	u->outfd = 1;
@@ -29,10 +31,9 @@ loadhtml(int fd)
 	u->type = TextHtml;
 
 	b = emalloc(sizeof(Bytes));
-	while((n = read(fd, buf, sizeof buf)) > 0)
+	do
 		growbytes(b, buf, n);
-	if(b->b == nil)
-		return nil;	/* empty file */
+	while((n = read(fd, buf, sizeof buf)) > 0);
 	rendertext(u, b);
 	freeurlwin(u);
 	return nil;
