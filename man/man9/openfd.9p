@@ -28,8 +28,14 @@ transaction,
 is considered by the client to have been clunked
 and can be reused.
 .PP
-The returned Unix file descriptor is one end of a Unix domain socket.
-A proxy process at the other end transfers data between
+In addition to sending a
+.B Ropenfd
+response, the server also sends an out-of-band control-message
+containing a Unix file descriptor (an
+.BR SCM_RIGHTS
+message; this requires that the 9P transport be a Unix domain socket).
+This returned Unix file descriptor is one end of a Unix domain socket;
+a proxy process at the other end transfers data between
 the socket and the 9P server.
 Because it is a socket, errors on reads and writes are discarded.
 .PP
@@ -50,3 +56,17 @@ message.
 generates an
 .B openfd
 message.
+.SH BUGS
+The returned
+.I unixfd
+field nominally refers to the file descriptor that has been sent in
+the control-message.  However, the file descriptor in the client
+process will not necessarily have the same number as in the server
+process, so clients should ignore this field and instead trust the
+file descriptor number from the control-message.
+.MR 9pclient 3
+accomplishes this by having
+.B \*9/src/lib9pclient/fs.c
+.IR _fsrecv
+rewrite the field to the value from the control-message before
+returning the R-message.
