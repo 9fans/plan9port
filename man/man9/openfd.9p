@@ -70,3 +70,8 @@ accomplishes this by having
 .IR _fsrecv
 rewrite the field to the value from the control-message before
 returning the R-message.
+.PP
+There is not a special version string to distinguish between servers
+that support
+.I openfd
+and servers that do not.
