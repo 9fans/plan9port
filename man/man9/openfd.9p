@@ -28,18 +28,10 @@ transaction,
 is considered by the client to have been clunked
 and can be reused.
 .PP
-The returned Unix file descriptor is one end of a Unix pipe.
+The returned Unix file descriptor is one end of a Unix domain socket.
 A proxy process at the other end transfers data between
-the pipe and the 9P server.
-Because it is a pipe, errors on reads and writes are discarded
-and
-.I mode
-must be
-.B OREAD
-or
-.BR OWRITE ;
-it cannot be
-.BR ORDWR .
+the socket and the 9P server.
+Because it is a socket, errors on reads and writes are discarded.
 .PP
 .I Openfd
 is implemented by
