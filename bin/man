@@ -18,6 +18,7 @@ fn roff {
 	}
 	if not {
 		Nflag=-N
+		Lflag='-rL1000i'
 	}
 	if(~ $x *eqn*)
 		preproc=($preproc eqn)
@@ -26,15 +27,15 @@ fn roff {
 
 	switch($#preproc) {
 		case 0
-			{echo -n $FONTS; cat $2< /dev/null} | troff $Nflag -$MAN 
+			{echo -n $FONTS; cat $2< /dev/null} | troff $Nflag $Lflag -$MAN 
 		case 1
-			{echo -n $FONTS; cat $2< /dev/null} | $preproc | troff $Nflag -$MAN
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc | troff $Nflag $Lflag -$MAN
 		case 2
-			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | troff $Nflag -$MAN
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | troff $Nflag $Lflag -$MAN
 		case 3
-			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | troff $Nflag -$MAN
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | troff $Nflag $Lflag -$MAN
 		case *
-			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | $preproc(4) | troff $Nflag -$MAN
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | $preproc(4) | troff $Nflag $Lflag -$MAN
 	}
 }
 
