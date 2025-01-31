@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <thread.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "acme.h"
 
 extern int *xxx;
@@ -28,7 +29,7 @@ newwin(void)
 	int id, n;
 
 	mountacme();
-	fid = fsopen(acmefs, "new/ctl", ORDWR);
+	fid = fsopen(acmefs, "new/ctl", ORDWR_9P);
 	if(fid == nil)
 		sysfatal("open new/ctl: %r");
 	n = fsread(fid, buf, sizeof buf-1);
@@ -142,7 +143,7 @@ wfid(Win *w, char *name)
 
 	if(*fid == nil){
 		snprint(buf, sizeof buf, "acme/%d/%s", w->id, name);
-		*fid = fsopen(acmefs, buf, ORDWR);
+		*fid = fsopen(acmefs, buf, ORDWR_9P);
 		if(*fid == nil)
 			sysfatal("open %s: %r", buf);
 	}
@@ -290,7 +291,7 @@ winindex(void)
 	char *s;
 
 	mountacme();
-	if((fid = fsopen(acmefs, "index", OREAD)) == nil)
+	if((fid = fsopen(acmefs, "index", OREAD_9P)) == nil)
 		return nil;
 	s = fsreadm(fid);
 	fsclose(fid);
@@ -502,7 +503,7 @@ pipewinto(Win *w, char *name, int errto, char *cmd, ...)
 	va_start(arg, cmd);
 	p = evsmprint(cmd, arg);
 	va_end(arg);
-	fd[0] = winfd(w, name, OREAD);
+	fd[0] = winfd(w, name, OREAD_9P);
 	fd[1] = dup(errto, -1);
 	fd[2] = dup(errto, -1);
 	pid = threadspawnl(fd, "rc", "rc", "-c", p, 0);

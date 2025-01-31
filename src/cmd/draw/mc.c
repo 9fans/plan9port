@@ -18,6 +18,7 @@
 #include	<bio.h>
 #include	<fcall.h>
 #include	<9pclient.h>
+#include	<9pdefs.h>
 #include	<thread.h>
 
 #define	WIDTH			80
@@ -281,7 +282,7 @@ getwidth(void)
 		if(fs == nil)
 			return;
 		snprint(buf, sizeof buf, "acme/%d/ctl", atoi(p));
-		if((fd = fsopenfd(fs, buf, OREAD)) < 0)
+		if((fd = fsopenfd(fs, buf, OREAD_9P)) < 0)
 			return;
 		if((n=readn(fd, buf, sizeof buf-1)) <= 0)
 			return;

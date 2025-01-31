@@ -1301,7 +1301,7 @@ readdict(char *file)
 	long l;
 
 	lasts = 0;
-	f = open(file, 0);
+	f = open(file, OREAD);
 	if(f == -1) {
 		fprint(2, "cannot open %s\n", file);
 		exits("open");
