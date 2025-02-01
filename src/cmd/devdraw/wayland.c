@@ -616,8 +616,13 @@ static const struct wl_pointer_listener pointer_listener = {
 
 void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
 	uint32_t format, int32_t fd, uint32_t size) {
-	DEBUG("wl_keyboard_keymap\n");
+	DEBUG("wl_keyboard_keymap(format=%d, fd=%d, size=%d)\n", format, fd, size);
 	char *keymap = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (keymap == MAP_FAILED) {
+		DEBUG("wl_keyboard_keymap: %s", strerror(errno));
+		return;
+	}
+
 	Client* c = data;
 	WaylandClient *wl = (WaylandClient*) c->view;
 	qlock(&wayland_lock);
@@ -852,8 +857,9 @@ void	gfx_main(void) {
 	entered_gfx_loop = 1;
 	gfx_started();
 	DEBUG("gfx_main: entering loop\n");
-	while (wl_display_dispatch(wl_display))
+	while (wl_display_dispatch(wl_display) > 0 || errno == EAGAIN)
 		;
+	sysfatal("wl_display_dispatch: %r");
 }
 
 static void rpc_resizeimg(Client*) {
