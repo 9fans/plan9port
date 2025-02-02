@@ -50,7 +50,12 @@ struct WaylandClient {
 
 	// State for key repeat for keyboard keys.
 	int repeat_rune;
-	int repeat_next_ms;
+	int repeat_start_ms;
+
+	// Key repeat configuration. Can be changed by
+	// wl_surface_repeat_info events.
+	int repeat_interval_ms;
+	int repeat_delay_ms;
 
 	// State for "key repeat" for the mouse scroll wheel.
 	// This allows touchpad devices to have accelerated scrolling.
@@ -68,11 +73,11 @@ struct WaylandClient {
 	// Initial configure call is complete
 	int configured;
 
-	// A callback when wl_surface is ready for the next frame.
-	// Currently this is not used for drawing,
-	// but as a hack for implementing key repeat
-	// without needing to implement our own timer thread/events.
-	struct wl_callback *wl_callback;
+	// These are called each frame while the key is pressed
+	// or scrolling is active, to implement key repeat and
+	// inertial scrolling.
+	struct wl_callback *wl_key_repeat_callback;
+	struct wl_callback *wl_scroll_repeat_callback;
 
 	// The mouse pointer and the surface for the current cursor.
 	struct wl_pointer *wl_pointer;
@@ -422,27 +427,59 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 	.close = xdg_toplevel_close,
 };
 
-static const struct wl_callback_listener wl_callback_listener;
+static const struct wl_callback_listener wl_callback_key_repeat_listener;
 
-// The callback is called per-frame.
-// It is currently only used to implement key repeat.
-static void wl_callback_done(void *data, struct wl_callback *wl_callback, uint32_t time) {
+static void wl_callback_key_repeat(void *data, struct wl_callback *wl_callback, uint32_t time) {
+	int dt = 0;
+	int repetitions = 0;
+	int repeat_rune = 0;
+
 	Client* c = data;
 	WaylandClient *wl = (WaylandClient*) c->view;
-	qlock(&wayland_lock);
-
-	// Request another callback for the next frame.
-	// TODO: Only request a callback if we are still repeating a key.
 	wl_callback_destroy(wl_callback);
+
+	qlock(&wayland_lock);
+	dt = time - wl->repeat_start_ms;
+
+	if (!wl->repeat_interval_ms || !wl->repeat_rune)
+		goto done;
+
+	// There is an initial delay for repetition to start, so
+	// repeat_start_ms can be in the future.
+	if (wl->repeat_start_ms > time || wl->repeat_interval_ms > dt)
+		goto next_frame;
+
+	repeat_rune = wl->repeat_rune;
+	repetitions = dt / wl->repeat_interval_ms;
+
+	// Incrementing this way, rather than setting start to now,
+	// avoids losing fractional time to integer division.
+	wl->repeat_start_ms += repetitions * wl->repeat_interval_ms;
+
+next_frame:
 	wl_callback = wl_surface_frame(wl->wl_surface);
-	wl_callback_add_listener(wl_callback, &wl_callback_listener, c);
+	wl_callback_add_listener(wl_callback, &wl_callback_key_repeat_listener, c);
 	wl_surface_commit(wl->wl_surface);
 
-	int repeat_rune = 0;
-	if (wl->repeat_rune && time >= wl->repeat_next_ms) {
-		repeat_rune = wl->repeat_rune;
-		wl->repeat_next_ms = time + key_repeat_ms;
+done:
+	qunlock(&wayland_lock);
+	for(int i = 0; i < repetitions; i++) {
+		gfx_keystroke(c, repeat_rune);
 	}
+}
+
+static const struct wl_callback_listener wl_callback_key_repeat_listener = {
+	.done = wl_callback_key_repeat,
+};
+
+static const struct wl_callback_listener wl_callback_scroll_listener;
+
+static void wl_callback_scroll_repeat(void *data, struct wl_callback *wl_callback, uint32_t time) {
+	Client* c = data;
+	WaylandClient *wl = (WaylandClient*) c->view;
+
+	wl_callback_destroy(wl_callback);
+	qlock(&wayland_lock);
 
 	int x = wl->mouse_x;
 	int y = wl->mouse_y;
@@ -457,17 +494,20 @@ static void wl_callback_done(void *data, struct wl_callback *wl_callback, uint32
 		}
 	}
 
-	qunlock(&wayland_lock);
-	if (repeat_rune) {
-		gfx_keystroke(c, repeat_rune);
+	if (wl->repeat_scroll_count > 0) {
+		wl_callback = wl_surface_frame(wl->wl_surface);
+		wl_callback_add_listener(wl_callback, &wl_callback_scroll_listener, c);
+		wl_surface_commit(wl->wl_surface);
 	}
+	qunlock(&wayland_lock);
+
 	if (repeat_scroll_button) {
 		gfx_mousetrack(c, x, y, repeat_scroll_button, (uint) time);
 	}
 }
 
-static const struct wl_callback_listener wl_callback_listener = {
-	.done = wl_callback_done,
+static const struct wl_callback_listener wl_callback_scroll_listener = {
+	.done = wl_callback_scroll_repeat,
 };
 
 void wl_pointer_enter(void *data,struct wl_pointer *wl_pointer, uint32_t serial,
@@ -598,6 +638,9 @@ void wl_pointer_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time,
 		wl->repeat_scroll_button = b;
 		wl->repeat_scroll_count = mag;
 		wl->repeat_scroll_next_ms = time + scroll_repeat_ms/wl->repeat_scroll_count;
+		wl->wl_scroll_repeat_callback = wl_surface_frame(wl->wl_surface);
+		wl_callback_add_listener(wl->wl_scroll_repeat_callback,
+				&wl_callback_scroll_listener, c);
 	}
 	b |= wl->buttons;
 
@@ -775,12 +818,16 @@ void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 		break;
 	}
 
-	qunlock(&wayland_lock);
-	if (state == WL_KEYBOARD_KEY_STATE_PRESSED && rune != 0) {
+	if (wl->repeat_interval_ms && state == WL_KEYBOARD_KEY_STATE_PRESSED && rune != 0) {
 		wl->repeat_rune = rune;
-		wl->repeat_next_ms = time + key_repeat_delay_ms;
-		gfx_keystroke(c, rune);
+		wl->repeat_start_ms = time + wl->repeat_delay_ms;
+		wl->wl_key_repeat_callback = wl_surface_frame(wl->wl_surface);
+		wl_callback_add_listener(wl->wl_key_repeat_callback,
+				&wl_callback_key_repeat_listener, c);
 	}
+	qunlock(&wayland_lock);
+	if (state == WL_KEYBOARD_KEY_STATE_PRESSED && rune != 0)
+		gfx_keystroke(c, rune);
 }
 
 void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
@@ -797,12 +844,25 @@ void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
 	qunlock(&wayland_lock);
 }
 
-// TODO: Use this to set key repeat.
 // Currently we don't bind the keyboard with the correct version to get this event.
 void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard,
 	int32_t rate, int32_t delay) {
 	DEBUG("wl_keyboard_repeat_info(rate=%d, delay=%d)\n",
 		(int) rate, (int) delay);
+	Client* c = data;
+	WaylandClient *wl = (WaylandClient*) c->view;
+	int interval = 0;
+
+	// rate is in keystrokes per second. Capping to 1k simplifies
+	// the code.
+	rate = rate > 1000 ? 1000 : rate;
+	if (rate > 0)
+		interval = 1000 / rate;
+
+	qlock(&wayland_lock);
+	wl->repeat_interval_ms = interval;
+	wl->repeat_delay_ms = delay;
+	qunlock(&wayland_lock);
 }
 
 static const struct wl_keyboard_listener keyboard_listener = {
@@ -1069,6 +1129,8 @@ Memimage *rpc_attach(Client *c, char *label, char *winsize) {
 	c->impl = &wayland_impl;
 	c->view = wl;
 
+	wl->repeat_interval_ms = key_repeat_ms;
+	wl->repeat_delay_ms = key_repeat_ms;
 	wl->wl_surface = wl_compositor_create_surface(wl_compositor);
 
 	wl->xdg_surface = xdg_wm_base_get_xdg_surface(xdg_wm_base, wl->wl_surface);
@@ -1077,9 +1139,6 @@ Memimage *rpc_attach(Client *c, char *label, char *winsize) {
 	wl->xdg_toplevel = xdg_surface_get_toplevel(wl->xdg_surface);
 	xdg_toplevel_add_listener(wl->xdg_toplevel, &xdg_toplevel_listener, c);
 	xdg_toplevel_set_title(wl->xdg_toplevel, label);
-
-	wl->wl_callback = wl_surface_frame(wl->wl_surface);
-	wl_callback_add_listener(wl->wl_callback, &wl_callback_listener, c);
 
 	wl->wl_pointer = wl_seat_get_pointer(wl_seat);
 	wl_pointer_add_listener(wl->wl_pointer, &pointer_listener, c);
