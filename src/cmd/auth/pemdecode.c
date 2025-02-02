@@ -50,7 +50,7 @@ main(int argc, char **argv)
 		tot += n;
 	}
 	buf[tot] = 0;
-	bin = decodepem(buf, tag, &len, nil);
+	bin = decodePEM(buf, tag, &len, nil);
 	if(bin == nil)
 		sysfatal("cannot extract section '%s' from pem", tag);
 	if((n=write(1, bin, len)) != len)

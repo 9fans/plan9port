@@ -145,3 +145,10 @@ encode(uchar *output, u32int *input, ulong len)
 		*output++ = x >> 24;
 	}
 }
+
+DigestState*
+hmac_md5(uchar *p, ulong len, uchar *key, ulong klen, uchar *digest,
+	DigestState *s)
+{
+	return hmac_x(p, len, key, klen, digest, s, md5, MD5dlen);
+}

@@ -2,10 +2,12 @@
 #include <mp.h>
 #include <libsec.h>
 
-/* Miller-Rabin probabilistic primality testing */
-/*	Knuth (1981) Seminumerical Algorithms, p.379 */
-/*	Menezes et al () Handbook, p.39 */
-/* 0 if composite; 1 if almost surely prime, Pr(err)<1/4**nrep */
+/*
+ * Miller-Rabin probabilistic primality testing
+ *	Knuth (1981) Seminumerical Algorithms, p.379
+ *	Menezes et al () Handbook, p.39
+ * 0 if composite; 1 if almost surely prime, Pr(err)<1/4**nrep
+ */
 int
 probably_prime(mpint *n, int nrep)
 {
