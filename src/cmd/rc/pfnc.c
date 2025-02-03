@@ -18,8 +18,11 @@ struct{
 	Xjump, "Xjump",
 	Xmark, "Xmark",
 	Xpopm, "Xpopm",
+	Xpush, "Xpush",
 	Xrdwr, "Xrdwr",
 	Xread, "Xread",
+	Xhere, "Xhere",
+	Xhereq, "Xhereq",
 	Xreturn, "Xreturn",
 	Xtrue, "Xtrue",
 	Xif, "Xif",
@@ -38,34 +41,38 @@ struct{
 	Xdelfn, "Xdelfn",
 	Xpipe, "Xpipe",
 	Xpipewait, "Xpipewait",
+	Xpopredir, "Xpopredir",
 	Xrdcmds, "Xrdcmds",
-	(void (*)(void))Xerror, "Xerror",
 	Xbackq, "Xbackq",
 	Xpipefd, "Xpipefd",
 	Xsubshell, "Xsubshell",
-	Xdelhere, "Xdelhere",
 	Xfor, "Xfor",
 	Xglob, "Xglob",
-	Xrdfn, "Xrdfn",
 	Xsimple, "Xsimple",
-	Xrdfn, "Xrdfn",
-	Xqdol, "Xqdol",
+	Xqw, "Xqw",
+	Xsrcline, "Xsrcline",
 0};
 
 void
-pfnc(io *fd, thread *t)
+pfun(io *f, void (*fn)(void))
 {
 	int i;
-	void (*fn)(void) = t->code[t->pc].f;
-	list *a;
-	pfmt(fd, "pid %d cycle %p %d ", getpid(), t->code, t->pc);
 	for(i = 0;fname[i].f;i++) if(fname[i].f==fn){
-		pstr(fd, fname[i].name);
-		break;
+		pstr(f, fname[i].name);
+		return;
 	}
-	if(!fname[i].f)
-		pfmt(fd, "%p", fn);
-	for(a = t->argv;a;a = a->next) pfmt(fd, " (%v)", a->words);
-	pchr(fd, '\n');
-	flush(fd);
+	pfmt(f, "%p", fn);
+}
+
+void
+pfnc(io *f, thread *t)
+{
+	list *a;
+
+	pfln(f, srcfile(t), t->line);
+	pfmt(f, " pid %d cycle %p %d ", getpid(), t->code, t->pc);
+	pfun(f, t->code[t->pc].f);
+	for(a = t->argv;a;a = a->next) pfmt(f, " (%v)", a->words);
+	pchr(f, '\n');
+	flushio(f);
 }
