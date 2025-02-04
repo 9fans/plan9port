@@ -31,6 +31,7 @@ case "$tag" in
 	;;
 *Darwin*)
 	ld="${CC9:-gcc} -m64 $CC9FLAGS"
+	extralibs="-lresolv"
 	;;
 *SunOS*)
 	ld="${CC9:-cc} -g $CC9FLAGS"
