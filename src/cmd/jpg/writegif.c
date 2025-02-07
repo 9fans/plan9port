@@ -466,7 +466,7 @@ Init:
 	maxentry = (1<<csize);
 	for(i = 0; i<nentry; i++){
 		e = &tbl[i];
-		h = (e->prefix<<24) | (e->exten<<8);
+		h = ((uint32)e->prefix<<24) | (e->exten<<8);
 		h %= Nhash;
 		if(h < 0)
 			h += Nhash;
@@ -505,7 +505,7 @@ Next:
 		}
 		nbits -= bitsperpixel;
 		c = sreg>>nbits & pm;
-		h = prefix<<24 | c<<8;
+		h = (uint32)prefix<<24 | c<<8;
 		h %= Nhash;
 		if(h < 0)
 			h += Nhash;

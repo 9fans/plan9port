@@ -263,5 +263,5 @@ decode(u32int *output, uchar *input, ulong len)
 
 	for(e = input+len; input < e; input += 4)
 		*output++ = input[0] | (input[1] << 8) |
-			(input[2] << 16) | (input[3] << 24);
+			(input[2] << 16) | ((u32int)input[3] << 24);
 }

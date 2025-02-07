@@ -378,7 +378,7 @@ sunuint32unpack(uchar *a, uchar *ea, uchar **pa, u32int *u)
 
 	if(ea-a < 4)
 		goto Err;
-	x = *a++ << 24;
+	x = (u32int)*a++ << 24;
 	x |= *a++ << 16;
 	x |= *a++ << 8;
 	x |= *a++;

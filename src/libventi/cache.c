@@ -427,7 +427,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type, ulong size)
 		return b;
 	}
 
-	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->nhash;
+	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|((u32int)score[3]<<24)) % c->nhash;
 
 	/*
 	 * look for the block in the cache
@@ -596,7 +596,7 @@ vtblockwrite(VtBlock *b)
 	qlock(&c->lk);
 	b->addr = NilBlock;	/* now on venti */
 	b->iostate = BioVenti;
-	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->nhash;
+	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|((u32int)score[3]<<24)) % c->nhash;
 	b->next = c->hash[h];
 	c->hash[h] = b;
 	if(b->next != nil)
@@ -640,5 +640,5 @@ vtglobaltolocal(uchar score[VtScoreSize])
 	static uchar zero[16];
 	if(memcmp(score, zero, 16) != 0)
 		return NilBlock;
-	return (score[16]<<24)|(score[17]<<16)|(score[18]<<8)|score[19];
+	return ((u32int)score[16]<<24)|(score[17]<<16)|(score[18]<<8)|score[19];
 }
