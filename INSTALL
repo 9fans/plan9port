@@ -65,6 +65,9 @@ DragonFly|*BSD)
 	echo "CFLAGS='-pthread'" >> $PLAN9/config
 	awk=awk
 	;;
+AIX)
+	awk=gawk
+	;;
 *)
 	awk=awk
 	;;
