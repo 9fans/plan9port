@@ -139,7 +139,7 @@ if [ -f LOCAL.config ]; then
 fi
 
 echo "* Compiler version:"
-9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
+9c -v -qversion 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
 
 cd src
 if $dobuild; then
