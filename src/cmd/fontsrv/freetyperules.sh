@@ -6,7 +6,11 @@ if [ "x$1" = "xx11" ]; then
 	else
 		i=$2
 	fi
-	echo 'CFLAGS=$CFLAGS '$i'/freetype2' 
-        echo 'LDFLAGS=$LDFLAGS -lfontconfig -lfreetype -lz'
+	if [ "x`uname`" = "xAIX" ]; then
+		i="-I/opt/freeware/include"
+		l="-L/opt/freeware/lib"
+	fi
+	echo 'CFLAGS=$CFLAGS '$i' '$i'/freetype2'
+        echo 'LDFLAGS=$LDFLAGS '$l' -lfontconfig -lfreetype -lz'
 fi
 
