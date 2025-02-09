@@ -37,6 +37,7 @@ PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 [ -z "$PLAN9_TARGET" ] && PLAN9_TARGET="$PLAN9"
 export PLAN9_TARGET
 
+CCVERSFLAG=''
 case `uname` in
 SunOS)
 	awk=nawk
@@ -67,6 +68,7 @@ DragonFly|*BSD)
 	;;
 AIX)
 	awk=gawk
+	CCVERSFLAG=-qversion
 	;;
 *)
 	awk=awk
@@ -139,7 +141,7 @@ if [ -f LOCAL.config ]; then
 fi
 
 echo "* Compiler version:"
-9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
+9c -v $CCVERSFLAG 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
 
 cd src
 if $dobuild; then
