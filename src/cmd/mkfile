@@ -5,7 +5,9 @@ TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$|^x\." | sed 's/\.[cy]//; s/\.lx//'`
 <$PLAN9/src/mkmany
 
 BUGGERED='CVS|faces|factotum|lp|ip|mailfs|upas|vncv|mnihongo|mpm|index|u9fs|secstore|smugfs|snarfer'
-DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"|egrep -v '^lex$'` $FONTSRV
+UNAME=`uname`
+AIXBUGGERED=`if [ "$UNAME" == "AIX" ]; then echo rio; fi`
+DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$|^($AIXBUGGERED)$"|egrep -v '^lex$'` $FONTSRV
 
 <$PLAN9/src/mkdirs
 
