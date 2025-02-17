@@ -335,6 +335,9 @@ quiet()
 	ignore=$ignore'|text-based stub'
 	# macOS linker is incessant about reoccurring -l9, -lsec, -lthread:
 	ignore=$ignore'|ld: warning: ignoring duplicate libraries:'
+	# ignore duplicate symbols on AIX
+	ignore=$ignore'|0711-224'
+	ignore=$ignore'|0711-345'
 
 	sed 's/.*: In function `[^:]*: *//' "$1" |
 	egrep -v "$ignore"
