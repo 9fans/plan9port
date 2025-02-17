@@ -41,6 +41,7 @@ post9pservice(int fd, char *name, char *mtpt)
 		}
 		close(fd);
 		w = waitfor(pid);
+		sleep(10);
 		if(w == nil)
 			return -1;
 		if(w->msg && w->msg[0]){
