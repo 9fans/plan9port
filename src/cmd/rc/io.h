@@ -1,23 +1,19 @@
-/*
- * on Mac OS X, err is something else,
- * and assigning to it causes a bus error.
- * what a crappy linker.
- */
-#define err rc_err
 #define	EOF	(-1)
-#define	NBUF	512
+
 struct io{
-	int fd;
-	char *bufp, *ebuf, *strp, buf[NBUF];
+	int	fd;
+	unsigned char *buf, *bufp, *ebuf;
+	io	*next;
 };
-io *err;
-io *openfd(int), *openstr(void), *opencore(char *, int);
-int emptybuf(io*);
+
+io *openiofd(int), *openiostr(void), *openiocore(void*, int);
 void pchr(io*, int);
 int rchr(io*);
+char *rstr(io*, char*);
+char *closeiostr(io*);
 void closeio(io*);
-void flush(io*);
-int fullbuf(io*, int);
+int emptyiobuf(io*);
+void flushio(io*);
 void pdec(io*, int);
 void poct(io*, unsigned);
 void pptr(io*, void*);
@@ -25,7 +21,8 @@ void pquo(io*, char*);
 void pwrd(io*, char*);
 void pstr(io*, char*);
 void pcmd(io*, tree*);
-void pcmdu(io*, tree*);
 void pval(io*, word*);
+void pfun(io*, void(*)(void));
 void pfnc(io*, thread*);
 void pfmt(io*, char*, ...);
+void vpfmt(io*, char*, va_list);
