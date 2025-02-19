@@ -4,6 +4,7 @@
 #include <thread.h>
 #include <ctype.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include "dat.h"
 
@@ -223,7 +224,7 @@ loaddir(char *name, int *np)
 	CFid *fid;
 	Dir *dp;
 
-	fid = mailopen(name, OREAD);
+	fid = mailopen(name, OREAD_9P);
 	if(fid == nil)
 		return nil;
 	*np = fsdirreadall(fid, &dp);
@@ -341,7 +342,7 @@ readfile(char *dir, char *name, int *np)
 	if(np != nil)
 		*np = 0;
 	file = estrstrdup(dir, name);
-	fid = mailopen(file, OREAD);
+	fid = mailopen(file, OREAD_9P);
 	if(fid == nil)
 		return nil;
 	d = fsdirfstat(fid);
@@ -460,7 +461,7 @@ mesgmenu0(Window *w, Message *mbox, char *realdir, char *dir, int ind, CFid *fd,
 void
 mesgmenu(Window *w, Message *mbox)
 {
-	winopenbody(w, OWRITE);
+	winopenbody(w, OWRITE_9P);
 	mesgmenu0(w, mbox, mbox->name, "", 0, w->body, 0, !shortmenu);
 	winclosebody(w);
 }
@@ -1340,7 +1341,7 @@ mesgopen(Message *mbox, char *dir, char *s, Message *mesg, int plumbed, char *di
 				wintagwrite(m->w, "Q Reply all Delmesg Save ", 2+6+4+8+5);
 		}
 		threadcreate(mesgctl, m, STACK);
-		winopenbody(m->w, OWRITE);
+		winopenbody(m->w, OWRITE_9P);
 		mesgload(m, dir, m->name, m->w);
 		winclosebody(m->w);
 		/* sleep(100); */
