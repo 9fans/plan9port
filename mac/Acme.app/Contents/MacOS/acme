@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -e ~/.bashrc ] ; then
+	. ~/.bashrc
+fi
+PLAN9=${PLAN9:-/usr/local/plan9}
+cd $HOME
+
+if ! [[ :$PATH: =~ :$PLAN9/bin: ]]
+then
+	PATH=$PATH:$PLAN9/bin
+fi
+$PLAN9/bin/acme
+exit 0
+
