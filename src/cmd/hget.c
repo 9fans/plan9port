@@ -275,6 +275,11 @@ crackurl(URL *u, char *s)
 		*p = '/';
 	}
 
+	if(u->host == nil || u->page == nil){
+		werrstr("Memory allocation failed for URL host or page.");
+		return -1;
+	}
+
 	if(p = strchr(u->host, ':')) {
 		*p++ = 0;
 		u->port = p;
@@ -795,6 +800,10 @@ hhuri(char *p, URL *u, Range *r)
 	if(*p != '<')
 		return;
 	u->redirect = strdup(p+1);
+	if(u->redirect == nil){
+		sysfatal("Memory allocation failed.");
+	}
+		
 	p = strchr(u->redirect, '>');
 	if(p != nil)
 		*p = 0;
@@ -806,6 +815,9 @@ hhlocation(char *p, URL *u, Range *r)
 	USED(r);
 
 	u->redirect = strdup(p);
+	if(u->redirect == nil){
+		sysfatal("Memory allocation failed.");
+	}
 }
 
 void
