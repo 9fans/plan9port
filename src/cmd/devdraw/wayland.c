@@ -164,7 +164,7 @@ static void registry_global(void *data, struct wl_registry *wl_registry,
 			&xdg_wm_base_interface, 1);
 
 	} else if (strcmp(interface, wl_seat_interface.name) == 0) {
-		wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+		wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 4);
 
 	} else if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
 		wl_data_device_manager = wl_registry_bind(wl_registry, name, &wl_data_device_manager_interface, 2);
@@ -844,7 +844,6 @@ void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
 	qunlock(&wayland_lock);
 }
 
-// Currently we don't bind the keyboard with the correct version to get this event.
 void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard,
 	int32_t rate, int32_t delay) {
 	DEBUG("wl_keyboard_repeat_info(rate=%d, delay=%d)\n",
