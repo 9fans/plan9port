@@ -1500,7 +1500,7 @@ get64(uchar *b)
 static u32int
 get32(uchar *b)
 {
-	return b[0]<<24 | b[1]<<16 | b[2]<<8 | b[3];
+	return (u32int)b[0]<<24 | b[1]<<16 | b[2]<<8 | b[3];
 }
 
 static int

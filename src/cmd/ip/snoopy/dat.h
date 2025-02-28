@@ -6,10 +6,10 @@ typedef struct Proto Proto;
 
 #define NetS(x) ((((uchar*)x)[0]<<8) | ((uchar*)x)[1])
 #define Net3(x) ((((uchar*)x)[0]<<16) | (((uchar*)x)[1]<<8) | ((uchar*)x)[2])
-#define NetL(x) (((ulong)((((uchar*)x)[0]<<24) | (((uchar*)x)[1]<<16) | (((uchar*)x)[2]<<8) | ((uchar*)x)[3]))&0xFFFFFFFFU)
+#define NetL(x) (((ulong)(((ulong)((uchar*)x)[0]<<24) | (((uchar*)x)[1]<<16) | (((uchar*)x)[2]<<8) | ((uchar*)x)[3]))&0xFFFFFFFFU)
 
 #define LittleS(x) ((((uchar*)x)[1]<<8) | ((uchar*)x)[0])
-#define LittleL(x) (((ulong)((((uchar*)x)[3]<<24) | (((uchar*)x)[2]<<16) | (((uchar*)x)[1]<<8) | ((uchar*)x)[0]))&0xFFFFFFFFU)
+#define LittleL(x) (((ulong)(((ulong)((uchar*)x)[3]<<24) | (((uchar*)x)[2]<<16) | (((uchar*)x)[1]<<8) | ((uchar*)x)[0]))&0xFFFFFFFFU)
 
 /*
  *  one per protocol module

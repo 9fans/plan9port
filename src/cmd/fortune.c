@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 		srand(getpid());
 		seek(ix, lrand()%(ixbuf->length/sizeof(offs))*sizeof(offs), 0);
 		read(ix, off, sizeof(off));
-		Bseek(f, off[0]|(off[1]<<8)|(off[2]<<16)|(off[3]<<24), 0);
+		Bseek(f, off[0]|(off[1]<<8)|(off[2]<<16)|((u32int)off[3]<<24), 0);
 		p = Brdline(f, '\n');
 		if(p){
 			p[Blinelen(f)-1] = 0;

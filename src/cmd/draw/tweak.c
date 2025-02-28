@@ -200,7 +200,7 @@ main(volatile int argc, char **volatile argv)
 	}
 	for(i=0; i<256; i++){
 		values[i] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, cmap2rgba(i));
-		greyvalues[i] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, (i<<24)|(i<<16)|(i<<8)|0xFF);
+		greyvalues[i] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, ((uint)i<<24)|(i<<16)|(i<<8)|0xFF);
 		if(values[i] == 0 || greyvalues[i] == 0)
 			drawerror(display, "can't allocate image");
 	}

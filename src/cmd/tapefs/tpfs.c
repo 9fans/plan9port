@@ -55,7 +55,7 @@ populate(char *name)
 			continue;
 		f.size = (tpp->size[0]<<16) + (tpp->size[1]<<0) + (tpp->size[2]<<8);
 		f.mdate = (tpp->tmod[2]<<0) + (tpp->tmod[3]<<8)
-		     +(tpp->tmod[0]<<16) + (tpp->tmod[1]<<24);
+		     +(tpp->tmod[0]<<16) + ((u32int)tpp->tmod[1]<<24);
 		f.mode = tpp->mode[0]&0777;
 		f.uid = tpp->uid[0];
 		f.gid = tpp->gid[0];

@@ -259,7 +259,7 @@ getint()
     val = getc(fp_in);
     val |= (getc(fp_in) << 8);
     val |= (getc(fp_in) << 16);
-    val |= (getc(fp_in) << 24);
+    val |= ((u32int)getc(fp_in) << 24);
 
     return(val);
 

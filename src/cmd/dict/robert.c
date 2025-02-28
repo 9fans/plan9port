@@ -82,7 +82,7 @@ initsubtab(void)
 }
 
 #define	GSHORT(p)	(((p)[0]<<8) | (p)[1])
-#define	GLONG(p)	(((p)[0]<<24) | ((p)[1]<<16) | ((p)[2]<<8) | (p)[3])
+#define	GLONG(p)	(((u32int)(p)[0]<<24) | ((p)[1]<<16) | ((p)[2]<<8) | (p)[3])
 
 static char	cfile[] = "robert/cits.rob";
 static char	dfile[] = "robert/defs.rob";
@@ -182,7 +182,7 @@ robertprintentry(Entry *def, Entry *etym, int cmd)
 			break;
 
 		case CIT:
-			n = p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24);
+			n = p[0] | (p[1]<<8) | (p[2]<<16) | ((u32int)p[3]<<24);
 			p += 4;
 			if(debug)
 				outprint("[%d]", n);

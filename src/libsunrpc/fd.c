@@ -41,7 +41,7 @@ sunfdread(void *v)
 		n = readn(arg.fd, buf, 4);
 		if(n != 4)
 			break;
-		n = (buf[0]<<24)|(buf[1]<<16)|(buf[2]<<8)|buf[3];
+		n = ((uint)buf[0]<<24)|(buf[1]<<16)|(buf[2]<<8)|buf[3];
 if(arg.srv->chatty) fprint(2, "%.8ux...", n);
 		done = n&0x80000000;
 		n &= ~0x80000000;

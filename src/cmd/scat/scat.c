@@ -163,7 +163,7 @@ Long(int32 *l)
 	uchar *p;
 
 	p = (uchar*)l;
-	return (int32)p[0]|((int32)p[1]<<8)|((int32)p[2]<<16)|((int32)p[3]<<24);
+	return (int32)p[0]|((int32)p[1]<<8)|((int32)p[2]<<16)|((uint32)p[3]<<24);
 }
 
 /* produce little-endian int32 at address l */

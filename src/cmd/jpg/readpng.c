@@ -51,7 +51,7 @@ static char memerr[] = "ReadPNG: malloc failed: %r";
 static uint32
 get4(uchar *a)
 {
-	return (a[0]<<24) | (a[1]<<16) | (a[2]<<8) | a[3];
+	return ((uint32)a[0]<<24) | (a[1]<<16) | (a[2]<<8) | a[3];
 }
 
 static

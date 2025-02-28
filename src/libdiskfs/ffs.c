@@ -387,7 +387,7 @@ mkhandle(Nfs3Handle *h, u64int ino)
 static u32int
 byte2u32(uchar *p)
 {
-	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
+	return ((u32int)p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
 
 static u64int lastiaddr;	/* debugging */

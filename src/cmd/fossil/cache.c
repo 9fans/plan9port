@@ -624,7 +624,7 @@ cacheGlobal(Cache *c, uchar score[VtScoreSize], int type, u32int tag, int mode)
 		return b;
 	}
 
-	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->hashSize;
+	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|((u32int)score[3]<<24)) % c->hashSize;
 
 	/*
 	 * look for the block in the cache

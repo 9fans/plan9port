@@ -762,7 +762,7 @@ pixtorgba(u32int v, uchar *r, uchar *g, uchar *b, uchar *a)
 u32int
 rgbatopix(uchar r, uchar g, uchar b, uchar a)
 {
-	return (a<<24)|(r<<16)|(g<<8)|b;
+	return ((u32int)a<<24)|(r<<16)|(g<<8)|b;
 }
 
 /*
@@ -779,7 +779,7 @@ getpixel(Memimage *img, Point pt)
 	a = ~0;	/* default alpha is full */
 
 	p = byteaddr(img, pt);
-	v = p[0]|(p[1]<<8)|(p[2]<<16)|(p[3]<<24);
+	v = p[0]|(p[1]<<8)|(p[2]<<16)|((u32int)p[3]<<24);
 	bpp = img->depth;
 	if(bpp<8){
 		/*
@@ -889,7 +889,7 @@ putpixel(Memimage *img, Point pt, u32int nv)
 	pixtorgba(nv, &r, &g, &b, &a);
 
 	p = byteaddr(img, pt);
-	v = p[0]|(p[1]<<8)|(p[2]<<16)|(p[3]<<24);
+	v = p[0]|(p[1]<<8)|(p[2]<<16)|((u32int)p[3]<<24);
 	bpp = img->depth;
 DBG print("v %.8lux...", v);
 	if(bpp < 8){

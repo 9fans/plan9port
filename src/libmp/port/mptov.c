@@ -62,7 +62,7 @@ mptov(mpint *b)
 
 	v = 0ULL;
 	for(s = 0; s < b->top; s++)
-		v |= b->p[s]<<(s*sizeof(mpdigit)*8);
+		v |= (uvlong)b->p[s]<<(s*sizeof(mpdigit)*8);
 
 	if(b->sign > 0){
 		if(v > MAXVLONG)
