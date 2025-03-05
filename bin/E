@@ -2,17 +2,26 @@
 
 # run B but then wait for the file to change.
 # great to set as $EDITOR.
-# the notion of a file changing is a little weak.
+# if editing in acme, watch for the moment the window is closed.
+# otherwise the notion of a file changing is a little weak.
 
 stat=`ls -l $1`
 B "$@"
 echo editing "$@"
-while sleep 1
-do
-	nstat=`ls -l $1`
-	if [ "x$stat" != "x$nstat" ]
-	then
-		exit
-	fi
-done
+
+9p read acme/index | grep -q $(realpath $1)
+if [ $? -eq 0 ]; then
+	pat="del $(realpath $1)"
+	9p read acme/log 2> /dev/null |  grep -q "$pat"
+	if [ $? -eq 0 ]; then exit; fi
+else
+	while sleep 1
+	do
+		nstat=`ls -l $1`
+		if [ "x$stat" != "x$nstat" ]
+		then
+			exit
+		fi
+	done
+fi
 
