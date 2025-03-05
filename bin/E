@@ -5,19 +5,19 @@
 # if editing in acme, watch for the moment the window is closed.
 # otherwise the notion of a file changing is a little weak.
 
-stat=`ls -l $1`
+file=$(echo $1 | sed -E 's/(.*):.*/\1/')
+stat=`ls -l $file`
 B "$@"
 echo editing "$@"
 
-9p read acme/index | grep -q $(realpath $1)
+9p read acme/index | grep -q $(realpath $file)
 if [ $? -eq 0 ]; then
-	pat="del $(realpath $1)"
-	9p read acme/log 2> /dev/null |  grep -q "$pat"
+	9p read acme/log 2> /dev/null |  grep -q "del $(realpath $file)"
 	if [ $? -eq 0 ]; then exit; fi
 else
 	while sleep 1
 	do
-		nstat=`ls -l $1`
+		nstat=`ls -l $file`
 		if [ "x$stat" != "x$nstat" ]
 		then
 			exit
