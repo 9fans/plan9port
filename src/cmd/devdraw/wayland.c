@@ -430,33 +430,31 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 static const struct wl_callback_listener wl_callback_key_repeat_listener;
 
 static void wl_callback_key_repeat(void *data, struct wl_callback *wl_callback, uint32_t time) {
-	int dt = 0;
-	int repetitions = 0;
-	int repeat_rune = 0;
-
 	Client* c = data;
 	WaylandClient *wl = (WaylandClient*) c->view;
 	wl_callback_destroy(wl_callback);
 
 	qlock(&wayland_lock);
-	dt = time - wl->repeat_start_ms;
 
-	if (!wl->repeat_interval_ms || !wl->repeat_rune)
+	int repetitions = 0;
+	int repeat_rune = wl->repeat_rune;
+
+	if (wl->repeat_interval_ms == 0 || wl->repeat_rune == 0) {
 		goto done;
+	}
+
+	int dt = time - wl->repeat_start_ms;
 
 	// There is an initial delay for repetition to start, so
 	// repeat_start_ms can be in the future.
-	if (wl->repeat_start_ms > time || wl->repeat_interval_ms > dt)
-		goto next_frame;
+	if (wl->repeat_start_ms < time && wl->repeat_interval_ms <= dt) {
+		repetitions = dt / wl->repeat_interval_ms;
 
-	repeat_rune = wl->repeat_rune;
-	repetitions = dt / wl->repeat_interval_ms;
+		// Incrementing this way, rather than setting start to now,
+		// avoids losing fractional time to integer division.
+		wl->repeat_start_ms += repetitions * wl->repeat_interval_ms;
+	}
 
-	// Incrementing this way, rather than setting start to now,
-	// avoids losing fractional time to integer division.
-	wl->repeat_start_ms += repetitions * wl->repeat_interval_ms;
-
-next_frame:
 	wl_callback = wl_surface_frame(wl->wl_surface);
 	wl_callback_add_listener(wl_callback, &wl_callback_key_repeat_listener, c);
 	wl_surface_commit(wl->wl_surface);
