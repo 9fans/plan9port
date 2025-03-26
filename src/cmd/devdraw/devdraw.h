@@ -97,6 +97,7 @@ struct Client
 	DName*		name;
 	int		namevers;
 	ClientImpl*	impl;
+	int		bouncing;
 
 	// Only accessed/modified by the graphics thread.
 	const void*		view;
