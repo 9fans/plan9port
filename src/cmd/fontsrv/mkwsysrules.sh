@@ -29,8 +29,6 @@ if [ "x$WSYSTYPE" = "x" ]; then
 			exit 1
 		fi
 		WSYSTYPE=mac
-	elif [ "x$XDG_SESSION_TYPE" = "xwayland" ]; then
-		WSYSTYPE=wayland
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -60,12 +58,6 @@ elif [ $WSYSTYPE = mac ]; then
 	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o'
 	echo 'WSYSHFILES='
 	echo 'MACARGV=macargv.o'
-elif [ $WSYSTYPE = wayland ]; then
-	echo 'LDFLAGS=$LDFLAGS -lwayland-client -lxkbcommon'
-	XO=`ls wayland*.c 2>/dev/null | sed 's/\.c/\.o/'`
-	echo 'WSYSOFILES=$WSYSOFILES '$XO
-	XH=`ls wayland*.h 2>/dev/null`
-	echo 'WSYSHFILES='$XH
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
