@@ -588,6 +588,9 @@ not just
 or
 .BR 127 .
 (There is an easier way to locate literal text; see below.)
+If shift is held down during the selection or click,
+any leading regular expression search defaults to
+searching backward in the text instead of forward.
 .PP
 If the text is a file name followed by a colon and an address,
 .I acme
@@ -608,6 +611,8 @@ moved there.  Thus, to search for occurrences of a word in a file,
 just click button 3 on the word.  Because of the rule of using the
 selection as the button 3 action, subsequent clicks will find subsequent
 occurrences without moving the mouse.
+If shift is held down during the selection or click,
+the search looks backward in the file.
 .PP
 In all these actions, the mouse motion is not done if the text is a null string
 within a non-null selected string in the tag, so that (for example) complex regular expressions

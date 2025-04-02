@@ -4,7 +4,6 @@ intro 0intro.1
 9.rc 9.1
 u 9.1
 u.rc 9.1
-9a 9c.1
 9ar 9c.1
 9c 9c.1
 9l 9c.1
@@ -33,14 +32,17 @@ cleanname cleanname.1
 auxclog clog.1
 clog clog.1
 cmp cmp.1
-codereview codereview.1
 col col.1
 cmapcube colors.1
 colors colors.1
 comm comm.1
+compress compress.1
+uncompress compress.1
+zcat compress.1
 core core.1
 crop crop.1
 iconv crop.1
+clock date.1
 date date.1
 db db.1
 stack db.1
@@ -65,6 +67,7 @@ fortune fortune.1
 freq freq.1
 fsize fsize.1
 mtime fsize.1
+codereview git.1
 cvs git.1
 git git.1
 hg git.1
@@ -137,12 +140,14 @@ netfilestat netfiles.1
 news news.1
 p p.1
 page page.1
+paint paint.1
 netkey passwd.1
 passwd passwd.1
 pem pem.1
 pemdecode pem.1
 pemencode pem.1
 pic pic.1
+svgpic pic.1
 tpic pic.1
 plot plot.1
 plumb plumb.1
@@ -199,6 +204,7 @@ seq seq.1
 sftpcache sftpcache.1
 sleep sleep.1
 snarfer snarfer.1
+soelim soelim.1
 sort sort.1
 spell spell.1
 sprog spell.1
@@ -240,6 +246,7 @@ wmail web.1
 " wintext.1
 "" wintext.1
 wintext wintext.1
+winwatch winwatch.1
 xd xd.1
 yacc yacc.1
 yesterday yesterday.1

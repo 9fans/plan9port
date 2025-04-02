@@ -1,4 +1,5 @@
 #include <u.h>
+#include <pwd.h>
 #include <signal.h>
 #include <libc.h>
 #include <ctype.h>
@@ -56,13 +57,32 @@ threadmaybackground(void)
 void
 threadmain(int argc, char *argv[])
 {
-	char *p;
+	char *p, *env;
 
 	rfork(RFNOTEG);
 	font = nil;
 	_wantfocuschanges = 1;
 	mainpid = getpid();
 	messagesize = 8192;
+
+	threadmaybackground();
+
+	env = getenv("__CFBundleIdentifier");
+	if(env != nil && strcmp(env, "com.swtch.9term") == 0) {
+		// Being invoked as $PLAN9/mac/9term.app.
+		// Set $SHELL and daemonize to let parent exit.
+		// This makes sure that each click on 9term
+		// brings up a new window.
+		extern void _threaddaemonize(void);
+		struct passwd *pw;
+
+		unsetenv("__CFBundleIdentifier");
+		pw = getpwuid(getuid());
+		if(pw != nil && pw->pw_shell != nil)
+			setenv("SHELL", pw->pw_shell, 1);
+		loginshell = TRUE;
+		//_threaddaemonize();
+	}
 
 	ARGBEGIN{
 	default:

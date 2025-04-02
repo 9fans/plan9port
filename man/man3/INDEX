@@ -551,7 +551,6 @@ flushimage graphics.3
 freefont graphics.3
 gengetwindow graphics.3
 geninitdraw graphics.3
-getdefont graphics.3
 getwindow graphics.3
 graphics graphics.3
 initdisplay graphics.3
@@ -1229,6 +1228,7 @@ threadintgrp thread.3
 threadkill thread.3
 threadkillgrp thread.3
 threadmain thread.3
+threadmaybackground thread.3
 threadnotify thread.3
 threadpid thread.3
 threadpin thread.3

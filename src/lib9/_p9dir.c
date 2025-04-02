@@ -51,8 +51,6 @@ disksize(int fd, struct stat *st)
 	struct disklabel lab;
 	int n;
 
-	if(!S_ISCHR(st->st_mode))
-		return 0;
 	if(ioctl(fd, DIOCGDINFO, &lab) < 0)
 		return 0;
 	n = minor(st->st_rdev)&7;

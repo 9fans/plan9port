@@ -2,7 +2,7 @@
 .SH NAME
 devdraw \- draw device simulator
 .SH SYNOPSIS
-invoked via 
+invoked via
 .I initdraw
 (see
 .MR graphics (3) )
@@ -10,19 +10,71 @@ invoked via
 .I Devdraw
 serves a custom graphics protocol and is the only program
 that talks directly to X window servers.
-On Macintosh, setting
-.BI devdrawretina
-to
-.BI 1
-will cause
-.I devdraw
-to use all available physical pixels on a retina display.
+.PP
+.SS "Apple macOS
+.PP
+On macOS, because a laptop trackpad click only has one button (the trackpad itself)
+Option-click is button 2, and Command-click is button 3.
+While the main mouse button is held down,
+Control, Option, and Command serve as simulated buttons 1, 2, 3 for chording in
+.MR acme (4) .
+For example, the 1-3 pasting chord in acme can be executed by
+highlighting text while holding down the trackpad button
+and then, while still holding down the button, pressing the Command key.
+.PP
+As usual, buttons 4 and 5 represent a scroll wheel.
+Two-finger scrolling on the trackpad sends those button events.
+.PP
+Holding down shift while clicking adds 5 to the button number.
+For example, Command-Click is button 3, so Command-Shift-Click is button 8.
+Most programs do not respond to those buttons; one notable exception is
+.MR acme (1) ,
+which interprets button 8 (shifted button 3) as a reverse search.
+.PP
+Typing Command-F toggles full screen mode.
+.PP
+.I Devdraw
+automatically detects high-resolution (retina) displays.
+For debugging, typing Command-R toggles retina mode.
+.PP
+Other than the special cases mentioned above,
+holding down Command while typing a character
+.B Kcmd
+(0xF100)
+plus that character.
+Some programs (notably
+.IR acme (1))
+recognize standard keyboard shortcuts such as
+Command-Z (undo), Command-Shift-Z (redo),
+Command-X (cut), and Command-V (paste).
+.SS "X Windows
+.PP
+On Unix systems, Control-click is mouse button 2,
+and Alt-click is mouse button 3.
+While the main mouse button is held down,
+Control and Alt serve as simulated buttons 2, 3 for chording in
+.MR acme (4) .
+For example, the 1-3 pasting chord in acme can be executed by
+highlighting text while holding down the trackpad button
+and then, while still holding down the button, pressing the Alt key.
+.PP
+Because the Control and Alt keys have other meanings
+(see
+.MR keyboard (7)
+for the Alt key's meaning)
+and there is no third modifier key like on the Mac,
+there is no way to type
+.B Kcmd
+variants,
+so there is no access to keyboard shortcuts for
+undo, redo, cut, and paste.
 .SH SOURCE
 .B \*9/src/cmd/devdraw
 .SH "SEE ALSO
 .MR draw (3) ,
 .MR drawfcall (3) ,
-.MR graphics (3)
+.MR graphics (3) ,
+.MR keyboard (7)
 .SH BUGS
 .I Devdraw
 should probably present a standard 9P server

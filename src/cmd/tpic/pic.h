@@ -13,9 +13,7 @@
 
 extern	char	errbuf[1000];
 
-#undef	sprintf	/* Snow Leopard */
-
-#define	ERROR	sprintf(errbuf,
+#define	ERROR	tpicsnprintf(errbuf, sizeof errbuf,
 #define	FATAL	), yyerror(errbuf), exit(1)
 #define	WARNING	), yyerror(errbuf)
 
@@ -283,5 +281,6 @@ int		unput(int c);
 int		whatpos(obj *p, int corner, double *px, double *py)	/* what is the position (no side effect) */;
 void		yyerror(char *s);
 int		yyparse(void);
+void	tpicsnprintf(char*, int, const char*, ...);
 
 #include "tex.h"

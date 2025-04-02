@@ -92,7 +92,7 @@ sprintgen(char *fmt)
 {
 	char buf[1000];
 
-	sprintf(buf, fmt, exprlist[0], exprlist[1], exprlist[2], exprlist[3], exprlist[4]);
+	snprintf(buf, sizeof buf, fmt, exprlist[0], exprlist[1], exprlist[2], exprlist[3], exprlist[4]);
 	nexpr = 0;
 	free(fmt);
 	return tostring(buf);

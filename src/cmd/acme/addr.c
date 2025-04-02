@@ -172,7 +172,7 @@ regexp(uint showerr, Text *t, Range lim, Range r, Rune *pat, int dir, int *found
 }
 
 Range
-address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int (*getc)(void*, uint),  int *evalp, uint *qp)
+address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int (*getc)(void*, uint),  int *evalp, uint *qp, int reverse)
 {
 	int dir, size, npat;
 	int prevc, c, nc, n;
@@ -183,6 +183,8 @@ address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, i
 	r = ar;
 	q = q0;
 	dir = None;
+	if(reverse)
+		dir = Back;
 	size = Line;
 	c = 0;
 	while(q < q1){
@@ -201,7 +203,7 @@ address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, i
 			if(q>=q1 && t!=nil && t->file!=nil)	/* rhs defaults to $ */
 				r.q1 = t->file->b.nc;
 			else{
-				nr = address(showerr, t, lim, ar, a, q, q1, getc, evalp, &q);
+				nr = address(showerr, t, lim, ar, a, q, q1, getc, evalp, &q, FALSE);
 				r.q1 = nr.q1;
 			}
 			*qp = q;

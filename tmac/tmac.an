@@ -479,7 +479,9 @@
 .if t \{.ds R ®
 .ds S \s\n()S
 ..\}
-.if n \{.nr )L 11i
+.if n \{.ie \nL<=0 .nr )L 11i
+.el \{.nr )L \nLu
+.nr V 0\}
 .nr LL 6.5i
 .nr )O .463i
 .if '\*(.T'think' \{.nrLL 80n

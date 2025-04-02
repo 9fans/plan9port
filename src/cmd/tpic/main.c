@@ -1,5 +1,6 @@
 #include	<stdio.h>
 #include	<signal.h>
+#include	<stdarg.h>
 #include	"pic.h"
 #include	"y.tab.h"
 
@@ -62,7 +63,7 @@ main(int argc, char **argv)
 	text = (Text *) grow((char *)text, "text", ntextlist += 1000, sizeof(Text));
 	attr = (Attr *) grow((char *)attr, "attr", nattrlist += 100, sizeof(Attr));
 
-	sprintf(buf, "/%d/", getpid());
+	snprintf(buf, sizeof buf, "/%d/", getpid());
 	pushsrc(String, buf);
 	definition("pid");
 
@@ -274,4 +275,12 @@ reset(void)
 	hvmode = R_DIR;
 	xmin = ymin = 30000;
 	xmax = ymax = -30000;
+}
+
+void
+tpicsnprintf(char *buf, int n, const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, n, fmt, args);
 }

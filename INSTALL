@@ -23,6 +23,8 @@ x-r)
 	exit 1
 esac
 
+PLAN9=`pwd` export PLAN9
+
 echo "+ Mailing list: https://groups.google.com/group/plan9port-dev"
 echo "+ Issue tracker: https://github.com/9fans/plan9port/issues/"
 echo "+ Submitting changes: https://github.com/9fans/plan9port/pulls"
