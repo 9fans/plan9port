@@ -1,0 +1,795 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/;"	extras:pseudo
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/;"	extras:pseudo
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/;"	extras:pseudo
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/;"	extras:pseudo
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/;"	extras:pseudo
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/;"	extras:pseudo
+!_TAG_PROC_CWD	/home/grobe0ba/opt/x86_64/plan9port/src/cmd/rc/	//;"	extras:pseudo
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//;"	extras:pseudo
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/;"	extras:pseudo
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/;"	extras:pseudo
+!_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20220417.0/;"	extras:pseudo
+ANDAND	y.tab.c	/^#define	ANDAND	/;"	kind:macro	line:24	language:C	file:	roles:def	extras:fileScope	end:24
+ANDAND	y.tab.h	/^#define	ANDAND	/;"	kind:macro	line:24	language:C++	roles:def	end:24
+APPEND	rc.h	/^#define	APPEND	/;"	kind:macro	line:109	language:C++	roles:def	end:109
+ARGLIST	y.tab.c	/^#define	ARGLIST	/;"	kind:macro	line:18	language:C	file:	roles:def	extras:fileScope	end:18
+ARGLIST	y.tab.h	/^#define	ARGLIST	/;"	kind:macro	line:18	language:C++	roles:def	end:18
+Abort	plan9.c	/^Abort(void)$/;"	kind:function	line:464	language:C	typeref:typename:void	signature:(void)	roles:def	end:467
+Abort	unix.c	/^Abort(void)$/;"	kind:function	line:408	language:C	typeref:typename:void	signature:(void)	roles:def	end:411
+BADFLAG	getflags.c	/^#define	BADFLAG	/;"	kind:macro	line:17	language:C	file:	roles:def	extras:fileScope	end:17
+BANG	y.tab.c	/^#define	BANG	/;"	kind:macro	line:7	language:C	file:	roles:def	extras:fileScope	end:7
+BANG	y.tab.h	/^#define	BANG	/;"	kind:macro	line:7	language:C++	roles:def	end:7
+BRACE	y.tab.c	/^#define	BRACE	/;"	kind:macro	line:20	language:C	file:	roles:def	extras:fileScope	end:20
+BRACE	y.tab.h	/^#define	BRACE	/;"	kind:macro	line:20	language:C++	roles:def	end:20
+Builtin	plan9.c	/^builtin Builtin[] = {$/;"	kind:variable	line:15	language:C	typeref:typename:builtin[]	roles:def	end:28
+Builtin	unix.c	/^builtin Builtin[] = {$/;"	kind:variable	line:23	language:C	typeref:typename:builtin[]	roles:def	end:35
+CLOSE	rc.h	/^#define	CLOSE	/;"	kind:macro	line:114	language:C++	roles:def	end:114
+COUNT	y.tab.c	/^#define	COUNT	/;"	kind:macro	line:26	language:C	file:	roles:def	extras:fileScope	end:26
+COUNT	y.tab.h	/^#define	COUNT	/;"	kind:macro	line:26	language:C++	roles:def	end:26
+Chdir	plan9.c	/^Chdir(char *dir)$/;"	kind:function	line:472	language:C	typeref:typename:int	signature:(char * dir)	roles:def	end:476
+Chdir	unix.c	/^Chdir(char *dir)$/;"	kind:function	line:414	language:C	typeref:typename:int	signature:(char * dir)	roles:def	end:417
+Close	plan9.c	/^Close(int fd)$/;"	kind:function	line:410	language:C	typeref:typename:void	signature:(int fd)	roles:def	end:413
+Close	unix.c	/^Close(int fd)$/;"	kind:function	line:359	language:C	typeref:typename:void	signature:(int fd)	roles:def	end:362
+Closedir	plan9.c	/^Closedir(void *arg)$/;"	kind:function	line:335	language:C	typeref:typename:void	signature:(void * arg)	roles:def	end:341
+Closedir	unix.c	/^Closedir(void *arg)$/;"	kind:function	line:318	language:C	typeref:typename:void	signature:(void * arg)	roles:def	end:322
+Creat	plan9.c	/^Creat(char *file)$/;"	kind:function	line:416	language:C	typeref:typename:int	signature:(char * file)	roles:def	end:419
+Creat	unix.c	/^Creat(char *file)$/;"	kind:function	line:365	language:C	typeref:typename:int	signature:(char * file)	roles:def	end:368
+DUP	y.tab.c	/^#define	DUP	/;"	kind:macro	line:14	language:C	file:	roles:def	extras:fileScope	end:14
+DUP	y.tab.h	/^#define	DUP	/;"	kind:macro	line:14	language:C++	roles:def	end:14
+DUPFD	rc.h	/^#define	DUPFD	/;"	kind:macro	line:113	language:C++	roles:def	end:113
+Dup	plan9.c	/^Dup(int a, int b)$/;"	kind:function	line:422	language:C	typeref:typename:int	signature:(int a,int b)	roles:def	end:425
+Dup	unix.c	/^Dup(int a, int b)$/;"	kind:function	line:371	language:C	typeref:typename:int	signature:(int a,int b)	roles:def	end:374
+Dup1	plan9.c	/^Dup1(int a)$/;"	kind:function	line:428	language:C	typeref:typename:int	signature:(int a)	roles:def	end:431
+Dup1	unix.c	/^Dup1(int a)$/;"	kind:function	line:377	language:C	typeref:typename:int	signature:(int a)	roles:def	end:380
+EOF	io.h	/^#define	EOF	/;"	kind:macro	line:1	language:C++	roles:def	end:1
+Eintr	plan9.c	/^Eintr(void)$/;"	kind:function	line:441	language:C	typeref:typename:int	signature:(void)	roles:def	end:444
+Eintr	unix.c	/^Eintr(void)$/;"	kind:function	line:390	language:C	typeref:typename:int	signature:(void)	roles:def	end:393
+Env	plan9.c	/^Env(char *name, int fn)$/;"	kind:function	line:121	language:C	typeref:typename:char *	signature:(char * name,int fn)	roles:def	end:128
+Errstr	plan9.c	/^Errstr(void)$/;"	kind:function	line:168	language:C	typeref:typename:char *	signature:(void)	roles:def	end:173
+Errstr	unix.c	/^Errstr(void)$/;"	kind:function	line:242	language:C	typeref:typename:char *	signature:(void)	roles:def	end:245
+Exec	plan9.c	/^Exec(char **argv)$/;"	kind:function	line:262	language:C	typeref:typename:void	signature:(char ** argv)	roles:def	end:265
+Exec	unix.c	/^Exec(char **argv)$/;"	kind:function	line:288	language:C	typeref:typename:void	signature:(char ** argv)	roles:def	end:292
+Executable	plan9.c	/^Executable(char *file)$/;"	kind:function	line:389	language:C	typeref:typename:int	signature:(char * file)	roles:def	end:400
+Executable	unix.c	/^Executable(char *file)$/;"	kind:function	line:343	language:C	typeref:typename:int	signature:(char * file)	roles:def	end:346
+Exit	plan9.c	/^Exit(void)$/;"	kind:function	line:434	language:C	typeref:typename:void	signature:(void)	roles:def	end:438
+Exit	unix.c	/^Exit(void)$/;"	kind:function	line:383	language:C	typeref:typename:void	signature:(void)	roles:def	end:387
+FEWARGS	getflags.c	/^#define	FEWARGS	/;"	kind:macro	line:15	language:C	file:	roles:def	extras:fileScope	end:15
+FLAGSYN	getflags.c	/^#define	FLAGSYN	/;"	kind:macro	line:16	language:C	file:	roles:def	extras:fileScope	end:16
+FN	y.tab.c	/^#define	FN	/;"	kind:macro	line:10	language:C	file:	roles:def	extras:fileScope	end:10
+FN	y.tab.h	/^#define	FN	/;"	kind:macro	line:10	language:C++	roles:def	end:10
+FOR	y.tab.c	/^#define	FOR	/;"	kind:macro	line:1	language:C	file:	roles:def	extras:fileScope	end:1
+FOR	y.tab.h	/^#define	FOR	/;"	kind:macro	line:1	language:C++	roles:def	end:1
+Fdprefix	plan9.c	/^char Fdprefix[]="\/fd\/";$/;"	kind:variable	line:31	language:C	typeref:typename:char[]	roles:def	end:31
+Fdprefix	unix.c	/^char Fdprefix[] = "\/dev\/fd\/";$/;"	kind:variable	line:38	language:C	typeref:typename:char[]	roles:def	end:38
+Fork	plan9.c	/^Fork(void)$/;"	kind:function	line:268	language:C	typeref:typename:int	signature:(void)	roles:def	end:272
+Fork	unix.c	/^Fork(void)$/;"	kind:function	line:295	language:C	typeref:typename:int	signature:(void)	roles:def	end:299
+Freeword	exec.c	/^Freeword(word *p)$/;"	kind:function	line:88	language:C	typeref:typename:char *	signature:(word * p)	roles:def	end:93
+GLOB	rc.h	/^#define	GLOB	/;"	kind:macro	line:146	language:C++	roles:def	end:146
+Getstatus	exec.c	/^Getstatus(void)$/;"	kind:function	line:1113	language:C	typeref:typename:char *	signature:(void)	roles:def	end:1122
+HERE	rc.h	/^#define	HERE	/;"	kind:macro	line:112	language:C++	roles:def	end:112
+IF	y.tab.c	/^#define	IF	/;"	kind:macro	line:4	language:C	file:	roles:def	extras:fileScope	end:4
+IF	y.tab.h	/^#define	IF	/;"	kind:macro	line:4	language:C++	roles:def	end:4
+IN	y.tab.c	/^#define	IN	/;"	kind:macro	line:2	language:C	file:	roles:def	extras:fileScope	end:2
+IN	y.tab.h	/^#define	IN	/;"	kind:macro	line:2	language:C++	roles:def	end:2
+Isatty	plan9.c	/^Isatty(int fd)$/;"	kind:function	line:453	language:C	typeref:typename:int	signature:(int fd)	roles:def	end:461
+Isatty	unix.c	/^Isatty(int fd)$/;"	kind:function	line:402	language:C	typeref:typename:int	signature:(int fd)	roles:def	end:405
+NBUF	getflags.c	/^#define	NBUF	/;"	kind:macro	line:223	language:C	file:	roles:def	extras:fileScope	end:223
+NBUF	io.c	/^	NBUF = 8192,$/;"	kind:enumerator	line:7	language:C	scope:enum:__anon7c9881ce0103	file:	access:public	roles:def	extras:fileScope
+NFLAG	getflags.h	/^#define	NFLAG	/;"	kind:macro	line:1	language:C++	roles:def	end:1
+NKW	var.c	/^#define	NKW	/;"	kind:macro	line:15	language:C	file:	roles:def	extras:fileScope	end:15
+NOT	y.tab.c	/^#define	NOT	/;"	kind:macro	line:5	language:C	file:	roles:def	extras:fileScope	end:5
+NOT	y.tab.h	/^#define	NOT	/;"	kind:macro	line:5	language:C++	roles:def	end:5
+NSIG	rc.h	/^#define NSIG	/;"	kind:macro	line:10	language:C++	roles:def	end:10
+NSIG	rc.h	/^#define NSIG /;"	kind:macro	line:20	language:C++	roles:def	end:20
+NTOK	rc.h	/^#define	NTOK	/;"	kind:macro	line:80	language:C++	roles:def	end:80
+NVAR	rc.h	/^#define	NVAR	/;"	kind:macro	line:129	language:C++	roles:def	end:129
+Newword	exec.c	/^Newword(char *s, word *next)$/;"	kind:function	line:58	language:C	typeref:typename:word *	signature:(char * s,word * next)	roles:def	end:64
+Noerror	plan9.c	/^Noerror(void)$/;"	kind:function	line:447	language:C	typeref:typename:void	signature:(void)	roles:def	end:450
+Noerror	unix.c	/^Noerror(void)$/;"	kind:function	line:396	language:C	typeref:typename:void	signature:(void)	roles:def	end:399
+OROR	y.tab.c	/^#define	OROR	/;"	kind:macro	line:25	language:C	file:	roles:def	extras:fileScope	end:25
+OROR	y.tab.h	/^#define	OROR	/;"	kind:macro	line:25	language:C++	roles:def	end:25
+Open	plan9.c	/^Open(char *file, int mode)$/;"	kind:function	line:403	language:C	typeref:typename:int	signature:(char * file,int mode)	roles:def	end:407
+Open	unix.c	/^Open(char *file, int mode)$/;"	kind:function	line:349	language:C	typeref:typename:int	signature:(char * file,int mode)	roles:def	end:356
+Opendir	plan9.c	/^Opendir(char *name)$/;"	kind:function	line:283	language:C	typeref:typename:void *	signature:(char * name)	roles:def	end:295
+Opendir	unix.c	/^Opendir(char *name)$/;"	kind:function	line:302	language:C	typeref:typename:void *	signature:(char * name)	roles:def	end:305
+PAREN	y.tab.c	/^#define	PAREN	/;"	kind:macro	line:21	language:C	file:	roles:def	extras:fileScope	end:21
+PAREN	y.tab.h	/^#define	PAREN	/;"	kind:macro	line:21	language:C++	roles:def	end:21
+PCMD	y.tab.c	/^#define	PCMD	/;"	kind:macro	line:22	language:C	file:	roles:def	extras:fileScope	end:22
+PCMD	y.tab.h	/^#define	PCMD	/;"	kind:macro	line:22	language:C++	roles:def	end:22
+PIPE	y.tab.c	/^#define	PIPE	/;"	kind:macro	line:15	language:C	file:	roles:def	extras:fileScope	end:15
+PIPE	y.tab.h	/^#define	PIPE	/;"	kind:macro	line:15	language:C++	roles:def	end:15
+PIPEFD	y.tab.c	/^#define	PIPEFD	/;"	kind:macro	line:23	language:C	file:	roles:def	extras:fileScope	end:23
+PIPEFD	y.tab.h	/^#define	PIPEFD	/;"	kind:macro	line:23	language:C++	roles:def	end:23
+PRD	rc.h	/^#define	PRD	/;"	kind:macro	line:167	language:C++	roles:def	end:167
+PWR	rc.h	/^#define	PWR	/;"	kind:macro	line:168	language:C++	roles:def	end:168
+Poplist	exec.c	/^Poplist(void)$/;"	kind:function	line:130	language:C	typeref:typename:word *	signature:(void)	roles:def	end:140
+Popword	exec.c	/^Popword(void)$/;"	kind:function	line:104	language:C	typeref:typename:char *	signature:(void)	roles:def	end:114
+Prompt	plan9.c	/^Prompt(char *s)$/;"	kind:function	line:479	language:C	typeref:typename:void	signature:(char * s)	roles:def	end:494
+Prompt	unix.c	/^Prompt(char *s)$/;"	kind:function	line:420	language:C	typeref:typename:void	signature:(char * s)	roles:def	end:424
+Pushword	exec.c	/^Pushword(char *s)$/;"	kind:function	line:71	language:C	typeref:typename:word *	signature:(char * s)	roles:def	end:81
+RCLOSE	exec.h	/^#define	RCLOSE	/;"	kind:macro	line:43	language:C++	roles:def	end:43
+RDUP	exec.h	/^#define	RDUP	/;"	kind:macro	line:42	language:C++	roles:def	end:42
+RDWR	rc.h	/^#define RDWR	/;"	kind:macro	line:115	language:C++	roles:def	end:115
+READ	rc.h	/^#define	READ	/;"	kind:macro	line:111	language:C++	roles:def	end:111
+REDIR	y.tab.c	/^#define	REDIR	/;"	kind:macro	line:12	language:C	file:	roles:def	extras:fileScope	end:12
+REDIR	y.tab.h	/^#define	REDIR	/;"	kind:macro	line:12	language:C++	roles:def	end:12
+REDIRW	y.tab.c	/^#define	REDIRW	/;"	kind:macro	line:13	language:C	file:	roles:def	extras:fileScope	end:13
+REDIRW	y.tab.h	/^#define	REDIRW	/;"	kind:macro	line:13	language:C++	roles:def	end:13
+RESET	getflags.c	/^#define	RESET	/;"	kind:macro	line:14	language:C	file:	roles:def	extras:fileScope	end:14
+ROPEN	exec.h	/^#define	ROPEN	/;"	kind:macro	line:41	language:C++	roles:def	end:41
+Rcmain	plan9.c	/^char Rcmain[]="\/rc\/lib\/rcmain";$/;"	kind:variable	line:30	language:C	typeref:typename:char[]	roles:def	end:30
+Rcmain	unix.c	/^char Rcmain[PATH_MAX];$/;"	kind:variable	line:37	language:C	typeref:typename:char[]	roles:def	end:37
+Read	plan9.c	/^Read(int fd, void *buf, long cnt)$/;"	kind:function	line:377	language:C	typeref:typename:long	signature:(int fd,void * buf,long cnt)	roles:def	end:380
+Read	unix.c	/^Read(int fd, void *buf, long cnt)$/;"	kind:function	line:331	language:C	typeref:typename:long	signature:(int fd,void * buf,long cnt)	roles:def	end:334
+Readdir	plan9.c	/^Readdir(void *arg, int onlydirs)$/;"	kind:function	line:309	language:C	typeref:typename:char *	signature:(void * arg,int onlydirs)	roles:def	end:332
+Readdir	unix.c	/^Readdir(void *arg, int onlydirs)$/;"	kind:function	line:308	language:C	typeref:typename:char *	signature:(void * arg,int onlydirs)	roles:def	end:315
+SEP	unix.c	/^#define SEP /;"	kind:macro	line:42	language:C	file:	roles:def	extras:fileScope	end:42
+SIGINT	rc.h	/^#define	SIGINT	/;"	kind:macro	line:11	language:C++	roles:def	end:11
+SIGQUIT	rc.h	/^#define	SIGQUIT	/;"	kind:macro	line:12	language:C++	roles:def	end:12
+SIMPLE	y.tab.c	/^#define	SIMPLE	/;"	kind:macro	line:17	language:C	file:	roles:def	extras:fileScope	end:17
+SIMPLE	y.tab.h	/^#define	SIMPLE	/;"	kind:macro	line:17	language:C++	roles:def	end:17
+SUB	y.tab.c	/^#define	SUB	/;"	kind:macro	line:16	language:C	file:	roles:def	extras:fileScope	end:16
+SUB	y.tab.h	/^#define	SUB	/;"	kind:macro	line:16	language:C++	roles:def	end:16
+SUBSHELL	y.tab.c	/^#define	SUBSHELL	/;"	kind:macro	line:8	language:C	file:	roles:def	extras:fileScope	end:8
+SUBSHELL	y.tab.h	/^#define	SUBSHELL	/;"	kind:macro	line:8	language:C++	roles:def	end:8
+SWITCH	y.tab.c	/^#define	SWITCH	/;"	kind:macro	line:9	language:C	file:	roles:def	extras:fileScope	end:9
+SWITCH	y.tab.h	/^#define	SWITCH	/;"	kind:macro	line:9	language:C++	roles:def	end:9
+Seek	plan9.c	/^Seek(int fd, long cnt, long whence)$/;"	kind:function	line:383	language:C	typeref:typename:long	signature:(int fd,long cnt,long whence)	roles:def	end:386
+Seek	unix.c	/^Seek(int fd, long cnt, long whence)$/;"	kind:function	line:337	language:C	typeref:typename:long	signature:(int fd,long cnt,long whence)	roles:def	end:340
+Setstatus	exec.c	/^Setstatus(char *s)$/;"	kind:function	line:1103	language:C	typeref:typename:void	signature:(char * s)	roles:def	end:1106
+Signame	plan9.c	/^char *Signame[] = {$/;"	kind:variable	line:33	language:C	typeref:typename:char * []	roles:def	end:37
+Signame	unix.c	/^char *Signame[NSIG];$/;"	kind:variable	line:40	language:C	typeref:typename:char * []	roles:def	end:40
+TWIDDLE	y.tab.c	/^#define	TWIDDLE	/;"	kind:macro	line:6	language:C	file:	roles:def	extras:fileScope	end:6
+TWIDDLE	y.tab.h	/^#define	TWIDDLE	/;"	kind:macro	line:6	language:C++	roles:def	end:6
+Trapinit	plan9.c	/^Trapinit(void)$/;"	kind:function	line:365	language:C	typeref:typename:void	signature:(void)	roles:def	end:368
+Trapinit	unix.c	/^Trapinit(void)$/;"	kind:function	line:193	language:C	typeref:typename:void	signature:(void)	roles:def	end:239
+Updenv	plan9.c	/^Updenv(void)$/;"	kind:function	line:249	language:C	typeref:typename:void	signature:(void)	roles:def	end:259
+Updenv	unix.c	/^Updenv(void)$/;"	kind:function	line:277	language:C	typeref:typename:void	signature:(void)	roles:def	end:285
+Vinit	plan9.c	/^Vinit(void)$/;"	kind:function	line:131	language:C	typeref:typename:void	signature:(void)	roles:def	end:165
+Vinit	unix.c	/^Vinit(void)$/;"	kind:function	line:168	language:C	typeref:typename:void	signature:(void)	roles:def	end:183
+WHILE	y.tab.c	/^#define	WHILE	/;"	kind:macro	line:3	language:C	file:	roles:def	extras:fileScope	end:3
+WHILE	y.tab.h	/^#define	WHILE	/;"	kind:macro	line:3	language:C++	roles:def	end:3
+WORD	y.tab.c	/^#define	WORD	/;"	kind:macro	line:11	language:C	file:	roles:def	extras:fileScope	end:11
+WORD	y.tab.h	/^#define	WORD	/;"	kind:macro	line:11	language:C++	roles:def	end:11
+WORDS	y.tab.c	/^#define	WORDS	/;"	kind:macro	line:19	language:C	file:	roles:def	extras:fileScope	end:19
+WORDS	y.tab.h	/^#define	WORDS	/;"	kind:macro	line:19	language:C++	roles:def	end:19
+WRITE	rc.h	/^#define	WRITE	/;"	kind:macro	line:110	language:C++	roles:def	end:110
+Waitfor	plan9.c	/^Waitfor(int pid)$/;"	kind:function	line:176	language:C	typeref:typename:int	signature:(int pid)	roles:def	end:202
+Waitfor	unix.c	/^Waitfor(int pid)$/;"	kind:function	line:248	language:C	typeref:typename:int	signature:(int pid)	roles:def	end:272
+Write	plan9.c	/^Write(int fd, void *buf, long cnt)$/;"	kind:function	line:371	language:C	typeref:typename:long	signature:(int fd,void * buf,long cnt)	roles:def	end:374
+Write	unix.c	/^Write(int fd, void *buf, long cnt)$/;"	kind:function	line:325	language:C	typeref:typename:long	signature:(int fd,void * buf,long cnt)	roles:def	end:328
+Xappend	exec.c	/^Xappend(void)$/;"	kind:function	line:339	language:C	typeref:typename:void	signature:(void)	roles:def	end:362
+Xassign	exec.c	/^Xassign(void)$/;"	kind:function	line:738	language:C	typeref:typename:void	signature:(void)	roles:def	end:751
+Xasync	havefork.c	/^Xasync(void)$/;"	kind:function	line:46	language:C	typeref:typename:void	signature:(void)	roles:def	end:67
+Xbackq	havefork.c	/^Xbackq(void)$/;"	kind:function	line:109	language:C	typeref:typename:void	signature:(void)	roles:def	end:154
+Xbang	exec.c	/^Xbang(void)$/;"	kind:function	line:371	language:C	typeref:typename:void	signature:(void)	roles:def	end:374
+Xcase	exec.c	/^Xcase(void)$/;"	kind:function	line:673	language:C	typeref:typename:void	signature:(void)	roles:def	end:691
+Xclose	exec.c	/^Xclose(void)$/;"	kind:function	line:377	language:C	typeref:typename:void	signature:(void)	roles:def	end:380
+Xconc	exec.c	/^Xconc(void)$/;"	kind:function	line:715	language:C	typeref:typename:void	signature:(void)	roles:def	end:735
+Xcount	exec.c	/^Xcount(void)$/;"	kind:function	line:893	language:C	typeref:typename:void	signature:(void)	roles:def	end:916
+Xdelfn	exec.c	/^Xdelfn(void)$/;"	kind:function	line:962	language:C	typeref:typename:void	signature:(void)	roles:def	end:974
+Xdol	exec.c	/^Xdol(void)$/;"	kind:function	line:768	language:C	typeref:typename:void	signature:(void)	roles:def	end:793
+Xdup	exec.c	/^Xdup(void)$/;"	kind:function	line:383	language:C	typeref:typename:void	signature:(void)	roles:def	end:387
+Xeflag	exec.c	/^Xeflag(void)$/;"	kind:function	line:390	language:C	typeref:typename:void	signature:(void)	roles:def	end:393
+Xerror1	exec.c	/^Xerror1(char *s)$/;"	kind:function	line:1075	language:C	typeref:typename:void	signature:(char * s)	roles:def	end:1082
+Xerror2	exec.c	/^Xerror2(char *s, char *e)$/;"	kind:function	line:1084	language:C	typeref:typename:void	signature:(char * s,char * e)	roles:def	end:1091
+Xerror3	exec.c	/^Xerror3(char *s, char *m, char *e)$/;"	kind:function	line:1093	language:C	typeref:typename:void	signature:(char * s,char * m,char * e)	roles:def	end:1100
+Xexit	exec.c	/^Xexit(void)$/;"	kind:function	line:396	language:C	typeref:typename:void	signature:(void)	roles:def	end:411
+Xfalse	exec.c	/^Xfalse(void)$/;"	kind:function	line:414	language:C	typeref:typename:void	signature:(void)	roles:def	end:418
+Xfn	exec.c	/^Xfn(void)$/;"	kind:function	line:944	language:C	typeref:typename:void	signature:(void)	roles:def	end:959
+Xfor	exec.c	/^Xfor(void)$/;"	kind:function	line:1141	language:C	typeref:typename:void	signature:(void)	roles:def	end:1156
+Xglob	exec.c	/^Xglob(void)$/;"	kind:function	line:1159	language:C	typeref:typename:void	signature:(void)	roles:def	end:1167
+Xhere	exec.c	/^Xhere(void)$/;"	kind:function	line:485	language:C	typeref:typename:void	signature:(void)	roles:def	end:506
+Xhereq	exec.c	/^Xhereq(void)$/;"	kind:function	line:509	language:C	typeref:typename:void	signature:(void)	roles:def	end:528
+Xif	exec.c	/^Xif(void)$/;"	kind:function	line:611	language:C	typeref:typename:void	signature:(void)	roles:def	end:616
+Xifnot	exec.c	/^Xifnot(void)$/;"	kind:function	line:422	language:C	typeref:typename:void	signature:(void)	roles:def	end:428
+Xjump	exec.c	/^Xjump(void)$/;"	kind:function	line:431	language:C	typeref:typename:void	signature:(void)	roles:def	end:434
+Xlocal	exec.c	/^Xlocal(void)$/;"	kind:function	line:919	language:C	typeref:typename:void	signature:(void)	roles:def	end:929
+Xmark	exec.c	/^Xmark(void)$/;"	kind:function	line:437	language:C	typeref:typename:void	signature:(void)	roles:def	end:440
+Xmatch	exec.c	/^Xmatch(void)$/;"	kind:function	line:656	language:C	typeref:typename:void	signature:(void)	roles:def	end:670
+Xpipe	havefork.c	/^Xpipe(void)$/;"	kind:function	line:70	language:C	typeref:typename:void	signature:(void)	roles:def	end:102
+Xpipefd	havefork.c	/^Xpipefd(void)$/;"	kind:function	line:157	language:C	typeref:typename:void	signature:(void)	roles:def	end:199
+Xpipewait	exec.c	/^Xpipewait(void)$/;"	kind:function	line:993	language:C	typeref:typename:void	signature:(void)	roles:def	end:1005
+Xpopm	exec.c	/^Xpopm(void)$/;"	kind:function	line:443	language:C	typeref:typename:void	signature:(void)	roles:def	end:446
+Xpopredir	exec.c	/^Xpopredir(void)$/;"	kind:function	line:581	language:C	typeref:typename:void	signature:(void)	roles:def	end:591
+Xpush	exec.c	/^Xpush(void)$/;"	kind:function	line:449	language:C	typeref:typename:void	signature:(void)	roles:def	end:456
+Xqw	exec.c	/^Xqw(void)$/;"	kind:function	line:796	language:C	typeref:typename:void	signature:(void)	roles:def	end:823
+Xrdcmds	exec.c	/^Xrdcmds(void)$/;"	kind:function	line:1010	language:C	typeref:typename:void	signature:(void)	roles:def	end:1048
+Xrdfn	unix.c	/^Xrdfn(void)$/;"	kind:function	line:47	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:70
+Xrdwr	exec.c	/^Xrdwr(void)$/;"	kind:function	line:556	language:C	typeref:typename:void	signature:(void)	roles:def	end:578
+Xread	exec.c	/^Xread(void)$/;"	kind:function	line:531	language:C	typeref:typename:void	signature:(void)	roles:def	end:553
+Xreturn	exec.c	/^Xreturn(void)$/;"	kind:function	line:594	language:C	typeref:typename:void	signature:(void)	roles:def	end:601
+Xsettrue	exec.c	/^Xsettrue(void)$/;"	kind:function	line:365	language:C	typeref:typename:void	signature:(void)	roles:def	end:368
+Xsimple	simple.c	/^Xsimple(void)$/;"	kind:function	line:58	language:C	typeref:typename:void	signature:(void)	roles:def	end:107
+Xsrcline	exec.c	/^Xsrcline(void)$/;"	kind:function	line:1170	language:C	typeref:typename:void	signature:(void)	roles:def	end:1173
+Xsub	exec.c	/^Xsub(void)$/;"	kind:function	line:874	language:C	typeref:typename:void	signature:(void)	roles:def	end:890
+Xsubshell	havefork.c	/^Xsubshell(void)$/;"	kind:function	line:202	language:C	typeref:typename:void	signature:(void)	roles:def	end:222
+Xtrue	exec.c	/^Xtrue(void)$/;"	kind:function	line:604	language:C	typeref:typename:void	signature:(void)	roles:def	end:608
+Xunlocal	exec.c	/^Xunlocal(void)$/;"	kind:function	line:932	language:C	typeref:typename:void	signature:(void)	roles:def	end:941
+Xwastrue	exec.c	/^Xwastrue(void)$/;"	kind:function	line:619	language:C	typeref:typename:void	signature:(void)	roles:def	end:622
+Xword	exec.c	/^Xword(void)$/;"	kind:function	line:625	language:C	typeref:typename:void	signature:(void)	roles:def	end:628
+Xwrite	exec.c	/^Xwrite(void)$/;"	kind:function	line:631	language:C	typeref:typename:void	signature:(void)	roles:def	end:653
+YYABORT	y.tab.c	/^#define YYABORT	/;"	kind:macro	line:198	language:C	file:	roles:def	extras:fileScope	end:198
+YYACCEPT	y.tab.c	/^#define YYACCEPT	/;"	kind:macro	line:197	language:C	file:	roles:def	extras:fileScope	end:197
+YYEOFCODE	y.tab.c	/^#define YYEOFCODE /;"	kind:macro	line:42	language:C	file:	roles:def	extras:fileScope	end:42
+YYERRCODE	y.tab.c	/^#define YYERRCODE /;"	kind:macro	line:43	language:C	file:	roles:def	extras:fileScope	end:43
+YYERROR	y.tab.c	/^#define YYERROR	/;"	kind:macro	line:196	language:C	file:	roles:def	extras:fileScope	end:196
+YYFLAG	y.tab.c	/^#define YYFLAG /;"	kind:macro	line:195	language:C	file:	roles:def	extras:fileScope	end:195
+YYLAST	y.tab.c	/^#define	YYLAST	/;"	kind:macro	line:54	language:C	file:	roles:def	extras:fileScope	end:54
+YYMAXDEPTH	rc.h	/^#define	YYMAXDEPTH	/;"	kind:macro	line:26	language:C++	roles:def	end:26
+YYMAXDEPTH	y.tab.c	/^#define	YYMAXDEPTH	/;"	kind:macro	line:38	language:C	file:	roles:def	extras:fileScope	end:38
+YYNPROD	y.tab.c	/^#define	YYNPROD	/;"	kind:macro	line:52	language:C	file:	roles:def	extras:fileScope	end:52
+YYPRIVATE	y.tab.c	/^#define	YYPRIVATE /;"	kind:macro	line:53	language:C	file:	roles:def	extras:fileScope	end:53
+YYSTYPE	y.tab.c	/^} YYSTYPE;$/;"	kind:typedef	line:35	language:C	typeref:union:__anond9bd93f4010a	file:	roles:def	extras:fileScope
+YYSTYPE	y.tab.h	/^}	YYSTYPE;$/;"	kind:typedef	line:30	language:C++	typeref:union:__anond9bd93f9010a	roles:def
+__anon10643646010a	syn.y	/union{$/;"	kind:union	line:16	language:C	file:	roles:def	extras:fileScope,guest,anonymous	end:18
+__anon10643646010a::tree	syn.y	/^	struct tree *tree;$/;"	kind:member	line:17	language:C	scope:union:__anon10643646010a	typeref:struct:tree *	file:	access:public	roles:def	extras:fileScope,qualified,guest	end:17
+__anon14948bbd0108	pfnc.c	/^struct{$/;"	kind:struct	line:5	language:C	file:	roles:def	extras:fileScope,anonymous	end:8
+__anon14948bbd0108::f	pfnc.c	/^	void (*f)(void);$/;"	kind:member	line:6	language:C	scope:struct:__anon14948bbd0108	typeref:typename:void (*)(void)	file:	access:public	roles:def	extras:fileScope,qualified	end:6
+__anon14948bbd0108::name	pfnc.c	/^	char *name;$/;"	kind:member	line:7	language:C	scope:struct:__anon14948bbd0108	typeref:typename:char *	file:	access:public	roles:def	extras:fileScope,qualified	end:7
+__anon7c9881ce0103	io.c	/^enum {$/;"	kind:enum	line:6	language:C	file:	roles:def	extras:fileScope,anonymous	end:8
+__anond9bd93f4010a	y.tab.c	/^typedef union {$/;"	kind:union	line:33	language:C	file:	roles:def	extras:fileScope,anonymous	end:35
+__anond9bd93f4010a::tree	y.tab.c	/^	struct tree *tree;$/;"	kind:member	line:34	language:C	scope:union:__anond9bd93f4010a	typeref:struct:tree *	file:	access:public	roles:def	extras:fileScope,qualified	end:34
+__anond9bd93f40208	y.tab.c	/^	{$/;"	kind:struct	line:304	language:C	scope:function:yyparse	file:	roles:def	extras:fileScope,anonymous	end:307
+__anond9bd93f9010a	y.tab.h	/^typedef union {$/;"	kind:union	line:28	language:C++	roles:def	extras:anonymous	end:30
+__anond9bd93f9010a::tree	y.tab.h	/^	struct tree *tree;$/;"	kind:member	line:29	language:C++	scope:union:__anond9bd93f9010a	typeref:struct:tree *	access:public	roles:def	extras:qualified	end:29
+_searchpath	simple.c	/^_searchpath(char *w, char *v)$/;"	kind:function	line:132	language:C	typeref:typename:word *	signature:(char * w,char * v)	roles:def	end:144
+addenv	plan9.c	/^addenv(var *v)$/;"	kind:function	line:205	language:C	typeref:typename:void	file:	signature:(var * v)	roles:def	extras:fileScope	end:237
+addtok	lex.c	/^addtok(char *p, int val)$/;"	kind:function	line:177	language:C	typeref:typename:char *	file:	signature:(char * p,int val)	roles:def	extras:fileScope	end:188
+addutf	lex.c	/^addutf(char *p, int c)$/;"	kind:function	line:191	language:C	typeref:typename:char *	file:	signature:(char * p,int c)	roles:def	extras:fileScope	end:211
+addwaitpid	havefork.c	/^addwaitpid(int pid)$/;"	kind:function	line:11	language:C	typeref:typename:void	signature:(int pid)	roles:def	end:15
+advance	lex.c	/^advance(void)$/;"	kind:function	line:119	language:C	typeref:typename:int	file:	signature:(void)	roles:def	extras:fileScope	end:127
+argv	exec.h	/^	list *argv;			\/* argument stack *\/$/;"	kind:member	line:50	language:C++	scope:struct:thread	typeref:typename:list *	access:public	roles:def	end:50
+argv0	exec.c	/^char *argv0="rc";$/;"	kind:variable	line:7	language:C	typeref:typename:char *	roles:def	end:7
+badflag	getflags.c	/^static int badflag;$/;"	kind:variable	line:18	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:18
+body	parse.c	/^body(int tok, int *ptok)$/;"	kind:function	line:75	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:78
+bp	subr.c	/^static char *bp;$/;"	kind:variable	line:43	language:C	typeref:typename:char *	file:	roles:def	extras:fileScope	end:43
+brace	parse.c	/^brace(int tok)$/;"	kind:function	line:120	language:C	typeref:typename:tree *	file:	signature:(int tok)	roles:def	extras:fileScope	end:133
+buf	getflags.c	/^static char buf[NBUF], *bufp = buf;$/;"	kind:variable	line:224	language:C	typeref:typename:char[]	file:	roles:def	extras:fileScope	end:224
+buf	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	end:5
+bufp	getflags.c	/^static char buf[NBUF], *bufp = buf;$/;"	kind:variable	line:224	language:C	typeref:typename:char *	file:	roles:def	extras:fileScope	end:224
+bufp	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	end:5
+builtin	exec.h	/^struct builtin{$/;"	kind:struct	line:71	language:C++	roles:def	end:74
+builtin	rc.h	/^typedef struct builtin builtin;$/;"	kind:typedef	line:39	language:C++	typeref:struct:builtin	roles:def
+builtin::fnc	exec.h	/^	void (*fnc)(void);$/;"	kind:member	line:73	language:C++	scope:struct:builtin	typeref:typename:void (*)(void)	access:public	roles:def	extras:qualified	end:73
+builtin::name	exec.h	/^	char *name;$/;"	kind:member	line:72	language:C++	scope:struct:builtin	typeref:typename:char *	access:public	roles:def	extras:qualified	end:72
+builtinfunc	simple.c	/^void (*builtinfunc(char *name))(void)$/;"	kind:function	line:46	language:C	typeref:typename:void (*)(void)	signature:(char * name)	roles:def	end:55
+c0	code.c	/^#define	c0	/;"	kind:macro	line:6	language:C	file:	roles:def	extras:fileScope	end:6
+c0	pcmd.c	/^#define	c0	/;"	kind:macro	line:5	language:C	file:	roles:def	extras:fileScope	end:5
+c1	code.c	/^#define	c1	/;"	kind:macro	line:7	language:C	file:	roles:def	extras:fileScope	end:7
+c1	pcmd.c	/^#define	c1	/;"	kind:macro	line:6	language:C	file:	roles:def	extras:fileScope	end:6
+c2	code.c	/^#define	c2	/;"	kind:macro	line:8	language:C	file:	roles:def	extras:fileScope	end:8
+c2	pcmd.c	/^#define	c2	/;"	kind:macro	line:7	language:C	file:	roles:def	extras:fileScope	end:7
+changed	rc.h	/^	char	changed;$/;"	kind:member	line:123	language:C++	scope:struct:var	typeref:typename:char	access:public	roles:def	end:123
+checkparse	checkparse	1;"	kind:file	line:1	language:Sh	roles:def	extras:inputFile	end:23	epoch:1658434441
+child	rc.h	/^	tree	*child[3];$/;"	kind:member	line:54	language:C++	scope:struct:tree	typeref:typename:tree * [3]	access:public	roles:def	end:54
+clearwaitpids	havefork.c	/^clearwaitpids(void)$/;"	kind:function	line:29	language:C	typeref:typename:void	signature:(void)	roles:def	end:32
+closeio	io.c	/^closeio(io *f)$/;"	kind:function	line:287	language:C	typeref:typename:void	signature:(io * f)	roles:def	end:291
+closeiostr	io.c	/^closeiostr(io *f)$/;"	kind:function	line:237	language:C	typeref:typename:char *	signature:(io * f)	roles:def	end:242
+cmd	parse.c	/^cmd(int tok, int *ptok)$/;"	kind:function	line:196	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:213
+cmd2	parse.c	/^cmd2(int tok, int *ptok)$/;"	kind:function	line:216	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:229
+cmd3	parse.c	/^cmd3(int tok, int *ptok)$/;"	kind:function	line:232	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:381
+cmdname	getflags.c	/^char *cmdname;$/;"	kind:variable	line:6	language:C	typeref:typename:char *	roles:def	end:6
+cmds	parse.c	/^cmds(int tok, int *ptok, int nlok)$/;"	kind:function	line:81	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok,int nlok)	roles:def	extras:fileScope	end:117
+cmdsan	syn.y	/^cmdsan:	cmdsa$/;"	kind:label	line:32	language:YACC	typeref:typename:tree	roles:def
+cmpenv	unix.c	/^cmpenv(const void *aa, const void *ab)$/;"	kind:function	line:89	language:C	typeref:typename:int	file:	signature:(const void * aa,const void * ab)	roles:def	extras:fileScope	end:92
+code	exec.h	/^	code *code;			\/* code for this thread *\/$/;"	kind:member	line:47	language:C++	scope:struct:thread	typeref:typename:code *	access:public	roles:def	end:47
+code	rc.h	/^typedef union code code;$/;"	kind:typedef	line:33	language:C++	typeref:union:code	roles:def
+code	rc.h	/^union code{$/;"	kind:union	line:74	language:C++	roles:def	end:78
+code.c	code.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:547	epoch:1659461020
+code::f	rc.h	/^	void	(*f)(void);$/;"	kind:member	line:75	language:C++	scope:union:code	typeref:typename:void (*)(void)	access:public	roles:def	extras:qualified	end:75
+code::i	rc.h	/^	int	i;$/;"	kind:member	line:76	language:C++	scope:union:code	typeref:typename:int	access:public	roles:def	extras:qualified	end:76
+code::s	rc.h	/^	char	*s;$/;"	kind:member	line:77	language:C++	scope:union:code	typeref:typename:char *	access:public	roles:def	extras:qualified	end:77
+codebuf	code.c	/^code *codebuf;$/;"	kind:variable	line:9	language:C	typeref:typename:code *	roles:def	end:9
+codecopy	code.c	/^codecopy(code *cp)$/;"	kind:function	line:517	language:C	typeref:typename:code *	signature:(code * cp)	roles:def	end:521
+codefree	code.c	/^codefree(code *cp)$/;"	kind:function	line:524	language:C	typeref:typename:void	signature:(code * cp)	roles:def	end:547
+codeline	code.c	/^static int codep, ncode, codeline;$/;"	kind:variable	line:10	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:10
+codep	code.c	/^static int codep, ncode, codeline;$/;"	kind:variable	line:10	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:10
+codeswitch	code.c	/^codeswitch(tree *t, int eflag)$/;"	kind:function	line:457	language:C	typeref:typename:void	signature:(tree * t,int eflag)	roles:def	end:505
+compile	code.c	/^compile(tree *t)$/;"	kind:function	line:39	language:C	typeref:typename:int	signature:(tree * t)	roles:def	end:55
+conclist	exec.c	/^conclist(word *lp, word *rp, word *tail)$/;"	kind:function	line:694	language:C	typeref:typename:word *	file:	signature:(word * lp,word * rp,word * tail)	roles:def	extras:fileScope	end:712
+concstatus	exec.c	/^concstatus(char *s, char *t)$/;"	kind:function	line:977	language:C	typeref:typename:char *	file:	signature:(char * s,char * t)	roles:def	extras:fileScope	end:990
+copynwords	exec.c	/^copynwords(word *a, word *tail, int n)$/;"	kind:function	line:826	language:C	typeref:typename:word *	file:	signature:(word * a,word * tail,int n)	roles:def	extras:fileScope	end:839
+copywords	exec.c	/^copywords(word *a, word *tail)$/;"	kind:function	line:757	language:C	typeref:typename:word *	signature:(word * a,word * tail)	roles:def	end:765
+count	exec.c	/^count(word *w)$/;"	kind:function	line:148	language:C	typeref:typename:int	signature:(word * w)	roles:def	end:153
+dbuf	plan9.c	/^	Dir	*dbuf;$/;"	kind:member	line:277	language:C	scope:struct:readdir	typeref:typename:Dir *	file:	access:public	roles:def	extras:fileScope	end:277
+deglob	glob.c	/^deglob(char *s)$/;"	kind:function	line:9	language:C	typeref:typename:char *	signature:(char * s)	roles:def	end:21
+delwaitpid	havefork.c	/^delwaitpid(int pid)$/;"	kind:function	line:18	language:C	typeref:typename:void	signature:(int pid)	roles:def	end:26
+dirent.h	unix.c	/^#include <dirent.h>/;"	kind:header	line:17	language:C	roles:system	extras:reference
+dontclose	exec.c	/^dontclose(int fd)$/;"	kind:function	line:167	language:C	typeref:typename:void	file:	signature:(int fd)	roles:def	extras:fileScope	end:179
+doprompt	lex.c	/^int doprompt = 1;$/;"	kind:variable	line:8	language:C	typeref:typename:int	roles:def	end:8
+doredir	simple.c	/^doredir(redir *rp)$/;"	kind:function	line:110	language:C	typeref:typename:void	file:	signature:(redir * rp)	roles:def	extras:fileScope	end:129
+dotrap	trap.c	/^dotrap(void)$/;"	kind:function	line:10	language:C	typeref:typename:void	signature:(void)	roles:def	end:34
+dropnl	parse.c	/^dropnl(int tok)$/;"	kind:function	line:23	language:C	typeref:typename:int	file:	signature:(int tok)	roles:def	extras:fileScope	end:28
+dropsp	parse.c	/^dropsp(int tok)$/;"	kind:function	line:31	language:C	typeref:typename:int	file:	signature:(int tok)	roles:def	extras:fileScope	end:36
+ebuf	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	end:5
+emalloc	subr.c	/^emalloc(long n)$/;"	kind:function	line:6	language:C	typeref:typename:void *	signature:(long n)	roles:def	end:12
+emitf	code.c	/^#define	emitf(/;"	kind:macro	line:11	language:C	file:	signature:(x)	roles:def	extras:fileScope	end:11
+emiti	code.c	/^#define	emiti(/;"	kind:macro	line:12	language:C	file:	signature:(x)	roles:def	extras:fileScope	end:12
+emits	code.c	/^#define	emits(/;"	kind:macro	line:13	language:C	file:	signature:(x)	roles:def	extras:fileScope	end:13
+emptyiobuf	io.c	/^emptyiobuf(io *f)$/;"	kind:function	line:294	language:C	typeref:typename:int	signature:(io * f)	roles:def	end:301
+environ	exec.c	/^char **environ;$/;"	kind:variable	line:11	language:C	typeref:typename:char **	roles:def	end:11
+envp	unix.c	/^static char **envp;$/;"	kind:variable	line:44	language:C	typeref:typename:char **	file:	roles:def	extras:fileScope	end:44
+envval	unix.c	/^envval(char *s)$/;"	kind:function	line:155	language:C	typeref:typename:word *	file:	signature:(char * s)	roles:def	extras:fileScope	end:165
+eof	rc.h	/^	char	eof;$/;"	kind:member	line:94	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:94
+epilog	parse.c	/^epilog(int tok, int *ptok)$/;"	kind:function	line:152	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:168
+epilog	rc.h	/^	char	*epilog;$/;"	kind:member	line:88	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	end:88
+epimung	tree.c	/^epimung(tree *comp, tree *epi)$/;"	kind:function	line:116	language:C	typeref:typename:tree *	signature:(tree * comp,tree * epi)	roles:def	end:124
+equtf	glob.c	/^equtf(char *p, char *q)$/;"	kind:function	line:191	language:C	typeref:typename:int	file:	signature:(char * p,char * q)	roles:def	extras:fileScope	end:196
+erealloc	subr.c	/^erealloc(void *p, long n)$/;"	kind:function	line:15	language:C	typeref:typename:void *	signature:(void * p,long n)	roles:def	end:21
+err	exec.c	/^io *err;$/;"	kind:variable	line:8	language:C	typeref:typename:io *	roles:def	end:8
+errc	getflags.c	/^errc(int c)$/;"	kind:function	line:227	language:C	typeref:typename:void	file:	signature:(int c)	roles:def	extras:fileScope	end:234
+errn	getflags.c	/^errn(char *s, int count)$/;"	kind:function	line:213	language:C	typeref:typename:void	file:	signature:(char * s,int count)	roles:def	extras:fileScope	end:216
+errno.h	unix.c	/^#include <errno.h>/;"	kind:header	line:15	language:C	roles:system	extras:reference
+errs	getflags.c	/^errs(char *s)$/;"	kind:function	line:219	language:C	typeref:typename:void	file:	signature:(char * s)	roles:def	extras:fileScope	end:222
+estrdup	subr.c	/^estrdup(char *s)$/;"	kind:function	line:24	language:C	typeref:typename:char *	signature:(char * s)	roles:def	end:30
+exec.c	exec.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:1173	epoch:1659460845
+exec.h	code.c	/^#include "exec.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+exec.h	exec.c	/^#include "exec.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+exec.h	exec.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:85	epoch:1659459892
+exec.h	glob.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+exec.h	havefork.c	/^#include "exec.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+exec.h	here.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+exec.h	io.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+exec.h	pfnc.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+exec.h	plan9.c	/^#include "exec.h"/;"	kind:header	line:7	language:C	roles:local	extras:reference
+exec.h	simple.c	/^#include "exec.h"/;"	kind:header	line:6	language:C	roles:local	extras:reference
+exec.h	trap.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+exec.h	unix.c	/^#include "exec.h"/;"	kind:header	line:7	language:C	roles:local	extras:reference
+exec.h	var.c	/^#include "exec.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+execcd	simple.c	/^execcd(void)$/;"	kind:function	line:204	language:C	typeref:typename:void	signature:(void)	roles:def	end:244
+execcmds	simple.c	/^execcmds(io *input, char *file, var *local, redir *redir)$/;"	kind:function	line:309	language:C	typeref:typename:void	signature:(io * input,char * file,var * local,redir * redir)	roles:def	end:325
+execdot	simple.c	/^execdot(void)$/;"	kind:function	line:354	language:C	typeref:typename:void	signature:(void)	roles:def	end:432
+execeval	simple.c	/^execeval(void)$/;"	kind:function	line:328	language:C	typeref:typename:void	signature:(void)	roles:def	end:351
+execexec	simple.c	/^execexec(void)$/;"	kind:function	line:173	language:C	typeref:typename:void	signature:(void)	roles:def	end:194
+execexit	simple.c	/^execexit(void)$/;"	kind:function	line:247	language:C	typeref:typename:void	signature:(void)	roles:def	end:256
+execfinit	plan9.c	/^execfinit(void)$/;"	kind:function	line:55	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:63
+execfinit	unix.c	/^execfinit(void)$/;"	kind:function	line:73	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:86
+execflag	simple.c	/^execflag(void)$/;"	kind:function	line:435	language:C	typeref:typename:void	signature:(void)	roles:def	end:460
+execforkexec	havefork.c	/^execforkexec(void)$/;"	kind:function	line:225	language:C	typeref:typename:int	signature:(void)	roles:def	end:240
+execfunc	simple.c	/^execfunc(var *func)$/;"	kind:function	line:197	language:C	typeref:typename:void	signature:(var * func)	roles:def	end:201
+execrfork	plan9.c	/^execrfork(void)$/;"	kind:function	line:66	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:118
+execshift	simple.c	/^execshift(void)$/;"	kind:function	line:259	language:C	typeref:typename:void	signature:(void)	roles:def	end:286
+execwait	simple.c	/^execwait(void)$/;"	kind:function	line:523	language:C	typeref:typename:void	signature:(void)	roles:def	end:537
+execwhatis	simple.c	/^execwhatis(void){	\/* mildly wrong -- should fork before writing *\/$/;"	kind:function	line:463	language:C	typeref:typename:void	signature:(void)	roles:def	end:520
+exitnext	simple.c	/^exitnext(void){$/;"	kind:function	line:14	language:C	typeref:typename:int	signature:(void)	roles:def	end:44
+f	pfnc.c	/^	void (*f)(void);$/;"	kind:member	line:6	language:C	scope:struct:__anon14948bbd0108	typeref:typename:void (*)(void)	file:	access:public	roles:def	extras:fileScope	end:6
+f	rc.h	/^	void	(*f)(void);$/;"	kind:member	line:75	language:C++	scope:union:code	typeref:typename:void (*)(void)	access:public	roles:def	end:75
+fcntl.h	unix.c	/^#include <fcntl.h>/;"	kind:header	line:16	language:C	roles:system	extras:reference
+fd	io.h	/^	int	fd;$/;"	kind:member	line:4	language:C++	scope:struct:io	typeref:typename:int	access:public	roles:def	end:4
+fd	plan9.c	/^	int	fd;$/;"	kind:member	line:279	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope	end:279
+fd0	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	end:48
+fd1	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	end:48
+file	rc.h	/^	char	*file;$/;"	kind:member	line:84	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	end:84
+flag	getflags.c	/^char **flag[NFLAG];$/;"	kind:variable	line:5	language:C	typeref:typename:char ** []	roles:def	end:5
+flagarg	getflags.c	/^static char *flagarg="";$/;"	kind:variable	line:7	language:C	typeref:typename:char *	file:	roles:def	extras:fileScope	end:7
+flagset	getflags.c	/^char *flagset[] = {"<flag>"};$/;"	kind:variable	line:4	language:C	typeref:typename:char * []	roles:def	end:4
+flushio	io.c	/^flushio(io *f)$/;"	kind:function	line:264	language:C	typeref:typename:void	signature:(io * f)	roles:def	end:284
+fn	rc.h	/^	code	*fn;		\/* pointer to function's code vector *\/$/;"	kind:member	line:120	language:C++	scope:struct:var	typeref:typename:code *	access:public	roles:def	end:120
+fname	pfnc.c	/^}fname[] = {$/;"	kind:variable	line:8	language:C	typeref:struct:__anon14948bbd0108[]	roles:def	end:54
+fnc	exec.h	/^	void (*fnc)(void);$/;"	kind:member	line:73	language:C++	scope:struct:builtin	typeref:typename:void (*)(void)	access:public	roles:def	end:73
+fnchanged	rc.h	/^	char	fnchanged;$/;"	kind:member	line:122	language:C++	scope:struct:var	typeref:typename:char	access:public	roles:def	end:122
+fns.h	code.c	/^#include "fns.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+fns.h	exec.c	/^#include "fns.h"/;"	kind:header	line:5	language:C	roles:local	extras:reference
+fns.h	fns.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:71	epoch:1659459892
+fns.h	getflags.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	glob.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	havefork.c	/^#include "fns.h"/;"	kind:header	line:5	language:C	roles:local	extras:reference
+fns.h	here.c	/^#include "fns.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+fns.h	io.c	/^#include "fns.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+fns.h	lex.c	/^#include "fns.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+fns.h	parse.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	pcmd.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	pfnc.c	/^#include "fns.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+fns.h	plan9.c	/^#include "fns.h"/;"	kind:header	line:9	language:C	roles:local	extras:reference
+fns.h	simple.c	/^#include "fns.h"/;"	kind:header	line:8	language:C	roles:local	extras:reference
+fns.h	subr.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	syn.y	/^#include "fns.h"/;"	kind:header	line:14	language:C	roles:local	extras:reference,guest
+fns.h	trap.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	tree.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	unix.c	/^#include "fns.h"/;"	kind:header	line:9	language:C	roles:local	extras:reference
+fns.h	var.c	/^#include "fns.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+fns.h	y.tab.c	/^#include "fns.h"/;"	kind:header	line:30	language:C	roles:local	extras:reference
+fnstr	tree.c	/^fnstr(tree *t)$/;"	kind:function	line:149	language:C	typeref:typename:char *	signature:(tree * t)	roles:def	end:154
+fourbyte	rc.h	/^#define fourbyte(/;"	kind:macro	line:153	language:C++	signature:(c)	roles:def	end:153
+freelexer	lex.c	/^freelexer(lexer *p)$/;"	kind:function	line:51	language:C	typeref:typename:void	signature:(lexer * p)	roles:def	end:56
+freenodes	tree.c	/^freenodes(void)$/;"	kind:function	line:33	language:C	typeref:typename:void	signature:(void)	roles:def	end:52
+freevar	var.c	/^freevar(var *v)$/;"	kind:function	line:105	language:C	typeref:typename:void	signature:(var * v)	roles:def	end:109
+freewords	exec.c	/^freewords(word *w)$/;"	kind:function	line:95	language:C	typeref:typename:void	signature:(word * w)	roles:def	end:102
+from	exec.h	/^	int from, to;			\/* what to do it to *\/$/;"	kind:member	line:34	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	end:34
+future	rc.h	/^	int	future;$/;"	kind:member	line:91	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	end:91
+getflags	getflags.c	/^getflags(int argc, char *argv[], char *flags, int stop)$/;"	kind:function	line:21	language:C	typeref:typename:int	signature:(int argc,char * argv[],char * flags,int stop)	roles:def	end:75
+getflags.c	getflags.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:234	epoch:1659459892
+getflags.h	code.c	/^#include "getflags.h"/;"	kind:header	line:5	language:C	roles:local	extras:reference
+getflags.h	exec.c	/^#include "getflags.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+getflags.h	getflags.c	/^#include "getflags.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+getflags.h	getflags.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:7	epoch:1659459892
+getflags.h	havefork.c	/^#include "getflags.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+getflags.h	lex.c	/^#include "getflags.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+getflags.h	plan9.c	/^#include "getflags.h"/;"	kind:header	line:10	language:C	roles:local	extras:reference
+getflags.h	simple.c	/^#include "getflags.h"/;"	kind:header	line:5	language:C	roles:local	extras:reference
+getflags.h	unix.c	/^#include "getflags.h"/;"	kind:header	line:10	language:C	roles:local	extras:reference
+getnext	lex.c	/^getnext(void)$/;"	kind:function	line:62	language:C	typeref:typename:int	file:	signature:(void)	roles:def	extras:fileScope	end:102
+getstatus	exec.c	/^getstatus(void)$/;"	kind:function	line:1124	language:C	typeref:typename:char *	signature:(void)	roles:def	end:1128
+glob	rc.h	/^	char	glob;			\/* 0=string, 1=glob, 2=pattern see globprop() and noglobs() *\/$/;"	kind:member	line:50	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	end:50
+glob.c	glob.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:259	epoch:1659459892
+globcmp	glob.c	/^globcmp(const void *s, const void *t)$/;"	kind:function	line:24	language:C	typeref:typename:int	file:	signature:(const void * s,const void * t)	roles:def	extras:fileScope	end:27
+globdir	glob.c	/^globdir(word *list, char *pattern, char *name)$/;"	kind:function	line:68	language:C	typeref:typename:word *	file:	signature:(word * list,char * pattern,char * name)	roles:def	extras:fileScope	end:117
+globprop	tree.c	/^globprop(tree *t)$/;"	kind:function	line:157	language:C	typeref:typename:tree *	signature:(tree * t)	roles:def	end:181
+globsort	glob.c	/^globsort(word *left, word *right)$/;"	kind:function	line:30	language:C	typeref:typename:void	file:	signature:(word * left,word * right)	roles:def	extras:fileScope	end:41
+globword	glob.c	/^globword(word *w)$/;"	kind:function	line:123	language:C	typeref:typename:void	signature:(word * w)	roles:def	end:139
+gvar	var.c	/^var *gvar[NVAR];$/;"	kind:variable	line:5	language:C	typeref:typename:var * []	roles:def	end:5
+gvlook	var.c	/^gvlook(char *name)$/;"	kind:function	line:77	language:C	typeref:typename:var *	signature:(char * name)	roles:def	end:83
+hash	var.c	/^hash(char *s, int n)$/;"	kind:function	line:8	language:C	typeref:typename:int	signature:(char * s,int n)	roles:def	end:14
+havefork.c	havefork.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:240	epoch:1659459892
+havewaitpid	havefork.c	/^havewaitpid(int pid)$/;"	kind:function	line:35	language:C	typeref:typename:int	signature:(int pid)	roles:def	end:43
+head	here.c	/^static tree *head, *tail;$/;"	kind:variable	line:46	language:C	typeref:typename:tree *	file:	roles:def	extras:fileScope	end:46
+here.c	here.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:137	epoch:1659459892
+heredoc	here.c	/^heredoc(tree *redir)$/;"	kind:function	line:49	language:C	typeref:typename:void	signature:(tree * redir)	roles:def	end:61
+herefile	exec.c	/^herefile(char *tmp)$/;"	kind:function	line:459	language:C	typeref:typename:int	file:	signature:(char * tmp)	roles:def	extras:fileScope	end:482
+i	plan9.c	/^	int	i, n;$/;"	kind:member	line:278	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope	end:278
+i	rc.h	/^	int	i;$/;"	kind:member	line:76	language:C++	scope:union:code	typeref:typename:int	access:public	roles:def	end:76
+iacvt	subr.c	/^iacvt(int n)$/;"	kind:function	line:46	language:C	typeref:typename:void	file:	signature:(int n)	roles:def	extras:fileScope	end:55
+idchr	lex.c	/^idchr(int c)$/;"	kind:function	line:18	language:C	typeref:typename:int	signature:(int c)	roles:def	end:26
+iflag	exec.h	/^	int iflag;			\/* interactive? *\/$/;"	kind:member	line:55	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	end:55
+iflast	rc.h	/^	char	iflast;		\/* static `if not' checking *\/$/;"	kind:member	line:99	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:99
+ifnot	exec.c	/^int ifnot;		\/* dynamic if not flag *\/$/;"	kind:variable	line:419	language:C	typeref:typename:int	roles:def	end:419
+incomm	rc.h	/^	char	incomm;$/;"	kind:member	line:96	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:96
+input	rc.h	/^	io	*input;$/;"	kind:member	line:83	language:C++	scope:struct:lexer	typeref:typename:io *	access:public	roles:def	end:83
+inquote	rc.h	/^	char	inquote;$/;"	kind:member	line:95	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:95
+interrupted	plan9.c	/^static int interrupted = 0;$/;"	kind:variable	line:343	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:343
+inttoascii	subr.c	/^inttoascii(char *s, int n)$/;"	kind:function	line:58	language:C	typeref:typename:void	signature:(char * s,int n)	roles:def	end:63
+io	io.h	/^struct io{$/;"	kind:struct	line:3	language:C++	roles:def	end:7
+io	rc.h	/^typedef struct io io;$/;"	kind:typedef	line:32	language:C++	typeref:struct:io	roles:def
+io.c	io.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:301	epoch:1659459892
+io.h	code.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	exec.c	/^#include "io.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+io.h	havefork.c	/^#include "io.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+io.h	here.c	/^#include "io.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+io.h	io.c	/^#include "io.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+io.h	io.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:28	epoch:1659459892
+io.h	lex.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	parse.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	pcmd.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	pfnc.c	/^#include "io.h"/;"	kind:header	line:3	language:C	roles:local	extras:reference
+io.h	plan9.c	/^#include "io.h"/;"	kind:header	line:8	language:C	roles:local	extras:reference
+io.h	simple.c	/^#include "io.h"/;"	kind:header	line:7	language:C	roles:local	extras:reference
+io.h	subr.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	trap.c	/^#include "io.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+io.h	tree.c	/^#include "io.h"/;"	kind:header	line:2	language:C	roles:local	extras:reference
+io.h	unix.c	/^#include "io.h"/;"	kind:header	line:8	language:C	roles:local	extras:reference
+io::buf	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	extras:qualified	end:5
+io::bufp	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	extras:qualified	end:5
+io::ebuf	io.h	/^	unsigned char *buf, *bufp, *ebuf;$/;"	kind:member	line:5	language:C++	scope:struct:io	typeref:typename:unsigned char *	access:public	roles:def	extras:qualified	end:5
+io::fd	io.h	/^	int	fd;$/;"	kind:member	line:4	language:C++	scope:struct:io	typeref:typename:int	access:public	roles:def	extras:qualified	end:4
+io::next	io.h	/^	io	*next;$/;"	kind:member	line:6	language:C++	scope:struct:io	typeref:typename:io *	access:public	roles:def	extras:qualified	end:6
+iscase	code.c	/^iscase(tree *t)$/;"	kind:function	line:508	language:C	typeref:typename:int	signature:(tree * t)	roles:def	end:514
+iskw	rc.h	/^	char	iskw;$/;"	kind:member	line:52	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	end:52
+iswordtok	parse.c	/^iswordtok(int tok)$/;"	kind:function	line:526	language:C	typeref:typename:int	file:	signature:(int tok)	roles:def	extras:fileScope	end:550
+kenter	var.c	/^kenter(int type, char *name)$/;"	kind:function	line:23	language:C	typeref:typename:void	signature:(int type,char * name)	roles:def	end:31
+kinit	var.c	/^kinit(void)$/;"	kind:function	line:34	language:C	typeref:typename:void	signature:(void)	roles:def	end:46
+klook	var.c	/^klook(char *name)$/;"	kind:function	line:49	language:C	typeref:typename:tree *	signature:(char * name)	roles:def	end:60
+kw	var.c	/^struct kw{$/;"	kind:struct	line:16	language:C	file:	roles:def	extras:fileScope	end:20
+kw	var.c	/^}*kw[NKW];$/;"	kind:variable	line:20	language:C	typeref:struct:kw * []	roles:def	end:20
+kw::name	var.c	/^	char *name;$/;"	kind:member	line:17	language:C	scope:struct:kw	typeref:typename:char *	file:	access:public	roles:def	extras:fileScope,qualified	end:17
+kw::next	var.c	/^	struct kw *next;$/;"	kind:member	line:19	language:C	scope:struct:kw	typeref:struct:kw *	file:	access:public	roles:def	extras:fileScope,qualified	end:19
+kw::type	var.c	/^	int type;$/;"	kind:member	line:18	language:C	scope:struct:kw	typeref:typename:int	file:	access:public	roles:def	extras:fileScope,qualified	end:18
+lastc	rc.h	/^	int	lastc;$/;"	kind:member	line:92	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	end:92
+lastdol	rc.h	/^	char	lastdol;	\/* was the last token read '$' or '$#' or '"'? *\/$/;"	kind:member	line:98	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:98
+lastword	rc.h	/^	char	lastword;	\/* was the last token read a word or compound word terminator? *\/$/;"	kind:member	line:97	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:97
+lex	exec.h	/^	lexer *lex;			\/* lexer for Xrdcmds *\/$/;"	kind:member	line:54	language:C++	scope:struct:thread	typeref:typename:lexer *	access:public	roles:def	end:54
+lex	lex.c	/^lexer *lex;$/;"	kind:variable	line:6	language:C	typeref:typename:lexer *	roles:def	end:6
+lex.c	lex.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:435	epoch:1659459892
+lexer	rc.h	/^struct lexer{$/;"	kind:struct	line:82	language:C++	roles:def	end:104
+lexer	rc.h	/^typedef struct lexer lexer;$/;"	kind:typedef	line:36	language:C++	typeref:struct:lexer	roles:def
+lexer::eof	rc.h	/^	char	eof;$/;"	kind:member	line:94	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:94
+lexer::epilog	rc.h	/^	char	*epilog;$/;"	kind:member	line:88	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	extras:qualified	end:88
+lexer::file	rc.h	/^	char	*file;$/;"	kind:member	line:84	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	extras:qualified	end:84
+lexer::future	rc.h	/^	int	future;$/;"	kind:member	line:91	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	extras:qualified	end:91
+lexer::iflast	rc.h	/^	char	iflast;		\/* static `if not' checking *\/$/;"	kind:member	line:99	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:99
+lexer::incomm	rc.h	/^	char	incomm;$/;"	kind:member	line:96	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:96
+lexer::input	rc.h	/^	io	*input;$/;"	kind:member	line:83	language:C++	scope:struct:lexer	typeref:typename:io *	access:public	roles:def	extras:qualified	end:83
+lexer::inquote	rc.h	/^	char	inquote;$/;"	kind:member	line:95	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:95
+lexer::lastc	rc.h	/^	int	lastc;$/;"	kind:member	line:92	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	extras:qualified	end:92
+lexer::lastdol	rc.h	/^	char	lastdol;	\/* was the last token read '$' or '$#' or '"'? *\/$/;"	kind:member	line:98	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:98
+lexer::lastword	rc.h	/^	char	lastword;	\/* was the last token read a word or compound word terminator? *\/$/;"	kind:member	line:97	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:97
+lexer::line	rc.h	/^	int	line;$/;"	kind:member	line:85	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	extras:qualified	end:85
+lexer::peekc	rc.h	/^	int	peekc;$/;"	kind:member	line:90	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	extras:qualified	end:90
+lexer::prolog	rc.h	/^	char	*prolog;$/;"	kind:member	line:87	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	extras:qualified	end:87
+lexer::qflag	rc.h	/^	char	qflag;$/;"	kind:member	line:101	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	extras:qualified	end:101
+lexer::tok	rc.h	/^	char	tok[NTOK];$/;"	kind:member	line:103	language:C++	scope:struct:lexer	typeref:typename:char[]	access:public	roles:def	extras:qualified	end:103
+libc.h	rc.h	/^#include <libc.h>/;"	kind:header	line:9	language:C++	roles:system	extras:reference
+limits.h	rc.h	/^#include <limits.h>/;"	kind:header	line:24	language:C++	roles:system	extras:reference
+limits.h	unix.c	/^#include <limits.h>/;"	kind:header	line:18	language:C	roles:system	extras:reference
+line	exec.h	/^	int line;			\/* source code line for Xsrcline *\/$/;"	kind:member	line:49	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	end:49
+line	parse.c	/^line(int tok, int *ptok)$/;"	kind:function	line:69	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:72
+line	rc.h	/^	int	line;$/;"	kind:member	line:49	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	end:49
+line	rc.h	/^	int	line;$/;"	kind:member	line:85	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	end:85
+list	exec.h	/^struct list{$/;"	kind:struct	line:26	language:C++	roles:def	end:29
+list	rc.h	/^typedef struct list list;$/;"	kind:typedef	line:35	language:C++	typeref:struct:list	roles:def
+list::next	exec.h	/^	list *next;$/;"	kind:member	line:28	language:C++	scope:struct:list	typeref:typename:list *	access:public	roles:def	extras:qualified	end:28
+list::words	exec.h	/^	word *words;$/;"	kind:member	line:27	language:C++	scope:struct:list	typeref:typename:word *	access:public	roles:def	extras:qualified	end:27
+local	exec.h	/^	var *local;			\/* list of local variables *\/$/;"	kind:member	line:53	language:C++	scope:struct:thread	typeref:typename:var *	access:public	roles:def	end:53
+main	exec.c	/^main(int argc, char *argv[], char *envp[])$/;"	kind:function	line:226	language:C	typeref:typename:void	signature:(int argc,char * argv[],char * envp[])	roles:def	end:290
+makepath	simple.c	/^makepath(char *dir, char *file)$/;"	kind:function	line:147	language:C	typeref:typename:char *	signature:(char * dir,char * file)	roles:def	end:160
+mapfd	simple.c	/^mapfd(int fd)$/;"	kind:function	line:289	language:C	typeref:typename:int	signature:(int fd)	roles:def	end:306
+match	glob.c	/^match(char *s, char *p, int stop)$/;"	kind:function	line:199	language:C	typeref:typename:int	signature:(char * s,char * p,int stop)	roles:def	end:259
+matchfn	glob.c	/^matchfn(char *s, char *p)$/;"	kind:function	line:52	language:C	typeref:typename:int	file:	signature:(char * s,char * p)	roles:def	extras:fileScope	end:57
+mkargv	simple.c	/^mkargv(word *a)$/;"	kind:function	line:163	language:C	typeref:typename:char **	file:	signature:(word * a)	roles:def	extras:fileScope	end:170
+mkenv	unix.c	/^mkenv(void)$/;"	kind:function	line:95	language:C	typeref:typename:char **	file:	signature:(void)	roles:def	extras:fileScope	end:152
+morecode	code.c	/^morecode(void)$/;"	kind:function	line:23	language:C	typeref:typename:int	signature:(void)	roles:def	end:28
+mung1	tree.c	/^mung1(tree *t, tree *c0)$/;"	kind:function	line:92	language:C	typeref:typename:tree *	signature:(tree * t,tree * c0)	roles:def	end:96
+mung2	tree.c	/^mung2(tree *t, tree *c0, tree *c1)$/;"	kind:function	line:99	language:C	typeref:typename:tree *	signature:(tree * t,tree * c0,tree * c1)	roles:def	end:104
+mung3	tree.c	/^mung3(tree *t, tree *c0, tree *c1, tree *c2)$/;"	kind:function	line:107	language:C	typeref:typename:tree *	signature:(tree * t,tree * c0,tree * c1,tree * c2)	roles:def	end:113
+mypid	exec.c	/^int mypid;$/;"	kind:variable	line:9	language:C	typeref:typename:int	roles:def	end:9
+n	plan9.c	/^	int	i, n;$/;"	kind:member	line:278	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope	end:278
+name	exec.h	/^	char *name;$/;"	kind:member	line:72	language:C++	scope:struct:builtin	typeref:typename:char *	access:public	roles:def	end:72
+name	pfnc.c	/^	char *name;$/;"	kind:member	line:7	language:C	scope:struct:__anon14948bbd0108	typeref:typename:char *	file:	access:public	roles:def	extras:fileScope	end:7
+name	rc.h	/^	char	name[];$/;"	kind:member	line:124	language:C++	scope:struct:var	typeref:typename:char[]	access:public	roles:def	end:124
+name	var.c	/^	char *name;$/;"	kind:member	line:17	language:C	scope:struct:kw	typeref:typename:char *	file:	access:public	roles:def	extras:fileScope	end:17
+ncode	code.c	/^static int codep, ncode, codeline;$/;"	kind:variable	line:10	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:10
+nerror	lex.c	/^int nerror;$/;"	kind:variable	line:9	language:C	typeref:typename:int	roles:def	end:9
+new	rc.h	/^#define	new(/;"	kind:macro	line:132	language:C++	signature:(type)	roles:def	end:132
+newio	io.c	/^newio(unsigned char *buf, int len, int fd)$/;"	kind:function	line:212	language:C	typeref:typename:io *	signature:(unsigned char * buf,int len,int fd)	roles:def	end:220
+newlexer	lex.c	/^newlexer(io *input, char *file)$/;"	kind:function	line:29	language:C	typeref:typename:lexer *	signature:(io * input,char * file)	roles:def	end:48
+newtree	tree.c	/^newtree(void)$/;"	kind:function	line:12	language:C	typeref:typename:tree *	signature:(void)	roles:def	end:30
+newvar	var.c	/^newvar(char *name, var *next)$/;"	kind:function	line:63	language:C	typeref:typename:var *	signature:(char * name,var * next)	roles:def	end:74
+newwdir	plan9.c	/^static int newwdir;$/;"	kind:variable	line:469	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:469
+newword	exec.c	/^newword(char *s, word *next)$/;"	kind:function	line:66	language:C	typeref:typename:word *	signature:(char * s,word * next)	roles:def	end:69
+next	exec.h	/^	list *next;$/;"	kind:member	line:28	language:C++	scope:struct:list	typeref:typename:list *	access:public	roles:def	end:28
+next	exec.h	/^	redir *next;			\/* what else to do (reverse order) *\/$/;"	kind:member	line:35	language:C++	scope:struct:redir	typeref:typename:redir *	access:public	roles:def	end:35
+next	exec.h	/^	word *next;$/;"	kind:member	line:24	language:C++	scope:struct:word	typeref:typename:word *	access:public	roles:def	end:24
+next	io.h	/^	io	*next;$/;"	kind:member	line:6	language:C++	scope:struct:io	typeref:typename:io *	access:public	roles:def	end:6
+next	rc.h	/^	tree	*next;$/;"	kind:member	line:55	language:C++	scope:struct:tree	typeref:typename:tree *	access:public	roles:def	end:55
+next	rc.h	/^	var	*next;		\/* next on hash or local list *\/$/;"	kind:member	line:118	language:C++	scope:struct:var	typeref:typename:var *	access:public	roles:def	end:118
+next	var.c	/^	struct kw *next;$/;"	kind:member	line:19	language:C	scope:struct:kw	typeref:struct:kw *	file:	access:public	roles:def	extras:fileScope	end:19
+nextc	lex.c	/^nextc(void)$/;"	kind:function	line:108	language:C	typeref:typename:int	file:	signature:(void)	roles:def	extras:fileScope	end:113
+nextenv	unix.c	/^static char **nextenv;$/;"	kind:variable	line:274	language:C	typeref:typename:char **	file:	roles:def	extras:fileScope	end:274
+nextis	lex.c	/^nextis(int c)$/;"	kind:function	line:167	language:C	typeref:typename:int	file:	signature:(int c)	roles:def	extras:fileScope	end:174
+nextutf	glob.c	/^nextutf(char *p)$/;"	kind:function	line:146	language:C	typeref:typename:char *	file:	signature:(char * p)	roles:def	extras:fileScope	end:162
+noglobs	code.c	/^noglobs(tree *t, int pattern)$/;"	kind:function	line:65	language:C	typeref:typename:void	signature:(tree * t,int pattern)	roles:def	end:84
+notifyf	plan9.c	/^notifyf(void*, char *s)$/;"	kind:function	line:346	language:C	typeref:typename:void	file:	signature:(void *,char * s)	roles:def	extras:fileScope	end:362
+ntab	pcmd.c	/^static int ntab = 0;$/;"	kind:variable	line:19	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:19
+ntrap	trap.c	/^int ntrap;$/;"	kind:variable	line:6	language:C	typeref:typename:int	roles:def	end:6
+nwaitpids	havefork.c	/^static int nwaitpids;$/;"	kind:variable	line:8	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:8
+onebyte	rc.h	/^#define	onebyte(/;"	kind:macro	line:150	language:C++	signature:(c)	roles:def	end:150
+openiocore	io.c	/^openiocore(void *buf, int len)$/;"	kind:function	line:258	language:C	typeref:typename:io *	signature:(void * buf,int len)	roles:def	end:261
+openiofd	io.c	/^openiofd(int fd)$/;"	kind:function	line:248	language:C	typeref:typename:io *	signature:(int fd)	roles:def	end:251
+openiostr	io.c	/^openiostr(void)$/;"	kind:function	line:226	language:C	typeref:typename:io *	signature:(void)	roles:def	end:231
+outcode	code.c	/^outcode(tree *t, int eflag)$/;"	kind:function	line:87	language:C	typeref:typename:void	signature:(tree * t,int eflag)	roles:def	end:434
+panic	subr.c	/^panic(char *s, int n)$/;"	kind:function	line:66	language:C	typeref:typename:void	signature:(char * s,int n)	roles:def	end:74
+pappend	glob.c	/^pappend(char **pdir, char *name)$/;"	kind:function	line:60	language:C	typeref:typename:void	file:	signature:(char ** pdir,char * name)	roles:def	extras:fileScope	end:65
+paren	parse.c	/^paren(int tok)$/;"	kind:function	line:136	language:C	typeref:typename:tree *	file:	signature:(int tok)	roles:def	extras:fileScope	end:149
+parse	parse.c	/^parse(void)$/;"	kind:function	line:47	language:C	typeref:typename:int	signature:(void)	roles:def	end:66
+parse.c	parse.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:550	epoch:1659462012
+pc	exec.h	/^	int pc;				\/* code[pc] is the next instruction *\/$/;"	kind:member	line:48	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	end:48
+pc	rc.h	/^	int	pc;		\/* pc of start of function *\/$/;"	kind:member	line:121	language:C++	scope:struct:var	typeref:typename:int	access:public	roles:def	end:121
+pchr	io.c	/^pchr(io *b, int c)$/;"	kind:function	line:65	language:C	typeref:typename:void	signature:(io * b,int c)	roles:def	end:70
+pcmd	pcmd.c	/^pcmd(io *f, tree *t)$/;"	kind:function	line:28	language:C	typeref:typename:void	signature:(io * f,tree * t)	roles:def	end:169
+pcmd.c	pcmd.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:169	epoch:1659459892
+pdec	io.c	/^pdec(io *f, int n)$/;"	kind:function	line:169	language:C	typeref:typename:void	signature:(io * f,int n)	roles:def	end:188
+pdeglob	pcmd.c	/^pdeglob(io *f, char *s)$/;"	kind:function	line:10	language:C	typeref:typename:void	file:	signature:(io * f,char * s)	roles:def	extras:fileScope	end:17
+peekc	rc.h	/^	int	peekc;$/;"	kind:member	line:90	language:C++	scope:struct:lexer	typeref:typename:int	access:public	roles:def	end:90
+pfln	subr.c	/^pfln(io *fd, char *file, int line)$/;"	kind:function	line:33	language:C	typeref:typename:void	signature:(io * fd,char * file,int line)	roles:def	end:41
+pfmt	io.c	/^pfmt(io *f, char *fmt, ...)$/;"	kind:function	line:56	language:C	typeref:typename:void	signature:(io * f,char * fmt,...)	roles:def	end:62
+pfnc	pfnc.c	/^pfnc(io *f, thread *t)$/;"	kind:function	line:68	language:C	typeref:typename:void	signature:(io * f,thread * t)	roles:def	end:78
+pfnc.c	pfnc.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:78	epoch:1659459892
+pfun	pfnc.c	/^pfun(io *f, void (*fn)(void))$/;"	kind:function	line:57	language:C	typeref:typename:void	signature:(io * f,void (* fn)(void))	roles:def	end:65
+pid	exec.h	/^	int pid;			\/* process for Xpipewait to wait for *\/$/;"	kind:member	line:56	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	end:56
+pipe	rc.h	/^#undef pipe /;"	kind:macro	line:41	language:C++	roles:undef	extras:reference
+plan9.c	plan9.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:494	epoch:1659459892
+poct	io.c	/^poct(io *f, unsigned n)$/;"	kind:function	line:191	language:C	typeref:typename:void	signature:(io * f,unsigned n)	roles:def	end:196
+poplist	exec.c	/^poplist(void)$/;"	kind:function	line:142	language:C	typeref:typename:void	signature:(void)	roles:def	end:145
+popthread	exec.c	/^popthread(void)$/;"	kind:function	line:44	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:55
+popword	exec.c	/^popword(void)$/;"	kind:function	line:116	language:C	typeref:typename:void	signature:(void)	roles:def	end:119
+pprompt	exec.c	/^pprompt(void)$/;"	kind:function	line:1051	language:C	typeref:typename:void	signature:(void)	roles:def	end:1066
+pptr	io.c	/^pptr(io *f, void *p)$/;"	kind:function	line:148	language:C	typeref:typename:void	signature:(io * f,void * p)	roles:def	end:158
+pquo	io.c	/^pquo(io *f, char *s)$/;"	kind:function	line:126	language:C	typeref:typename:void	signature:(io * f,char * s)	roles:def	end:135
+prolog	rc.h	/^	char	*prolog;$/;"	kind:member	line:87	language:C++	scope:struct:lexer	typeref:typename:char *	access:public	roles:def	end:87
+promptstr	exec.c	/^static char *promptstr;$/;"	kind:variable	line:1007	language:C	typeref:typename:char *	file:	roles:def	extras:fileScope	end:1007
+pstr	io.c	/^pstr(io *f, char *s)$/;"	kind:function	line:161	language:C	typeref:typename:void	signature:(io * f,char * s)	roles:def	end:166
+pstrs	here.c	/^pstrs(io *f, word *a)$/;"	kind:function	line:127	language:C	typeref:typename:void	signature:(io * f,word * a)	roles:def	end:137
+psubst	here.c	/^psubst(io *f, unsigned char *s)$/;"	kind:function	line:75	language:C	typeref:typename:void	signature:(io * f,unsigned char * s)	roles:def	end:124
+pushlist	exec.c	/^pushlist(void)$/;"	kind:function	line:122	language:C	typeref:typename:void	signature:(void)	roles:def	end:128
+pushredir	exec.c	/^pushredir(int type, int from, int to)$/;"	kind:function	line:156	language:C	typeref:typename:void	signature:(int type,int from,int to)	roles:def	end:164
+pushword	exec.c	/^pushword(char *s)$/;"	kind:function	line:83	language:C	typeref:typename:word *	signature:(char * s)	roles:def	end:86
+pval	io.c	/^pval(io *f, word *a)$/;"	kind:function	line:199	language:C	typeref:typename:void	signature:(io * f,word * a)	roles:def	end:209
+pwrd	io.c	/^pwrd(io *f, char *s)$/;"	kind:function	line:138	language:C	typeref:typename:void	signature:(io * f,char * s)	roles:def	end:145
+qflag	rc.h	/^	char	qflag;$/;"	kind:member	line:101	language:C++	scope:struct:lexer	typeref:typename:char	access:public	roles:def	end:101
+quoted	rc.h	/^	char	quoted;$/;"	kind:member	line:51	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	end:51
+rc	syn.y	/^rc:				{ return 1;}$/;"	kind:label	line:24	language:YACC	roles:def
+rc.h	code.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	exec.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	getflags.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	glob.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	havefork.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	here.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	io.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	lex.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	parse.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	pcmd.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	pfnc.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	plan9.c	/^#include "rc.h"/;"	kind:header	line:6	language:C	roles:local	extras:reference
+rc.h	rc.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:170	epoch:1659461111
+rc.h	simple.c	/^#include "rc.h"/;"	kind:header	line:4	language:C	roles:local	extras:reference
+rc.h	subr.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	syn.y	/^#include "rc.h"/;"	kind:header	line:13	language:C	roles:local	extras:reference,guest
+rc.h	trap.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	tree.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	unix.c	/^#include "rc.h"/;"	kind:header	line:6	language:C	roles:local	extras:reference
+rc.h	var.c	/^#include "rc.h"/;"	kind:header	line:1	language:C	roles:local	extras:reference
+rc.h	y.tab.c	/^#include "rc.h"/;"	kind:header	line:29	language:C	roles:local	extras:reference
+rchr	io.c	/^rchr(io *b)$/;"	kind:function	line:73	language:C	typeref:typename:int	signature:(io * b)	roles:def	end:78
+readdir	plan9.c	/^struct readdir {$/;"	kind:struct	line:276	language:C	file:	roles:def	extras:fileScope	end:280
+readdir	plan9.c	/^typedef struct readdir readdir;$/;"	kind:typedef	line:275	language:C	typeref:struct:readdir	file:	roles:def	extras:fileScope
+readdir::dbuf	plan9.c	/^	Dir	*dbuf;$/;"	kind:member	line:277	language:C	scope:struct:readdir	typeref:typename:Dir *	file:	access:public	roles:def	extras:fileScope,qualified	end:277
+readdir::fd	plan9.c	/^	int	fd;$/;"	kind:member	line:279	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope,qualified	end:279
+readdir::i	plan9.c	/^	int	i, n;$/;"	kind:member	line:278	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope,qualified	end:278
+readdir::n	plan9.c	/^	int	i, n;$/;"	kind:member	line:278	language:C	scope:struct:readdir	typeref:typename:int	file:	access:public	roles:def	extras:fileScope,qualified	end:278
+readhere	here.c	/^readhere(io *in)$/;"	kind:function	line:64	language:C	typeref:typename:void	signature:(io * in)	roles:def	end:72
+readhere1	here.c	/^readhere1(tree *tag, io *in)$/;"	kind:function	line:10	language:C	typeref:typename:char *	file:	signature:(tree * tag,io * in)	roles:def	extras:fileScope	end:44
+reason	getflags.c	/^static int reason;$/;"	kind:variable	line:13	language:C	typeref:typename:int	file:	roles:def	extras:fileScope	end:13
+redir	exec.h	/^	redir *redir;			\/* redirection stack *\/$/;"	kind:member	line:51	language:C++	scope:struct:thread	typeref:typename:redir *	access:public	roles:def	end:51
+redir	exec.h	/^struct redir{$/;"	kind:struct	line:32	language:C++	roles:def	end:36
+redir	rc.h	/^typedef struct redir redir;$/;"	kind:typedef	line:37	language:C++	typeref:struct:redir	roles:def
+redir::from	exec.h	/^	int from, to;			\/* what to do it to *\/$/;"	kind:member	line:34	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	extras:qualified	end:34
+redir::next	exec.h	/^	redir *next;			\/* what else to do (reverse order) *\/$/;"	kind:member	line:35	language:C++	scope:struct:redir	typeref:typename:redir *	access:public	roles:def	extras:qualified	end:35
+redir::to	exec.h	/^	int from, to;			\/* what to do it to *\/$/;"	kind:member	line:34	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	extras:qualified	end:34
+redir::type	exec.h	/^	int type;			\/* what to do *\/$/;"	kind:member	line:33	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	extras:qualified	end:33
+ret	exec.h	/^	thread *ret;			\/* who continues when this finishes *\/$/;"	kind:member	line:58	language:C++	scope:struct:thread	typeref:typename:thread *	access:public	roles:def	end:58
+reverse	getflags.c	/^reverse(char **p, char **q)$/;"	kind:function	line:78	language:C	typeref:typename:void	file:	signature:(char ** p,char ** q)	roles:def	extras:fileScope	end:82
+rstr	io.c	/^rstr(io *b, char *stop)$/;"	kind:function	line:81	language:C	typeref:typename:char *	signature:(io * b,char * stop)	roles:def	end:123
+rtype	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	end:48
+runq	exec.c	/^thread *runq;$/;"	kind:variable	line:10	language:C	typeref:typename:thread *	roles:def	end:10
+s	rc.h	/^	char	*s;$/;"	kind:member	line:77	language:C++	scope:union:code	typeref:typename:char *	access:public	roles:def	end:77
+scanflag	getflags.c	/^scanflag(int c, char *f)$/;"	kind:function	line:85	language:C	typeref:typename:int	file:	signature:(int c,char * f)	roles:def	extras:fileScope	end:116
+setstatus	exec.c	/^setstatus(char *s)$/;"	kind:function	line:1108	language:C	typeref:typename:void	signature:(char * s)	roles:def	end:1111
+setvar	var.c	/^setvar(char *name, word *val)$/;"	kind:function	line:96	language:C	typeref:typename:void	signature:(char * name,word * val)	roles:def	end:102
+shuffleredir	exec.c	/^shuffleredir(void)$/;"	kind:function	line:204	language:C	typeref:typename:void	signature:(void)	roles:def	end:216
+sighandler	unix.c	/^sighandler(int sig)$/;"	kind:function	line:186	language:C	typeref:typename:void	file:	signature:(int sig)	roles:def	extras:fileScope	end:190
+signal.h	rc.h	/^#include <signal.h>/;"	kind:header	line:18	language:C++	roles:system	extras:reference
+simple.c	simple.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:537	epoch:1659461225
+simplemung	tree.c	/^simplemung(tree *t)$/;"	kind:function	line:131	language:C	typeref:typename:tree *	signature:(tree * t)	roles:def	end:146
+skipnl	lex.c	/^skipnl(void)$/;"	kind:function	line:154	language:C	typeref:typename:void	signature:(void)	roles:def	end:164
+skipwhite	lex.c	/^skipwhite(void)$/;"	kind:function	line:130	language:C	typeref:typename:void	file:	signature:(void)	roles:def	extras:fileScope	end:151
+srcfile	exec.c	/^srcfile(thread *p)$/;"	kind:function	line:1069	language:C	typeref:typename:char *	signature:(thread * p)	roles:def	end:1072
+start	exec.c	/^start(code *c, int pc, var *local, redir *redir)$/;"	kind:function	line:17	language:C	typeref:typename:void	signature:(code * c,int pc,var * local,redir * redir)	roles:def	end:32
+startfunc	exec.c	/^startfunc(var *func, word *starval, var *local, redir *redir)$/;"	kind:function	line:35	language:C	typeref:typename:void	signature:(var * func,word * starval,var * local,redir * redir)	roles:def	end:41
+startredir	exec.h	/^	redir *startredir;		\/* redir inheritance point *\/$/;"	kind:member	line:52	language:C++	scope:struct:thread	typeref:typename:redir *	access:public	roles:def	end:52
+status	exec.h	/^	char *status;			\/* status for Xpipewait *\/$/;"	kind:member	line:57	language:C++	scope:struct:thread	typeref:typename:char *	access:public	roles:def	end:57
+stdarg.h	rc.h	/^#include <stdarg.h>/;"	kind:header	line:15	language:C++	roles:system	extras:reference
+stdlib.h	rc.h	/^#include <stdlib.h>/;"	kind:header	line:14	language:C++	roles:system	extras:reference
+str	rc.h	/^	char	*str;$/;"	kind:member	line:53	language:C++	scope:struct:tree	typeref:typename:char *	access:public	roles:def	end:53
+string.h	rc.h	/^#include <string.h>/;"	kind:header	line:17	language:C++	roles:system	extras:reference
+stuffdot	code.c	/^stuffdot(int a)$/;"	kind:function	line:31	language:C	typeref:typename:void	signature:(int a)	roles:def	end:36
+subr.c	subr.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:74	epoch:1659459892
+subwords	exec.c	/^subwords(word *val, int len, word *sub, word *a)$/;"	kind:function	line:842	language:C	typeref:typename:word *	file:	signature:(word * val,int len,word * sub,word * a)	roles:def	extras:fileScope	end:871
+syn.y	syn.y	1;"	kind:file	line:1	language:YACC	roles:def	extras:inputFile	end:92	epoch:1659462178
+syntax	parse.c	/^syntax(int tok)$/;"	kind:function	line:39	language:C	typeref:typename:void	file:	signature:(int tok)	roles:def	extras:fileScope	end:44
+sys/wait.h	unix.c	/^#include <sys\/wait.h>/;"	kind:header	line:19	language:C	roles:system	extras:reference
+syssigname	plan9.c	/^static char *syssigname[] = {$/;"	kind:variable	line:38	language:C	typeref:typename:char * []	file:	roles:def	extras:fileScope	end:48
+tabs	pcmd.c	/^tabs(void)$/;"	kind:function	line:22	language:C	typeref:typename:char *	file:	signature:(void)	roles:def	extras:fileScope	end:25
+tail	here.c	/^static tree *head, *tail;$/;"	kind:variable	line:46	language:C	typeref:typename:tree *	file:	roles:def	extras:fileScope	end:46
+test.rc	test.rc	1;"	kind:file	line:1	language:WindRes	roles:def	extras:inputFile	end:93	epoch:1659461757
+thread	exec.h	/^struct thread{$/;"	kind:struct	line:46	language:C++	roles:def	end:59
+thread	rc.h	/^typedef struct thread thread;$/;"	kind:typedef	line:38	language:C++	typeref:struct:thread	roles:def
+thread::argv	exec.h	/^	list *argv;			\/* argument stack *\/$/;"	kind:member	line:50	language:C++	scope:struct:thread	typeref:typename:list *	access:public	roles:def	extras:qualified	end:50
+thread::code	exec.h	/^	code *code;			\/* code for this thread *\/$/;"	kind:member	line:47	language:C++	scope:struct:thread	typeref:typename:code *	access:public	roles:def	extras:qualified	end:47
+thread::iflag	exec.h	/^	int iflag;			\/* interactive? *\/$/;"	kind:member	line:55	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	extras:qualified	end:55
+thread::lex	exec.h	/^	lexer *lex;			\/* lexer for Xrdcmds *\/$/;"	kind:member	line:54	language:C++	scope:struct:thread	typeref:typename:lexer *	access:public	roles:def	extras:qualified	end:54
+thread::line	exec.h	/^	int line;			\/* source code line for Xsrcline *\/$/;"	kind:member	line:49	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	extras:qualified	end:49
+thread::local	exec.h	/^	var *local;			\/* list of local variables *\/$/;"	kind:member	line:53	language:C++	scope:struct:thread	typeref:typename:var *	access:public	roles:def	extras:qualified	end:53
+thread::pc	exec.h	/^	int pc;				\/* code[pc] is the next instruction *\/$/;"	kind:member	line:48	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	extras:qualified	end:48
+thread::pid	exec.h	/^	int pid;			\/* process for Xpipewait to wait for *\/$/;"	kind:member	line:56	language:C++	scope:struct:thread	typeref:typename:int	access:public	roles:def	extras:qualified	end:56
+thread::redir	exec.h	/^	redir *redir;			\/* redirection stack *\/$/;"	kind:member	line:51	language:C++	scope:struct:thread	typeref:typename:redir *	access:public	roles:def	extras:qualified	end:51
+thread::ret	exec.h	/^	thread *ret;			\/* who continues when this finishes *\/$/;"	kind:member	line:58	language:C++	scope:struct:thread	typeref:typename:thread *	access:public	roles:def	extras:qualified	end:58
+thread::startredir	exec.h	/^	redir *startredir;		\/* redir inheritance point *\/$/;"	kind:member	line:52	language:C++	scope:struct:thread	typeref:typename:redir *	access:public	roles:def	extras:qualified	end:52
+thread::status	exec.h	/^	char *status;			\/* status for Xpipewait *\/$/;"	kind:member	line:57	language:C++	scope:struct:thread	typeref:typename:char *	access:public	roles:def	extras:qualified	end:57
+threebyte	rc.h	/^#define threebyte(/;"	kind:macro	line:152	language:C++	signature:(c)	roles:def	end:152
+to	exec.h	/^	int from, to;			\/* what to do it to *\/$/;"	kind:member	line:34	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	end:34
+tok	rc.h	/^	char	tok[NTOK];$/;"	kind:member	line:103	language:C++	scope:struct:lexer	typeref:typename:char[]	access:public	roles:def	end:103
+token	tree.c	/^token(char *str, int type)$/;"	kind:function	line:184	language:C	typeref:typename:tree *	signature:(char * str,int type)	roles:def	end:190
+trap	trap.c	/^int trap[NSIG];$/;"	kind:variable	line:7	language:C	typeref:typename:int[]	roles:def	end:7
+trap.c	trap.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:34	epoch:1659459892
+tree	rc.h	/^struct tree{$/;"	kind:struct	line:46	language:C++	roles:def	end:56
+tree	rc.h	/^typedef struct tree tree;$/;"	kind:typedef	line:30	language:C++	typeref:struct:tree	roles:def
+tree	syn.y	/^	struct tree *tree;$/;"	kind:member	line:17	language:C	scope:union:__anon10643646010a	typeref:struct:tree *	file:	access:public	roles:def	extras:fileScope,guest	end:17
+tree	y.tab.c	/^	struct tree *tree;$/;"	kind:member	line:34	language:C	scope:union:__anond9bd93f4010a	typeref:struct:tree *	file:	access:public	roles:def	extras:fileScope	end:34
+tree	y.tab.h	/^	struct tree *tree;$/;"	kind:member	line:29	language:C++	scope:union:__anond9bd93f9010a	typeref:struct:tree *	access:public	roles:def	end:29
+tree.c	tree.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:190	epoch:1659459892
+tree1	tree.c	/^tree1(int type, tree *c0)$/;"	kind:function	line:55	language:C	typeref:typename:tree *	signature:(int type,tree * c0)	roles:def	end:58
+tree2	tree.c	/^tree2(int type, tree *c0, tree *c1)$/;"	kind:function	line:61	language:C	typeref:typename:tree *	signature:(int type,tree * c0,tree * c1)	roles:def	end:64
+tree3	tree.c	/^tree3(int type, tree *c0, tree *c1, tree *c2)$/;"	kind:function	line:67	language:C	typeref:typename:tree *	signature:(int type,tree * c0,tree * c1,tree * c2)	roles:def	end:89
+tree::child	rc.h	/^	tree	*child[3];$/;"	kind:member	line:54	language:C++	scope:struct:tree	typeref:typename:tree * [3]	access:public	roles:def	extras:qualified	end:54
+tree::fd0	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	extras:qualified	end:48
+tree::fd1	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	extras:qualified	end:48
+tree::glob	rc.h	/^	char	glob;			\/* 0=string, 1=glob, 2=pattern see globprop() and noglobs() *\/$/;"	kind:member	line:50	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	extras:qualified	end:50
+tree::iskw	rc.h	/^	char	iskw;$/;"	kind:member	line:52	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	extras:qualified	end:52
+tree::line	rc.h	/^	int	line;$/;"	kind:member	line:49	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	extras:qualified	end:49
+tree::next	rc.h	/^	tree	*next;$/;"	kind:member	line:55	language:C++	scope:struct:tree	typeref:typename:tree *	access:public	roles:def	extras:qualified	end:55
+tree::quoted	rc.h	/^	char	quoted;$/;"	kind:member	line:51	language:C++	scope:struct:tree	typeref:typename:char	access:public	roles:def	extras:qualified	end:51
+tree::rtype	rc.h	/^	int	rtype, fd0, fd1;	\/* details of REDIR PIPE DUP tokens *\/$/;"	kind:member	line:48	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	extras:qualified	end:48
+tree::str	rc.h	/^	char	*str;$/;"	kind:member	line:53	language:C++	scope:struct:tree	typeref:typename:char *	access:public	roles:def	extras:qualified	end:53
+tree::type	rc.h	/^	int	type;$/;"	kind:member	line:47	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	extras:qualified	end:47
+treefree	tree.c	/^static tree *treefree, *treenodes;$/;"	kind:variable	line:9	language:C	typeref:typename:tree *	file:	roles:def	extras:fileScope	end:9
+treenodes	tree.c	/^static tree *treefree, *treenodes;$/;"	kind:variable	line:9	language:C	typeref:typename:tree *	file:	roles:def	extras:fileScope	end:9
+trimdirs	plan9.c	/^trimdirs(Dir *d, int nd)$/;"	kind:function	line:298	language:C	typeref:typename:int	file:	signature:(Dir * d,int nd)	roles:def	extras:fileScope	end:306
+truestatus	exec.c	/^truestatus(void)$/;"	kind:function	line:1131	language:C	typeref:typename:int	signature:(void)	roles:def	end:1138
+turfstack	exec.c	/^turfstack(var *local)$/;"	kind:function	line:188	language:C	typeref:typename:void	signature:(var * local)	roles:def	end:201
+twobyte	rc.h	/^#define twobyte(/;"	kind:macro	line:151	language:C++	signature:(c)	roles:def	end:151
+type	exec.h	/^	int type;			\/* what to do *\/$/;"	kind:member	line:33	language:C++	scope:struct:redir	typeref:typename:int	access:public	roles:def	end:33
+type	rc.h	/^	int	type;$/;"	kind:member	line:47	language:C++	scope:struct:tree	typeref:typename:int	access:public	roles:def	end:47
+type	var.c	/^	int type;$/;"	kind:member	line:18	language:C	scope:struct:kw	typeref:typename:int	file:	access:public	roles:def	extras:fileScope	end:18
+u.h	rc.h	/^#include <u.h>/;"	kind:header	line:8	language:C++	roles:system	extras:reference
+unicode	glob.c	/^unicode(char *p)$/;"	kind:function	line:168	language:C	typeref:typename:int	file:	signature:(char * p)	roles:def	extras:fileScope	end:185
+unistd.h	rc.h	/^#include <unistd.h>/;"	kind:header	line:16	language:C++	roles:system	extras:reference
+unix.c	unix.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:424	epoch:1659461425
+updenvlocal	plan9.c	/^updenvlocal(var *v)$/;"	kind:function	line:240	language:C	typeref:typename:void	file:	signature:(var * v)	roles:def	extras:fileScope	end:246
+usage	getflags.c	/^usage(char *tail)$/;"	kind:function	line:119	language:C	typeref:typename:void	signature:(char * tail)	roles:def	end:210
+val	rc.h	/^	word	*val;		\/* value *\/$/;"	kind:member	line:119	language:C++	scope:struct:var	typeref:typename:word *	access:public	roles:def	end:119
+var	rc.h	/^struct var{$/;"	kind:struct	line:117	language:C++	roles:def	end:125
+var	rc.h	/^typedef struct var var;$/;"	kind:typedef	line:34	language:C++	typeref:struct:var	roles:def
+var.c	var.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:109	epoch:1659459892
+var::changed	rc.h	/^	char	changed;$/;"	kind:member	line:123	language:C++	scope:struct:var	typeref:typename:char	access:public	roles:def	extras:qualified	end:123
+var::fn	rc.h	/^	code	*fn;		\/* pointer to function's code vector *\/$/;"	kind:member	line:120	language:C++	scope:struct:var	typeref:typename:code *	access:public	roles:def	extras:qualified	end:120
+var::fnchanged	rc.h	/^	char	fnchanged;$/;"	kind:member	line:122	language:C++	scope:struct:var	typeref:typename:char	access:public	roles:def	extras:qualified	end:122
+var::name	rc.h	/^	char	name[];$/;"	kind:member	line:124	language:C++	scope:struct:var	typeref:typename:char[]	access:public	roles:def	extras:qualified	end:124
+var::next	rc.h	/^	var	*next;		\/* next on hash or local list *\/$/;"	kind:member	line:118	language:C++	scope:struct:var	typeref:typename:var *	access:public	roles:def	extras:qualified	end:118
+var::pc	rc.h	/^	int	pc;		\/* pc of start of function *\/$/;"	kind:member	line:121	language:C++	scope:struct:var	typeref:typename:int	access:public	roles:def	extras:qualified	end:121
+var::val	rc.h	/^	word	*val;		\/* value *\/$/;"	kind:member	line:119	language:C++	scope:struct:var	typeref:typename:word *	access:public	roles:def	extras:qualified	end:119
+vlook	var.c	/^vlook(char *name)$/;"	kind:function	line:86	language:C	typeref:typename:var *	signature:(char * name)	roles:def	end:93
+vpfmt	io.c	/^vpfmt(io *f, char *fmt, va_list ap)$/;"	kind:function	line:11	language:C	typeref:typename:void	signature:(io * f,char * fmt,va_list ap)	roles:def	end:53
+wait	unix.c	/^#undef wait$/;"	kind:macro	line:12	language:C	file:	roles:undef	extras:fileScope,reference
+waitpid	unix.c	/^#undef waitpid$/;"	kind:macro	line:13	language:C	file:	roles:undef	extras:fileScope,reference
+waitpids	havefork.c	/^static int *waitpids;$/;"	kind:variable	line:7	language:C	typeref:typename:int *	file:	roles:def	extras:fileScope	end:7
+word	exec.h	/^	char *word;$/;"	kind:member	line:23	language:C++	scope:struct:word	typeref:typename:char *	access:public	roles:def	end:23
+word	exec.h	/^struct word{$/;"	kind:struct	line:22	language:C++	roles:def	end:25
+word	rc.h	/^typedef struct word word;$/;"	kind:typedef	line:31	language:C++	typeref:struct:word	roles:def
+word1	parse.c	/^word1(int tok, int *ptok)$/;"	kind:function	line:448	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:523
+word::next	exec.h	/^	word *next;$/;"	kind:member	line:24	language:C++	scope:struct:word	typeref:typename:word *	access:public	roles:def	extras:qualified	end:24
+word::word	exec.h	/^	char *word;$/;"	kind:member	line:23	language:C++	scope:struct:word	typeref:typename:char *	access:public	roles:def	extras:qualified	end:23
+wordchr	lex.c	/^wordchr(int c)$/;"	kind:function	line:12	language:C	typeref:typename:int	signature:(int c)	roles:def	end:15
+words	exec.h	/^	word *words;$/;"	kind:member	line:27	language:C++	scope:struct:list	typeref:typename:word *	access:public	roles:def	end:27
+words	parse.c	/^words(int tok, int *ptok)$/;"	kind:function	line:384	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:397
+xbyte	rc.h	/^#define xbyte(/;"	kind:macro	line:154	language:C++	signature:(c)	roles:def	end:154
+y.debug	y.tab.c	/^#include	"y.debug"/;"	kind:header	line:203	language:C	roles:local	extras:reference
+y.tab.c	y.tab.c	1;"	kind:file	line:1	language:C	roles:def	extras:inputFile	end:621	epoch:1659462189
+y.tab.h	rc.h	/^#include "y.tab.h"/;"	kind:header	line:28	language:C++	roles:local	extras:reference
+y.tab.h	y.tab.h	1;"	kind:file	line:1	language:C++	roles:def	extras:inputFile	end:31	epoch:1659462189
+yyact	y.tab.c	/^static	const	short	yyact[] =$/;"	kind:variable	line:55	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:95
+yychk	y.tab.c	/^static	const	short	yychk[] =$/;"	kind:variable	line:139	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:153
+yyclearin	y.tab.c	/^#define	yyclearin	/;"	kind:macro	line:199	language:C	file:	roles:def	extras:fileScope	end:199
+yydebug	y.tab.c	/^#define	yydebug	/;"	kind:macro	line:205	language:C	file:	roles:def	extras:fileScope	end:205
+yydef	y.tab.c	/^static	const	short	yydef[] =$/;"	kind:variable	line:154	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:168
+yyerrflag	y.tab.c	/^#define	yyerrflag	/;"	kind:macro	line:213	language:C	file:	roles:def	extras:fileScope	end:213
+yyerrflag	y.tab.c	/^int	yyerrflag = 0;		\/* error recovery flag *\/$/;"	kind:variable	line:218	language:C	typeref:typename:int	roles:def	end:218
+yyerrok	y.tab.c	/^#define	yyerrok	/;"	kind:macro	line:200	language:C	file:	roles:def	extras:fileScope	end:200
+yyerror	lex.c	/^yyerror(char *m)$/;"	kind:function	line:420	language:C	typeref:typename:void	signature:(char * m)	roles:def	end:435
+yyexca	y.tab.c	/^static	const	short	yyexca[] =$/;"	kind:variable	line:44	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:51
+yyjmp	parse.c	/^static jmp_buf yyjmp;$/;"	kind:variable	line:20	language:C	typeref:typename:jmp_buf	file:	roles:def	extras:fileScope	end:20
+yylex	lex.c	/^yylex(void)$/;"	kind:function	line:214	language:C	typeref:typename:int	signature:(void)	roles:def	end:417
+yylex1	y.tab.c	/^yylex1(struct Yyarg *yyarg)$/;"	kind:function	line:250	language:C	typeref:typename:long	file:	signature:(struct Yyarg * yyarg)	roles:def	extras:fileScope	end:294
+yylval	y.tab.c	/^#define yylval	/;"	kind:macro	line:215	language:C	file:	roles:def	extras:fileScope	end:215
+yylval	y.tab.c	/^YYSTYPE	yylval;$/;"	kind:variable	line:40	language:C	typeref:typename:YYSTYPE	roles:def	end:40
+yynerrs	y.tab.c	/^#define	yynerrs	/;"	kind:macro	line:212	language:C	file:	roles:def	extras:fileScope	end:212
+yynerrs	y.tab.c	/^int	yynerrs = 0;		\/* number of errors *\/$/;"	kind:variable	line:217	language:C	typeref:typename:int	roles:def	end:217
+yypact	y.tab.c	/^static	const	short	yypact[] =$/;"	kind:variable	line:96	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:110
+yyparse	y.tab.c	/^yyparse(struct Yyarg *yyarg)$/;"	kind:function	line:298	language:C	typeref:typename:int	signature:(struct Yyarg * yyarg)	roles:def	end:621
+yyparse::__anond9bd93f40208::yys	y.tab.c	/^		int	yys;$/;"	kind:member	line:306	language:C	scope:struct:yyparse::__anond9bd93f40208	typeref:typename:int	file:	access:public	roles:def	extras:fileScope,qualified	end:306
+yyparse::__anond9bd93f40208::yyv	y.tab.c	/^		YYSTYPE	yyv;$/;"	kind:member	line:305	language:C	scope:struct:yyparse::__anond9bd93f40208	typeref:typename:YYSTYPE	file:	access:public	roles:def	extras:fileScope,qualified	end:305
+yypgo	y.tab.c	/^static	const	short	yypgo[] =$/;"	kind:variable	line:111	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:116
+yyr1	y.tab.c	/^static	const	short	yyr1[] =$/;"	kind:variable	line:117	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:127
+yyr2	y.tab.c	/^static	const	short	yyr2[] =$/;"	kind:variable	line:128	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:138
+yyredir	parse.c	/^yyredir(int tok, int *ptok)$/;"	kind:function	line:171	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok)	roles:def	extras:fileScope	end:193
+yys	y.tab.c	/^		int	yys;$/;"	kind:member	line:306	language:C	scope:struct:yyparse::__anond9bd93f40208	typeref:typename:int	file:	access:public	roles:def	extras:fileScope	end:306
+yystates	y.tab.c	/^static	const	char*	yystates[1];		\/* for debugging *\/$/;"	kind:variable	line:207	language:C	typeref:typename:const char * [1]	file:	roles:def	extras:fileScope	end:207
+yystatname	y.tab.c	/^yystatname(int yys)$/;"	kind:function	line:237	language:C	typeref:typename:const char *	file:	signature:(int yys)	roles:def	extras:fileScope	end:246
+yytok1	y.tab.c	/^static	const	short	yytok1[] =$/;"	kind:variable	line:169	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:184
+yytok2	y.tab.c	/^static	const	short	yytok2[] =$/;"	kind:variable	line:185	language:C	typeref:typename:const short[]	file:	roles:def	extras:fileScope	end:190
+yytok3	y.tab.c	/^static	const	long	yytok3[] =$/;"	kind:variable	line:191	language:C	typeref:typename:const long[]	file:	roles:def	extras:fileScope	end:194
+yytokname	y.tab.c	/^yytokname(int yyc)$/;"	kind:function	line:225	language:C	typeref:typename:const char *	file:	signature:(int yyc)	roles:def	extras:fileScope	end:234
+yytoknames	y.tab.c	/^static	const	char*	yytoknames[1];		\/* for debugging *\/$/;"	kind:variable	line:206	language:C	typeref:typename:const char * [1]	file:	roles:def	extras:fileScope	end:206
+yyv	y.tab.c	/^		YYSTYPE	yyv;$/;"	kind:member	line:305	language:C	scope:struct:yyparse::__anond9bd93f40208	typeref:typename:YYSTYPE	file:	access:public	roles:def	extras:fileScope	end:305
+yyval	y.tab.c	/^#define yyval	/;"	kind:macro	line:214	language:C	file:	roles:def	extras:fileScope	end:214
+yyval	y.tab.c	/^YYSTYPE	yyval;$/;"	kind:variable	line:41	language:C	typeref:typename:YYSTYPE	roles:def	end:41
+yyword	parse.c	/^yyword(int tok, int *ptok, int eqok)$/;"	kind:function	line:400	language:C	typeref:typename:tree *	file:	signature:(int tok,int * ptok,int eqok)	roles:def	extras:fileScope	end:445
