@@ -15,7 +15,7 @@ usage(void)
 {
 	fprint(2, "usage: 9p [-n] [-a address] [-A aname] cmd args...\n");
 	fprint(2, "possible cmds:\n");
-	fprint(2, "	read name\n");
+	fprint(2, "	read [-f] name\n");
 	fprint(2, "	readfd name\n");
 	fprint(2, "	write [-l] name\n");
 	fprint(2, "	writefd name\n");
@@ -171,8 +171,12 @@ xread(int argc, char **argv)
 	char buf[4096];
 	int n;
 	CFid *fid;
+	int follow;
 
 	ARGBEGIN{
+	case 'f':
+		follow = 1;
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -182,9 +186,14 @@ xread(int argc, char **argv)
 
 	fid = xopen(argv[0], OREAD);
 	proccreate(checkout, nil, 32768);
-	while((n = fsread(fid, buf, sizeof buf)) > 0)
+	while((n = fsread(fid, buf, sizeof buf)) >= 0) {
+		if (n == 0 && !follow)
+			break;
 		if(write(1, buf, n) < 0)
 			sysfatal("write error: %r");
+		if (n == 0 && follow)
+			sleep(1000);
+	}
 	fsclose(fid);
 	if(n < 0)
 		sysfatal("read error: %r");
