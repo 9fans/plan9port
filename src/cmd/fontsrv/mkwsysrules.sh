@@ -48,7 +48,7 @@ echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
 echo 'X11H='$X11H
 
-if [ $WSYSTYPE = x11 ]; then
+if [ $WSYSTYPE = x11 -o $WSYSTYPE = wayland ]; then
 	echo 'CFLAGS=$CFLAGS '$X11H
 	echo 'HFILES=$HFILES $XHFILES'
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
