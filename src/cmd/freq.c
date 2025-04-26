@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 		exits(0);
 	}
 	for(i=0; i<argc; i++) {
-		f = open(argv[i], 0);
+		f = open(argv[i], OREAD);
 		if(f < 0) {
 			fprint(2, "cannot open %s\n", argv[i]);
 			continue;

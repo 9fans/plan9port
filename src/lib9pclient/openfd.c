@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "fsimpl.h"
 
 int
@@ -14,13 +15,13 @@ fsopenfd(CFsys *fs, char *name, int mode)
 		return -1;
 	tx.type = Topenfd;
 	tx.fid = fid->fid;
-	tx.mode = mode&~OCEXEC;
+	tx.mode = mode&~OCEXEC_9P;
 	if(_fsrpc(fs, &tx, &rx, 0) < 0){
 		fsclose(fid);
 		return -1;
 	}
 	_fsputfid(fid);
-	if(mode&OCEXEC && rx.unixfd>=0)
+	if(mode&OCEXEC_9P && rx.unixfd>=0)
 		fcntl(rx.unixfd, F_SETFL, FD_CLOEXEC);
 	return rx.unixfd;
 }
