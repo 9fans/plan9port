@@ -52,7 +52,7 @@ inflatezlibblock(uchar *dst, int dsize, uchar *src, int ssize)
 		return FlateCorrupted;
 
 	bs.pos = src + 2;
-	bs.limit = src + ssize - 6;
+	bs.limit = src + ssize - 4;
 
 	bd.pos = dst;
 	bd.limit = dst + dsize;
@@ -61,7 +61,7 @@ inflatezlibblock(uchar *dst, int dsize, uchar *src, int ssize)
 	if(ok != FlateOk)
 		return ok;
 
-	if(adler32(1, dst, bs.pos - dst) != ((bs.pos[0] << 24) | (bs.pos[1] << 16) | (bs.pos[2] << 8) | bs.pos[3]))
+	if(adler32(1, dst, bd.pos - dst) != ((bs.pos[0] << 24) | (bs.pos[1] << 16) | (bs.pos[2] << 8) | bs.pos[3]))
 		return FlateCorrupted;
 
 	return bd.pos - dst;
