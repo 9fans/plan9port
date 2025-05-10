@@ -7,6 +7,9 @@
 .I options
 ]
 .B read
+[
+.B -f
+]
 .I path
 .br
 .B 9p
@@ -79,13 +82,21 @@ The first argument is a command, one of:
 .TP
 .B read
 print the contents of
-.I path 
-to standard output
+.I path
+to standard output ;
+the
+.B -f
+option causes
+.I read
+to follow the file, exactly like the
+.B -f
+option of
+.IR tail(1)
 .TP
 .B write
 write data on standard input to
 .IR path ;
-the 
+the
 .B -l
 option causes
 .I write
@@ -94,7 +105,7 @@ to write one line at a time
 .BR readfd ", " writefd
 like
 .B read
-and 
+and
 .B write
 but use
 .IR openfd (9p)
@@ -107,7 +118,7 @@ the implementation of
 .B stat
 execute
 .I stat (9p)
-on 
+on
 .I path
 and print the result
 .TP
