@@ -65,6 +65,9 @@ DragonFly|*BSD)
 	echo "CFLAGS='-pthread'" >> $PLAN9/config
 	awk=awk
 	;;
+AIX)
+	awk=gawk
+	;;
 *)
 	awk=awk
 	;;
@@ -115,8 +118,8 @@ fi
 if [ `uname` != Darwin ]; then
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
-	cc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 \
-	    -I/usr/X11R7/include -I/usr/X11R7/include/freetype2 \
+	9c -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 \
+	    -I/usr/X11R7/include -I/usr/X11R7/include/freetype2 -I/opt/freeware/include -I/opt/freeware/include/freetype2 \
 	    -I/usr/X11R6/include -I/usr/X11R6/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
 	if [ -f a.out ]; then
 		echo "	fontsrv dependencies found."
@@ -136,7 +139,7 @@ if [ -f LOCAL.config ]; then
 fi
 
 echo "* Compiler version:"
-9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
+9c -v -qversion 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
 
 cd src
 if $dobuild; then
