@@ -7,7 +7,7 @@ md5pickle(MD5state *s)
 	char *p;
 	int m, n;
 
-	m = 17+4*9+4*((s->blen+3)/3);
+	m = 17+4*9+4*((s->blen+3)/3 + 1);
 	p = malloc(m);
 	if(p == nil)
 		return p;

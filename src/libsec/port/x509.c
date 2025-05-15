@@ -40,6 +40,7 @@ typedef struct Elist Elist;
 #define REAL 9
 #define ENUMERATED 10
 #define EMBEDDED_PDV 11
+#define UTF8String 12
 #define SEQUENCE 16		/* also SEQUENCE OF */
 #define SETOF 17				/* also SETOF OF */
 #define NumericString 18
@@ -134,10 +135,6 @@ static int	is_oid(Elem* pe, Ints** poid);
 static int	is_string(Elem* pe, char** pstring);
 static int	is_time(Elem* pe, char** ptime);
 static int	decode(uchar* a, int alen, Elem* pelem);
-/*
-static int	decode_seq(uchar* a, int alen, Elist** pelist);
-static int	decode_value(uchar* a, int alen, int kind, int isconstr, Value* pval);
-*/
 static int	encode(Elem e, Bytes** pbytes);
 static int	oid_lookup(Ints* o, Ints** tab);
 static void	freevalfields(Value* v);
@@ -174,6 +171,7 @@ emalloc(int n)
 		exits("out of memory");
 	}
 	memset(p, 0, n);
+	setmalloctag(p, getcallerpc(&n));
 	return p;
 }
 
@@ -206,37 +204,6 @@ decode(uchar* a, int alen, Elem* pelem)
 }
 
 /*
- * Like decode, but continue decoding after first element
- * of array ends.
- *
-static int
-decode_seq(uchar* a, int alen, Elist** pelist)
-{
-	uchar* p = a;
-
-	return seq_decode(&p, &a[alen], -1, 1, pelist);
-}
-*/
-
-/*
- * Decode the whole array as a BER encoding of an ASN1 value,
- * (i.e., the part after the tag and length).
- * Assume the value is encoded as universal tag "kind".
- * The constr arg is 1 if the value is constructed, 0 if primitive.
- * If there's an error, the return string will contain the error.
- * Depending on the error, the returned value may or may not
- * be nil.
- *
-static int
-decode_value(uchar* a, int alen, int kind, int isconstr, Value* pval)
-{
-	uchar* p = a;
-
-	return value_decode(&p, &a[alen], alen, kind, isconstr, pval);
-}
-*/
-
-/*
  * All of the following decoding routines take arguments:
  *	uchar **pp;
  *	uchar *pend;
@@ -263,9 +230,11 @@ ber_decode(uchar** pp, uchar* pend, Elem* pelem)
 	if(err == ASN_OK) {
 		err = length_decode(pp, pend, &length);
 		if(err == ASN_OK) {
-			if(tag.class == Universal)
+			if(tag.class == Universal) {
 				err = value_decode(pp, pend, length, tag.num, isconstr, &val);
-			else
+				if(val.tag == VSeq || val.tag == VSet)
+					setmalloctag(val.u.seqval, getcallerpc(&pp));
+			}else
 				err = value_decode(pp, pend, length, OCTET_STRING, 0, &val);
 			if(err == ASN_OK) {
 				pelem->tag = tag;
@@ -502,6 +471,7 @@ value_decode(uchar** pp, uchar* pend, int length, int kind, int isconstr, Value*
 
 	case SEQUENCE:
 		err = seq_decode(&p, pend, length, isconstr, &vl);
+		setmalloctag(vl, getcallerpc(&pp));
 		if(err == ASN_OK) {
 			pval->tag = VSeq ;
 			pval->u.seqval = vl;
@@ -510,12 +480,13 @@ value_decode(uchar** pp, uchar* pend, int length, int kind, int isconstr, Value*
 
 	case SETOF:
 		err = seq_decode(&p, pend, length, isconstr, &vl);
+		setmalloctag(vl, getcallerpc(&pp));
 		if(err == ASN_OK) {
 			pval->tag = VSet;
 			pval->u.setval = vl;
 		}
 		break;
-
+	case UTF8String:
 	case NumericString:
 	case PrintableString:
 	case TeletexString:
@@ -746,6 +717,7 @@ seq_decode(uchar** pp, uchar* pend, int length, int isconstr, Elist** pelist)
 	}
 	*pp = p;
 	*pelist = ans;
+	setmalloctag(ans, getcallerpc(&pp));
 	return err;
 }
 
@@ -1016,6 +988,7 @@ val_enc(uchar** pp, Elem e, int *pconstr, int lenonly)
 		}
 		break;
 
+	case UTF8String:
 	case NumericString:
 	case PrintableString:
 	case TeletexString:
@@ -1246,6 +1219,7 @@ is_string(Elem* pe, char** pstring)
 {
 	if(pe->tag.class == Universal) {
 		switch(pe->tag.num) {
+		case UTF8String:
 		case NumericString:
 		case PrintableString:
 		case TeletexString:
@@ -1406,6 +1380,7 @@ mkel(Elem e, Elist* tail)
 	Elist* el;
 
 	el = (Elist*)emalloc(sizeof(Elist));
+	setmalloctag(el, getcallerpc(&e));
 	el->hd = e;
 	el->tl = tail;
 	return el;
@@ -1575,6 +1550,7 @@ enum {
 	ALG_md4WithRSAEncryption,
 	ALG_md5WithRSAEncryption,
 	ALG_sha1WithRSAEncryption,
+	ALG_sha1WithRSAEncryptionOiw,
 	ALG_md5,
 	NUMALGS
 };
@@ -1587,6 +1563,7 @@ static Ints7 oid_md2WithRSAEncryption = {7, 1, 2, 840, 113549, 1, 1, 2 };
 static Ints7 oid_md4WithRSAEncryption = {7, 1, 2, 840, 113549, 1, 1, 3 };
 static Ints7 oid_md5WithRSAEncryption = {7, 1, 2, 840, 113549, 1, 1, 4 };
 static Ints7 oid_sha1WithRSAEncryption ={7, 1, 2, 840, 113549, 1, 1, 5 };
+static Ints7 oid_sha1WithRSAEncryptionOiw ={6, 1, 3, 14, 3, 2, 29 };
 static Ints7 oid_md5 ={6, 1, 2, 840, 113549, 2, 5, 0 };
 static Ints *alg_oid_tab[NUMALGS+1] = {
 	(Ints*)(void*)&oid_rsaEncryption,
@@ -1594,10 +1571,11 @@ static Ints *alg_oid_tab[NUMALGS+1] = {
 	(Ints*)(void*)&oid_md4WithRSAEncryption,
 	(Ints*)(void*)&oid_md5WithRSAEncryption,
 	(Ints*)(void*)&oid_sha1WithRSAEncryption,
+	(Ints*)(void*)&oid_sha1WithRSAEncryptionOiw,
 	(Ints*)(void*)&oid_md5,
 	nil
 };
-static DigestFun digestalg[NUMALGS+1] = { md5, md5, md5, md5, sha1, md5, 0 };
+static DigestFun digestalg[NUMALGS+1] = { md5, md5, md5, md5, sha1, sha1, md5, nil };
 
 static void
 freecert(CertX509* c)
@@ -1613,6 +1591,7 @@ freecert(CertX509* c)
 		free(c->subject);
 	freebytes(c->publickey);
 	freebytes(c->signature);
+	free(c);
 }
 
 /*
@@ -1835,15 +1814,18 @@ static RSApub*
 decode_rsapubkey(Bytes* a)
 {
 	Elem e;
-	Elist *el;
+	Elist *el, *l;
 	mpint *mp;
 	RSApub* key;
 
+	l = nil;
 	key = rsapuballoc();
 	if(decode(a->data, a->len, &e) != ASN_OK)
 		goto errret;
 	if(!is_seq(&e, &el) || elistlen(el) != 2)
 		goto errret;
+
+	l = el;
 
 	key->n = mp = asn1mpint(&el->hd);
 	if(mp == nil)
@@ -1853,8 +1835,13 @@ decode_rsapubkey(Bytes* a)
 	key->ek = mp = asn1mpint(&el->hd);
 	if(mp == nil)
 		goto errret;
+
+	if(l != nil)
+		freeelist(l);
 	return key;
 errret:
+	if(l != nil)
+		freeelist(l);
 	rsapubfree(key);
 	return nil;
 }
@@ -2080,7 +2067,10 @@ digest_certinfo(Bytes *cert, DigestFun digestfun, uchar *digest)
 	   length > pend - p)
 		return;
 	info = p;
-	if(ber_decode(&p, pend, &elem) != ASN_OK || elem.tag.num != SEQUENCE)
+	if(ber_decode(&p, pend, &elem) != ASN_OK)
+		return;
+	freevalfields(&elem.val);
+	if(elem.tag.num != SEQUENCE)
 		return;
 	infolen = p - info;
 	(*digestfun)(info, infolen, digest, nil);
@@ -2096,6 +2086,10 @@ verify_signature(Bytes* signature, RSApub *pk, uchar *edigest, Elem **psigalg)
 	int buflen;
 	mpint *pkcs1;
 	int nlen;
+	char *err;
+
+	err = nil;
+	pkcs1buf = nil;
 
 	/* one less than the byte length of the modulus */
 	nlen = (mpsignif(pk->n)-1)/8;
@@ -2103,25 +2097,37 @@ verify_signature(Bytes* signature, RSApub *pk, uchar *edigest, Elem **psigalg)
 	/* see 9.2.1 of rfc2437 */
 	pkcs1 = betomp(signature->data, signature->len, nil);
 	mpexp(pkcs1, pk->ek, pk->n, pkcs1);
-	pkcs1buf = nil;
 	buflen = mptobe(pkcs1, nil, 0, &pkcs1buf);
 	buf = pkcs1buf;
-	if(buflen != nlen || buf[0] != 1)
-		return "expected 1";
+	if(buflen != nlen || buf[0] != 1) {
+		err = "expected 1";
+		goto end;
+	}
 	buf++;
 	while(buf[0] == 0xff)
 		buf++;
-	if(buf[0] != 0)
-		return "expected 0";
+	if(buf[0] != 0) {
+		err = "expected 0";
+		goto end;
+	}
 	buf++;
 	buflen -= buf-pkcs1buf;
 	if(decode(buf, buflen, &e) != ASN_OK || !is_seq(&e, &el) || elistlen(el) != 2 ||
-			!is_octetstring(&el->tl->hd, &digest))
-		return "signature parse error";
+			!is_octetstring(&el->tl->hd, &digest)) {
+		err = "signature parse error";
+		goto end;
+	}
 	*psigalg = &el->hd;
 	if(memcmp(digest->data, edigest, digest->len) == 0)
-		return nil;
-	return "digests did not match";
+		goto end;
+	err = "digests did not match";
+
+end:
+	if(pkcs1 != nil)
+		mpfree(pkcs1);
+	if(pkcs1buf != nil)
+		free(pkcs1buf);
+	return err;
 }
 
 RSApub*
@@ -2146,6 +2152,97 @@ X509toRSApub(uchar *cert, int ncert, char *name, int nname)
 	pk = decode_rsapubkey(c->publickey);
 	freecert(c);
 	return pk;
+}
+
+int
+getalgo(Elem *e)
+{
+	Value *v;
+	Elist *el;
+	int a;
+
+	if((a = parse_alg(e)) >= 0)
+		return a;
+	v = &e->val;
+	if(v->tag == VSeq){
+		print("Seq\n");
+		for(el = v->u.seqval; el!=nil; el = el->tl){
+			if((a = getalgo(&el->hd)) >= 0)
+				return a;
+		}
+	}
+	return -1;
+}
+
+static void edump(Elem e);
+
+RSApub*
+asn1toRSApub(uchar *der, int nder)
+{
+	Elem e;
+	Elist *el, *l;
+	int n;
+	Bits *b;
+	RSApub *key;
+	mpint *mp;
+
+	if(decode(der, nder, &e) != ASN_OK){
+		print("didn't parse\n");
+		return nil;
+	}
+	if(!is_seq(&e, &el)){
+		print("no seq");
+		return nil;
+	}
+	if((n = elistlen(el)) != 2){
+		print("bad length %d\n", n);
+		return nil;
+	}
+	if((n = getalgo(&el->hd)) < 0){
+		print("no algo\n");
+		return nil;
+	}
+	if(n != 0){
+		print("cant do algorithm %d\n", n);
+		return nil;
+	}
+	if(!is_bitstring(&el->tl->hd, &b)){
+		print("no bits\n");
+		return nil;
+	}
+	if(decode(b->data, b->len, &e) != ASN_OK){
+		print("no second decode\n");
+		return nil;
+	}
+	if(!is_seq(&e, &el)){
+		print("no second seq\n");
+		return nil;
+	}
+	if(elistlen(el) != 2){
+		print("no second length\n");
+		return nil;
+	}
+	key = rsapuballoc();
+
+	l = el;
+
+	key->n = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	el = el->tl;
+	key->ek = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	if(l != nil)
+		freeelist(l);
+	return key;
+errret:
+	if(l != nil)
+		freeelist(l);
+	rsapubfree(key);
+	return nil;
 }
 
 char*
@@ -2345,6 +2442,34 @@ mkDN(char *dn)
 	return mkseq(el);
 }
 
+uchar*
+RSApubtoasn1(RSApub *pub, int *keylen)
+{
+	Elem pubkey;
+	Bytes *pkbytes;
+	uchar *key;
+
+	key = nil;
+	pubkey = mkseq(mkel(mkbigint(pub->n),mkel(mkint(mptoi(pub->ek)),nil)));
+	if(encode(pubkey, &pkbytes) != ASN_OK)
+		goto errret;
+	freevalfields(&pubkey.val);
+	pubkey = mkseq(
+		mkel(mkalg(ALG_rsaEncryption),
+		mkel(mkbits(pkbytes->data, pkbytes->len),
+		nil)));
+	freebytes(pkbytes);
+	if(encode(pubkey, &pkbytes) != ASN_OK)
+		goto errret;
+	if(keylen)
+		*keylen = pkbytes->len;
+	key = malloc(pkbytes->len);
+	memmove(key, pkbytes->data, pkbytes->len);
+	free(pkbytes);
+errret:
+	freevalfields(&pubkey.val);
+	return key;
+}
 
 uchar*
 X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen)
@@ -2479,33 +2604,34 @@ tagdump(Tag tag)
 	if(tag.class != Universal)
 		return smprint("class%d,num%d", tag.class, tag.num);
 	switch(tag.num){
-		case BOOLEAN: return "BOOLEAN"; break;
-		case INTEGER: return "INTEGER"; break;
-		case BIT_STRING: return "BIT STRING"; break;
-		case OCTET_STRING: return "OCTET STRING"; break;
-		case NULLTAG: return "NULLTAG"; break;
-		case OBJECT_ID: return "OID"; break;
-		case ObjectDescriptor: return "OBJECT_DES"; break;
-		case EXTERNAL: return "EXTERNAL"; break;
-		case REAL: return "REAL"; break;
-		case ENUMERATED: return "ENUMERATED"; break;
-		case EMBEDDED_PDV: return "EMBEDDED PDV"; break;
-		case SEQUENCE: return "SEQUENCE"; break;
-		case SETOF: return "SETOF"; break;
-		case NumericString: return "NumericString"; break;
-		case PrintableString: return "PrintableString"; break;
-		case TeletexString: return "TeletexString"; break;
-		case VideotexString: return "VideotexString"; break;
-		case IA5String: return "IA5String"; break;
-		case UTCTime: return "UTCTime"; break;
-		case GeneralizedTime: return "GeneralizedTime"; break;
-		case GraphicString: return "GraphicString"; break;
-		case VisibleString: return "VisibleString"; break;
-		case GeneralString: return "GeneralString"; break;
-		case UniversalString: return "UniversalString"; break;
-		case BMPString: return "BMPString"; break;
-		default:
-			return smprint("Universal,num%d", tag.num);
+	case BOOLEAN: return "BOOLEAN";
+	case INTEGER: return "INTEGER";
+	case BIT_STRING: return "BIT STRING";
+	case OCTET_STRING: return "OCTET STRING";
+	case NULLTAG: return "NULLTAG";
+	case OBJECT_ID: return "OID";
+	case ObjectDescriptor: return "OBJECT_DES";
+	case EXTERNAL: return "EXTERNAL";
+	case REAL: return "REAL";
+	case ENUMERATED: return "ENUMERATED";
+	case EMBEDDED_PDV: return "EMBEDDED PDV";
+	case SEQUENCE: return "SEQUENCE";
+	case SETOF: return "SETOF";
+	case UTF8String: return "UTF8String";
+	case NumericString: return "NumericString";
+	case PrintableString: return "PrintableString";
+	case TeletexString: return "TeletexString";
+	case VideotexString: return "VideotexString";
+	case IA5String: return "IA5String";
+	case UTCTime: return "UTCTime";
+	case GeneralizedTime: return "GeneralizedTime";
+	case GraphicString: return "GraphicString";
+	case VisibleString: return "VisibleString";
+	case GeneralString: return "GeneralString";
+	case UniversalString: return "UniversalString";
+	case BMPString: return "BMPString";
+	default:
+		return smprint("Universal,num%d", tag.num);
 	}
 }
 
@@ -2525,7 +2651,10 @@ edump(Elem e)
 	case VBigInt: print("BigInt[%d] %.2x%.2x...",v.u.bigintval->len,v.u.bigintval->data[0],v.u.bigintval->data[1]); break;
 	case VReal: print("Real..."); break;
 	case VOther: print("Other..."); break;
-	case VBitString: print("BitString..."); break;
+	case VBitString: print("BitString");
+		for(i = 0; i<v.u.bitstringval->len; i++)
+			print(" %02x", v.u.bitstringval->data[i]);
+		break;
 	case VNull: print("Null"); break;
 	case VEOC: print("EOC..."); break;
 	case VObjId: print("ObjId");

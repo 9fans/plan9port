@@ -11,6 +11,12 @@ setupAESstate, aesCBCencrypt, aesCBCdecrypt - advanced encryption standard (rijn
 .B #include <libsec.h>
 .PP
 .B
+void	aes_encrypt(u32int rk[], int Nr, uchar pt[16], uchar ct[16]);
+.PP
+.B
+void	aes_decrypt(u32int rk[], int Nr, uchar ct[16], uchar pt[16]);
+.PP
+.B
 void	setupAESstate(AESstate *s, uchar key[], int keybytes, uchar *ivec)
 .PP
 .B
@@ -19,22 +25,50 @@ void	aesCBCencrypt(uchar*, int, AESstate*)
 .B
 void	aesCBCdecrypt(uchar*, int, AESstate*)
 .PP
-.SH DESCRIPTION
+.B
+void	aesCTRencrypt(uchar *p, int len, AESstate *s)
 .PP
-DES is being replaced by Rijndael, also known as AES, as the preferred
-block ciper.
-.IR setupAESstate ,
+.B
+void	aesCTRdecrypt(uchar *p, int len, AESstate *s)
+.PP
+.B
+void	setupAESXCBCstate(AESstate *s)
+.PP
+.B
+void	aesXCBCmac(uchar *p, int len, AESstate *s)
+.PP
+.SH DESCRIPTION
+AES (a.k.a. Rijndael) has replaced DES as the preferred
+block cipher.
+.I Aes_encrypt
+and
+.I aes_decrypt
+are the block ciphers, corresponding to
+.IR des (2)'s
+.IR block_cipher .
+.IR SetupAESstate ,
 .IR aesCBCencrypt ,
 and
 .I aesCBCdecrypt
-implement cipher block chaining encryption.
+implement cipher-block-chaining encryption.
+.I AesCTRencrypt
+and
+.I aesCTRdecrypt
+implement counter mode, per RFC 3686;
+they are identical operations.
+.I setupAESXCBCstate
+and
+.I aesXCBCmac
+implement AES XCBC message authentication, per RFC 3566.
+All ciphering is performed in place.
 .I Keybytes
 should be 16, 24, or 32.
 The initialization vector
 .I ivec
 of
 .I AESbsize
-bytes should random enough to be unlikely to be reused but does not need to be
+bytes should be random enough to be unlikely to be reused
+but does not need to be
 cryptographically strongly unpredictable.
 .SH SOURCE
 .B \*9/src/libsec
@@ -49,3 +83,13 @@ cryptographically strongly unpredictable.
 .MR sechash (3) ,
 .MR prime (3) ,
 .MR rand (3)
+.SH BUGS
+The functions
+.IR aes_encrypt ,
+.IR aes_decrypt ,
+.IR aesCTRencrypt ,
+.IR aesCTRdecrypt ,
+.IR setupAESXCBCstate ,
+and
+.IR aesXCBCmac
+have not yet been verified by running test vectors through them.
