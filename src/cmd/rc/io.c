@@ -226,7 +226,7 @@ opencore(char *s, int len)
 {
 	io *f = new(struct io);
 	char *buf = emalloc(len);
-	f->fd= -1 /*open("/dev/null", 0)*/;
+	f->fd= -1 /*open("/dev/null", OREAD)*/;
 	f->bufp = f->strp = buf;
 	f->ebuf = buf+len;
 	Memcpy(buf, s, len);

@@ -597,7 +597,7 @@ int server(void){
 	int fd, p[2];
 	char buf[32];
 	pipe(p);
-	fd = create("/srv/plot", 1, 0666);
+	fd = create("/srv/plot", OWRITE, 0666);
 	sprint(buf, "%d", p[1]);
 	write(fd, buf, strlen(buf));
 	close(fd);

@@ -92,7 +92,7 @@ main(int argc, char **argv)
 		while(*argv){
 			file = *argv;
 #ifndef PLAN9
-			if((fd = open(*argv, 0)) < 0){
+			if((fd = open(*argv, OREAD)) < 0){
 				EPR "%s: %s: %s\n", argv0, *argv, strerror(errno));
 #else /* PLAN9 */
 			if((fd = open(*argv, OREAD)) < 0){

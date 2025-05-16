@@ -8,6 +8,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include <complete.h>
 #include "dat.h"
@@ -866,7 +867,7 @@ wplumb(Window *w)
 	Cursor *c;
 
 	if(fd == nil)
-		fd = plumbopenfid("send", OWRITE);
+		fd = plumbopenfid("send", OWRITE_9P);
 	if(fd == nil)
 		return;
 	m = emalloc(sizeof(Plumbmsg));
