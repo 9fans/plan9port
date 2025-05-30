@@ -40,7 +40,7 @@ extern "C" {
 #endif
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
-
+#define __USE_POSIX 1 //needed for sigjmp_buf in glibc setjmp.h
 #include <inttypes.h>
 
 #include <unistd.h>
