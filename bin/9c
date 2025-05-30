@@ -18,12 +18,12 @@ usegcc()
 		-Wno-stringop-truncation \
 		-Wno-stringop-overflow \
 		-Wno-format-truncation \
-		-Wno-deprecated-pragma \
 		-Wno-unused-but-set-variable \
 		-Wno-deprecated-declarations \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
 		-fcommon \
+		-std=c17 \
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
