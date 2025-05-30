@@ -18,7 +18,6 @@ usegcc()
 		-Wno-stringop-truncation \
 		-Wno-stringop-overflow \
 		-Wno-format-truncation \
-		-Wno-deprecated-pragma \
 		-Wno-unused-but-set-variable \
 		-Wno-deprecated-declarations \
 		-fno-omit-frame-pointer \
