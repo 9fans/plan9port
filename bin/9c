@@ -23,6 +23,7 @@ usegcc()
 		-fno-omit-frame-pointer \
 		-fsigned-char \
 		-fcommon \
+		-std=c17 \
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
