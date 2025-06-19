@@ -563,6 +563,42 @@ textbswidth(Text *t, Rune c)
 	return t->q0-q;
 }
 
+/* Distance to BOL */
+int
+textbacklinewidth(Text *t, uint nline)
+{
+	uint q;
+	Rune r;
+
+	q = t->q0;
+	while(q > 0){
+		r = textreadc(t, q-1);
+		if(r == '\n' && !--nline)
+			break;
+		--q;
+	}
+	return t->q0-q;
+}
+
+/* Distance to next BOL */
+int
+textforwardlinewidth(Text *t, uint nline)
+{
+	uint q;
+	Rune r;
+
+	q = t->q0;
+	while(q < t->file->b.nc){
+		r = textreadc(t, q);
+		if(r == '\n' && !--nline) { /* eat the last newline */
+			++q;
+			break;
+		}
+		++q;
+	}
+	return q-t->q0;
+}
+
 int
 textfilewidth(Text *t, uint q0, int oneelement)
 {
@@ -694,8 +730,18 @@ texttype(Text *t, Rune r)
 	case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
-		n = t->fr.maxlines/3;
-		goto case_Down;
+		typecommit(t);
+
+		/* go forward one line, then current line offset */
+		nnb = textforwardlinewidth(t, 1);
+		nb = nnb + textbacklinewidth(t, 1);
+
+		/* go forward until we reach our original offset or EOL (exclusive) */
+		while (t->q0+nnb<t->file->b.nc && nb>nnb && textreadc(t, t->q0+nnb)!='\n')
+			nnb++;
+
+		textshow(t, t->q0+nnb, t->q0+nnb, TRUE);
+		return;
 	case Kscrollonedown:
 		if(t->what == Tag)
 			goto Tagdown;
@@ -712,8 +758,18 @@ texttype(Text *t, Rune r)
 	case Kup:
 		if(t->what == Tag)
 			goto Tagup;
-		n = t->fr.maxlines/3;
-		goto case_Up;
+		typecommit(t);
+
+		/* back up two lines, go forward current line offset */
+		nnb = textbacklinewidth(t, 2);
+		nb = nnb - textbacklinewidth(t, 1);
+
+		/* go forward until we reach our original offset or EOL (inclusive) */
+		while (nnb>nb && textreadc(t, t->q0-nnb)!='\n')
+			nnb--;
+
+		textshow(t, t->q0-nnb, t->q0-nnb, TRUE);
+		return;
 	case Kscrolloneup:
 		if(t->what == Tag)
 			goto Tagup;
