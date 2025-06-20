@@ -563,40 +563,46 @@ textbswidth(Text *t, Rune c)
 	return t->q0-q;
 }
 
-/* Distance to BOL */
+/* Distance to BOL, if xtabs is true then \t is counted as tabstop */
 int
-textbacklinewidth(Text *t, uint nline)
+textbacklinewidth(Text *t, uint nline, int xtabs)
 {
-	uint q;
+	uint q, tb;
 	Rune r;
 
 	q = t->q0;
+	tb = 0;
 	while(q > 0){
 		r = textreadc(t, q-1);
 		if(r == '\n' && !--nline)
 			break;
+		if(r == '\t' && xtabs && t->tabstop)
+			tb += t->tabstop-1;
 		--q;
 	}
-	return t->q0-q;
+	return t->q0-q+tb;
 }
 
-/* Distance to next BOL */
+/* Distance to next BOL, if xtabs is true then \t is counted as tabstop */
 int
-textforwardlinewidth(Text *t, uint nline)
+textforwardlinewidth(Text *t, uint nline, int xtabs)
 {
-	uint q;
+	uint q, tb;
 	Rune r;
 
 	q = t->q0;
+	tb = 0;
 	while(q < t->file->b.nc){
 		r = textreadc(t, q);
 		if(r == '\n' && !--nline) { /* eat the last newline */
 			++q;
 			break;
 		}
+		if(r == '\t' && xtabs && t->tabstop)
+			tb += t->tabstop-1;
 		++q;
 	}
-	return q-t->q0;
+	return q-t->q0+tb;
 }
 
 int
@@ -733,12 +739,15 @@ texttype(Text *t, Rune r)
 		typecommit(t);
 
 		/* go forward one line, then current line offset */
-		nnb = textforwardlinewidth(t, 1);
-		nb = nnb + textbacklinewidth(t, 1);
+		nnb = textforwardlinewidth(t, 1, FALSE);
+		nb = nnb + textbacklinewidth(t, 1, TRUE);
 
-		/* go forward until we reach our original offset or EOL (exclusive) */
-		while (t->q0+nnb<t->file->b.nc && nb>nnb && textreadc(t, t->q0+nnb)!='\n')
+		/* go forward until we reach our original offset or EOL */
+		while (t->q0+nnb<t->file->b.nc && nb>nnb && (r=textreadc(t, t->q0+nnb))!='\n') {
+			if (r=='\t' && t->tabstop)
+				nb -= t->tabstop-1;
 			nnb++;
+		}
 
 		textshow(t, t->q0+nnb, t->q0+nnb, TRUE);
 		return;
@@ -761,12 +770,15 @@ texttype(Text *t, Rune r)
 		typecommit(t);
 
 		/* back up two lines, go forward current line offset */
-		nnb = textbacklinewidth(t, 2);
-		nb = nnb - textbacklinewidth(t, 1);
+		nnb = textbacklinewidth(t, 2, FALSE);
+		nb = nnb - textbacklinewidth(t, 1, TRUE); /* can be negative */
 
-		/* go forward until we reach our original offset or EOL (inclusive) */
-		while (nnb>nb && textreadc(t, t->q0-nnb)!='\n')
+		/* go forward until we reach our original offset or EOL */
+		while (t->q0-nnb<t->file->b.nc && nnb>nb && (r=textreadc(t, t->q0-nnb))!='\n') {
+			if (r=='\t' && t->tabstop)
+				nb += t->tabstop-1;
 			nnb--;
+		}
 
 		textshow(t, t->q0-nnb, t->q0-nnb, TRUE);
 		return;
