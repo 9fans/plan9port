@@ -94,6 +94,8 @@ outcode(tree *t, int eflag)
 {
 	int p, q;
 	tree *tt;
+	char *ifs;
+
 	if(t==0)
 		return;
 	if(t->type!=NOT && t->type!=';')
@@ -141,14 +143,26 @@ outcode(tree *t, int eflag)
 		emitf(Xconc);
 		break;
 	case '`':
+		emitf(Xmark);
+		if(c0){
+			outcode(c0, 0);
+			emitf(Xglob);
+		}else{
+			if((ifs = strdup("ifs")) == nil)
+				sysfatal("strdup: %r");
+			emitf(Xmark);
+			emitf(Xword);
+			emits(ifs);
+			emitf(Xdol);
+		}
 		emitf(Xbackq);
 		if(havefork){
 			p = emiti(0);
-			outcode(c0, 0);
+			outcode(c1, 0);
 			emitf(Xexit);
 			stuffdot(p);
 		} else
-			emits(fnstr(c0));
+			emits(fnstr(c1));
 		break;
 	case ANDAND:
 		outcode(c0, 0);

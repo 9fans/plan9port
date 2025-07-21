@@ -409,7 +409,8 @@ yyword(int tok, int *ptok, int eqok)
 	// |	'"' word		{$$=tree1('"', $2);}
 	// |	COUNT word		{$$=tree1(COUNT, $2);}
 	// |	WORD
-	// |	'`' brace		{$$=tree1('`', $2);}
+	// |	'`' brace		{$$=tree2('`', (struct tree*)0, $2);}
+	// |	'`' word brace		{$$=tree2('`', $2, $3);}
 	// |	'(' words ')'		{$$=tree1(PAREN, $2);}
 	// |	REDIR brace		{$$=mung1($1, $2); $$->type=PIPEFD;}
 	// keyword: FOR|IN|WHILE|IF|NOT|TWIDDLE|BANG|SUBSHELL|SWITCH|FN
@@ -499,8 +500,13 @@ word1(int tok, int *ptok)
 		return tree1(COUNT, word1(yylex(), ptok));
 
 	case '`':
-		// |	'`' brace		{$$=tree1('`', $2);}
-		t = tree1('`', brace(yylex()));
+		// |	'`' brace		{$$=tree2('`', (struct tree*)0, $2);}
+		// |	'`' word brace		{$$=tree2('`', $2, $3);}
+		w = nil;
+		tok = dropsp(yylex());
+		if(iswordtok(tok))
+			w = yyword(tok, &tok, 1);
+		t = tree2('`', w, brace(tok));
 		*ptok = yylex();
 		return t;
 

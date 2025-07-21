@@ -32,7 +32,7 @@ pcmd(io *f, tree *t)
 	break;
 	case '^':	pfmt(f, "%t^%t", c0, c1);
 	break;
-	case '`':	pfmt(f, "`%t", c0);
+	case '`':	pfmt(f, "`%t%t", c0, c1);
 	break;
 	case ANDAND:	pfmt(f, "%t && %t", c0, c1);
 	break;
