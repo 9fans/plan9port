@@ -446,7 +446,7 @@ END {
 			gsub("\\(", " \\(", b)
 			gsub("\\)", "\\)", b)
 			split(tolower(i), a, "/")
-			print "egrep -in '^\\.IR.*" b "' $PLAN9/man/man*/* # Need " tolower(i) |"sort"
+			print "grep -in '^\\.IR.*" b "' $PLAN9/man/man*/* # Need " tolower(i) |"sort"
 		}
 	}
 	close("sort")

@@ -1,7 +1,7 @@
 <mkhdr
 
 BUGGERED='fs|fmt|utf'
-LIBDIRS=`ls -ld lib* | sed -n 's/^d.* //p' |egrep -v "^lib($BUGGERED)$"`
+LIBDIRS=`ls -ld lib* | sed -n 's/^d.* //p' |$egrep -v "^lib($BUGGERED)$"`
 
 DIRS=\
 	$LIBDIRS\

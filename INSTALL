@@ -65,10 +65,17 @@ DragonFly|*BSD)
 	echo "CFLAGS='-pthread'" >> $PLAN9/config
 	awk=awk
 	;;
+*Linux*)
+	awk=awk
+	egrep='grep -E'
+	;;
 *)
+	egrep=egrep
 	awk=awk
 	;;
 esac
+
+echo "egrep='$egrep'" >>$PLAN9/config
 
 (
 if [ `uname` = SunOS ]; then
