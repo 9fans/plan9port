@@ -690,6 +690,7 @@ threadrwakeup(Rendez *r, int all, ulong pc)
 
 static int threadargc;
 static char **threadargv;
+#pragma weak mainstacksize
 int mainstacksize;
 extern int _p9usepwlibrary;	/* getgrgid etc. smash the stack - tell _p9dir just say no */
 static void

@@ -8,6 +8,24 @@
  */
 char *argv0="rc";
 
+thread *runq;
+code *codebuf;				/* compiler output */
+int ntrap;				/* number of outstanding traps */
+int trap[NSIG];				/* number of outstanding traps per type */
+int eflagok;			/* kludge flag so that -e doesn't exit in startup */
+tree *cmdtree;
+char *promptstr;
+char tok[NTOK];
+var *gvar[NVAR];				/* hash for globals */
+int mypid;
+char **argp;
+char **args;
+int nerror;		/* number of errors encountered during compilation */
+int ndot;
+int lastc;
+int kidpid;
+io *err;
+
 void
 start(code *c, int pc, var *local)
 {

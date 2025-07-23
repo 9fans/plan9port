@@ -303,13 +303,14 @@ struct	Img
 #define	ARCSECONDS_PER_RADIAN	(DEG(1)*3600)
 #define	MILLIARCSEC	(1000*60*60)
 
-int	nplate;
-Plate	plate[2000];		/* needs to go to 2000 when the north comes */
-double	PI_180;
-double	TWOPI;
-double	LN2;
-int	debug;
-struct
+extern int	nplate;
+extern Plate	plate[2000];		/* needs to go to 2000 when the north comes */
+extern double	PI_180;
+extern double	TWOPI;
+extern double	LN2;
+extern int	debug;
+typedef struct Gam Gam;
+struct Gam
 {
 	float	min;
 	float	max;
@@ -318,7 +319,8 @@ struct
 	float	mult1;
 	float	mult2;
 	int	neg;
-} gam;
+};
+extern Gam gam;
 
 typedef struct Picture Picture;
 struct Picture

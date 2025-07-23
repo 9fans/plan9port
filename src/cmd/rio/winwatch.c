@@ -33,7 +33,7 @@ int onwin;
 int rows, cols;
 int sortlabels;
 int showwmnames;
-Font *font;
+extern Font *font;
 Image *lightblue;
 
 

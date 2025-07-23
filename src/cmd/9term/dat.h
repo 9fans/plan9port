@@ -209,19 +209,19 @@ struct Timer
 #define Extern extern
 #endif
 
-Extern	Font		*font;
+extern	Font		*font;
 Extern	Mousectl	*mousectl;
 Extern	Mouse	*mouse;
 Extern	Keyboardctl	*keyboardctl;
-Extern	Display	*display;
+extern	Display	*display;
 Extern	Image	*view;
 Extern	Screen	*wscreen;
-Extern	Cursor	boxcursor;
-Extern	Cursor	crosscursor;
-Extern	Cursor	sightcursor;
-Extern	Cursor	whitearrow;
-Extern	Cursor	query;
-Extern	Cursor	*corners[9];
+extern	Cursor	boxcursor;
+extern	Cursor	crosscursor;
+extern	Cursor	sightcursor;
+extern	Cursor	whitearrow;
+extern	Cursor	query;
+extern	Cursor	*corners[9];
 Extern	Image	*background;
 Extern	Image	*lightgrey;
 Extern	Image	*red;

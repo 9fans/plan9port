@@ -13,6 +13,9 @@
 
 #include "a.h"
 
+XFont *xfont;
+int nxfont;
+
 void
 usage(void)
 {

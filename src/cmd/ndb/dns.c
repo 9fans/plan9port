@@ -101,7 +101,8 @@ char *udpaddr = "udp!*!domain";
 char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
-char	*LOG;
+
+extern	char *LOG;
 
 void
 usage(void)

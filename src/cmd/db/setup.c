@@ -4,12 +4,12 @@
 #include "defs.h"
 #include "fns.h"
 
-char	*symfil;
-char	*corfil;
+extern	char	*symfil;
+extern	char	*corfil;
 
-Map	*symmap;
-Map	*cormap;
-Regs	*correg;
+extern	Map	*symmap;
+extern	Map	*cormap;
+extern	Regs	*correg;
 Map	*dotmap;
 
 void

@@ -56,17 +56,17 @@ struct thread{
 	tree *treenodes;		/* tree nodes created by this process */
 	thread *ret;		/* who continues when this finishes */
 };
-thread *runq;
+extern thread *runq;
 code *codecopy(code*);
-code *codebuf;				/* compiler output */
-int ntrap;				/* number of outstanding traps */
-int trap[NSIG];				/* number of outstanding traps per type */
+extern code *codebuf;				/* compiler output */
+extern int ntrap;				/* number of outstanding traps */
+extern int trap[NSIG];				/* number of outstanding traps per type */
 struct builtin{
 	char *name;
 	void (*fnc)(void);
 };
 extern struct builtin Builtin[];
-int eflagok;			/* kludge flag so that -e doesn't exit in startup */
+extern int eflagok;			/* kludge flag so that -e doesn't exit in startup */
 extern int havefork;
 
 void execcd(void), execwhatis(void), execeval(void), execexec(void);

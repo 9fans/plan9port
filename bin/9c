@@ -23,7 +23,7 @@ usegcc()
 		-Wno-deprecated-declarations \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
-		-fcommon \
+		-fno-common \
 		-std=gnu11 \
 	"
 	# want to put -fno-optimize-sibling-calls here but
@@ -85,7 +85,7 @@ useclang()
 		-Wno-unused-but-set-variable \
 		-fsigned-char \
 		-fno-caret-diagnostics \
-		-fcommon \
+		-fno-common \
 	"
 	cflags="$cflags -g"
 	cflags="$cflags $CC9FLAGS"

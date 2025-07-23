@@ -1,5 +1,6 @@
 #include <lib9.h>
 
+#pragma weak argv0
 char *argv0;
 
 /*

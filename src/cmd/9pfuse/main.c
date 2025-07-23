@@ -60,7 +60,6 @@
 #endif
 
 int debug;
-char *argv0;
 char *aname = "";
 void fusedispatch(void*);
 Channel *fusechan;

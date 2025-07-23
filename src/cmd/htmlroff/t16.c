@@ -16,9 +16,8 @@
  *	.if .ie .el
  *
  */
-
-int iftrue[20];
-int niftrue;
+extern int iftrue[MAXIF];
+extern int niftrue;
 
 void
 startbody(void)

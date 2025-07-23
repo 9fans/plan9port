@@ -18,7 +18,7 @@ char *srvname;
 Window	*wbox;
 Message	mbox;
 Message	replies;
-char		*home;
+extern char		*home;
 CFid		*plumbsendfd;
 CFid		*plumbseemailfd;
 CFid		*plumbshowmailfd;

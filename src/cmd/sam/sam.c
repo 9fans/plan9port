@@ -20,7 +20,7 @@ int	downloaded;
 int	dflag;
 int	Rflag;
 char	*machine;
-char	*home;
+extern char	*home;
 int	bpipeok;
 int	termlocked;
 char	*samterm = SAMTERM;

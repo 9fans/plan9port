@@ -17,6 +17,7 @@
 #include "fns.h"
 
 u32int	maxblocksize;
+#pragma weak readonly
 int	readonly;
 
 int findsubpart(Part *part, char *name);

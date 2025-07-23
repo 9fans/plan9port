@@ -28,7 +28,6 @@ int clean = 0;
 int verbose = 0;
 long ninput, noutput, nrunes, nerrors;
 char *file = "stdin";
-char *argv0;
 Rune runes[N];
 char obuf[UTFmax*N];	/* maximum bloat from N runes */
 long tab[NRUNE];

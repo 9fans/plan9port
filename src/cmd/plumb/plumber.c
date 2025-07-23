@@ -7,10 +7,11 @@
 #include "plumber.h"
 
 int debug;
+int nports;
+char **ports;
 int foreground=0;
 char	*plumbfile;
 char *user;
-char *home;
 char *progname;
 Ruleset **rules;
 int	printerrors=1;

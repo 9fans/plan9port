@@ -8,6 +8,12 @@
 
 Biobuf	stdout;
 
+char mode;			/* '\0', 'e', 'f', 'h' */
+char bflag;			/* ignore multiple and trailing blanks */
+char rflag;			/* recurse down directory trees */
+char mflag;			/* pseudo flag: doing multiple files, one dir */
+int anychange;
+
 static char *tmp[] = {"/tmp/diff1XXXXXXXXXXX", "/tmp/diff2XXXXXXXXXXX"};
 static int whichtmp;
 static char *progname;

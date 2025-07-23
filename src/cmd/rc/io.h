@@ -10,7 +10,7 @@ struct io{
 	int fd;
 	char *bufp, *ebuf, *strp, buf[NBUF];
 };
-io *err;
+extern io *err;
 io *openfd(int), *openstr(void), *opencore(char *, int);
 int emptybuf(io*);
 void pchr(io*, int);

@@ -1,6 +1,6 @@
 typedef struct XFont XFont;
-XFont *xfont;
-int nxfont;
+extern XFont *xfont;
+extern int nxfont;
 
 enum {
 	SubfontSize = 32,

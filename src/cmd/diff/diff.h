@@ -1,10 +1,10 @@
 #define stdout bstdout
 
-char mode;			/* '\0', 'e', 'f', 'h' */
-char bflag;			/* ignore multiple and trailing blanks */
-char rflag;			/* recurse down directory trees */
-char mflag;			/* pseudo flag: doing multiple files, one dir */
-int anychange;
+extern char mode;			/* '\0', 'e', 'f', 'h' */
+extern char bflag;			/* ignore multiple and trailing blanks */
+extern char rflag;			/* recurse down directory trees */
+extern char mflag;			/* pseudo flag: doing multiple files, one dir */
+extern int anychange;
 extern Biobuf	stdout;
 extern int	binary;
 

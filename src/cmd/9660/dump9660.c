@@ -15,8 +15,6 @@ Conform *map;
 static void addprotofile(char *new, char *old, Dir *d, void *a);
 void usage(void);
 
-char *argv0;
-
 void
 usage(void)
 {

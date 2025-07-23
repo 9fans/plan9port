@@ -22,7 +22,7 @@ struct Fsys {
 	Fsys*	next;
 };
 
-int mempcnt;			/* from fossil.c */
+extern int mempcnt;			/* from fossil.c */
 
 int	fsGetBlockSize(Fs *fs);
 

@@ -1,5 +1,53 @@
 #include "astro.h"
 
+double	converge;
+
+char	flags[128];
+int	nperiods;
+double	wlong, awlong, nlat, elev;
+double	obliq, phi, eps, tobliq;
+double	dphi, deps;
+double	day, deld, per;
+double	eday, capt, capt2, capt3, gst;
+double	pi, pipi, radian, radsec, deltat;
+double	erad, glat;
+double	xms, yms, zms;
+double	xdot, ydot, zdot;
+
+double	ecc, incl, node, argp, mrad, anom, motion;
+
+double	lambda, beta, rad, mag, semi;
+double	alpha, delta, rp, hp;
+double	ra, decl, semi2;
+double	lha, decl2, lmb2;
+double	az, el;
+
+double	meday, seday, mhp, salph, sdelt, srad;
+
+double*	cafp;
+char*	cacp;
+
+double	rah, ram, ras, dday, dmin, dsec;
+long	sao;
+double	da, dd, px, epoch;
+char	line[100];
+Obj2	osun;
+Obj2	omoon;
+Obj2	oshad;
+Obj2	omerc;
+Obj2	ovenus;
+Obj2	omars;
+Obj2	osat;
+Obj2	ouran;
+Obj2	onept;
+Obj2	oplut;
+Obj2	ojup;
+Obj2	ostar;
+Obj2	ocomet;
+Obj3	occ;
+Obj2*	eobj1;
+Obj2*	eobj2;
+
 char*	herefile;
 
 int

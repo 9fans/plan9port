@@ -30,7 +30,9 @@ enum
 	ArgMode = 1<<3,
 	HtmlMode = 1<<4,
 
-	MaxLine = 1024
+	MaxLine = 1024,
+
+	MAXIF = 20
 };
 
 Rune*	L(char*);
@@ -77,7 +79,7 @@ int		linefmt(Fmt*);
 void		nr(Rune*, int);
 void		_nr(Rune*, Rune*);
 void		out(Rune*);
-void		(*outcb)(Rune);
+extern void		(*outcb)(Rune);
 void		outhtml(Rune*);
 void		outrune(Rune);
 void		outtrap(void);

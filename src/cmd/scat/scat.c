@@ -34,6 +34,11 @@ Record	*rec;
 Record	*orec;
 Record	*cur;
 
+int	nplate;
+Plate	plate[2000];		/* needs to go to 2000 when the north comes */
+int	debug;
+Gam	gam;
+
 char	*dir;
 int	saodb;
 int	ngcdb;

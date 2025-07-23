@@ -23,10 +23,11 @@ char	mntpt[Maxpath];
 ulong	now;
 int	maxage;
 uchar	ipaddr[IPaddrlen];	/* my ip address */
-char	*LOG;
 char	*zonerefreshprogram;
 char	*tcpaddr;
 char	*udpaddr;
+
+extern	char *LOG;
 
 void
 usage(void)

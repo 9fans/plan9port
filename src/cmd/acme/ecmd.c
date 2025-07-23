@@ -19,7 +19,7 @@ char	Enoname[] = "no file name given";
 
 Address	addr;
 File	*menu;
-Rangeset	sel;
+extern Rangeset	sel;
 extern	Text*	curtext;
 Rune	*collection;
 int	ncollection;

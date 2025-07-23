@@ -5,7 +5,6 @@
 
 static	void	dodecode(Biobuf*, Pix*, int, int, uchar*);
 static	int32	getlong(uchar*);
-int	debug;
 
 Img*
 dssread(char *file)

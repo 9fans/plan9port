@@ -6,7 +6,6 @@ enum
 	MAXRAW = 40,
 	MAXESC = 60,
 	MAXLINE = 1024,
-	MAXIF = 20,
 	MAXARG = 10
 };
 
