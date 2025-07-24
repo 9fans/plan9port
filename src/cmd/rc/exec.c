@@ -200,7 +200,7 @@ main(int argc, char *argv[])
  * Xappend(file)[fd]			open file to append
  * Xassign(name, val)			assign val to name
  * Xasync{... Xexit}			make thread for {}, no wait
- * Xbackq{... Xreturn}			make thread for {}, push stdout
+ * Xbackq(split){... Xreturn}		make thread for {}, push stdout
  * Xbang				complement condition
  * Xcase(pat, value){...}		exec code on match, leave (value) on
  * 					stack

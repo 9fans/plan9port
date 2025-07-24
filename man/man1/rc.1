@@ -228,6 +228,8 @@ The value is a single string containing the components of the named variable
 separated by spaces.  A variable with zero elements yields the empty string.
 .HP
 .BI `{ command }
+.HP
+.BI ` "split " { command }
 .br
 .I rc
 executes the
@@ -240,6 +242,8 @@ If
 .B $ifs
 is not otherwise set, its value is
 .BR "'\ \et\en'" .
+In the second form of the command, split is used instead of
+.BR $ifs .
 .HP
 .BI <{ command }
 .HP

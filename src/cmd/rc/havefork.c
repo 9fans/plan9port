@@ -115,12 +115,14 @@ Xbackq(void)
 	int c, n;
 	char *s, *ewd=&wd[8192], *stop, *q;
 	struct io *f;
-	var *ifs = vlook("ifs");
 	word *v, *nextv;
 	int pfd[2];
 	int pid;
 	Rune r;
-	stop = ifs->val?ifs->val->word:"";
+
+	stop = "";
+	if(runq->argv && runq->argv->words)
+		stop = runq->argv->words->word;
 	if(pipe(pfd)<0){
 		Xerror("can't make pipe");
 		return;
@@ -168,6 +170,7 @@ Xbackq(void)
 		}
 		closeio(f);
 		Waitfor(pid, 0);
+		poplist();	/* ditch split in "stop" */
 		/* v points to reversed arglist -- reverse it onto argv */
 		while(v){
 			nextv = v->next;
