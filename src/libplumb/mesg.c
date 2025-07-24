@@ -304,9 +304,11 @@ plumbunpackpartial(char *buf, int n, int *morep)
 	i = plumbline(&m->dst, buf, i, n, &bad);
 	i = plumbline(&m->wdir, buf, i, n, &bad);
 	i = plumbline(&m->type, buf, i, n, &bad);
+	attr = nil;
 	i = plumbline(&attr, buf, i, n, &bad);
 	m->attr = plumbunpackattr(attr);
 	free(attr);
+	ntext = nil;
 	i = plumbline(&ntext, buf, i, n, &bad);
 	m->ndata = atoi(ntext);
 	if(m->ndata != n-i){

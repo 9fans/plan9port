@@ -71,7 +71,7 @@ putline(int i, int nl)
 		ss = table[nl][c].col;
 		if (ss == 0)
 			continue;
-		if(font[c][stynum[nl]])
+		if(c < MAXHEAD && 0 <= nl && nl < 2)
 			chfont = 1;
 		if (point(ss) )
 			continue;

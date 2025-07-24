@@ -177,8 +177,8 @@ loadfontname(int n, char *s)
 
 	if (strcmp(s, fname[n]) == 0)
 		return;
-	if(fname[n] && fname[n][0]){
-		if(lastload[n] && strcmp(lastload[n], fname[n]) == 0)
+	if(fname[n][0]){
+		if(strcmp(lastload[n], fname[n]) == 0)
 			return;
 		strcpy(lastload[n], fname[n]);
 	}

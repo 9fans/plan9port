@@ -1,5 +1,6 @@
 #define _BSD_SOURCE 1	/* isascii */
 #define _DEFAULT_SOURCE 1
+#include <u.h>
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"
@@ -323,13 +324,14 @@ void ckul(void)
 void storeline(Tchar c, int w)
 {
 	int diff;
+	Tchar *nline;
 
 	if (linep >= line + lnsize - 2) {
 		lnsize += LNSIZE;
 		diff = linep - line;
-		if (( line = (Tchar *)realloc((char *)line, lnsize * sizeof(Tchar))) != NULL) {
-			if (linep && diff)
-				linep = line + diff;
+		if ((nline = (Tchar *)realloc((char *)line, lnsize * sizeof(Tchar))) != NULL) {
+			line = nline;
+			linep = line + diff;
 		} else {
 			if (over) {
 				return;
@@ -767,24 +769,26 @@ rtn:
 
 void storeword(Tchar c, int w)
 {
-	Tchar *savp;
+	Tchar *nword;
+	uintptr savp;
 	int i;
 
 	if (wordp >= word + wdsize - 2) {
 		wdsize += WDSIZE;
-		savp = word;
-		if (( word = (Tchar *)realloc((char *)word, wdsize * sizeof(Tchar))) != NULL) {
+		savp = (uintptr)word;
+		if ((nword = (Tchar *)realloc((char *)word, wdsize * sizeof(Tchar))) != NULL) {
+			word = nword;
 			if (wordp)
-				wordp = word + (wordp - savp);
+				wordp = word + ((uintptr)wordp - savp);
 			if (pendw)
-				pendw = word + (pendw - savp);
+				pendw = word + ((uintptr)pendw - savp);
 			if (wdstart)
-				wdstart = word + (wdstart - savp);
+				wdstart = word + ((uintptr)wdstart - savp);
 			if (wdend)
-				wdend = word + (wdend - savp);
+				wdend = word + ((uintptr)wdend - savp);
 			for (i = 0; i < NHYP; i++)
 				if (hyptr[i])
-					hyptr[i] = word + (hyptr[i] - savp);
+					hyptr[i] = word + ((uintptr)hyptr[i] - savp);
 		} else {
 			if (over) {
 				return;

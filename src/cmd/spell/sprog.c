@@ -985,7 +985,7 @@ trypref(char* ep, char* a, int lev, int flag)
 		deriv[lev+1].type += PREF;
 		h = tryword(bp,ep,lev+1,flag);
 		if(Set(h,NOPREF) ||
-		   ((tp->flag&IN) && inun(bp-2,h)==0)) {
+		   ((tp->flag&IN) && bp>=(word+2) && inun(bp-2,h)==0)) {
 			h = 0;
 			break;
 		}
