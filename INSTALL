@@ -37,6 +37,8 @@ PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 [ -z "$PLAN9_TARGET" ] && PLAN9_TARGET="$PLAN9"
 export PLAN9_TARGET
 
+egrep=egrep
+awk=awk
 case `uname` in
 SunOS)
 	awk=nawk
@@ -63,15 +65,9 @@ DragonFly|*BSD)
 		;;
 	esac
 	echo "CFLAGS='-pthread'" >> $PLAN9/config
-	awk=awk
 	;;
 *Linux*)
-	awk=awk
 	egrep='grep -E'
-	;;
-*)
-	egrep=egrep
-	awk=awk
 	;;
 esac
 
