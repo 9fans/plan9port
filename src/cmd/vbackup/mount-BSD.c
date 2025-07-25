@@ -12,6 +12,10 @@
 #if defined(__FreeBSD_version) && __FreeBSD_version >= 800000
 #include <fs/nfs/rpcv2.h>
 #include <fs/nfs/nfsproto.h>
+# elif defined(__DragonFly__)
+#include <vfs/nfs/rpcv2.h>
+#include <vfs/nfs/nfsproto.h>
+# elif defined(__DragonFly__)
 # else
 #include <nfs/rpcv2.h>
 #include <nfs/nfsproto.h>
@@ -21,6 +25,8 @@
 #	ifndef MNT_NODEV
 #		define MNT_NODEV 0
 #	endif
+#elif defined(__DragonFly__)
+#	include <vfs/nfs/nfs.h>
 #else
 #	include <nfs/nfs.h>
 #endif

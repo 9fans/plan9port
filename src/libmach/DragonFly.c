@@ -30,8 +30,8 @@ struct PtraceRegs
 	int pid;
 };
 
-static int ptracerw(Map*, Seg*, ulong, void*, uint, int);
-static int ptraceregrw(Regs*, char*, ulong*, int);
+static int ptracerw(Map*, Seg*, uvlong, void*, uint, int);
+static int ptraceregrw(Regs*, char*, uvlong*, int);
 
 void
 unmapproc(Map *map)
@@ -92,7 +92,7 @@ detachproc(int pid)
 }
 
 static int
-ptracerw(Map *map, Seg *seg, ulong addr, void *v, uint n, int isr)
+ptracerw(Map *map, Seg *seg, uvlong addr, void *v, uint n, int isr)
 {
 	int i;
 	u32int u;
@@ -167,7 +167,7 @@ reg2freebsd(char *reg)
 }
 
 static int
-ptraceregrw(Regs *regs, char *name, ulong *val, int isr)
+ptraceregrw(Regs *regs, char *name, uvlong *val, int isr)
 {
 	int pid;
 	ulong addr;
