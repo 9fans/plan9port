@@ -138,7 +138,7 @@ case "$tag" in
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
-		cflags="$cflags -g"
+		cflags="$cflags -g -Wformat=0"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
 *AIX*)		usexlc
