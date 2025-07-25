@@ -2,27 +2,24 @@
 #include "exec.h"
 #include "fns.h"
 #include "io.h"
-extern char *Signame[];
+
+int ntrap;
+int trap[NSIG];
 
 void
 dotrap(void)
 {
 	int i;
-	struct var *trapreq;
-	struct word *starval;
+	var *trapreq;
+	word *starval;
 	starval = vlook("*")->val;
-	while(ntrap) for(i = 0;i!=NSIG;i++) while(trap[i]){
+	while(ntrap) for(i = 0;i<NSIG;i++) while(trap[i]){
 		--trap[i];
 		--ntrap;
-		if(getpid()!=mypid) Exit(getstatus());
+		if(getpid()!=mypid) Exit();
 		trapreq = vlook(Signame[i]);
-		if(trapreq->fn){
-			start(trapreq->fn, trapreq->pc, (struct var *)0);
-			runq->local = newvar(strdup("*"), runq->local);
-			runq->local->val = copywords(starval, (struct word *)0);
-			runq->local->changed = 1;
-			runq->redir = runq->startredir = 0;
-		}
+		if(trapreq->fn)
+			startfunc(trapreq, copywords(starval, (word*)0), (var*)0, (redir*)0);
 		else if(i==SIGINT || i==SIGQUIT){
 			/*
 			 * run the stack down until we uncover the
@@ -32,6 +29,6 @@ dotrap(void)
 			 */
 			while(!runq->iflag) Xreturn();
 		}
-		else Exit(getstatus());
+		else Exit();
 	}
 }
