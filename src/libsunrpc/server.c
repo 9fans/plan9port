@@ -91,7 +91,8 @@ sunrpcrequestthread(void *v)
 	while((m = recvp(srv->crequest)) != nil){
 		/* could look up in cache here? */
 
-if(srv->chatty) fprint(2, "sun msg %p count %d\n", m, m->count);
+		if(srv->chatty)
+			fprint(2, "sun msg %p count %d\n", m, m->count);
 		m->srv = srv;
 		p = m->data;
 		ep = p+m->count;

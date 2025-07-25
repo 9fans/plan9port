@@ -64,7 +64,8 @@ memdraw(Memimage *dst, Rectangle r, Memimage *src, Point p0, Memimage *mask, Poi
 		mask = memopaque;
 
 	if(mask->layer){
-if(drawdebug)	iprint("mask->layer != nil\n");
+		if(drawdebug)
+			iprint("mask->layer != nil\n");
 		return;	/* too hard, at least for now */
 	}
 
@@ -75,7 +76,8 @@ if(drawdebug)	iprint("mask->layer != nil\n");
 	}
 
 	if(drawclip(dst, &r, src, &p0, mask, &p1, &srcr, &mr) == 0){
-if(drawdebug)	iprint("drawclip dstcr %R srccr %R maskcr %R\n", dst->clipr, src->clipr, mask->clipr);
+		if(drawdebug)
+			iprint("drawclip dstcr %R srccr %R maskcr %R\n", dst->clipr, src->clipr, mask->clipr);
 		return;
 	}
 

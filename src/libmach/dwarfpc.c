@@ -47,6 +47,7 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 	int i, first, op, a, l, quantum, isstmt, linebase, linerange, opcodebase, nf;
 	char *files, *dirs, *s;
 	DwarfBuf b;
+	uintptr bp;
 	DwarfSym sym;
 	State emit, cur, reset;
 	uchar **f, **newf;
@@ -74,9 +75,10 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 	b.p = d->line.data + off;
 	b.ep = b.p + d->line.len;
 	b.addrsize = sym.b.addrsize;	/* should i get this from somewhere else? */
+	bp = (uintptr)b.p;
 
 	len = dwarfget4(&b);
-	if(b.p==nil || b.p+len > b.ep || b.p+len < b.p){
+	if(b.p==nil || b.p+len > b.ep || bp+len < bp){
 		fprint(2, "bad len\n");
 		goto bad;
 	}
@@ -89,7 +91,7 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 	}
 
 	len = dwarfget4(&b);
-	if(b.p==nil || b.p+len > b.ep || b.p+len < b.p){
+	if(b.p==nil || b.p+len > b.ep || bp+len < bp){
 		fprint(2, "another bad len\n");
 		goto bad;
 	}
