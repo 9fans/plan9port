@@ -119,7 +119,7 @@ configurereq(XConfigureRequestEvent *e)
 
 	/* we don't set curtime as nothing here uses it */
 	c = getclient(e->window, 0);
-	trace("configurereq", c, e);
+	trace("configurereq", c, (XEvent *)e);
 
 	e->value_mask &= ~CWSibling;
 
@@ -190,7 +190,7 @@ mapreq(XMapRequestEvent *e)
 
 	curtime = CurrentTime;
 	c = getclient(e->window, 0);
-	trace("mapreq", c, e);
+	trace("mapreq", c, (XEvent *)e);
 
 	if(c == 0 || c->window != e->window){
 		/* workaround for stupid NCDware */

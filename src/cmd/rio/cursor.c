@@ -3,15 +3,17 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/shape.h>
 #include "dat.h"
 #include "fns.h"
 
-typedef struct {
+typedef struct Cursordata Cursordata;
+struct Cursordata {
 	int		width;
 	int		hot[2];
 	unsigned char	mask[64];
 	unsigned char	fore[64];
-} Cursordata;
+};
 
 Cursordata bigarrow = {
 	16,
@@ -157,9 +159,7 @@ static char grey_bits[] = {
 static XColor	bl, wh;
 
 Cursor
-getcursor(c, s)
-Cursordata *c;
-ScreenInfo *s;
+getcursor(Cursordata *c, ScreenInfo *s)
 {
 	Pixmap f, m;
 
@@ -172,8 +172,7 @@ ScreenInfo *s;
 }
 
 void
-initcurs(s)
-ScreenInfo *s;
+initcurs(ScreenInfo *s)
 {
 	XColor dummy;
 

@@ -471,8 +471,9 @@ sendconfig(Client *c)
 }
 
 void
-sighandler(void)
+sighandler(int _signo)
 {
+	(void)_signo;
 	signalled = 1;
 }
 

@@ -115,7 +115,7 @@ manage(Client *c, int mapped)
 			nwin %= 10;
 		}
 
-		if(c->is9term && !(fixsize ? drag(c, Button3) : sweep(c, Button3))){
+		if(c->is9term && !(fixsize ? drag(c, Button3) : sweep(c, Button3, 0))){
 			ScreenInfo *screen = c->screen;
 			XKillClient(dpy, c->window);
 			rmclient(c);
