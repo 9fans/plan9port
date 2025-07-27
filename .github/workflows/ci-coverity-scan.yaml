@@ -1,0 +1,24 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  coverity-scan:
+    name: Coverity Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vapier/coverity-scan-action@v1
+        with:
+          email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+          token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          description: Run Coverity Scan for Plan 9 from User Space
+          build_language: cxx
+          build_platform: linux64
+          command: ./INSTALL
+
