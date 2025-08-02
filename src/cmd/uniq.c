@@ -48,7 +48,7 @@ main(int argc, char *argv[])
 			argv++;
 			continue;
 		}
-		f = open(argv[1], 0);
+		f = open(argv[1], OREAD);
 		if(f < 0) {
 			fprint(2, "cannot open %s\n", argv[1]);
 			exits("open");

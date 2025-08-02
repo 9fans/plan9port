@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <event.h>
+#include <9pdefs.h>
 #include "plumb.h"
 
 typedef struct EQueue EQueue;
@@ -101,7 +102,7 @@ eplumb(int key, char *port)
 {
 	int fd;
 
-	fd = plumbopen(port, OREAD|OCEXEC);
+	fd = plumbopen(port, OREAD_9P|OCEXEC_9P);
 	if(fd < 0)
 		return -1;
 	return estartfn(key, fd, 8192, plumbevent);

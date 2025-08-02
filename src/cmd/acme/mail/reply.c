@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <plumb.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "dat.h"
 
 static int	replyid;
@@ -81,7 +82,7 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 
 	if(quotereply && m && m->replywinid > 0){
 		snprint(buf, sizeof buf, "%d/body", m->replywinid);
-		if((fd = fsopen(acmefs, buf, OWRITE)) != nil){
+		if((fd = fsopen(acmefs, buf, OWRITE_9P)) != nil){
 			dir = estrstrdup(mbox.name, m->name);
 			quote(m, fd, dir, quotetext);
 			free(dir);
@@ -110,7 +111,7 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 	wintagwrite(r->w, "fmt Look Post Undo", 4+5+5+4);
 	r->tagposted = 1;
 	threadcreate(mesgctl, r, STACK);
-	winopenbody(r->w, OWRITE);
+	winopenbody(r->w, OWRITE_9P);
 	if(to!=nil && to[0]!='\0')
 		fsprint(r->w->body, "%s\n", to);
 	for(a=attr; a; a=a->next)

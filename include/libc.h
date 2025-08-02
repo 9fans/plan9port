@@ -9,12 +9,23 @@
  */
 #ifndef _LIBC_H_
 #define _LIBC_H_ 1
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
+#if defined(__GNU__)
+#define _GNU_SOURCE
+#endif
+
 #include <utf.h>
 #include <fmt.h>
+
+/*
+ * Include the Unix system fcntl.h for open() flags.
+ */
+
+#include <fcntl.h>
 
 /*
  * Begin usual libc.h
@@ -602,18 +613,23 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define	MCACHE	0x0010	/* cache some data */
 #define	MMASK	0x0017	/* all bits on */
 
-#define	OREAD	0	/* open for read */
-#define	OWRITE	1	/* write */
-#define	ORDWR	2	/* read and write */
-#define	OEXEC	3	/* execute, == read but check execute permission */
-#define	OTRUNC	16	/* or'ed in (except for exec), truncate file first */
-#define	OCEXEC	32	/* or'ed in, close on exec */
-#define	ORCLOSE	64	/* or'ed in, remove on close */
-#define	ODIRECT	128	/* or'ed in, direct access */
-#define	ONONBLOCK 256	/* or'ed in, non-blocking call */
-#define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
-#define	OLOCK	0x2000	/* or'ed in, lock after opening */
-#define	OAPPEND	0x4000	/* or'ed in, append only */
+#define	OREAD	O_RDONLY	/* open for read */
+#define	OWRITE	O_WRONLY	/* write */
+#define	ORDWR	O_RDWR  	/* read and write */
+#define	OTRUNC	O_TRUNC		/* or'ed in (except for exec), truncate file first */
+#define	OCEXEC	O_CLOEXEC	/* or'ed in, close on exec */
+#define	ORCLOSE	0		/* or'ed in, remove on close */
+#define	ODIRECT	O_DIRECT	/* or'ed in, direct access */
+#define	ONONBLOCK O_NONBLOCK	/* or'ed in, non-blocking call */
+#define	OEXCL	O_EXCL		/* or'ed in, exclusive use (create only) */
+#define	OLOCK	0		/* or'ed in, lock after opening */
+#define	OAPPEND	O_APPEND 	/* or'ed in, append only */
+
+#ifdef O_EXEC
+#define	OEXEC	O_EXEC		/* execute, == read but check execute permission */
+#else
+#define	OEXEC	0
+#endif
 
 #define	AEXIST	0	/* accessible: exists */
 #define	AEXEC	1	/* execute access */

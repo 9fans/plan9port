@@ -23,6 +23,7 @@ TO DO:
 
  */
 
+#include <9pdefs.h>
 #include "a.h"
 
 enum
@@ -1144,7 +1145,7 @@ fsopen(Req *r)
 	switch(qtype(r->fid->qid)){
 	case Qctl:
 	case Qboxctl:
-		if((r->ifcall.mode&~OTRUNC) != OWRITE){
+		if((r->ifcall.mode&~OTRUNC_9P) != OWRITE_9P){
 			respond(r, Eperm);
 			return;
 		}
@@ -1153,7 +1154,7 @@ fsopen(Req *r)
 
 	case Qflags:
 	case Qsearch:
-		if((r->ifcall.mode&~OTRUNC) > ORDWR){
+		if((r->ifcall.mode&~OTRUNC_9P) > ORDWR_9P){
 			respond(r, Eperm);
 			return;
 		}
@@ -1161,7 +1162,7 @@ fsopen(Req *r)
 		return;
 
 	default:
-		if(r->ifcall.mode != OREAD){
+		if(r->ifcall.mode != OREAD_9P){
 			respond(r, Eperm);
 			return;
 		}

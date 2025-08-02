@@ -127,7 +127,7 @@ eopen(char *s)
 	int f;
 
 	sprint(buf, "%s/%s.scat", dir, s);
-	f = open(buf, 0);
+	f = open(buf, OREAD);
 	if(f<0){
 		fprint(2, "scat: can't open %s\n", buf);
 		exits("open");
