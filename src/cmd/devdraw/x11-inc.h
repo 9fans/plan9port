@@ -16,6 +16,7 @@
 #include <X11/keysym.h>
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
+#include <X11/extensions/Xfixes.h>
 #ifdef SHOWEVENT
 #include <stdio.h>
 #include "../rio/showevent/ShowEvent.c"
