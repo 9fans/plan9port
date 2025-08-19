@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "fsimpl.h"
 
 int
@@ -11,13 +12,13 @@ fsaccess(CFsys *fsys, char *name, int mode)
 	Dir *db;
 	static char omode[] = {
 		0,
-		OEXEC,
-		OWRITE,
-		ORDWR,
-		OREAD,
-		OEXEC,	/* only approximate */
-		ORDWR,
-		ORDWR	/* only approximate */
+		OEXEC_9P,
+		OWRITE_9P,
+		ORDWR_9P,
+		OREAD_9P,
+		OEXEC_9P,	/* only approximate */
+		ORDWR_9P,
+		ORDWR_9P	/* only approximate */
 	};
 
 	if(mode == AEXIST){

@@ -3,6 +3,7 @@
 #include <plumb.h>
 #include <libsec.h>
 #include <thread.h>
+#include <9pdefs.h>
 #include "dat.h"
 
 extern char* dirtab[]; /* jpc */
@@ -1472,7 +1473,7 @@ mailplumb(Mailbox *mb, Message *m, int delete)
 		return;
 
 	if(fd < 0)
-		fd = plumbopen("send", OWRITE);
+		fd = plumbopen("send", OWRITE_9P);
 	if(fd < 0)
 		return;
 

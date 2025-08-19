@@ -15,7 +15,7 @@ int havefork = 1;
 void
 Xasync(void)
 {
-	int null = open("/dev/null", 0);
+	int null = open("/dev/null", OREAD);
 	int tty;
 	int pid;
 	char npid[10];

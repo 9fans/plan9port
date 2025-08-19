@@ -5,6 +5,7 @@
 #include <thread.h>
 #include <fcall.h>
 #include <9p.h>
+#include <9pdefs.h>
 /*
  * we included thread.h in order to include 9p.h,
  * but we don't use threads, so exits is ok.
@@ -265,7 +266,7 @@ xattach(Req *r)
 static void
 xopen(Req *r)
 {
-	if(r->ifcall.mode != OREAD) {
+	if(r->ifcall.mode != OREAD_9P) {
 		respond(r, "permission denied");
 		return;
 	}

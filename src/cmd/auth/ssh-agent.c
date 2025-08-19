@@ -8,6 +8,7 @@
 #include <auth.h>
 #include <thread.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 
 enum
 {
@@ -692,7 +693,7 @@ listkeys(Msg *m, int version)
 	nk = 0;
 	pnk = m->p - m->bp;
 	put4(m, 0);
-	if((fid = nsopen(factotum, nil, "ctl", OREAD)) == nil){
+	if((fid = nsopen(factotum, nil, "ctl", OREAD_9P)) == nil){
 		fprint(2, "ssh-agent: open factotum: %r\n");
 		return -1;
 	}
@@ -740,7 +741,7 @@ listkeystext(void)
 	int i, n, nl, nf;
 	CFid *fid;
 
-	if((fid = nsopen(factotum, nil, "ctl", OREAD)) == nil){
+	if((fid = nsopen(factotum, nil, "ctl", OREAD_9P)) == nil){
 		fprint(2, "ssh-agent: open factotum: %r\n");
 		return;
 	}

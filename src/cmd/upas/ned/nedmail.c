@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <plumb.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <thread.h>
 
 #define system nedsystem
@@ -479,7 +480,7 @@ dir2message(Message *parent, int reverse)
 	Dir *d;
 	Message *first, *last, *m;
 
-	fd = fsopen(mailfs, s_to_c(parent->path), OREAD);
+	fd = fsopen(mailfs, s_to_c(parent->path), OREAD_9P);
 	if(fd == nil)
 		return -1;
 
@@ -585,7 +586,7 @@ file2string(String *dir, char *file)
 	CFid *fd;
 
 	s = extendpath(dir, file);
-	fd = fsopen(mailfs, s_to_c(s), OREAD);
+	fd = fsopen(mailfs, s_to_c(s), OREAD_9P);
 	s_grow(s, 512);			/* avoid multiple reads on info files */
 	s_reset(s);
 	if(fd == nil)
@@ -1084,7 +1085,7 @@ rawsearch(Message *m, Reprog *prog)
 	String *path;
 
 	path = extendpath(m->path, "raw");
-	fd = fsopen(mailfs, s_to_c(path), OREAD);
+	fd = fsopen(mailfs, s_to_c(path), OREAD_9P);
 	if(fd == nil)
 		return 0;
 
@@ -1376,7 +1377,7 @@ printpart(String *s, char *part)
 	String *path;
 
 	path = extendpath(s, part);
-	fd = fsopen(mailfs, s_to_c(path), OREAD);
+	fd = fsopen(mailfs, s_to_c(path), OREAD_9P);
 	s_free(path);
 	if(fd == nil){
 		fprint(2, "!message dissappeared\n");
@@ -1524,7 +1525,7 @@ printpartindented(String *s, char *part, char *indent)
 	Biobuf *b;
 
 	path = extendpath(s, part);
-	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(path), OREAD_9P);
 	s_free(path);
 	if(fd < 0){
 		fprint(2, "!message disappeared\n");
@@ -1601,7 +1602,7 @@ flushdeleted(Message *cur)
 	deld = 0;
 
 	snprint(buf, sizeof buf, "%s/ctl", mbname);
-	fd = fsopen(mailfs, buf, OWRITE);
+	fd = fsopen(mailfs, buf, OWRITE_9P);
 	if(fd == nil){
 		fprint(2, "!can't delete mail, opening %s: %r\n", buf);
 		exitfs(0);
@@ -1752,7 +1753,7 @@ icmd(Cmd *x, Message *m)
 
 	USED(x);
 	snprint(buf, sizeof buf, "%s/ctl", mbname);
-	fd = fsopen(mailfs, buf, OWRITE);
+	fd = fsopen(mailfs, buf, OWRITE_9P);
 	if(fd){
 		fswrite(fd, "refresh", 7);
 		fsclose(fd);
@@ -2143,7 +2144,7 @@ scmd(Cmd *c, Message *m)
 			return nil;
 	}else{
 		snprint(buf, sizeof buf, "%s/ctl", mbname);
-		if((fd = fsopen(mailfs, buf, OWRITE)) == nil)
+		if((fd = fsopen(mailfs, buf, OWRITE_9P)) == nil)
 			return nil;
 		msg = strrchr(s_to_c(m->path), '/');
 		if(msg == nil)
@@ -2373,12 +2374,12 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	}
 
 	path = extendpath(m->path, part);
-	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(path), OREAD_9P);
 	s_free(path);
 
 	if(fd < 0){	/* compatibility with older upas/fs */
 		path = extendpath(m->path, "raw");
-		fd = fsopenfd(mailfs, s_to_c(path), OREAD);
+		fd = fsopenfd(mailfs, s_to_c(path), OREAD_9P);
 		s_free(path);
 	}
 	if(fd < 0){
@@ -2417,7 +2418,7 @@ closemb(void)
 {
 	CFid *fd;
 
-	fd = fsopen(mailfs, "ctl", OWRITE);
+	fd = fsopen(mailfs, "ctl", OWRITE_9P);
 	if(fd == nil)
 		sysfatal("can't open ctl: %r");
 
@@ -2567,7 +2568,7 @@ plumb(Message *m, Ctype *cp)
 		return -1;
 
 	if(fd < -1)
-		fd = plumbopen("send", OWRITE);
+		fd = plumbopen("send", OWRITE_9P);
 	if(fd < 0)
 		return -1;
 
