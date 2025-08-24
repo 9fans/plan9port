@@ -478,6 +478,8 @@
 .nr )V 11 \}
 .if t \{.ds R ®
 .ds S \s\n()S
+.ds lq “
+.ds rq ”
 ..\}
 .if n \{.ie \nL<=0 .nr )L 11i
 .el \{.nr )L \nLu
@@ -491,6 +493,12 @@
 .nr )O 0\}
 .ds R (Reg.)
 .ds S
+.ds lq ``
+.ds rq ''
+.\" Insert definitions for non-utf troff-mode devices here.
+.if '\*(.T'utf' \{.ds lq “
+.ds rq ”
+.\}
 ..\}
 .if \nT .nr LL 80n
 .if \nV>1 \{
