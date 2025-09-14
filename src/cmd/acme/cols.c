@@ -469,7 +469,6 @@ colgrow(Column *c, Window *w, int but)
 	free(nl);
 	free(ny);
 	c->safe = TRUE;
-	winmousebut(w);
 }
 
 void
