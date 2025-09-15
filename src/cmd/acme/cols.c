@@ -164,8 +164,10 @@ colclose(Column *c, Window *w, int dofree)
 	int i, didmouse, up;
 
 	/* w is locked */
-	if(!c->safe)
+	if(!c->safe){
 		colgrow(c, w, 1);
+		winmousebut(w);
+	}
 	for(i=0; i<c->nw; i++)
 		if(c->w[i] == w)
 			goto Found;
