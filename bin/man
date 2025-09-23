@@ -68,7 +68,7 @@ fn dohtml {
 #
 # parse flags and sections
 #
-fn usage { echo 'Usage: man [-hnpPtw] [-s sec] [0-9] [0-9] ... [--] name1 name2 ...' >[1=2] }
+fn usage { echo 'Usage: man [-hnpPtw] [0-9] [0-9] ... [--] name1 name2 ...' >[1=2] }
 cmd=donroff
 sec=()
 S=$PLAN9/man
