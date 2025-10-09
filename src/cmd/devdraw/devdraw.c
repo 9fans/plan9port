@@ -1107,10 +1107,10 @@ draw_datawrite(Client *client, void *v, int n)
 				goto Enodrawimage;
 			if(di->name)
 				goto Enamed;
-			if(c)
+			if(c){
 				if(drawaddname(client, di, j, (char*)a+7, &err) < 0)
 					goto error;
-			else{
+			}else{
 				dn = drawlookupname(client, j, (char*)a+7);
 				if(dn == nil)
 					goto Enoname;
