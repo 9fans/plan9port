@@ -126,8 +126,8 @@
 .ne1.1v
 .nr)R 0
 .fi
-'''ss12
-'''if\\$2SYNOPSIS .ss 18
+.\"ss12
+.\"if\\$2SYNOPSIS .ss 18
 .it1 }N
 .if!\\$3 .SM
 .ft 3
