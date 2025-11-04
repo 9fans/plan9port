@@ -1612,8 +1612,9 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof
 	|| xe->target == _x.utf8string
 	|| xe->target == _x.text
 	|| xe->target == _x.compoundtext
-	|| ((name = XGetAtomName(_x.display, xe->target)) && strcmp(name, "text/plain;charset=UTF-8") == 0)){
+	|| ((name = XGetAtomName(_x.display, xe->target)) && strcasecmp(name, "text/plain;charset=UTF-8") == 0)){
 		/* text/plain;charset=UTF-8 seems nonstandard but is used by Synergy */
+		/* text/plain;charset=utf-8 is used by xfce4-terminal 1.0.4 */
 		/* if the target is STRING we're supposed to reply with Latin1 XXX */
 		qlock(&clip.lk);
 		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
