@@ -589,6 +589,7 @@ void wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t seria
 		if (wl->ctl) {
 			mask = 1 << CTL_BUTTON;
 		} else if (wl->alt) {
+			gfx_abortcompose(c);
 			mask = 1 << ALT_BUTTON;
 		}
 	}
@@ -724,7 +725,7 @@ void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 	if (wayland_debug) {
 		char name[256];
 		xkb_keysym_get_name(keysym, &name[0], 256);
-		char *state_str = WL_KEYBOARD_KEY_STATE_PRESSED ? "down" : "up";
+		char *state_str = state == WL_KEYBOARD_KEY_STATE_PRESSED ? "down" : "up";
 		DEBUG("wl_keyboard_key: keysym=%s, rune=0x%x, state=%s\n",
 			name, rune, state_str);
 	}
@@ -824,8 +825,9 @@ void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 				&wl_callback_key_repeat_listener, c);
 	}
 	qunlock(&wayland_lock);
-	if (state == WL_KEYBOARD_KEY_STATE_PRESSED && rune != 0)
+	if (state == WL_KEYBOARD_KEY_STATE_PRESSED && rune != 0) {
 		gfx_keystroke(c, rune);
+	}
 }
 
 void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
