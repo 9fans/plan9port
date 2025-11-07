@@ -514,6 +514,8 @@ void wl_pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t seria
 		mask = 1<<0;
 		break;
 	case BTN_MIDDLE:
+	case BTN_SIDE:
+	case BTN_EXTRA:
 		mask = 1<<1;
 		break;
 	case BTN_RIGHT:
@@ -905,20 +907,20 @@ WaylandBuffer *new_buffer(int w, int h, int format) {
 void wayland_set_cursor(WaylandClient *wl, Cursor *cursor) {
 	// Convert bitmap to ARGB.
 	// Yes, this is super clunky. Sorry about that.
+	const uint32_t a = 0x00000000;
 	const uint32_t fg = 0xFF000000;
-	const uint32_t a = 0x00FFFFFF;
 	uint32_t data[8*32];
 	int j = 0;
 	for (int i = 0; i < 32; i++) {
 		char c = cursor->set[i];
-		data[j++] = (c >>7) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 6) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 5) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 4) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 3) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 2) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 1) & 1 == 1 ? fg : a;
-		data[j++] = (c >> 0) & 1 == 1 ? fg : a;
+		data[j++] = (c >>7) & 1 ? fg : a;
+		data[j++] = (c >> 6) & 1 ? fg : a;
+		data[j++] = (c >> 5) & 1 ? fg : a;
+		data[j++] = (c >> 4) & 1 ? fg : a;
+		data[j++] = (c >> 3) & 1 ? fg : a;
+		data[j++] = (c >> 2) & 1 ? fg : a;
+		data[j++] = (c >> 1) & 1 ? fg : a;
+		data[j++] = (c >> 0) & 1 ? fg : a;
 	}
 
 	WaylandBuffer *b = new_buffer(16, 16, WL_SHM_FORMAT_ARGB8888);
