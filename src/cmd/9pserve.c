@@ -3,6 +3,7 @@
 #include <fcall.h>
 #include <thread.h>
 #include <errno.h>
+#include <9pdefs.h>
 
 #define err err9pserve /* Darwin x86 */
 
@@ -478,7 +479,7 @@ connthread(void *arg)
 			}
 			goto caseTopen;
 		case Topenfd:
-			if(m->tx.mode&~(OTRUNC|3)){
+			if(m->tx.mode&~(OTRUNC_9P|3)){
 				err(m, "bad openfd mode");
 				continue;
 			}
@@ -626,7 +627,7 @@ openfdthread(void *v)
 	threadsetname("openfd %s", c->fdfid);
 	tot = 0;
 	m = nil;
-	if(c->fdmode == OREAD){
+	if(c->fdmode == OREAD_9P){
 		for(;;){
 			if(verbose) fprint(2, "%T tread...");
 			m = msgnew(0);
@@ -752,13 +753,13 @@ xopenfd(Msg *m)
 	threadcreate(openfdthread, nc, STACK);
 
 	/* if mode is ORDWR, that openfdthread will write; start a reader */
-	if((m->tx.mode&3) == ORDWR){
+	if((m->tx.mode&3) == ORDWR_9P){
 		nc = emalloc(sizeof(Conn));
 		nc->internal = chancreate(sizeof(void*), 0);
 		nc->fdfid = m->fid;
 		m->fid->ref++;
 		nc->fdfid->openfd++;
-		nc->fdmode = OREAD;
+		nc->fdmode = OREAD_9P;
 		nc->fd = dup(p[0], -1);
 		threadcreate(openfdthread, nc, STACK);
 	}

@@ -398,7 +398,7 @@ int Opendir(char *name)
 {
 	Dir *db;
 	int f;
-	f=open(name, 0);
+	f=open(name, OREAD);
 	if(f==-1)
 		return f;
 	db = dirfstat(f);
@@ -515,7 +515,7 @@ int Executable(char *file)
 }
 int Creat(char *file)
 {
-	return create(file, 1, 0666L);
+	return create(file, OWRITE, 0666L);
 }
 int Dup(int a, int b){
 	return dup(a, b);

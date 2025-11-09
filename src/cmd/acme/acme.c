@@ -222,14 +222,14 @@ threadmain(int argc, char *argv[])
 	mainpid = getpid();
 	startplumbing();
 /*
-	plumbeditfd = plumbopen("edit", OREAD|OCEXEC);
+	plumbeditfd = plumbopen("edit", OREAD_9P|OCEXEC_9P);
 	if(plumbeditfd < 0)
 		fprint(2, "acme: can't initialize plumber: %r\n");
 	else{
 		cplumb = chancreate(sizeof(Plumbmsg*), 0);
 		threadcreate(plumbproc, nil, STACK);
 	}
-	plumbsendfd = plumbopen("send", OWRITE|OCEXEC);
+	plumbsendfd = plumbopen("send", OWRITE_9P|OCEXEC_9P);
 */
 
 	fsysinit();

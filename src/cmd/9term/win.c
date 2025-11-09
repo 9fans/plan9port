@@ -3,6 +3,7 @@
 #include <thread.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "term.h"
 
 const char *termprog = "win";
@@ -174,24 +175,24 @@ threadmain(int argc, char **argv)
 
 	if((fs = nsmount("acme", "")) == 0)
 		sysfatal("nsmount acme: %r");
-	ctlfd = fsopen(fs, "new/ctl", ORDWR|OCEXEC);
+	ctlfd = fsopen(fs, "new/ctl", ORDWR_9P|OCEXEC_9P);
 	if(ctlfd == 0 || fsread(ctlfd, buf, 12) != 12)
 		sysfatal("ctl: %r");
 	id = atoi(buf);
 	snprint(buf, sizeof buf, "%d", id);
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
-	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
+	fd = fsopenfd(fs, buf, OWRITE_9P|OCEXEC_9P);
 	write(fd, " Send", 1+4);
 	close(fd);
 	sprint(buf, "%d/event", id);
-	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
+	eventfd = fsopen(fs, buf, ORDWR_9P|OCEXEC_9P);
 	sprint(buf, "%d/addr", id);
-	addrfd = fsopen(fs, buf, ORDWR|OCEXEC);
+	addrfd = fsopen(fs, buf, ORDWR_9P|OCEXEC_9P);
 	sprint(buf, "%d/data", id);
-	datafd = fsopen(fs, buf, ORDWR|OCEXEC);
+	datafd = fsopen(fs, buf, ORDWR_9P|OCEXEC_9P);
 	sprint(buf, "%d/body", id);
-/*	bodyfd = fsopenfd(fs, buf, ORDWR|OCEXEC); */
+/*	bodyfd = fsopenfd(fs, buf, ORDWR_9P|OCEXEC_9P); */
 	if(eventfd==nil || addrfd==nil || datafd==nil)
 		sysfatal("data files: %r");
 /*

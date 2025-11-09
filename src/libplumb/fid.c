@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "plumb.h"
 
 static CFsys *fsplumb;
@@ -39,7 +40,7 @@ plumbopen(char *name, int omode)
 	* file descriptor.  In plumbsend we'll look for pfd
 	* and use the recorded fid instead.
 	*/
-	if((omode&3) == OWRITE){
+	if((omode&3) == OWRITE_9P){
 		if(pfd != -1){
 			werrstr("already have plumb send open");
 			return -1;

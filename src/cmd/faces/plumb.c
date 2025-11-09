@@ -5,6 +5,7 @@
 #include <regexp.h>
 #include <bio.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include "faces.h"
 
@@ -17,8 +18,8 @@ int		nmaildirs;
 void
 initplumb(void)
 {
-	showfd = plumbopenfid("send", OWRITE);
-	seefd = plumbopenfid("seemail", OREAD);
+	showfd = plumbopenfid("send", OWRITE_9P);
+	seefd = plumbopenfid("seemail", OREAD_9P);
 	if(showfd == nil || seefd == nil)
 		sysfatal("plumbopen: %r");
 }
@@ -273,7 +274,7 @@ dirface(char *dir, char *num)
 	len = fsdirlen(mailfs, buf);
 	if(len <= 0)
 		return nil;
-	fid = fsopen(mailfs, buf, OREAD);
+	fid = fsopen(mailfs, buf, OREAD_9P);
 	if(fid == nil)
 		return nil;
 	info = emalloc(len+1);

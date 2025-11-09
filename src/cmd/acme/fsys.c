@@ -9,6 +9,7 @@
 #include <fcall.h>
 #include <plumb.h>
 #include <libsec.h>
+#include <9pdefs.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -527,20 +528,20 @@ fsysopen(Xfid *x, Fid *f)
 	int m;
 
 	/* can't truncate anything, so just disregard */
-	x->fcall.mode &= ~(OTRUNC|OCEXEC);
+	x->fcall.mode &= ~(OTRUNC_9P|OCEXEC_9P);
 	/* can't execute or remove anything */
-	if(x->fcall.mode==OEXEC || (x->fcall.mode&ORCLOSE))
+	if(x->fcall.mode==OEXEC_9P || (x->fcall.mode&ORCLOSE_9P))
 		goto Deny;
 	switch(x->fcall.mode){
 	default:
 		goto Deny;
-	case OREAD:
+	case OREAD_9P:
 		m = 0400;
 		break;
-	case OWRITE:
+	case OWRITE_9P:
 		m = 0200;
 		break;
-	case ORDWR:
+	case ORDWR_9P:
 		m = 0600;
 		break;
 	}

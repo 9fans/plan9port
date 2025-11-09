@@ -46,7 +46,7 @@ writef(File *f)
 	if(genc)
 		free(genc);
 	genc = Strtoc(&genstr);
-	if((io=create(genc, 1, 0666L)) < 0)
+	if((io=create(genc, OWRITE, 0666L)) < 0)
 		error_r(Ecreate, genc);
 	dprint("%s: ", genc);
 	if(statfd(io, 0, 0, 0, &length, &appendonly) > 0 && appendonly && length>0)

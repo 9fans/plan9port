@@ -1,4 +1,5 @@
 #include "a.h"
+#include <9pdefs.h>
 
 enum
 {
@@ -217,7 +218,7 @@ msgplumb(Msg *m, int delete)
 	p.data = buf;
 
 	if(fd < 0)
-		fd = plumbopen("send", OWRITE);
+		fd = plumbopen("send", OWRITE_9P);
 	if(fd < 0)
 		return;
 

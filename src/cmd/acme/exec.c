@@ -11,6 +11,7 @@
 #include <plumb.h>
 #include <libsec.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -1602,7 +1603,7 @@ runproc(void *argvp)
 		}
 		if(winid>0 && (pipechar=='|' || pipechar=='>')){
 			sprint(buf, "%d/rdsel", winid);
-			sfd[0] = fsopenfd(fs, buf, OREAD);
+			sfd[0] = fsopenfd(fs, buf, OREAD_9P);
 		}else
 			sfd[0] = open("/dev/null", OREAD);
 		if((winid>0 || iseditcmd) && (pipechar=='|' || pipechar=='<')){
@@ -1613,10 +1614,10 @@ runproc(void *argvp)
 					sprint(buf, "editout");
 			}else
 				sprint(buf, "%d/wrsel", winid);
-			sfd[1] = fsopenfd(fs, buf, OWRITE);
-			sfd[2] = fsopenfd(fs, "cons", OWRITE);
+			sfd[1] = fsopenfd(fs, buf, OWRITE_9P);
+			sfd[2] = fsopenfd(fs, "cons", OWRITE_9P);
 		}else{
-			sfd[1] = fsopenfd(fs, "cons", OWRITE);
+			sfd[1] = fsopenfd(fs, "cons", OWRITE_9P);
 			sfd[2] = sfd[1];
 		}
 		fsunmount(fs);

@@ -104,9 +104,9 @@ redirout(char *file)
 		return;
 	}
 	flushbuf();
-	if ((fd = open(file, 1)) >= 0)
+	if ((fd = open(file, OWRITE)) >= 0)
 		seek(fd, 0L, 2);
-	else if ((fd = create(file, 1, 0666)) < 0)
+	else if ((fd = create(file, OWRITE, 0666)) < 0)
 		error("cannot create");
 	Bterm(&bstdout);
 	Binit(&bstdout, fd, OWRITE);

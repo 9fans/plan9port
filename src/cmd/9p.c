@@ -4,6 +4,7 @@
 #include <bio.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <auth.h>
 #include <thread.h>
 
@@ -161,7 +162,7 @@ xread(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	fid = xopen(argv[0], OREAD);
+	fid = xopen(argv[0], OREAD_9P);
 	while((n = fsread(fid, buf, sizeof buf)) > 0)
 		if(write(1, buf, n) < 0)
 			sysfatal("write error: %r");
@@ -186,7 +187,7 @@ xreadfd(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	fd = xopenfd(argv[0], OREAD);
+	fd = xopenfd(argv[0], OREAD_9P);
 	while((n = read(fd, buf, sizeof buf)) > 0)
 		if(write(1, buf, n) < 0)
 			sysfatal("write error: %r");
@@ -218,7 +219,7 @@ xwrite(int argc, char **argv)
 		usage();
 
 	did = 0;
-	fid = xopen(argv[0], OWRITE|OTRUNC);
+	fid = xopen(argv[0], OWRITE_9P|OTRUNC_9P);
 	if(byline){
 		n = 0;
 		b = malloc(sizeof *b);
@@ -264,7 +265,7 @@ xwritefd(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	fd = xopenfd(argv[0], OWRITE|OTRUNC);
+	fd = xopenfd(argv[0], OWRITE_9P|OTRUNC_9P);
 	while((n = read(0, buf, sizeof buf)) > 0)
 		if(write(fd, buf, n) != n)
 			sysfatal("write error: %r");
@@ -317,7 +318,7 @@ xrdwr(int argc, char **argv)
 
 	if((b = Bfdopen(0, OREAD)) == nil)
 		sysfatal("out of memory");
-	fid = xopen(argv[0], ORDWR);
+	fid = xopen(argv[0], ORDWR_9P);
 	for(;;){
 		fsseek(fid, 0, 0);
 		if((n = fsread(fid, buf, sizeof buf)) < 0)
@@ -356,7 +357,7 @@ xcreate(int argc, char **argv)
 
 	for(i=0; i<argc; i++){
 		fs = xparse(argv[i], &p);
-		if((fid=fscreate(fs, p, OREAD, 0666)) == nil)
+		if((fid=fscreate(fs, p, OREAD_9P, 0666)) == nil)
 			fprint(2, "create %s: %r\n", argv[i]);
 		else
 			fsclose(fid);
@@ -426,7 +427,7 @@ xcon(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	fid = xopen(argv[0], ORDWR);
+	fid = xopen(argv[0], ORDWR_9P);
 	proccreate(rdcon, fid, 32768);
 	for(;;){
 		n = fsread(fid, buf, sizeof buf);
@@ -544,7 +545,7 @@ xls(int argc, char **argv)
 			continue;
 		}
 		if((d->mode&DMDIR) && !dflag){
-			if((fid = fsopen(fs, xname, OREAD)) == nil){
+			if((fid = fsopen(fs, xname, OREAD_9P)) == nil){
 				fprint(2, "open %s: %r\n", name);
 				fsunmount(fs);
 				free(d);

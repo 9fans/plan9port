@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <auth.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "authlocal.h"
 
 static struct {
@@ -68,7 +69,7 @@ auth_allocrpc(void)
 		return nil;
 	rpc->afd = open("/mnt/factotum/rpc", ORDWR);
 	if(rpc->afd < 0){
-		rpc->afid = nsopen("factotum", nil, "rpc", ORDWR);
+		rpc->afid = nsopen("factotum", nil, "rpc", ORDWR_9P);
 		if(rpc->afid == nil){
 			free(rpc);
 			return nil;

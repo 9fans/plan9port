@@ -4,6 +4,7 @@
 #include <ndb.h>
 #include <thread.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "dns.h"
 #include "ip.h"
 
@@ -35,7 +36,7 @@ threadmain(int argc, char *argv[])
 	if(argc)
 		usage();
 
-	fd = nsopen(dns, nil, "dns", ORDWR);
+	fd = nsopen(dns, nil, "dns", ORDWR_9P);
 	if(fd == nil)
 		sysfatal("open %s!dns: %r", dns);
 

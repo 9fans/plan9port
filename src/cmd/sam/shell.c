@@ -45,9 +45,9 @@ plan9(File *f, int type, String *s, int nest)
 	if((pid=fork()) == 0){
 		setname(f);
 		if(downloaded){	/* also put nasty fd's into errfile */
-			fd = create(errfile, 1, 0666L);
+			fd = create(errfile, OWRITE, 0666L);
 			if(fd < 0)
-				fd = create("/dev/null", 1, 0666L);
+				fd = create("/dev/null", OWRITE, 0666L);
 			dup(fd, 2);
 			close(fd);
 			/* 2 now points at err file */
@@ -55,7 +55,7 @@ plan9(File *f, int type, String *s, int nest)
 				dup(2, 1);
 			else if(type=='!'){
 				dup(2, 1);
-				fd = open("/dev/null", 0);
+				fd = open("/dev/null", OREAD);
 				dup(fd, 0);
 				close(fd);
 			}
@@ -102,7 +102,7 @@ plan9(File *f, int type, String *s, int nest)
 		}
 		if(type=='<'){
 			close(0);	/* so it won't read from terminal */
-			open("/dev/null", 0);
+			open("/dev/null", OREAD);
 		}
 		execl(SHPATH, SH, "-c", Strtoc(&plan9cmd), (char *)0);
 		exits("exec");
@@ -149,7 +149,7 @@ checkerrs(void)
 	long l;
 
 	if(statfile(errfile, 0, 0, 0, &l, 0) > 0 && l != 0){
-		if((f=open(errfile, 0)) != -1){
+		if((f=open(errfile, OREAD)) != -1){
 			if((n=read(f, buf, sizeof buf-1)) > 0){
 				for(nl=0,p=buf; nl<25 && p<&buf[n]; p++)
 					if(*p=='\n')
