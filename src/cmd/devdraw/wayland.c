@@ -300,8 +300,9 @@ void wl_data_source_send(void *data,
 	const char *mime_type, int32_t fd) {
 	DEBUG("wl_data_source_send(mime_type=%s)\n", mime_type);
 
-	if (strcmp(mime_type, "text/plain") != 0) {
-		DEBUG("unknown mime type\n");
+	if (strcmp(mime_type, "text/plain") != 0 &&
+		strcmp(mime_type, "UTF8_STRING") != 0) {
+		DEBUG("unknown mime type: %s\n", mime_type);
 		close(fd);
 		return;
 	}
@@ -1143,6 +1144,7 @@ void	rpc_putsnarf(char *snarf_in) {
 		wl_data_device_manager_create_data_source(wl_data_device_manager);
 	wl_data_source_add_listener(source, &wl_data_source_listener, NULL);
 	wl_data_source_offer(source, "text/plain");
+	wl_data_source_offer(source, "UTF8_STRING");
 	wl_data_device_set_selection(wl_data_device, source, keyboard_enter_serial);
 
 	qunlock(&wayland_lock);
