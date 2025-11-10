@@ -10,6 +10,13 @@ error(char *s)
 }
 
 
+void
+warn(char *s)
+{
+	fprint(2, "\n%s:%d: warning: %s\n", ifile, iline, s);
+}
+
+
 char	*
 gets1(char *s, int size)
 {
