@@ -47,8 +47,18 @@ readspec(void)
 		default:
 			if (c != tab) {
 				char buf[64];
-				sprint(buf, "bad table specification character %c", c);
-				error(buf);
+				if (sawchar)
+					if (c != '\'') {
+						sprint(buf, "unrecognized column modifier character '%c'", c);
+						warn(buf);
+					} else {
+						sprint(buf, "unrecognized column modifier character \"%c\"", c);
+						warn(buf);
+					}
+				else {
+					sprint(buf, "bad table specification character %c", c);
+					error(buf);
+				}
 			}
 		case ' ': /* note this is also case tab */
 			continue;
