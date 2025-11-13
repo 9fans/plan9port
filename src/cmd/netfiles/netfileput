@@ -10,8 +10,8 @@ f=putfile
 . netfilelib.rc $1
 
 fn putfile{
-	cat >$t
-	echo put $t $2 | runsftp -e $1
+	if(! ssh $1 cat '>' ''''$2'''')
+		exit 1
 }
 fn putfile9p{
 	if(! 9p write $1/$2)
