@@ -127,7 +127,7 @@ int key_repeat_ms = 100;
 #define N_XRGB8888_BUFFERS 3
 struct WaylandBuffer *xrgb8888_buffers[N_XRGB8888_BUFFERS];
 
-int wayland_debug = 1;
+int wayland_debug = 0;
 
 #define DEBUG(...)					\
 do {								\
