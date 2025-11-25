@@ -648,6 +648,7 @@ void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard,
 	wl->repeat_rune = 0;
 
 	qunlock(&wayland_lock);
+	gfx_abortcompose(c);
 }
 
 void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
