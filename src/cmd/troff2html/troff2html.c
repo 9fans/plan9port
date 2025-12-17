@@ -30,7 +30,7 @@ enum
 enum	/* magic emissions */
 {
 	Estring = 0,
-	Epp = 1<<16
+	Epp = 1<<31
 };
 
 int attrorder[] = { Indent1, Indent2, Indent3, Heading, Anchor, Italic, Bold, CW };
