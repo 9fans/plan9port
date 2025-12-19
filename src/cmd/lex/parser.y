@@ -620,7 +620,7 @@ yylex(void)
 	if(debug)
 		Bprint(&fout,"\n/*this comes from section three - debug */\n");
 # endif
-	while(getl(buf) && !eof)
+	while(!eof && getl(buf))
 		Bprint(&fout,"%s\n",(char*)buf);
 	return(freturn(0));
 }
