@@ -5,6 +5,10 @@
 # if editing in acme, watch for the moment the window is closed.
 # otherwise the notion of a file changing is a little weak.
 
+if [ "$1" = "--" ]; then
+	shift
+fi
+
 file=$(echo $1 | cut -d ':' -f 1)
 
 stat=`ls -l $file`
