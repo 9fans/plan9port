@@ -372,6 +372,9 @@ runxevent(XEvent *xev)
 	case FocusOut:
 		w = findxwin(((XFocusChangeEvent*)xev)->window);
 		break;
+	case MapNotify:
+		w = findxwin(((XMapEvent*)xev)->window);
+		break;
 	}
 	if(w == nil)
 		w = _x.windows;
@@ -380,6 +383,12 @@ runxevent(XEvent *xev)
 	switch(xev->type){
 	case Expose:
 		_xexpose(w, xev);
+		break;
+
+	case MapNotify:
+		if(w->screenpm == w->nextscreenpm) {
+ 		           XCopyArea(_x.display, w->screenpm, w->drawable, _x.gccopy,0, 0, Dx(w->screenr), Dy(w->screenr), 0, 0);
+		}
 		break;
 
 	case DestroyNotify:
