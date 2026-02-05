@@ -370,6 +370,7 @@ runxevent(XEvent *xev)
 		w = findxwin(((XKeyEvent*)xev)->window);
 		break;
 	case FocusOut:
+	case FocusIn:
 		w = findxwin(((XFocusChangeEvent*)xev)->window);
 		break;
 	case MapNotify:
@@ -381,15 +382,23 @@ runxevent(XEvent *xev)
 
 	int shift;
 	switch(xev->type){
-	case Expose:
-		_xexpose(w, xev);
-		break;
-
 	case MapNotify:
-		if(w->screenpm == w->nextscreenpm) {
- 		           XCopyArea(_x.display, w->screenpm, w->drawable, _x.gccopy,0, 0, Dx(w->screenr), Dy(w->screenr), 0, 0);
-		}
-		break;
+	case FocusIn:    
+	case Expose:     /* Handle standard Expose here too for consistency */
+			/* * Force a copy from backing store (screenpm) to the window.
+			 * We removed the (screenpm == nextscreenpm) check because 
+			 * a slightly "tearing" frame is better than a blank one.
+			 */
+			if(w->screenpm){
+				XCopyArea(_x.display, w->screenpm, w->drawable, _x.gccopy,
+					0, 0, Dx(w->screenr), Dy(w->screenr), 0, 0);
+			}
+			/* * If this was a real Expose event, we still let standard handling
+			 * run just in case, though the CopyArea above likely did the job.
+			 */
+			if(xev->type == Expose)
+				_xexpose(w, xev);
+			break;
 
 	case DestroyNotify:
 		if(_xdestroy(w, xev))
