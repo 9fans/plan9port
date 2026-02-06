@@ -461,6 +461,8 @@ stdinproc(void *v)
 
 			case 'l':
 			case 'L':
+			case 'r':
+			case 'R':
 				/* just send it back */
 				if(e.flag & 2)
 					gete(efd, &e2);
