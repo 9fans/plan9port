@@ -35,7 +35,9 @@ int sortlabels;
 int showwmnames;
 extern Font *font;
 Image *lightblue;
-
+Image *backbuffer = nil;
+vlong last = 0;
+vlong now;
 
 enum {
 	PAD = 3,
@@ -276,7 +278,7 @@ refreshwin(void)
 }
 
 void
-drawnowin(int i)
+drawnowin(Image *dst, int i)
 {
 	Rectangle r;
 
@@ -286,17 +288,17 @@ drawnowin(int i)
 	            Pt(MARGIN + (PAD + Dx(r)) * (i / rows),
  	                MARGIN + (PAD + Dy(r)) * (i % rows))),
 	        screen->r.min);
-	draw(screen, insetrect(r, -1), lightblue, nil, ZP);
+	draw(dst, insetrect(r, -1), lightblue, nil, ZP);
 }
 
 void
-drawwin(int i)
+drawwin(Image *dst, int i)
 {
-	draw(screen, win[i].r, lightblue, nil, ZP);
-	_string(screen, addpt(win[i].r.min, Pt(2, 0)), display->black, ZP,
+	draw(dst, win[i].r, lightblue, nil, ZP);
+	_string(dst, addpt(win[i].r.min, Pt(2, 0)), display->black, ZP,
 	    font, win[i].label, nil, strlen(win[i].label),
 	    win[i].r, nil, ZP, SoverD);
-	border(screen, win[i].r, 1, display->black, ZP);
+	border(dst, win[i].r, 1, display->black, ZP);
 	win[i].dirty = 0;
 }
 
@@ -336,16 +338,38 @@ redraw(Image *screen, int all)
 	int i;
 
 	all |= geometry();
-	if(all)
-		draw(screen, screen->r, lightblue, nil, ZP);
+
+	/* 1. Allocate/Resize buffer only if screen size changes */
+	if(backbuffer == nil || Dx(backbuffer->r) != Dx(screen->r) || Dy(backbuffer->r) != Dy(screen->r)){
+		if(backbuffer)
+			freeimage(backbuffer);
+
+	/* Create buffer with the same coordinates as the screen */
+	backbuffer = allocimage(display, screen->r, screen->chan, 0, DWhite);
+	if(backbuffer == nil)
+		return;
+	}
+
+	/* 2. Paint background on the off-screen buffer */
+	draw(backbuffer, backbuffer->r, lightblue, nil, ZP);
+
+	/* 3. Draw all items onto the buffer */
 	for(i=0; i<nwin; i++)
-		if(all || win[i].dirty)
-			drawwin(i);
-	if(!all)
-		for (; i<onwin; i++)
-			drawnowin(i);
+		drawwin(backbuffer, i);
+
+	for (; i<onwin; i++)
+		drawnowin(backbuffer, i);
+
+	/* 4. Atomic Copy to Screen (The Fix) */
+	/* We use backbuffer->r.min as the source point, ensuring alignment */
+	draw(screen, screen->r, backbuffer, nil, backbuffer->r.min);
+
+	/* 5. Force the update to the X server immediately */
+	flushimage(display, 1);
+
 	onwin = nwin;
 }
+
 
 void
 eresized(int new)
@@ -483,9 +507,18 @@ main(int argc, char **argv)
 		case Emouse:
 			if(e.mouse.buttons)
 				click(e.mouse);
-			/* fall through  */
-		default:		/* Etimer */
+
+			/* Rate-limited fallthrough */
+			now = nsec();
+			/* If less than 200ms (200,000,000ns) has passed, skip refresh */
+			if(now - last < 200*1000000LL)
+				break;
+			/* Otherwise, fall through to refresh */
+
+		default:	/* Etimer */
+			last = nsec();
 			refreshwin();
+			/* Always redraw. It is cheap now, with the buffered drawing and the limited rate. */
 			redraw(screen, 0);
 			break;
 		}
