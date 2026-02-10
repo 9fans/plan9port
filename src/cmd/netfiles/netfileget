@@ -23,22 +23,12 @@ fn getdir9p {
 }
 
 fn getfile {
-	rm -f $t
-	echo get $2 $t | runsftp -e $1
-	cat $t
+	if(! ssh $1 cat ''''$2'''')
+		exit 1
 }
 
 fn getdir {
-	{echo cd $2; echo ls -l} | runsftp $1
-	awk '
-		$NF == "." || $NF == ".." { next } 
-		{
-			s = $NF
-			if($0 ~ /^d/)
-				s = s "/"
-			print s
-		}
-	' $t.sftp
+	ssh $1 ls -l ''''$2'''' | awk 'NR>1{s=$NF; if($0 ~ /^d/) s=s"/"; print s}'
 }
 
 $f $1 $2
