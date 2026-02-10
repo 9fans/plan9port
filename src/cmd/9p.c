@@ -6,6 +6,7 @@
 #include <9pclient.h>
 #include <auth.h>
 #include <thread.h>
+#include <poll.h>
 
 char *addr;
 
@@ -147,6 +148,24 @@ xopenfd(char *name, int mode)
 }
 
 void
+checkout()
+{
+	int nfd;
+	struct pollfd *pfds;
+
+	nfd = 2;
+	pfds = calloc(nfd, sizeof(struct pollfd));
+	pfds[0].fd = 1;
+	pfds[1].fd = 2;
+	for(;;) {
+		if (poll(pfds, nfd, -1) < 0)
+			sysfatal("poll");
+		if (pfds[0].revents & POLLERR || pfds[1].revents & POLLERR)
+			threadexitsall(0);
+	}
+}
+
+void
 xread(int argc, char **argv)
 {
 	char buf[4096];
@@ -162,6 +181,7 @@ xread(int argc, char **argv)
 		usage();
 
 	fid = xopen(argv[0], OREAD);
+	proccreate(checkout, nil, 32768);
 	while((n = fsread(fid, buf, sizeof buf)) > 0)
 		if(write(1, buf, n) < 0)
 			sysfatal("write error: %r");
