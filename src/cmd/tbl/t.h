@@ -135,6 +135,7 @@ void choochar(void);			/*tc.c*/
 int point(char *);
 
 void error(char *);			/*te.c*/
+void warn(char *);
 char *gets1(char *, int);
 void un1getc(int);
 int get1char(void);
