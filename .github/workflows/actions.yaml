@@ -9,7 +9,7 @@ jobs:
   Build-on-Ubuntu:
     runs-on: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install build deps
         run: |
           sudo apt update
@@ -19,6 +19,6 @@ jobs:
   Build-on-macOS:
     runs-on: [macos-latest]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build p9p
         run: ./INSTALL
