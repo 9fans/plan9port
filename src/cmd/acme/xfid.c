@@ -21,6 +21,7 @@ char	Edel[]		= "deleted window";
 char	Ebadctl[]		= "ill-formed control message";
 char	Ebadaddr[]	= "bad address syntax";
 char	Eaddr[]		= "address out of range";
+char	Eaddrord[]	= "address out of order";
 char	Einuse[]		= "already in use";
 char	Ebadevent[]	= "bad event syntax";
 extern char Eperm[];
@@ -493,7 +494,11 @@ xfidwrite(Xfid *x)
 			break;
 		}
 		if(!eval){
-			respond(x, &fc, Eaddr);
+			if (a.q0 > a.q1) {
+				respond(x, &fc, Eaddrord);
+			} else {
+				respond(x, &fc, Eaddr);
+			}
 			break;
 		}
 		w->addr = a;
