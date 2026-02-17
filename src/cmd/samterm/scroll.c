@@ -115,7 +115,7 @@ scroll(Flayer *l, int but)
 	draw(scrback, Rect(0,0,Dx(l->scroll), Dy(l->scroll)), l->f.b, nil, l->scroll.min);
 	do{
 		oin = in;
-		in = abs(x-mousep->xy.x)<=FLSCROLLWID(l)/2;
+		in = (but>3) || abs(x-mousep->xy.x)<=FLSCROLLWID(l)/2;
 		if(oin && !in)
 			scrunmark(l, r);
 		if(in){
@@ -128,7 +128,7 @@ scroll(Flayer *l, int but)
 				my = s.max.y;
 			if(!eqpt(mousep->xy, Pt(x, my)))
 				moveto(mousectl, Pt(x, my));
-			if(but == 1){
+			if(but == 1 || but == 4){
 				p0 = l->origin-frcharofpt(&l->f, Pt(s.max.x, my));
 				rt = scrpos(l->scroll, p0, p0+l->f.nchars, tot);
 				y = rt.min.y;
@@ -136,7 +136,7 @@ scroll(Flayer *l, int but)
 				y = my;
 				if(y > s.max.y-2)
 					y = s.max.y-2;
-			}else if(but == 3){
+			}else if(but == 3 || but == 5){
 				p0 = l->origin+frcharofpt(&l->f, Pt(s.max.x, my));
 				rt = scrpos(l->scroll, p0, p0+l->f.nchars, tot);
 				y = rt.min.y;
@@ -147,19 +147,21 @@ scroll(Flayer *l, int but)
 				scrmark(l, r);
 			}
 		}
-	}while(button(but));
+	}while(but<4 && button(but));
 	if(in){
 		h = s.max.y-s.min.y;
 		scrunmark(l, r);
 		p0 = 0;
-		if(but == 1)
+		if(but == 1 || but == 4){
+			but = 1;
 			p0 = (long)(my-s.min.y)/l->f.font->height+1;
-		else if(but == 2){
+		}else if(but == 2){
 			if(tot > 1024L*1024L)
 				p0 = ((tot>>10)*(y-s.min.y)/h)<<10;
 			else
 				p0 = tot*(y-s.min.y)/h;
-		}else if(but == 3){
+		}else if(but == 3 || but == 5){
+			but = 3;
 			p0 = l->origin+frcharofpt(&l->f, Pt(s.max.x, my));
 			if(p0 > tot)
 				p0 = tot;
