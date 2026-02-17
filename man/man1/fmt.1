@@ -17,6 +17,8 @@ fmt, htmlfmt \- simple text formatters
 .B -c
 .I charset
 ] [
+.B -I
+] [
 .B -u
 .I url
 ] [
@@ -74,6 +76,10 @@ change the default character set from iso-8859-1 to
 .IR charset .
 This is the character set assumed if there isn't one
 specified by the html itself in a <meta> directive.
+.TP
+.B -I
+When displaying anchors, suppress the printing of
+image anchors.
 .TP
 .BI -u " url
 Use
