@@ -25,13 +25,11 @@ static char *parse(char *s, int typeit)	/* convert \0, etc to nroff driving tabl
 	wchar_t wc;
 
 	obuf = typeit == Type ? buf : buf+1;
-#ifdef UNICODE
 	if (mbtowc(&wc, s, strlen(s)) > 1) {	/* it's multibyte, */
 		buf[0] = MBchar;
 		strcpy(buf+1, s);
 		return obuf;
 	}			/* so just hand it back */
-#endif	/*UNICODE*/
 	buf[0] = Troffchar;
 	t = buf + 1;
 	if (*s == '"') {
@@ -106,12 +104,10 @@ static int getnrfont(FILE *fp)	/* read the nroff description file */
 		} else if (ch[0] == '\\' && ch[1] == '0') {
 			n = strtol(ch+1, 0, 0);	/* \0octal or \0xhex */
 			chtemp[n].num = n;
-#ifdef UNICODE
 		} else if (mbtowc(&wc, ch, strlen(ch)) > 1) {
 			chtemp[nw].num = chadd(ch, MBchar, Install);
 			n = nw;
 			nw++;
-#endif	/*UNICODE*/
 		} else {
 			if (strcmp(ch, "---") == 0) { /* no name */
 				sprintf(ch, "%d", code);
@@ -169,7 +165,7 @@ void n_ptinit(void)
 	if (fontdir[0] == 0)
 		strcpy(fontdir, "");
 	if (devname[0] == 0)
-		strcpy(devname, NDEVNAME);
+		strcpy(devname, "utf");
 	pl = 11*INCH;
 	po = PO;
 	hyf = 0;
@@ -183,7 +179,7 @@ void n_ptinit(void)
 	bdtab[3] = 3;
 	bdtab[4] = 3;
 
-	/* hyphalg = 0;	/* for testing */
+	/* hyphalg = 0;	for testing */
 
 	strcat(termtab, devname);
 	if ((fp = fopen(unsharp(termtab), "r")) == NULL) {
@@ -430,17 +426,10 @@ char *plot(char *x)
 		if (*k == '%') {	/* quote char within plot mode */
 			oput(*++k);
 		} else if (*k & 0200) {
-			if (*k & 0100) {
-				if (*k & 040)
-					j = t.up;
-				else
-					j = t.down;
-			} else {
-				if (*k & 040)
-					j = t.left;
-				else
-					j = t.right;
-			}
+			if (*k & 0100)
+				j = *k & 040 ? t.up : t.down;
+			else
+				j = *k & 040 ? t.left : t.right;
 			if ((i = *k & 037) == 0) {	/* 2nd 0200 turns it off */
 				++k;
 				break;
@@ -507,9 +496,7 @@ void move(void)
 		} else {
 			j = " ";
 			if (hflg)
-				while ((dt = dtab - (iesct % dtab)) <= esc) {
-					if (dt % t.Em)
-						break;
+				while ((dt = dtab - (iesct % dtab)) <= esc && dt % t.Em) {
 					oput(TAB);
 					esc -= dt;
 					iesct += dt;

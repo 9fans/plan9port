@@ -1,13 +1,13 @@
 %.$O:	$HFILES			# don't combine with following %.$O rules
 
 %.$O:	%.c
-	$CC $CFLAGS $stem.c
+	$CC $CFLAGS $stem.c -o $stem.$O
 
 %.$O:	%.cc
-	$CC $CFLAGS $stem.cc
+	$CC $CFLAGS $stem.cc -o $stem.$O
 
 %.$O:	%.s
-	$AS $AFLAGS $stem.s
+	$AS $AFLAGS $stem.s -o $stem.$O
 
 y.tab.h y.tab.c:	$YFILES
 	$YACC $YFLAGS $prereq

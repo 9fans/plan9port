@@ -54,7 +54,7 @@ void t_ptinit(void)
 	if (fontdir[0] == 0)
 		strcpy(fontdir, DWBfontdir);
 	if (devname[0] == 0)
-		strcpy(devname, TDEVNAME);
+		strcpy(devname, "utf");
 	hyf = 1;
 	lg = 1;
 
