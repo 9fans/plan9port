@@ -772,7 +772,10 @@ texttype(Text *t, Rune r)
 	 	typecommit(t);
 		undo(t, nil, nil, FALSE, 0, nil, 0);
 		return;
-
+	case Kcmd+'s':
+		typecommit(t);
+		put(t, nil, nil, XXX, XXX, nil, 0);
+		return;
 	Tagdown:
 		/* expand tag to show all text */
 		if(!t->w->tagexpand){
