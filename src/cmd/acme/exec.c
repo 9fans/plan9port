@@ -243,6 +243,16 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 		free(r);
 		return;
 	}
+	/* Prefer Edit's <, |, > */
+	s = skipbl(r, q1-q0, &n);
+	if(n != 0){
+		c = s[0];
+		if(c=='<' || c=='|' || c=='>'){
+			edit(t, nil, argt, XXX, XXX, s, n);
+			free(r);
+			return;
+		}
+	}
 
 	b = runetobyte(r, q1-q0);
 	free(r);
@@ -838,16 +848,11 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 static void
 trimspaces(Text *et)
 {
-	File *f;
-	Rune *r;
+	static Rune cmd[] = { ',', 'x', '/', '[', ' ', '\t', ']', '+', '$', '/', 'd' };
 	Text *t;
-	uint q0, n, delstart;
-	int c, i, marked;
+	int c;
 
 	t = &et->w->body;
-	f = t->file;
-	marked = 0;
-
 	if(t->w!=nil && et->w!=t->w){
 		/* can this happen when t == &et->w->body? */
 		c = 'M';
@@ -856,39 +861,7 @@ trimspaces(Text *et)
 		winlock(t->w, c);
 	}
 
-	r = fbufalloc();
-	q0 = f->b.nc;
-	delstart = q0; /* end of current space run, or 0 if no active run; = q0 to delete spaces before EOF */
-	while(q0 > 0) {
-		n = RBUFSIZE;
-		if(n > q0)
-			n = q0;
-		q0 -= n;
-		bufread(&f->b, q0, r, n);
-		for(i=n; ; i--) {
-			if(i == 0 || (r[i-1] != ' ' && r[i-1] != '\t')) {
-				// Found non-space or start of buffer. Delete active space run.
-				if(q0+i < delstart) {
-					if(!marked) {
-						marked = 1;
-						seq++;
-						filemark(f);
-					}
-					textdelete(t, q0+i, delstart, TRUE);
-				}
-				if(i == 0) {
-					/* keep run active into tail of next buffer */
-					if(delstart > 0)
-						delstart = q0;
-					break;
-				}
-				delstart = 0;
-				if(r[i-1] == '\n')
-					delstart = q0+i-1; /* delete spaces before this newline */
-			}
-		}
-	}
-	fbuffree(r);
+	edit(t, nil, nil, XXX, XXX, cmd, nelem(cmd));
 
 	if(t->w!=nil && et->w!=t->w)
 		winunlock(t->w);
