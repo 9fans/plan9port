@@ -645,6 +645,8 @@ enter(char *name, int t)
 	s = gmalloc(sizeof(Lsym));
 	memset(s, 0, sizeof(Lsym));
 	s->name = strdup(name);
+	if(s->name == 0)
+		fatal("no memory");
 
 	s->hash = hash[h];
 	hash[h] = s;
