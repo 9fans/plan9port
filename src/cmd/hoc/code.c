@@ -557,6 +557,8 @@ diveq(void)
 	if (d1.sym->type != VAR && d1.sym->type != UNDEF)
 		execerror("assignment to non-variable",
 			d1.sym->name);
+	if (d2.val == 0.0)
+		execerror("division by zero", (char *)0);
 	d2.val = d1.sym->u.val /= d2.val;
 	d1.sym->type = VAR;
 	push(d2);
@@ -572,18 +574,16 @@ void
 modeq(void)
 {
 	Datum d1, d2;
-	long x;
 
 	d1 = pop();
 	d2 = pop();
 	if (d1.sym->type != VAR && d1.sym->type != UNDEF)
 		execerror("assignment to non-variable",
 			d1.sym->name);
+	if (d2.val == 0.0)
+		execerror("division by zero", (char *)0);
 	/* d2.val = d1.sym->u.val %= d2.val; */
-	x = d1.sym->u.val;
-	x %= (long) d2.val;
-	d2.val = x;
-	d1.sym->u.val = x;
+	d2.val = d1.sym->u.val = fmod(d1.sym->u.val, d2.val);
 	d1.sym->type = VAR;
 
 	/* push(d2) generates a compiler error on Linux w. gcc 2.95.4 */
