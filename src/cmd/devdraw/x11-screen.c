@@ -12,6 +12,7 @@
 #include <thread.h>
 #include "x11-memdraw.h"
 #include "devdraw.h"
+#include "bigarrow.h"
 
 #undef time
 
@@ -39,6 +40,7 @@ static int _xtoplan9mouse(Xwin *w, XEvent *e, Mouse *m);
 static void _xmovewindow(Xwin *w, Rectangle r);
 static int _xtoplan9kbd(XEvent *e);
 static int _xselect(XEvent *e);
+static void _xsetcursor(Xwin *w, Cursor *c);
 
 static void	rpc_resizeimg(Client*);
 static void	rpc_resizewindow(Client*, Rectangle);
@@ -785,6 +787,8 @@ xattach(Client *client, char *label, char *winsize)
 		XFreePixmap(_x.display, pmid);
 	}
 
+	_xsetcursor(w, nil);
+
 	return w->screenimage;
 }
 
@@ -1412,35 +1416,17 @@ revbyte(int b)
 }
 
 static void
-xcursorarrow(Xwin *w)
+_xsetcursor(Xwin *w, Cursor *c)
 {
-	if(_x.cursor != 0){
-		XFreeCursor(_x.display, _x.cursor);
-		_x.cursor = 0;
-	}
-	XUndefineCursor(_x.display, w->drawable);
-	XFlush(_x.display);
-}
-
-
-void
-rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
-{
-	Xwin *w = (Xwin*)client->view;
 	XColor fg, bg;
 	XCursor xc;
 	Pixmap xsrc, xmask;
 	int i;
 	uchar src[2*16], mask[2*16];
 
-	USED(c2);
+	if(c == nil)
+		c = &bigarrow;
 
-	xlock();
-	if(c == nil){
-		xcursorarrow(w);
-		xunlock();
-		return;
-	}
 	for(i=0; i<2*16; i++){
 		src[i] = revbyte(c->set[i]);
 		mask[i] = revbyte(c->set[i] | c->clr[i]);
@@ -1451,7 +1437,7 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 	xsrc = XCreateBitmapFromData(_x.display, w->drawable, (char*)src, 16, 16);
 	xmask = XCreateBitmapFromData(_x.display, w->drawable, (char*)mask, 16, 16);
 	xc = XCreatePixmapCursor(_x.display, xsrc, xmask, &fg, &bg, -c->offset.x, -c->offset.y);
-	if(xc != 0) {
+	if(xc != 0){
 		XDefineCursor(_x.display, w->drawable, xc);
 		if(_x.cursor != 0)
 			XFreeCursor(_x.display, _x.cursor);
@@ -1460,6 +1446,15 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 	XFreePixmap(_x.display, xsrc);
 	XFreePixmap(_x.display, xmask);
 	XFlush(_x.display);
+}
+
+void
+rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
+{
+	USED(c2);
+
+	xlock();
+	_xsetcursor((Xwin*)client->view, c);
 	xunlock();
 }
 
