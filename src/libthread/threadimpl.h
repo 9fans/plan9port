@@ -31,7 +31,7 @@ enum
 
 struct Execjob
 {
-	int *fd;
+	int fd[3];
 	char *cmd;
 	char **argv;
 	char *dir;
