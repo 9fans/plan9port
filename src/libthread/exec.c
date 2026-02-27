@@ -49,7 +49,7 @@ _runthreadspawn(int *fd, char *cmd, char **argv, char *dir)
 		if(e->argv[i] == nil)
 			sysfatal("out of memory");
 	}
-	if(e->dir != nil) {
+	if(dir != nil) {
 		e->dir = strdup(dir);
 		if(e->dir == nil)
 			sysfatal("out of memory");
