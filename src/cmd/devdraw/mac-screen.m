@@ -1109,7 +1109,7 @@ rpc_getsnarf(void)
 void
 rpc_putsnarf(char *s)
 {
-	if(s == nil || strlen(s) >= SnarfSize)
+	if(s == nil)
 		return;
 
 	dispatch_sync(dispatch_get_main_queue(), ^(void) {

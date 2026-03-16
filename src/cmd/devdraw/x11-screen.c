@@ -1454,9 +1454,8 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 
 struct {
 	QLock lk;
-	char buf[SnarfSize];
+	char *buf;
 #ifdef APPLESNARF
-	Rune rbuf[SnarfSize];
 	PasteboardRef apple;
 #endif
 } clip;
@@ -1498,7 +1497,7 @@ _xgetsnarffrom(Xwin *w, XWindow xw, Atom clipboard, Atom target, int timeout0, i
 
 	/* get the property */
 	xdata = nil;
-	XGetWindowProperty(_x.display, w->drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
+	XGetWindowProperty(_x.display, w->drawable, prop, 0, (len+3)/4, 0,
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if((type != target && type != XA_STRING && type != _x.utf8string) || len == 0){
 		if(xdata)
@@ -1538,7 +1537,9 @@ rpc_getsnarf(void)
 	// TODO check more
 	if(xw == w->drawable){
 	mine:
-		data = (uchar*)strdup(clip.buf);
+		data = nil;
+		if(clip.buf != nil)
+			data = (uchar*)strdup(clip.buf);
 		goto out;
 	}
 
@@ -1577,12 +1578,11 @@ __xputsnarf(char *data)
 	XButtonEvent e;
 	Xwin *w;
 
-	if(strlen(data) >= SnarfSize)
-		return;
 	qlock(&clip.lk);
 	xlock();
 	w = _x.windows;
-	strcpy(clip.buf, data);
+	free(clip.buf);
+	clip.buf = strdup(data);
 	/* leave note for mouse proc to assert selection ownership */
 	_x.putsnarf++;
 
@@ -1627,8 +1627,12 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof
 		/* text/plain;charset=utf-8 is used by xfce4-terminal 1.0.4 */
 		/* if the target is STRING we're supposed to reply with Latin1 XXX */
 		qlock(&clip.lk);
-		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
-			8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
+		if(clip.buf)
+			XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
+				8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
+		else
+			XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
+				8, PropModeReplace, (uchar*)"", 0);
 		qunlock(&clip.lk);
 	}else{
 		if(strcmp(name, "TIMESTAMP") != 0)
@@ -1674,7 +1678,9 @@ _applegetsnarf(void)
 	}
 	flags = PasteboardSynchronize(clip.apple);
 	if(flags&kPasteboardClientIsOwner){
-		s = strdup(clip.buf);
+		s = nil;
+		if(clip.buf != nil)
+			s = strdup(clip.buf);
 		qunlock(&clip.lk);
 		return s;
 	}
@@ -1716,14 +1722,21 @@ _appleputsnarf(char *s)
 {
 	CFDataRef cfdata;
 	PasteboardSyncFlags flags;
+	Rune *r;
+	int n;
 
 /*	fprint(2, "appleputsnarf\n"); */
 
-	if(strlen(s) >= SnarfSize)
-		return;
 	qlock(&clip.lk);
-	strcpy(clip.buf, s);
-	runesnprint(clip.rbuf, nelem(clip.rbuf), "%s", s);
+	free(clip.buf);
+	clip.buf = strdup(s);
+	n = utflen(s) + 1;
+	r = malloc(n * sizeof(Rune));
+	if(r == nil){
+		qunlock(&clip.lk);
+		return;
+	}
+	runesnprint(r, n, "%s", s);
 	if(clip.apple == nil){
 		if(PasteboardCreate(kPasteboardClipboard, &clip.apple) != noErr){
 			fprint(2, "apple pasteboard create failed\n");
@@ -1733,17 +1746,20 @@ _appleputsnarf(char *s)
 	}
 	if(PasteboardClear(clip.apple) != noErr){
 		fprint(2, "apple pasteboard clear failed\n");
+		free(r);
 		qunlock(&clip.lk);
 		return;
 	}
 	flags = PasteboardSynchronize(clip.apple);
 	if((flags&kPasteboardModified) || !(flags&kPasteboardClientIsOwner)){
 		fprint(2, "apple pasteboard cannot assert ownership\n");
+		free(r);
 		qunlock(&clip.lk);
 		return;
 	}
 	cfdata = CFDataCreate(kCFAllocatorDefault,
-		(uchar*)clip.rbuf, runestrlen(clip.rbuf)*2);
+		(uchar*)r, runestrlen(r)*2);
+	free(r);
 	if(cfdata == nil){
 		fprint(2, "apple pasteboard cfdatacreate failed\n");
 		qunlock(&clip.lk);
