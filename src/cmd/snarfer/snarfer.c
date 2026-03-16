@@ -54,11 +54,8 @@ AUTOFRAMEWORK(Carbon)
 #undef time
 AUTOLIB(draw)	/* to cause link of X11 */
 
-enum {
-	SnarfSize = 65536
-};
-char snarf[3*SnarfSize+1];
-Rune rsnarf[SnarfSize+1];
+char *snarf;
+Rune *rsnarf;
 XDisplay *xdisplay;
 XWindow drawable;
 Atom xclipboard;
@@ -98,6 +95,7 @@ main(int argc, char **argv)
 		break;
 	}ARGEND
 
+	snarf = strdup("");
 	if((xdisplay = XOpenDisplay(nil)) == nil)
 		sysfatal("XOpenDisplay: %r");
 	drawable = XCreateWindow(xdisplay, DefaultRootWindow(xdisplay),
@@ -256,18 +254,16 @@ xgetsnarf(void)
 		return nil;
 	/* get the property */
 	data = nil;
-	XGetWindowProperty(xd, drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
+	XGetWindowProperty(xd, drawable, prop, 0, (len+3)/4, 0,
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if(xdata == nil || (type != XA_STRING && type != xutf8string) || len == 0){
 		if(xdata)
 			XFree(xdata);
 		return nil;
 	}
-	if(strlen((char*)xdata) >= SnarfSize){
-		XFree(xdata);
-		return nil;
-	}
-	strcpy(snarf, (char*)xdata);
+	free(snarf);
+	snarf = strdup((char*)xdata);
+	XFree(xdata);
 	return snarf;
 }
 
@@ -286,8 +282,16 @@ appleputsnarf(void)
 #ifdef __APPLE__
 	CFDataRef cfdata;
 	PasteboardSyncFlags flags;
+	int n;
 
-	runesnprint(rsnarf, nelem(rsnarf), "%s", snarf);
+	if(snarf == nil)
+		return;
+	n = utflen(snarf) + 1;
+	free(rsnarf);
+	rsnarf = malloc(n * sizeof(Rune));
+	if(rsnarf == nil)
+		return;
+	runesnprint(rsnarf, n, "%s", snarf);
 	if(PasteboardClear(appleclip) != noErr){
 		fprint(2, "apple pasteboard clear failed\n");
 		return;
