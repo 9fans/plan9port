@@ -49,7 +49,9 @@ enum		/* agent protocol packet types */
 	SSH2_AGENT_FAILURE = 30,
 
 	SSH_COM_AGENT2_FAILURE = 102,
-	SSH_AGENT_OLD_SIGNATURE = 0x01
+	SSH_AGENT_OLD_SIGNATURE = 0x01,
+	SSH_AGENT_RSA_SHA2_256 = 0x02,
+	SSH_AGENT_RSA_SHA2_512 = 0x04
 };
 
 typedef struct Aconn Aconn;
@@ -82,6 +84,7 @@ void*	erealloc(void *v, int n);
 void		listenproc(void *v);
 int		runmsg(Aconn *a);
 void		listkeystext(void);
+int		keysign(Msg*, Msg*, Msg*, uint);
 
 void
 usage(void)
@@ -872,7 +875,60 @@ dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 }
 
 int
-keysign(Msg *mkey, Msg *mdata, Msg *msig)
+rsasha2sign(RSApub *rsa, Msg *mdata, Msg *msig, uint flags)
+{
+	AuthRpc *rpc;
+	char buf[4096];
+	uchar digest[SHA2_512dlen];
+	int dlen;
+	char *sigtype, *hashname;
+
+	if(flags & SSH_AGENT_RSA_SHA2_512){
+		sha2_512(mdata->bp, mdata->ep - mdata->bp, digest, nil);
+		dlen = SHA2_512dlen;
+		sigtype = "rsa-sha2-512";
+		hashname = "sha512";
+	}else{
+		sha2_256(mdata->bp, mdata->ep - mdata->bp, digest, nil);
+		dlen = SHA2_256dlen;
+		sigtype = "rsa-sha2-256";
+		hashname = "sha256";
+	}
+
+	snprint(buf, sizeof buf, "proto=rsa service=ssh-rsa role=sign hash=%s n=%lB ek=%lB",
+		hashname, rsa->n, rsa->ek);
+	if((rpc = auth_allocrpc()) == nil){
+		fprint(2, "ssh-agent: auth_allocrpc: %r\n");
+		return -1;
+	}
+	if(chatty)
+		fprint(2, "ssh-agent: start %s\n", buf);
+	if(auth_rpc(rpc, "start", buf, strlen(buf)) != ARok){
+		fprint(2, "ssh-agent: auth 'start' failed: %r\n");
+		auth_freerpc(rpc);
+		return -1;
+	}
+	if(auth_rpc(rpc, "write", digest, dlen) != ARok){
+		fprint(2, "ssh-agent: auth 'write' failed: %r\n");
+		auth_freerpc(rpc);
+		return -1;
+	}
+	if(auth_rpc(rpc, "read", nil, 0) != ARok){
+		fprint(2, "ssh-agent: auth 'read' failed: %r\n");
+		auth_freerpc(rpc);
+		return -1;
+	}
+
+	newmsg(msig);
+	putstr(msig, sigtype);
+	put4(msig, rpc->narg);
+	putn(msig, rpc->arg, rpc->narg);
+	auth_freerpc(rpc);
+	return 0;
+}
+
+int
+keysign(Msg *mkey, Msg *mdata, Msg *msig, uint flags)
 {
 	char *s;
 	AuthRpc *rpc;
@@ -886,6 +942,11 @@ keysign(Msg *mkey, Msg *mdata, Msg *msig)
 		rsa = getrsapub(mkey);
 		if(rsa == nil)
 			return -1;
+		if(flags & (SSH_AGENT_RSA_SHA2_256|SSH_AGENT_RSA_SHA2_512)){
+			int ret = rsasha2sign(rsa, mdata, msig, flags);
+			rsapubfree(rsa);
+			return ret;
+		}
 		snprint(buf, sizeof buf, "proto=rsa service=ssh-rsa role=sign n=%lB ek=%lB",
 			rsa->n, rsa->ek);
 		rsapubfree(rsa);
@@ -1016,7 +1077,7 @@ runmsg(Aconn *a)
 		flags = get4(&m);
 		if(flags & SSH_AGENT_OLD_SIGNATURE)
 			goto Failure;
-		if(keysign(&mkey, &mdata, &msig) < 0)
+		if(keysign(&mkey, &mdata, &msig, flags) < 0)
 			goto Failure;
 		if(chatty)
 			fprint(2, "signature: %.*H\n",

@@ -142,6 +142,8 @@ mptoberjust(mpint *b, uchar *buf, uint len)
 uchar oidsha1[] = { O0(1, 3), 14, 3, 2, 26 };
 uchar oidmd2[] = { O0(1, 2), O2(840), O3(113549), 2, 2 };
 uchar oidmd5[] = { O0(1, 2), O2(840), O3(113549), 2, 5 };
+uchar oidsha256[] = { O0(2, 16), O2(840), 1, 101, 3, 4, 2, 1 };
+uchar oidsha512[] = { O0(2, 16), O2(840), 1, 101, 3, 4, 2, 3 };
 
 /*
  *	DigestInfo ::= SEQUENCE {
@@ -170,6 +172,12 @@ mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
 	}else if(alg == md5){
 		obj = oidmd5;
 		olen = sizeof(oidmd5);
+	}else if(alg == sha2_256){
+		obj = oidsha256;
+		olen = sizeof(oidsha256);
+	}else if(alg == sha2_512){
+		obj = oidsha512;
+		olen = sizeof(oidsha512);
 	}else{
 		sysfatal("bad alg in mkasn1");
 		return -1;

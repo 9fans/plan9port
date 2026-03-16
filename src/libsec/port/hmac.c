@@ -2,7 +2,7 @@
 #include <libsec.h>
 
 /* rfc2104 */
-static DigestState*
+DigestState*
 hmac_x(uchar *p, ulong len, uchar *key, ulong klen, uchar *digest, DigestState *s,
 	DigestState*(*x)(uchar*, ulong, uchar*, DigestState*), int xlen)
 {
