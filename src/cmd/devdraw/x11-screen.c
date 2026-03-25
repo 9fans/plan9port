@@ -12,6 +12,7 @@
 #include <thread.h>
 #include "x11-memdraw.h"
 #include "devdraw.h"
+#include "bigarrow.h"
 
 #undef time
 
@@ -1400,18 +1401,6 @@ revbyte(int b)
 	return r;
 }
 
-static void
-xcursorarrow(Xwin *w)
-{
-	if(_x.cursor != 0){
-		XFreeCursor(_x.display, _x.cursor);
-		_x.cursor = 0;
-	}
-	XUndefineCursor(_x.display, w->drawable);
-	XFlush(_x.display);
-}
-
-
 void
 rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 {
@@ -1426,9 +1415,7 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 
 	xlock();
 	if(c == nil){
-		xcursorarrow(w);
-		xunlock();
-		return;
+		c = &bigarrow;
 	}
 	for(i=0; i<2*16; i++){
 		src[i] = revbyte(c->set[i]);
