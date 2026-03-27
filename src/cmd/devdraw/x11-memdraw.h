@@ -67,6 +67,7 @@ struct Xprivate {
 	int		kbuttons;
 	int		kstate;
 	int		altdown;
+	int		button1map;	/* logical button that physical button 1 maps to */
 
 	Xwin*	windows;
 };
