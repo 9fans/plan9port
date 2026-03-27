@@ -408,9 +408,20 @@ runxevent(XEvent *xev)
 				be->button = 2;
 			else if(_x.kstate & Mod1Mask)
 				be->button = 3;
+			_x.button1map = be->button;
 		}
 		// fall through
 	case ButtonRelease:
+		/*
+		 * X reports the physical button on release, but ButtonPress
+		 * may have remapped button 1 to 2 or 3 (via Ctrl or Alt).
+		 * Use the same mapping so we clear the correct bit.
+		 */
+		if(xev->type == ButtonRelease) {
+			be = (XButtonEvent*)xev;
+			if(be->button == 1 && _x.button1map != 0)
+				be->button = _x.button1map;
+		}
 		_x.altdown = 0;
 		// fall through
 	case MotionNotify:
