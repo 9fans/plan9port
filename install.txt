@@ -1,5 +1,11 @@
 
+
+
      INSTALL(1)                                             INSTALL(1)
+
+
+
+
 
      NAME
           install - notes about Plan 9 from User Space installation
@@ -26,20 +32,53 @@
           Finally, INSTALL builds an HTML version of the manual and
           installs it in /usr/local/plan9/man.
 
-          The installation can be thought of as two steps: build all
-          the binaries, and then edit files as necessary to fix the
-          references to the installation root.  If necessary, these
-          can be run separately.  Given the -b flag, INSTALL performs
+        Installation scenarios
+          There are three common ways to install the tree:
+
+          1. Build and run in /usr/local/plan9. This is the simplest
+          and most common case.  Unpack the tree into /usr/local/plan9
+          and run ./INSTALL.
+
+          2. Build and run somewhere else. Unpack the tree wherever
+          you like, for example $HOME/plan9, and run ./INSTALL.  The
+          script detects the current directory and edits the hard-
+          coded paths accordingly.  Set $PLAN9 to point to the tree in
+          your shell profile.
+
+          3. Build in one location, install to another. The installa-
+          tion can be thought of as two steps: build all the binaries,
+          and then edit files as necessary to fix the references to
+          the installation root.  Given the -b flag, INSTALL performs
           only the first step.  Given the -c flag, INSTALL performs
           only the second step.  The first step can be done with the
           tree in a temporary work directory, but the second step must
-          be done once the tree is in its final location.  If you want
-          to build the project in one location and then install into
-          another location, use -r path to specify the final location
-          of Plan9 tree.  These flags are only necessary when trying
-          to conform to the expectations of certain package management
-          systems.
+          be done once the tree is in its final location.  Use -r path
+          to specify the final location of the Plan 9 tree.  For exam-
+          ple, to build in a temporary directory and install to
+          /opt/plan9:
 
+
+
+
+     Page 1                       Plan 9             (printed 3/27/26)
+
+
+
+
+
+
+     INSTALL(1)                                             INSTALL(1)
+
+
+
+               cd /tmp/plan9port && ./INSTALL -b -r /opt/plan9
+               cp -a . /opt/plan9
+               cd /opt/plan9 && ./INSTALL -c
+
+          These flags are only necessary when trying to conform to the
+          expectations of certain package management systems.
+
+        Environment
           At the end of the installation, INSTALL prints suggested
           settings for the environment variables $PLAN9 and $PATH.
 
@@ -48,22 +87,27 @@
           /usr/local/plan9/LOCAL.config is appended to config after
           this auto-detection and can be used to override the choices.
           If LOCAL.config contains a line WSYSTYPE=nowsys then the
-          system is built without using X11.  LOCAL.config may also
-          list settings for CC9 (the host C compiler) and CC9FLAGS
-          (any additional flags to pass to the compiler).  Values more
+          system is built without using X11 or SDL3.  Setting
+          WSYSTYPE=sdl3 or WSYSTYPE=x11 forces a specific graphics
+          backend.  LOCAL.config may also list settings for CC9 (the
+          host C compiler) and CC9FLAGS (any additional flags to pass
+          to the compiler).  Values more complex than single words
+          should be quoted with single quotes.
 
-     Page 1                       Plan 9              (printed 4/9/21)
+        Graphics backend
+          On most Linux systems, the graphical programs (acme, 9term,
+          etc.) require either SDL3 or X11 libraries.  If SDL3 devel-
+          opment libraries are installed, the build will prefer SDL3,
+          which provides native Wayland support.  On Debian and
+          Ubuntu, install libsdl3-dev.  To fall back to X11, either
+          uninstall SDL3 or set WSYSTYPE=x11 in LOCAL.config.
 
-     INSTALL(1)                                             INSTALL(1)
+          For X11 builds, the X11 header packages need to be
+          installed.  On Debian, the required packages are
+          libfontconfig1-dev, libx11-dev, libxext-dev, and libxt-dev.
+          On Ubuntu, it suffices to install xorg-dev.
 
-          complex than single words should be quoted with single
-          quotes.
-
-          On most Linux systems, the X11 header packages need to be
-          installed to build using X11.  On Debian. the required pack-
-          ages are libfontconfig1-dev, libx11-dev, libxext-dev, and
-          libxt-dev.  On Ubuntu, it suffices to install xorg-dev.
-
+        Rebuilding
           INSTALL can safely be repeated to rebuild the system from
           scratch.
 
@@ -79,6 +123,19 @@
 
           /usr/local/plan9/lib/moveplan9.sh
                the script that edits the files
+
+
+
+     Page 2                       Plan 9             (printed 3/27/26)
+
+
+
+
+
+
+     INSTALL(1)                                             INSTALL(1)
+
+
 
           /usr/local/plan9/src/mkmk.sh
                the shell script used to build mk(1)
@@ -98,5 +155,44 @@
      SEE ALSO
           intro(1), git(1)
 
-     Page 2                       Plan 9              (printed 4/9/21)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     Page 3                       Plan 9             (printed 3/27/26)
+
+
 
