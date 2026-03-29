@@ -211,7 +211,7 @@ if $doinstall; then
 	echo "	PLAN9=$PLAN9"
 	echo "	export PLAN9"
 	echo '	PATH=$PATH:$PLAN9/bin'
-	echo "	export PLAN9"
+	echo "	export PATH"
 fi
 ) 2>&1 | tee install.log | $awk -f $PLAN9/dist/isum.awk -v 'copy='install.sum
 
