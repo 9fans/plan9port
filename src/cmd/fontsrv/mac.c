@@ -297,6 +297,7 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 	x = 0;
 	for(i=lo; i<=hi; i++, fc++) {
 		char buf[20];
+		int iwidth;
 		CFStringRef str;
 		CFDictionaryRef attrs;
 		CFAttributedStringRef attrString;
@@ -321,6 +322,7 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 		line = CTLineCreateWithAttributedString(attrString);
 		CGContextSetTextPosition(ctxt, 0, y0);
 		r = CTLineGetImageBounds(line, ctxt);
+		iwidth = ceil(r.size.width+r.origin.x);
 		memfillcolor(mc, DWhite);
 		CTLineDraw(line, ctxt);
 		CFRelease(line);
@@ -342,10 +344,10 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 		}
 
 		meminvert(mc);
-		memimagedraw(m, Rect(x, 0, x + p1.x, y), mc, ZP, memopaque, ZP, S);
+		memimagedraw(m, Rect(x, 0, x + iwidth, y), mc, ZP, memopaque, ZP, S);
 		fc->width = p1.x;
 		fc->left = 0;
-		x += p1.x;
+		x += iwidth;
 	}
 	fc->x = x;
 
