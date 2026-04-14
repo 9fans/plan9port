@@ -6,6 +6,7 @@
 #include <9pclient.h>
 #include <auth.h>
 #include <thread.h>
+#include <poll.h>
 
 char *addr;
 
@@ -14,7 +15,7 @@ usage(void)
 {
 	fprint(2, "usage: 9p [-n] [-a address] [-A aname] cmd args...\n");
 	fprint(2, "possible cmds:\n");
-	fprint(2, "	read name\n");
+	fprint(2, "	read [-f] name\n");
 	fprint(2, "	readfd name\n");
 	fprint(2, "	write [-l] name\n");
 	fprint(2, "	writefd name\n");
@@ -147,13 +148,35 @@ xopenfd(char *name, int mode)
 }
 
 void
+checkout()
+{
+	int nfd;
+	struct pollfd *pfds;
+
+	nfd = 2;
+	pfds = calloc(nfd, sizeof(struct pollfd));
+	pfds[0].fd = 1;
+	pfds[1].fd = 2;
+	for(;;) {
+		if (poll(pfds, nfd, -1) < 0)
+			sysfatal("poll");
+		if (pfds[0].revents & POLLERR || pfds[1].revents & POLLERR)
+			threadexitsall(0);
+	}
+}
+
+void
 xread(int argc, char **argv)
 {
 	char buf[4096];
 	int n;
 	CFid *fid;
+	int follow;
 
 	ARGBEGIN{
+	case 'f':
+		follow = 1;
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -162,9 +185,15 @@ xread(int argc, char **argv)
 		usage();
 
 	fid = xopen(argv[0], OREAD);
-	while((n = fsread(fid, buf, sizeof buf)) > 0)
+	proccreate(checkout, nil, 32768);
+	while((n = fsread(fid, buf, sizeof buf)) >= 0) {
+		if (n == 0 && !follow)
+			break;
 		if(write(1, buf, n) < 0)
 			sysfatal("write error: %r");
+		if (n == 0 && follow)
+			sleep(1000);
+	}
 	fsclose(fid);
 	if(n < 0)
 		sysfatal("read error: %r");
