@@ -116,6 +116,15 @@ if [ `uname` = Darwin ]; then
 fi
 
 if [ `uname` != Darwin ]; then
+	# Determine graphics backend.
+	if sdl3-config --version >/dev/null 2>&1 || pkg-config --exists sdl3 2>/dev/null; then
+		echo "	SDL3 found; using SDL3 for graphics."
+	elif [ -d /usr/X11R6 ] || [ -d /usr/include/X11 ] || [ -d /usr/local/include/X11 ]; then
+		echo "	SDL3 not found; using X11 for graphics."
+	else
+		echo "	Warning: neither SDL3 nor X11 found; graphical programs will not work."
+	fi
+
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
 	cc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 \
