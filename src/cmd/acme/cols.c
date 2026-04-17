@@ -128,9 +128,11 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		w = emalloc(sizeof(Window));
 		w->col = c;
 		draw(screen, r, textcols[BACK], nil, ZP);
+		savemouse(w);
 		wininit(w, clone, r);
 	}else{
 		w->col = c;
+		savemouse(w);
 		winresize(w, r, FALSE, TRUE);
 	}
 	w->tag.col = c;
@@ -147,7 +149,6 @@ coladd(Column *c, Window *w, Window *clone, int y)
 	if(buggered)
 		colresize(c, c->r);
 
-	savemouse(w);
 	/* near the button, but in the body */
 	/* don't move the mouse to the new window if a mouse button is depressed */
 	if(!mousectl->m.buttons)
@@ -164,8 +165,10 @@ colclose(Column *c, Window *w, int dofree)
 	int i, didmouse, up;
 
 	/* w is locked */
-	if(!c->safe)
+	if(!c->safe){
 		colgrow(c, w, 1);
+		winmousebut(w);
+	}
 	for(i=0; i<c->nw; i++)
 		if(c->w[i] == w)
 			goto Found;
@@ -469,7 +472,6 @@ colgrow(Column *c, Window *w, int but)
 	free(nl);
 	free(ny);
 	c->safe = TRUE;
-	winmousebut(w);
 }
 
 void
@@ -480,8 +482,9 @@ coldragwin(Column *c, Window *w, int but)
 	Point p, op;
 	Window *v;
 	Column *nc;
-
-	clearmouse();
+	if(!but){
+		clearmouse();
+	}
 	setcursor2(mousectl, &boxcursor, &boxcursor2);
 	b = mouse->buttons;
 	op = mouse->xy;

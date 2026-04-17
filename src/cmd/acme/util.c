@@ -491,7 +491,9 @@ makenewwindow(Text *t)
 		y = (bigw->r.min.y + bigw->r.max.y)/2;
 	}
 	w = coladd(c, nil, nil, y);
-	if(w->body.fr.maxlines < 2)
+	if(w->body.fr.maxlines < 2){
 		colgrow(w->col, w, 1);
+        winmousebut(w);
+    }
 	return w;
 }
