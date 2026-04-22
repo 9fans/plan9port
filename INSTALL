@@ -141,6 +141,13 @@ fi
 echo "* Compiler version:"
 9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
 
+# The user might have set the following environment variables
+# but they'll cause the plan9port build to fail if set because
+# it assumes sh semantics in mkfiles, so ensure they are
+# unset.
+unset FORCERCFORMK
+unset MKSHELL
+
 cd src
 if $dobuild; then
 	echo "* Building mk..."
