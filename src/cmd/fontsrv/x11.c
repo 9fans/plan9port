@@ -199,13 +199,13 @@ mksubfont(XFont *xf, char *name, int lo, int hi, int size, int antialias)
 		for(r=0; r < bitmap->rows; r++)
 			memmove(base + r*mc->width*sizeof(u32int), bitmap->buffer + r*bitmap->pitch, bitmap->pitch);
 
-		memimagedraw(m, Rect(x, 0, x + advance, y), mc,
-			Pt(-face->glyph->bitmap_left, -(y - y0 - face->glyph->bitmap_top)),
+		memimagedraw(m, Rect(x, 0, x + bitmap->width, y), mc,
+			Pt(0, -(y - y0 - face->glyph->bitmap_top)),
 			memopaque, ZP, S);
 
 		fc->width = advance;
-		fc->left = 0;
-		x += advance;
+		fc->left = face->glyph->bitmap_left;
+		x += bitmap->width;
 
 #ifdef DEBUG_FT_BITMAP
 		for(r=0; r < bitmap->rows; r++) {
