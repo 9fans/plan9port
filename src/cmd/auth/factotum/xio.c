@@ -135,18 +135,20 @@ static long
 _ioasgetticket(va_list *arg)
 {
 	int asfd;
-	char *trbuf;
+	Ticketreq *tr;
 	char *tbuf;
+	int tbuflen;
 
 	asfd = va_arg(*arg, int);
-	trbuf = va_arg(*arg, char*);
+	tr = va_arg(*arg, Ticketreq*);
 	tbuf = va_arg(*arg, char*);
+	tbuflen = va_arg(*arg, int);
 
-	return _asgetticket(asfd, trbuf, tbuf);
+	return _asgetticket(asfd, tr, tbuf, tbuflen);
 }
 
 int
-xioasgetticket(int fd, char *trbuf, char *tbuf)
+xioasgetticket(int fd, Ticketreq *tr, char *tbuf, int tbuflen)
 {
 	int n;
 	Ioproc *io;
@@ -154,11 +156,7 @@ xioasgetticket(int fd, char *trbuf, char *tbuf)
 	if((io = xioproc()) == nil)
 		return -1;
 
-	n = iocall(io, _ioasgetticket, fd, trbuf, tbuf);
+	n = iocall(io, _ioasgetticket, fd, tr, tbuf, tbuflen);
 	closexioproc(io);
-	if(n != 2*TICKETLEN)
-		n = -1;
-	else
-		n = 0;
 	return n;
 }

@@ -391,7 +391,7 @@ chapresp(ServerState *s, char *user, char *resp)
 		return -1;
 	}
 
-	convM2A(tabuf+TICKETLEN, &a, t.key);
+	convM2A(tabuf+TICKETLEN, &a, &t);
 	if(a.num != AuthAc
 	|| memcmp(a.chal, tr.chal, sizeof a.chal) != 0
 	|| a.id != 0){

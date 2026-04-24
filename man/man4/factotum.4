@@ -76,6 +76,8 @@ in conjunction with a cryptographic protocol.
 can act in the role of client for any process possessing the
 same user id as it.  For select protocols such as
 .B p9sk1
+and
+.B dp9ik
 it can also act as a client for other processes provided
 its user id may speak for the other process' user id (see
 Plan 9's
@@ -95,6 +97,9 @@ a metaprotocol used to negotiate which actual protocol to use.
 .TP
 .B p9sk1
 a Plan 9 shared key protocol.
+.TP
+.B dp9ik
+a modern Plan 9 shared key protocol using AuthPAK.
 .TP
 .B p9sk2
 a variant of
@@ -236,7 +241,7 @@ does not appear when reading the
 file.
 Here are some examples:
 .EX
-    proto=p9sk1 dom=avayalabs.com user=presotto !password=lucent
+    proto=dp9ik dom=avayalabs.com user=presotto !password=lucent
     proto=apop server=mit.edu user=rsc !password=nerdsRus
     proto=pass user=tb service=ssh !password=does.it.matter
 .EE
@@ -294,6 +299,8 @@ Whenever
 .I factotum
 runs as a server, it must have a
 .B p9sk1
+or
+.B dp9ik
 key in order to communicate with the authentication
 server for validating passwords and challenge/responses of
 other users.
@@ -628,6 +635,14 @@ The possible replies are:
 .B "ok \fIdata\fP
 .I data
 is a marshaled form of the AuthInfo structure.
+The size of the secret within the structure depends on the
+protocol; for example,
+.B dp9ik
+returns a 256-byte secret while
+.B p9sk1
+and
+.B p9sk2
+return 8-byte secrets.
 .TP
 .B "error \fIstring\fP
 where
@@ -656,10 +671,9 @@ Factotum supports many authentication types, each
 with its own roles and required key attributes.
 .PP
 .IR P9any ,
+.IR dp9ik ,
 .IR p9sk1 ,
-.IR p9sk2 ,
-and
-.I p9cr
+.IR p9sk2
 are used to authenticate to Plan 9 systems;
 valid
 .BR role s
@@ -667,8 +681,7 @@ are
 .B client
 and
 .BR server .
-All require
-.B proto=p9sk1
+They use shared-key
 keys with
 .BR user ,
 .B dom
@@ -677,10 +690,17 @@ and
 .B !password
 attributes.
 .PP
+.I Dp9ik
+is the modern Plan 9 shared-key authentication protocol.
+It uses AuthPAK to protect the password-derived key against
+offline dictionary attacks and returns a 256-byte shared secret.
+.PP
 .I P9sk1
 and
 .I p9sk2
 are the Plan 9 shared-key authentication protocols.
+.I P9sk1
+returns an 8-byte shared secret.
 .I P9sk2
 is a deprecated form of
 .I p9sk1
@@ -688,15 +708,25 @@ that neglects to authenticate the server.
 .PP
 .I P9any
 is a meta-protocol that negotiates a protocol
-.RB ( p9sk1
+.RB ( dp9ik ,
+.BR p9sk1 ,
 or
 .BR p9sk2 )
 and an authentication domain and then invokes the
 given protocol with a
 .B dom=
 attribute.
+When both
+.B dp9ik
+and
+.B p9sk1
+are available,
+.I factotum
+prefers
+.BR dp9ik .
 .PP
 .IR P9any ,
+.IR dp9ik ,
 .IR p9sk1 ,
 and
 .I p9sk2

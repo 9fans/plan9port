@@ -2,27 +2,30 @@
 #include <libc.h>
 #include <authsrv.h>
 
-#define	CHAR(x)		f->x = *p++
-#define	SHORT(x)	f->x = (p[0] | (p[1]<<8)); p += 2
-#define	VLONG(q)	q = (p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24)); p += 4
-#define	LONG(x)		VLONG(f->x)
-#define	STRING(x,n)	memmove(f->x, p, n); p += n
+extern int form1M2B(char *ap, int n, uchar key[32]);
 
 void
-convM2PR(char *ap, Passwordreq *f, char *key)
+convM2PR(char *ap, Passwordreq *f, Ticket *t)
 {
-	uchar *p;
+	uchar buf[MAXPASSREQLEN], *p;
 
-	p = (uchar*)ap;
-	if(key)
-		decrypt(key, ap, PASSREQLEN);
-	CHAR(num);
-	STRING(old, ANAMELEN);
-	f->old[ANAMELEN-1] = 0;
-	STRING(new, ANAMELEN);
-	f->new[ANAMELEN-1] = 0;
-	CHAR(changesecret);
-	STRING(secret, SECRETLEN);
+	memset(f, 0, sizeof(*f));
+	if(t->form == 1){
+		memmove(buf, ap, MAXPASSREQLEN);
+		if(form1M2B((char*)buf, MAXPASSREQLEN, t->key) < 0)
+			return;
+	}else{
+		memmove(buf, ap, PASSREQLEN);
+		decrypt(t->key, (char*)buf, PASSREQLEN);
+	}
+
+	p = buf;
+	f->num = *p++;
+	memmove(f->old, p, PASSWDLEN), p += PASSWDLEN;
+	f->old[PASSWDLEN-1] = 0;
+	memmove(f->new, p, PASSWDLEN), p += PASSWDLEN;
+	f->new[PASSWDLEN-1] = 0;
+	f->changesecret = *p++;
+	memmove(f->secret, p, SECRETLEN);
 	f->secret[SECRETLEN-1] = 0;
-	USED(p);
 }

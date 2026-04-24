@@ -100,7 +100,7 @@ main(int argc, char **argv)
 	 *  give up.
 	 */
 	readln("Plan 9 Password", pr.old, sizeof pr.old, 1);
-	passtokey(key, pr.old);
+	passtodeskey(key, pr.old);
 	convM2T(tbuf, &t, key);
 	if(t.num != AuthTp || strcmp(t.cuid, tr.uid))
 		sysfatal("bad password");
@@ -140,7 +140,7 @@ main(int argc, char **argv)
 			}
 		}
 		pr.num = AuthPass;
-		convPR2M(&pr, buf, t.key);
+		convPR2M(&pr, buf, &t);
 		if(write(fd, buf, PASSREQLEN) != PASSREQLEN)
 			sysfatal("AS protocol botch: %r");
 		if(asrdresp(fd, buf, 0) == 0)

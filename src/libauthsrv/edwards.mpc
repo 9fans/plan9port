@@ -1,0 +1,98 @@
+void edwards_add(mpint *p, mpint *a, mpint *d, mpint *X1, mpint *Y1, mpint *Z1, mpint *T1, mpint *X2, mpint *Y2, mpint *Z2, mpint *T2, mpint *X3, mpint *Y3, mpint *Z3, mpint *T3){
+	mpint *H = mpnew(0);
+	mpint *G = mpnew(0);
+	mpint *F = mpnew(0);
+	mpint *E = mpnew(0);
+	mpint *D = mpnew(0);
+	mpint *C = mpnew(0);
+	mpint *B = mpnew(0);
+	mpint *A = mpnew(0);
+	mpmodmul(X1, X2, p, A);
+	mpmodmul(Y1, Y2, p, B);
+	mpint *tmp1 = mpnew(0);
+	mpmodmul(d, T1, p, tmp1);
+	mpmodmul(tmp1, T2, p, C);
+	mpfree(tmp1);
+	mpmodmul(Z1, Z2, p, D);
+	tmp1 = mpnew(0);
+	mpmodadd(X1, Y1, p, tmp1);
+	mpint *tmp2 = mpnew(0);
+	mpmodadd(X2, Y2, p, tmp2);
+	mpmodmul(tmp1, tmp2, p, E);
+	mpfree(tmp1);
+	mpfree(tmp2);
+	mpmodsub(E, A, p, E);
+	mpmodsub(E, B, p, E);
+	mpmodsub(D, C, p, F);
+	mpmodadd(D, C, p, G);
+	mpmodmul(a, A, p, H);
+	mpmodsub(B, H, p, H);
+	mpmodmul(E, F, p, X3);
+	mpmodmul(G, H, p, Y3);
+	mpmodmul(F, G, p, Z3);
+	mpmodmul(E, H, p, T3);
+	mpfree(H);
+	mpfree(G);
+	mpfree(F);
+	mpfree(E);
+	mpfree(D);
+	mpfree(C);
+	mpfree(B);
+	mpfree(A);
+	}
+void edwards_sel(mpint *s, mpint *X1, mpint *Y1, mpint *Z1, mpint *T1, mpint *X2, mpint *Y2, mpint *Z2, mpint *T2, mpint *X3, mpint *Y3, mpint *Z3, mpint *T3){
+	mpsel(mpcmp(s, mpzero), X1, X2, X3);
+	mpsel(mpcmp(s, mpzero), Y1, Y2, Y3);
+	mpsel(mpcmp(s, mpzero), Z1, Z2, Z3);
+	mpsel(mpcmp(s, mpzero), T1, T2, T3);
+	}
+void edwards_new(mpint *x, mpint *y, mpint *z, mpint *t, mpint *X, mpint *Y, mpint *Z, mpint *T){
+	mpassign(x, X);
+	mpassign(y, Y);
+	mpassign(z, Z);
+	mpassign(t, T);
+	}
+void edwards_scale(mpint *p, mpint *a, mpint *d, mpint *s, mpint *X1, mpint *Y1, mpint *Z1, mpint *T1, mpint *X3, mpint *Y3, mpint *Z3, mpint *T3){
+	mpint *j = mpnew(0);
+	mpint *k = mpnew(0);
+	mpint *T4 = mpnew(0);
+	mpint *Z4 = mpnew(0);
+	mpint *Y4 = mpnew(0);
+	mpint *X4 = mpnew(0);
+	mpint *T2 = mpnew(0);
+	mpint *Z2 = mpnew(0);
+	mpint *Y2 = mpnew(0);
+	mpint *X2 = mpnew(0);
+	edwards_new(X1, Y1, Z1, T1, X2, Y2, Z2, T2);
+	edwards_new(mpzero, mpone, mpone, mpzero, X4, Y4, Z4, T4);
+	mpint *tmp1 = mpnew(0);
+	mpmod(s, mptwo, tmp1);
+	edwards_sel(tmp1, X2, Y2, Z2, T2, X4, Y4, Z4, T4, X3, Y3, Z3, T3);
+	mpfree(tmp1);
+	mpright(s, 1, k);
+	mpright(p, 1, j);
+	for(;;){
+		if(mpcmp(j, mpzero) != 0){
+			edwards_add(p, a, d, X2, Y2, Z2, T2, X2, Y2, Z2, T2, X2, Y2, Z2, T2);
+			edwards_add(p, a, d, X2, Y2, Z2, T2, X3, Y3, Z3, T3, X4, Y4, Z4, T4);
+			mpint *tmp2 = mpnew(0);
+			mpmod(k, mptwo, tmp2);
+			edwards_sel(tmp2, X4, Y4, Z4, T4, X3, Y3, Z3, T3, X3, Y3, Z3, T3);
+			mpfree(tmp2);
+			mpright(k, 1, k);
+			mpright(j, 1, j);
+			}else{
+			break;
+			}
+		}
+	mpfree(j);
+	mpfree(k);
+	mpfree(T4);
+	mpfree(Z4);
+	mpfree(Y4);
+	mpfree(X4);
+	mpfree(T2);
+	mpfree(Z2);
+	mpfree(Y2);
+	mpfree(X2);
+	}
