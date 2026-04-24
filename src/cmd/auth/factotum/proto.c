@@ -8,6 +8,7 @@ extern Proto	dsa;			/* dsa.c */
 extern Proto	httpdigest;	/* httpdigest.c */
 extern Proto	mschap;		/* chap.c */
 extern Proto	p9any;		/* p9any.c */
+extern Proto	dp9ik;		/* p9sk1.c */
 extern Proto	p9sk1;		/* p9sk1.c */
 extern Proto	p9sk2;		/* p9sk2.c */
 extern Proto	p9cr;
@@ -23,6 +24,7 @@ Proto *prototab[] = {
 	&httpdigest,
 	&mschap,
 	&p9any,
+	&dp9ik,
 	&p9cr,
 	&p9sk1,
 	&p9sk2,

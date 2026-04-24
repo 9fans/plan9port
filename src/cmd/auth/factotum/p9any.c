@@ -10,13 +10,37 @@
  *	[negotiated proto continues]
  */
 
-extern Proto p9sk1, p9sk2, p9cr;
+extern Proto dp9ik, p9sk1, p9sk2, p9cr;
 
 static Proto* okproto[] =
 {
 	&p9sk1,
+	&dp9ik,
 	nil
 };
+
+static int
+findprotox(char *name)
+{
+	char *p;
+	int i, n;
+
+	p = strchr(name, '@');
+	if(p == nil)
+		n = strlen(name);
+	else
+		n = p-name;
+	for(i=0; okproto[i]; i++)
+		if(strncmp(okproto[i]->name, name, n) == 0 && okproto[i]->name[n] == 0)
+			return i;
+	return -1;
+}
+
+static int
+protopref(const void *a, const void *b)
+{
+	return findprotox(*(char* const*)b) - findprotox(*(char* const*)a);
+}
 
 static int
 rolecall(Role *r, char *name, Conv *c)
@@ -170,6 +194,7 @@ p9anyclient(Conv *c)
 		f++;
 		n--;
 	}
+	qsort(f, n, sizeof(f[0]), protopref);
 
 	/* look for keys that don't need confirmation */
 	for(i=0; i<n; i++){

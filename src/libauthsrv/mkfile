@@ -2,8 +2,10 @@
 
 LIB=libauthsrv.a
 OFILES=\
+	_asrequest.$O\
 	_asgetticket.$O\
 	_asrdresp.$O\
+	authpak.$O\
 	authdial.$O\
 	convA2M.$O\
 	convM2A.$O\
@@ -13,6 +15,7 @@ OFILES=\
 	convPR2M.$O\
 	convT2M.$O\
 	convTR2M.$O\
+	form1.$O\
 	nvcsum.$O\
 	opasstokey.$O\
 	passtokey.$O\
@@ -21,4 +24,20 @@ OFILES=\
 HFILES=\
 	$PLAN9/include/authsrv.h\
 
+MPCFILES=\
+	decaf.mpc\
+	ed448.mpc\
+	edwards.mpc\
+	elligator2.mpc\
+	msqrt.mpc\
+	spake2ee.mpc\
+
 <$PLAN9/src/mksyslib
+
+authpak.$O: $MPCFILES
+
+dp9iktest: install
+	(cd ../libsec/port && PLAN9=$PLAN9 mk install)
+	rm -f dp9iktest.$O o.dp9iktest
+	$CC dp9iktest.c
+	$LD -o o.dp9iktest dp9iktest.$O

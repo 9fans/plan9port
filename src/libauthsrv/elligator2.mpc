@@ -1,0 +1,129 @@
+void elligator2(mpint *p, mpint *a, mpint *d, mpint *n, mpint *r0, mpint *X, mpint *Y, mpint *Z, mpint *T){
+	mpint *t = mpnew(0);
+	mpint *s = mpnew(0);
+	mpint *e = mpnew(0);
+	mpint *c = mpnew(0);
+	mpint *ND = mpnew(0);
+	mpint *N = mpnew(0);
+	mpint *D = mpnew(0);
+	mpint *r = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	mpmodmul(n, r0, p, tmp1);
+	mpmodmul(tmp1, r0, p, r);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	mpmodmul(d, r, p, tmp1);
+	mpmodadd(tmp1, a, p, tmp1);
+	mpmodsub(tmp1, d, p, tmp1);
+	mpint *tmp2 = mpnew(0);
+	mpmodmul(d, r, p, tmp2);
+	mpint *tmp3 = mpnew(0);
+	mpmodmul(a, r, p, tmp3);
+	mpmodsub(tmp2, tmp3, p, tmp2);
+	mpfree(tmp3);
+	mpmodsub(tmp2, d, p, tmp2);
+	mpmodmul(tmp1, tmp2, p, D);
+	mpfree(tmp1);
+	mpfree(tmp2);
+	tmp2 = mpnew(0);
+	mpmodadd(r, mpone, p, tmp2);
+	tmp1 = mpnew(0);
+	mpmodadd(d, d, p, tmp1); // 2*d
+	mpmodsub(a, tmp1, p, tmp1);
+	mpmodmul(tmp2, tmp1, p, N);
+	mpfree(tmp2);
+	mpfree(tmp1);
+	mpmodmul(N, D, p, ND);
+	if(mpcmp(ND, mpzero) == 0){
+		mpassign(mpone, c);
+		mpassign(mpzero, e);
+		}else{
+		msqrt(ND, p, e);
+		if(mpcmp(e, mpzero) != 0){
+			mpassign(mpone, c);
+			mpinvert(e, p, e);
+			}else{
+			mpmodsub(mpzero, mpone, p, c);
+			mpint *tmp4 = mpnew(0);
+			mpmodmul(n, r0, p, tmp4);
+			mpint *tmp5 = mpnew(0);
+			mpint *tmp6 = mpnew(0);
+			mpmodmul(n, ND, p, tmp6);
+			misqrt(tmp6, p, tmp5);
+			mpfree(tmp6);
+			mpmodmul(tmp4, tmp5, p, e);
+			mpfree(tmp4);
+			mpfree(tmp5);
+			}
+		}
+	tmp1 = mpnew(0);
+	mpmodmul(c, N, p, tmp1);
+	mpmodmul(tmp1, e, p, s);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	tmp2 = mpnew(0);
+	mpmodmul(c, N, p, tmp2);
+	tmp3 = mpnew(0);
+	mpmodsub(r, mpone, p, tmp3);
+	mpmodmul(tmp2, tmp3, p, tmp1);
+	mpfree(tmp2);
+	mpfree(tmp3);
+	tmp3 = mpnew(0);
+	tmp2 = mpnew(0);
+	mpmodadd(d, d, p, tmp2); // 2*d
+	mpmodsub(a, tmp2, p, tmp2);
+	mpmodmul(tmp2, e, p, tmp3);
+	mpfree(tmp2);
+	mpmodmul(tmp3, tmp3, p, tmp3);
+	mpmodmul(tmp1, tmp3, p, t);
+	mpfree(tmp1);
+	mpfree(tmp3);
+	mpmodsub(mpzero, t, p, t);
+	mpmodsub(t, mpone, p, t);
+	tmp3 = mpnew(0);
+	mpmodadd(s, s, p, tmp3); // 2*s
+	mpmodmul(tmp3, t, p, X);
+	mpfree(tmp3);
+	tmp3 = mpnew(0);
+	tmp1 = mpnew(0);
+	mpmodmul(a, s, p, tmp1);
+	mpmodmul(tmp1, s, p, tmp3);
+	mpfree(tmp1);
+	mpmodsub(mpone, tmp3, p, tmp3);
+	tmp1 = mpnew(0);
+	tmp2 = mpnew(0);
+	mpmodmul(a, s, p, tmp2);
+	mpmodmul(tmp2, s, p, tmp1);
+	mpfree(tmp2);
+	mpmodadd(mpone, tmp1, p, tmp1);
+	mpmodmul(tmp3, tmp1, p, Y);
+	mpfree(tmp3);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	tmp3 = mpnew(0);
+	mpmodmul(a, s, p, tmp3);
+	mpmodmul(tmp3, s, p, tmp1);
+	mpfree(tmp3);
+	mpmodadd(mpone, tmp1, p, tmp1);
+	mpmodmul(tmp1, t, p, Z);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	mpmodadd(s, s, p, tmp1); // 2*s
+	tmp3 = mpnew(0);
+	tmp2 = mpnew(0);
+	mpmodmul(a, s, p, tmp2);
+	mpmodmul(tmp2, s, p, tmp3);
+	mpfree(tmp2);
+	mpmodsub(mpone, tmp3, p, tmp3);
+	mpmodmul(tmp1, tmp3, p, T);
+	mpfree(tmp1);
+	mpfree(tmp3);
+	mpfree(t);
+	mpfree(s);
+	mpfree(e);
+	mpfree(c);
+	mpfree(ND);
+	mpfree(N);
+	mpfree(D);
+	mpfree(r);
+	}
