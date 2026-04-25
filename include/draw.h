@@ -547,10 +547,6 @@ extern	void		drawsetdebug(int);
 /*
  * Snarf buffer
  */
-enum
-{
-	SnarfSize = 64*1024
-};
 char *getsnarf(void);
 void putsnarf(char*);
 

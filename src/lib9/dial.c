@@ -99,7 +99,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 			close(s);
 			return -1;
 		}
-		if(p9dialparse(buf, &net, &unix, &ss, &port) < 0){
+		if(p9dialparse(buf, &net, &unix, &ssl, &port) < 0){
 		badlocal:
 			free(buf);
 			close(s);

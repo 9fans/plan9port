@@ -27,17 +27,45 @@ execproc(void *v)
 int
 _runthreadspawn(int *fd, char *cmd, char **argv, char *dir)
 {
-	int pid;
-	Execjob e;
+	int i, pid, argc;
+	Execjob *e;
 
-	e.fd = fd;
-	e.cmd = cmd;
-	e.argv = argv;
-	e.dir = dir;
-	e.c = chancreate(sizeof(void*), 0);
-	proccreate(execproc, &e, 65536);
-	pid = recvul(e.c);
-	chanfree(e.c);
+	// Copy all args into malloc'ed memory, in case the arguments
+	// point into a thread stack. On Solaris, the stacks of other
+	// threads are not inherited by the forked child.
+	e = mallocz(sizeof *e, 1);
+	memmove(e->fd, fd, 3*sizeof fd[0]);
+	e->cmd = strdup(cmd);
+	if(e->cmd == nil)
+		sysfatal("out of memory");
+	argc = 0;
+	while(argv[argc] != nil)
+		argc++;
+	e->argv = mallocz((argc+1)*sizeof argv[0], 1);
+	if(e->argv == nil)
+		sysfatal("out of memory");
+	for(i=0; i<argc; i++) {
+		e->argv[i] = strdup(argv[i]);
+		if(e->argv[i] == nil)
+			sysfatal("out of memory");
+	}
+	if(dir != nil) {
+		e->dir = strdup(dir);
+		if(e->dir == nil)
+			sysfatal("out of memory");
+	}
+	e->c = chancreate(sizeof(void*), 0);
+
+	proccreate(execproc, e, 65536);
+	pid = recvul(e->c);
+
+	free(e->cmd);
+	for(i=0; i<argc; i++)
+		free(e->argv[i]);
+	free(e->argv);
+	free(e->dir);
+	chanfree(e->c);
+	free(e);
 	return pid;
 }
 
@@ -78,7 +106,7 @@ _threadspawn(int fd[3], char *cmd, char *argv[], char *dir)
 		return -1;
 	case 0:
 		/* can't RFNOTEG - will lose tty */
-		if(dir != nil )
+		if(dir != nil)
 			chdir(dir); /* best effort */
 		dup2(fd[0], 0);
 		dup2(fd[1], 1);

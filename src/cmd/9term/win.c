@@ -182,7 +182,7 @@ threadmain(int argc, char **argv)
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
-	write(fd, " Send", 1+4);
+	write(fd, "Send ", 4+1);
 	close(fd);
 	sprint(buf, "%d/event", id);
 	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
@@ -461,6 +461,8 @@ stdinproc(void *v)
 
 			case 'l':
 			case 'L':
+			case 'r':
+			case 'R':
 				/* just send it back */
 				if(e.flag & 2)
 					gete(efd, &e2);

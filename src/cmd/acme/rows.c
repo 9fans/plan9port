@@ -313,36 +313,18 @@ rowclean(Row *row)
 	return clean;
 }
 
-void
-rowdump(Row *row, char *file)
+static void
+rowdump1(Row *row, Biobuf *b)
 {
-	int i, j, fd, m, n, start, dumped;
+	int i, j, m, n, start, dumped;
 	uint q0, q1;
-	Biobuf *b;
 	char *buf, *a, *fontname, *fontfmt, *fontnamelo, *fontnamehi;
 	Rune *r;
 	Column *c;
 	Window *w, *w1;
 	Text *t;
 
-	if(row->ncol == 0)
-		return;
 	buf = fbufalloc();
-	if(file == nil){
-		if(home == nil){
-			warning(nil, "can't find file for dump: $home not defined\n");
-			goto Rescue;
-		}
-		sprint(buf, "%s/acme.dump", home);
-		file = buf;
-	}
-	fd = create(file, OWRITE, 0600);
-	if(fd < 0){
-		warning(nil, "can't open %s: %r\n", file);
-		goto Rescue;
-	}
-	b = emalloc(sizeof(Biobuf));
-	Binit(b, fd, OWRITE);
 	r = fbufalloc();
 	Bprint(b, "%s\n", wdir);
 	Bprint(b, "%s\n", fontnames[0]);
@@ -475,12 +457,57 @@ rowdump(Row *row, char *file)
     Continue2:;
 		}
 	}
+	fbuffree(r);
+	fbuffree(buf);
+}
+
+void
+rowdump(Row *row, char *file)
+{
+	int fd;
+	Biobuf *b;
+	Dir d, *od;
+	char *buf, *tmp, *p;
+
+	if(row->ncol == 0)
+		return;
+	tmp = nil;
+	buf = nil;
+	if(file == nil){
+		if(home == nil){
+			warning(nil, "can't find file for dump: $home not defined\n");
+			goto Rescue;
+		}
+		buf = fbufalloc();
+		sprint(buf, "%s/acme.dump", home);
+		file = buf;
+	}
+	tmp = smprint("%s.XXXXXX", file);
+	fd = opentemp(tmp, OWRITE);
+	if(fd < 0){
+		warning(nil, "can't create temp file for %s: %r\n", file);
+		goto Rescue;
+	}
+	b = emalloc(sizeof(Biobuf));
+	Binit(b, fd, OWRITE);
+	rowdump1(row, b);
 	Bterm(b);
 	close(fd);
 	free(b);
-	fbuffree(r);
+	nulldir(&d);
+	od = dirstat(file);
+	if(od != nil){
+		d.mode = od->mode;
+		free(od);
+	}
+	p = strrchr(file, '/');
+	d.name = p != nil ? p+1 : file;
+	if(dirwstat(tmp, &d) < 0){
+		warning(nil, "can't rename %s to %s: %r\n", tmp, file);
+	}
 
    Rescue:
+   	free(tmp);
 	fbuffree(buf);
 }
 

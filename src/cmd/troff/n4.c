@@ -453,7 +453,12 @@ a0:
 		i = ckph();
 		if (nonumb)
 			break;
-		acc %= i;
+		if (i == 0) {
+			flusho();
+			ERROR "modulus by zero." WARN;
+			acc = 0;
+		} else
+			acc %= i;
 		goto a0;
 	case '&':	/*and*/
 		i = ckph();

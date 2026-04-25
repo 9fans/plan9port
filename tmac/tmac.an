@@ -143,8 +143,8 @@
 .ne 1.1v
 .nr )R 0
 .fi
-'''ss12
-'''if\\$2SYNOPSIS .ss 18
+.\"ss12
+.\"if\\$2SYNOPSIS .ss 18
 .it 1 }N
 .if !\\$3 .SM
 .ft 3
@@ -478,6 +478,8 @@
 .nr )V 11 \}
 .if t \{.ds R ®
 .ds S \s\n()S
+.ds lq “
+.ds rq ”
 ..\}
 .if n \{.ie \nL<=0 .nr )L 11i
 .el \{.nr )L \nLu
@@ -491,6 +493,12 @@
 .nr )O 0\}
 .ds R (Reg.)
 .ds S
+.ds lq ``
+.ds rq ''
+.\" Insert definitions for non-utf troff-mode devices here.
+.if '\*(.T'utf' \{.ds lq “
+.ds rq ”
+.\}
 ..\}
 .if \nT .nr LL 80n
 .if \nV>1 \{

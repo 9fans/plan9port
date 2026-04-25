@@ -30,6 +30,7 @@ xrsadecrypt(Conv *c)
 	char *txt, buf[4096], *role;
 	int n, ret;
 	mpint *m, *mm;
+	Attr *a;
 	Key *k;
 	RSApriv *key;
 
@@ -40,7 +41,9 @@ xrsadecrypt(Conv *c)
 
 	/* fetch key */
 	c->state = "keylookup";
-	k = keylookup("%A", c->attr);
+	a = delattr(delattr(copyattr(c->attr), "role"), "hash");
+	k = keylookup("%A", a);
+	freeattr(a);
 	if(k == nil)
 		goto out;
 	key = k->priv;
@@ -92,6 +95,7 @@ xrsasign(Conv *c)
 	char *hash, *role;
 	int dlen, n, ret;
 	DigestAlg *hashfn;
+	Attr *a;
 	Key *k;
 	RSApriv *key;
 	uchar sig[1024], digest[64];
@@ -101,7 +105,9 @@ xrsasign(Conv *c)
 
 	/* fetch key */
 	c->state = "keylookup";
-	k = keylookup("%A", c->attr);
+	a = delattr(delattr(copyattr(c->attr), "role"), "hash");
+	k = keylookup("%A", a);
+	freeattr(a);
 	if(k == nil)
 		goto out;
 
@@ -113,13 +119,21 @@ xrsasign(Conv *c)
 		goto out;
 	}
 
-	/* get hash type from key */
-	hash = strfindattr(k->attr, "hash");
+	/* get hash type */
+	hash = strfindattr(c->attr, "hash");
+	if(hash == nil)
+		hash = strfindattr(k->attr, "hash");
 	if(hash == nil)
 		hash = "sha1";
 	if(strcmp(hash, "sha1") == 0){
 		hashfn = sha1;
 		dlen = SHA1dlen;
+	}else if(strcmp(hash, "sha256") == 0){
+		hashfn = sha2_256;
+		dlen = SHA2_256dlen;
+	}else if(strcmp(hash, "sha512") == 0){
+		hashfn = sha2_512;
+		dlen = SHA2_512dlen;
 	}else if(strcmp(hash, "md5") == 0){
 		hashfn = md5;
 		dlen = MD5dlen;

@@ -15,7 +15,7 @@ fi
 
 if [ $# -eq 0 ]
 then
-	echo 'usage: B [+line] file...' 2>&1
+	echo 'usage: B [+line] file...' 1>&2
 	exit 1
 fi
 

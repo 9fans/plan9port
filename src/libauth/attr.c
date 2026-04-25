@@ -5,7 +5,7 @@
 int
 _attrfmt(Fmt *fmt)
 {
-	char *b, buf[1024], *ebuf;
+	char *b, buf[8192], *ebuf;
 	Attr *a;
 
 	ebuf = buf+sizeof buf;
