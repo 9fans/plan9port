@@ -42,7 +42,7 @@ httpauth(char *name, char *password)
 	 *  ticket.  If it doesn't work we've got a bad password,
 	 *  give up.
 	 */
-	passtokey(key, password);
+	passtodeskey(key, password);
 	convM2T(buf, &t, key);
 	if(t.num != AuthHr || strcmp(t.cuid, tr.uid))
 		return -1;

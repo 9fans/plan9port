@@ -218,7 +218,7 @@ extern void	xioclose(int);
 extern int		xiodial(char*, char*, char*, int*);
 extern int		xiowrite(int, void*, int);
 extern int		xioasrdresp(int, void*, int);
-extern int		xioasgetticket(int, char*, char*);
+extern int		xioasgetticket(int, Ticketreq*, char*, int);
 
 /* pkcs1.c - maybe should be in libsec */
 typedef DigestState *DigestAlg(uchar*, ulong, uchar*, DigestState*);

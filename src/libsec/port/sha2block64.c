@@ -1,26 +1,23 @@
 /*
- * sha2_256 block cipher
+ * sha2_256 block cipher - unrolled version
  *
- * Implementation straight from Federal Information Processing Standards
- * publication 180-2 (+Change Notice to include SHA-224) August 1, 2002
- *   note: the following upper and lower case macro names are distinct
- *	   and reflect the functions defined in FIPS pub. 180-2.
+ * note: the following upper and lower case macro names are distinct
+ * and reflect the functions defined in FIPS pub. 180-2.
  */
 
-#include <u.h>
-#include <libc.h>
+#include "os.h"
 
 #define ROTR(x,n)	(((x) >> (n)) | ((x) << (32-(n))))
 #define sigma0(x)	(ROTR((x),7) ^ ROTR((x),18) ^ ((x) >> 3))
 #define sigma1(x)	(ROTR((x),17) ^ ROTR((x),19) ^ ((x) >> 10))
 #define SIGMA0(x)	(ROTR((x),2) ^ ROTR((x),13) ^ ROTR((x),22))
 #define SIGMA1(x)	(ROTR((x),6) ^ ROTR((x),11) ^ ROTR((x),25))
-#define Ch(x,y,z)	(((x) & (y)) ^ ((~(x)) & (z)))
-#define Maj(x,y,z)	(((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+#define Ch(x,y,z)	((z) ^ ((x) & ((y) ^ (z))))
+#define Maj(x,y,z)	(((x) | (y)) & ((z) | ((x) & (y))))
 
 /*
- * first 32 bits of the fractional parts of cube roots of
- * first 64 primes (2..311).
+ * First 32 bits of the fractional parts of cube roots of
+ * the first 64 primes (2..311).
  */
 static u32int K256[64] = {
 	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,
@@ -44,13 +41,10 @@ static u32int K256[64] = {
 void
 _sha2block64(uchar *p, ulong len, u32int *s)
 {
-	u32int a, b, c, d, e, f, g, h, t1, t2;
-	u32int *kp, *wp;
-	u32int w[64];
+	u32int w[16], a, b, c, d, e, f, g, h;
 	uchar *end;
 
-	/* at this point, we have a multiple of 64 bytes */
-	for(end = p+len; p < end;){
+	for(end = p + len; p < end;){
 		a = s[0];
 		b = s[1];
 		c = s[2];
@@ -60,26 +54,89 @@ _sha2block64(uchar *p, ulong len, u32int *s)
 		g = s[6];
 		h = s[7];
 
-		for(wp = w; wp < &w[16]; wp++, p += 4)
-			wp[0] = p[0] << 24 | p[1] << 16 | p[2] << 8 | p[3];
-		for(; wp < &w[64]; wp++)
-			wp[0] = sigma1(wp[-2]) + wp[-7] +
-				sigma0(wp[-15]) + wp[-16];
+#define STEP(a,b,c,d,e,f,g,h,i) \
+	if(i < 16) {\
+		w[i] = p[0]<<24 | p[1]<<16 | p[2]<<8 | p[3]; \
+		p += 4; \
+	} else { \
+		w[i&15] += sigma1(w[i-2&15]) + w[i-7&15] + sigma0(w[i-15&15]); \
+	} \
+	h += SIGMA1(e) + Ch(e,f,g) + K256[i] + w[i&15]; \
+	d += h; \
+	h += SIGMA0(a) + Maj(a,b,c);
 
-		for(kp = K256, wp = w; wp < &w[64]; ) {
-			t1 = h + SIGMA1(e) + Ch(e,f,g) + *kp++ + *wp++;
-			t2 = SIGMA0(a) + Maj(a,b,c);
-			h = g;
-			g = f;
-			f = e;
-			e = d + t1;
-			d = c;
-			c = b;
-			b = a;
-			a = t1 + t2;
-		}
+		STEP(a,b,c,d,e,f,g,h,0);
+		STEP(h,a,b,c,d,e,f,g,1);
+		STEP(g,h,a,b,c,d,e,f,2);
+		STEP(f,g,h,a,b,c,d,e,3);
+		STEP(e,f,g,h,a,b,c,d,4);
+		STEP(d,e,f,g,h,a,b,c,5);
+		STEP(c,d,e,f,g,h,a,b,6);
+		STEP(b,c,d,e,f,g,h,a,7);
 
-		/* save state */
+		STEP(a,b,c,d,e,f,g,h,8);
+		STEP(h,a,b,c,d,e,f,g,9);
+		STEP(g,h,a,b,c,d,e,f,10);
+		STEP(f,g,h,a,b,c,d,e,11);
+		STEP(e,f,g,h,a,b,c,d,12);
+		STEP(d,e,f,g,h,a,b,c,13);
+		STEP(c,d,e,f,g,h,a,b,14);
+		STEP(b,c,d,e,f,g,h,a,15);
+
+		STEP(a,b,c,d,e,f,g,h,16);
+		STEP(h,a,b,c,d,e,f,g,17);
+		STEP(g,h,a,b,c,d,e,f,18);
+		STEP(f,g,h,a,b,c,d,e,19);
+		STEP(e,f,g,h,a,b,c,d,20);
+		STEP(d,e,f,g,h,a,b,c,21);
+		STEP(c,d,e,f,g,h,a,b,22);
+		STEP(b,c,d,e,f,g,h,a,23);
+
+		STEP(a,b,c,d,e,f,g,h,24);
+		STEP(h,a,b,c,d,e,f,g,25);
+		STEP(g,h,a,b,c,d,e,f,26);
+		STEP(f,g,h,a,b,c,d,e,27);
+		STEP(e,f,g,h,a,b,c,d,28);
+		STEP(d,e,f,g,h,a,b,c,29);
+		STEP(c,d,e,f,g,h,a,b,30);
+		STEP(b,c,d,e,f,g,h,a,31);
+
+		STEP(a,b,c,d,e,f,g,h,32);
+		STEP(h,a,b,c,d,e,f,g,33);
+		STEP(g,h,a,b,c,d,e,f,34);
+		STEP(f,g,h,a,b,c,d,e,35);
+		STEP(e,f,g,h,a,b,c,d,36);
+		STEP(d,e,f,g,h,a,b,c,37);
+		STEP(c,d,e,f,g,h,a,b,38);
+		STEP(b,c,d,e,f,g,h,a,39);
+
+		STEP(a,b,c,d,e,f,g,h,40);
+		STEP(h,a,b,c,d,e,f,g,41);
+		STEP(g,h,a,b,c,d,e,f,42);
+		STEP(f,g,h,a,b,c,d,e,43);
+		STEP(e,f,g,h,a,b,c,d,44);
+		STEP(d,e,f,g,h,a,b,c,45);
+		STEP(c,d,e,f,g,h,a,b,46);
+		STEP(b,c,d,e,f,g,h,a,47);
+
+		STEP(a,b,c,d,e,f,g,h,48);
+		STEP(h,a,b,c,d,e,f,g,49);
+		STEP(g,h,a,b,c,d,e,f,50);
+		STEP(f,g,h,a,b,c,d,e,51);
+		STEP(e,f,g,h,a,b,c,d,52);
+		STEP(d,e,f,g,h,a,b,c,53);
+		STEP(c,d,e,f,g,h,a,b,54);
+		STEP(b,c,d,e,f,g,h,a,55);
+
+		STEP(a,b,c,d,e,f,g,h,56);
+		STEP(h,a,b,c,d,e,f,g,57);
+		STEP(g,h,a,b,c,d,e,f,58);
+		STEP(f,g,h,a,b,c,d,e,59);
+		STEP(e,f,g,h,a,b,c,d,60);
+		STEP(d,e,f,g,h,a,b,c,61);
+		STEP(c,d,e,f,g,h,a,b,62);
+		STEP(b,c,d,e,f,g,h,a,63);
+
 		s[0] += a;
 		s[1] += b;
 		s[2] += c;

@@ -38,7 +38,7 @@ auth_userpasswd(char *user, char *passwd)
 	if((ch = auth_challenge("user=%q proto=p9cr role=server", user)) == nil)
 		return nil;
 
-	passtokey(key, passwd);
+	passtodeskey(key, passwd);
 	netresp(key, atol(ch->chal), resp);
 	memset(key, 0, sizeof key);
 

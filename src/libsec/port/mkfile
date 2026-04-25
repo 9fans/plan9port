@@ -5,6 +5,9 @@ LIB=libsec.a
 ALLOFILES=\
 	aes.$O\
 	blowfish.$O\
+	ccpoly.$O\
+	chacha.$O\
+	chachablock.$O\
 	decodepem.$O\
 	des.$O\
 	des3CBC.$O\
@@ -31,11 +34,14 @@ ALLOFILES=\
 	gensafeprime.$O\
 	genstrongprime.$O\
 	hmac.$O\
+	hkdf.$O\
 	md4.$O\
 	md5.$O\
 	md5block.$O\
 	md5pickle.$O\
 	nfastrand.$O\
+	pbkdf2.$O\
+	poly1305.$O\
 	prng.$O\
 	probably_prime.$O\
 	rc4.$O\
@@ -50,12 +56,11 @@ ALLOFILES=\
 	sha1block.$O\
 	sha1pickle.$O\
 	sha2_64.$O\
-	sha2_128.$O\
 	sha2block64.$O\
-	sha2block128.$O\
 	smallprimetest.$O\
 	thumb.$O\
 	tlshand.$O\
+	tsmemcmp.$O\
 	x509.$O\
 
 # OFILES=`{sh ./reduce $O $OBJTYPE $ALLOFILES}
@@ -63,4 +68,3 @@ OFILES=$ALLOFILES
 HFILES=$PLAN9/include/libsec.h
 
 <$PLAN9/src/mksyslib
-

@@ -2,14 +2,16 @@
 #include <mp.h>
 #include "dat.h"
 
-/* sum = abs(b1) + abs(b2), i.e., add the magnitudes */
+// sum = abs(b1) + abs(b2), i.e., add the magnitudes
 void
 mpmagadd(mpint *b1, mpint *b2, mpint *sum)
 {
 	int m, n;
 	mpint *t;
 
-	/* get the sizes right */
+	sum->flags |= (b1->flags | b2->flags) & MPtimesafe;
+
+	// get the sizes right
 	if(b2->top > b1->top){
 		t = b1;
 		b1 = b2;
@@ -23,6 +25,7 @@ mpmagadd(mpint *b1, mpint *b2, mpint *sum)
 	}
 	if(m == 0){
 		mpassign(b1, sum);
+		sum->sign = 1;
 		return;
 	}
 	mpbits(sum, (n+1)*Dbits);
@@ -34,13 +37,14 @@ mpmagadd(mpint *b1, mpint *b2, mpint *sum)
 	mpnorm(sum);
 }
 
-/* sum = b1 + b2 */
+// sum = b1 + b2
 void
 mpadd(mpint *b1, mpint *b2, mpint *sum)
 {
 	int sign;
 
 	if(b1->sign != b2->sign){
+		assert(((b1->flags | b2->flags | sum->flags) & MPtimesafe) == 0);
 		if(b1->sign < 0)
 			mpmagsub(b2, b1, sum);
 		else

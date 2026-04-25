@@ -305,7 +305,7 @@ p9crresp(ServerState *s, uchar *resp, int resplen)
 		return -1;
 	}
 
-	convM2A(tabuf+TICKETLEN, &a, t.key);
+	convM2A(tabuf+TICKETLEN, &a, &t);
 	if(a.num != AuthAc
 	|| memcmp(a.chal, tr.chal, sizeof a.chal) != 0
 	|| a.id != 0){
@@ -324,7 +324,7 @@ p9response(char *pw, uchar *chal, uchar *resp)
 	uchar buf[8];
 	ulong x;
 
-	passtokey(key, pw);
+	passtodeskey(key, pw);
 	memset(buf, 0, 8);
 	snprint((char*)buf, sizeof buf, "%d", atoi((char*)chal));
 	if(encrypt(key, buf, 8) < 0){
