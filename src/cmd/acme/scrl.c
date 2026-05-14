@@ -52,6 +52,8 @@ scrlresize(void)
 		error("scroll alloc");
 }
 
+extern void textemphdraw(Text *t);
+
 void
 textscrdraw(Text *t)
 {
@@ -77,6 +79,7 @@ textscrdraw(Text *t)
 		draw(t->fr.b, r, b, nil, Pt(0, r1.min.y));
 /*flushimage(display, 1); // BUG? */
 	}
+	textemphdraw(t);
 }
 
 void
