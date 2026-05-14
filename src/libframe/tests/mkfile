@@ -1,0 +1,10 @@
+<$PLAN9/src/mkhdr
+
+TARG=frtest
+OFILES=frtest.$O
+LIBS=$PLAN9/lib/libframe.a $PLAN9/lib/libdraw.a $PLAN9/lib/libfmt.a $PLAN9/lib/libutf.a
+
+<$PLAN9/src/mkone
+
+test:V:	$O.frtest
+	./$O.frtest

@@ -26,6 +26,7 @@ struct Frbox
 	uchar	*ptr;
 	short	bc;	/* break char */
 	short	minwid;
+	Font	*font;		/* nil => use frame->font */
 };
 
 struct Frame
@@ -65,6 +66,7 @@ void	frinit(Frame*, Rectangle, Font*, Image*, Image**);
 void	frsetrects(Frame*, Rectangle, Image*);
 void	frclear(Frame*, int);
 void	frredraw(Frame*);
+void	frsetboxfont(Frame*, ulong, ulong, Font*);
 
 uchar	*_frallocstr(Frame*, unsigned);
 void	_frinsure(Frame*, int, unsigned);
@@ -93,6 +95,7 @@ void	frinittick(Frame*);
 
 #define	NRUNE(b)	((b)->nrune<0? 1 : (b)->nrune)
 #define	NBYTE(b)	strlen((char*)(b)->ptr)
+#define	FRBOXFONT(f,b)	((b)->font ? (b)->font : (f)->font)
 #if defined(__cplusplus)
 }
 #endif

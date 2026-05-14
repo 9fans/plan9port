@@ -33,6 +33,7 @@ bxscan(Frame *f, Rune *sp, Rune *ep, Point *ppt)
 				delta *= 2;
 		}
 		b = &frame.box[nb];
+		b->font = nil;
 		c = *sp;
 		if(c=='\t' || c=='\n'){
 			b->bc = c;

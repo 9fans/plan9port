@@ -108,7 +108,7 @@ truncatebox(Frame *f, Frbox *b, int n)	/* drop last n chars; no allocation done 
 		drawerror(f->display, "truncatebox");
 	b->nrune -= n;
 	runeindex(b->ptr, b->nrune)[0] = 0;
-	b->wid = stringwidth(f->font, (char *)b->ptr);
+	b->wid = stringwidth(FRBOXFONT(f, b), (char *)b->ptr);
 }
 
 static
@@ -122,7 +122,7 @@ chopbox(Frame *f, Frbox *b, int n)	/* drop first n chars; no allocation done */
 	p = (char*)runeindex(b->ptr, n);
 	memmove((char*)b->ptr, p, strlen(p)+1);
 	b->nrune -= n;
-	b->wid = stringwidth(f->font, (char *)b->ptr);
+	b->wid = stringwidth(FRBOXFONT(f, b), (char *)b->ptr);
 }
 
 void

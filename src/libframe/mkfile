@@ -4,6 +4,7 @@ LIB=libframe.a
 
 OFILES=\
 	frbox.$O\
+	frboxfont.$O\
 	frdelete.$O\
 	frdraw.$O\
 	frinit.$O\
