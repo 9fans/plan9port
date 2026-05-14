@@ -17,9 +17,6 @@ Image	*tagcols[NCOL];
 Image	*textcols[NCOL];
 static Rune Ldot[] = { '.', 0 };
 
-/* emphasis font cache (lazy-loaded) */
-static Reffont *emphvar;
-
 enum{
 	TABDIR = 3	/* width of tabs in directory windows */
 };
@@ -406,6 +403,7 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 	if(t->what == Body && t->w && t->w->emphon){
 		emphshift(t->w, q0, n);
 		emphrefreshlocal(t->w, q0, q0 + n);
+		emphapplylocal(t->w, q0, q0 + n);
 	}
 	if(t->w){
 		c = 'i';
@@ -515,6 +513,7 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 	if(t->what == Body && t->w && t->w->emphon){
 		emphshift(t->w, q0, -(int)(q1 - q0));
 		emphrefreshlocal(t->w, q0, q0);
+		emphapplylocal(t->w, q0, q0);
 	}
 	if(t->w){
 		c = 'd';
@@ -1257,7 +1256,6 @@ textsetselect(Text *t, uint q0, uint q1)
     Return:
 	t->fr.p0 = p0;
 	t->fr.p1 = p1;
-	textemphdraw(t);
 }
 
 /*
@@ -1675,7 +1673,49 @@ textreset(Text *t)
 	bufreset(&t->file->b);
 }
 
-/* Emphasis functions - stubs for now */
+static void
+emphclear(Window *w)
+{
+	Frame *f = &w->body.fr;
+	if(f->nchars > 0)
+		frsetboxfont(f, 0, f->nchars, nil);
+}
+
+void
+emphapply(Window *w)
+{
+	int i;
+	Range *m;
+	Frame *f;
+	Font *ef;
+	uint vstart, vend, p0, p1;
+
+	if(w == nil || w->emphfont == nil)
+		return;
+	f = &w->body.fr;
+	emphclear(w);
+	if(!w->emphon || w->nemphmatch == 0)
+		return;
+	ef = w->emphfont->f;
+	vstart = w->body.org;
+	vend   = w->body.org + f->nchars;
+	for(i = 0; i < w->nemphmatch; i++){
+		m = &w->emphmatch[i];
+		if(m->q1 <= vstart) continue;
+		if(m->q0 >= vend) break;
+		p0 = (m->q0 < vstart) ? 0 : m->q0 - vstart;
+		p1 = (m->q1 > vend)   ? f->nchars : m->q1 - vstart;
+		frsetboxfont(f, p0, p1, ef);
+	}
+}
+
+void
+emphapplylocal(Window *w, uint q0, uint q1)
+{
+	USED(q0); USED(q1);
+	emphapply(w);
+}
+
 void
 setemph(Window *w, Rune *pat, int npat, int on)
 {
@@ -1683,6 +1723,8 @@ setemph(Window *w, Rune *pat, int npat, int on)
 
 	if(!on){
 		w->emphon = FALSE;
+		emphapply(w);
+		frredraw(&w->body.fr);
 		textscrdraw(&w->body);
 		return;
 	}
@@ -1690,7 +1732,6 @@ setemph(Window *w, Rune *pat, int npat, int on)
 		warning(nil, "Emph: empty regex\n");
 		return;
 	}
-	/* compile to validate; rxcompile takes NUL-terminated rune string */
 	p = runemalloc(npat+1);
 	runemove(p, pat, npat);
 	p[npat] = 0;
@@ -1699,12 +1740,21 @@ setemph(Window *w, Rune *pat, int npat, int on)
 		warning(nil, "Emph: bad regex\n");
 		return;
 	}
-	/* swap in the new pattern; keep emphpat NUL-terminated */
+	if(w->emphfont == nil){
+		w->emphfont = rfget(0, FALSE, FALSE, fontnames[2]);
+		if(w->emphfont == nil){
+			free(p);
+			warning(nil, "Emph: cannot load emphasis font %s\n", fontnames[2]);
+			return;
+		}
+	}
 	free(w->emphpat);
 	w->emphpat = p;
 	w->nemphpat = npat;
 	w->emphon = TRUE;
 	emphrecompute(w);
+	emphapply(w);
+	frredraw(&w->body.fr);
 	textscrdraw(&w->body);
 }
 
@@ -1797,115 +1847,9 @@ emphfree(Window *w)
 	w->nemphmatch = 0;
 	w->aemphmatch = 0;
 	w->emphon = FALSE;
-}
-
-static Font*
-emphfont(Text *t)
-{
-	/* Load emphasis font on demand (use variable-width by default) */
-	if(emphvar == nil){
-		emphvar = rfget(0, FALSE, FALSE, fontnames[2]);
-		if(emphvar == nil)
-			return t->fr.font;  /* fallback: no change */
-	}
-	return emphvar->f;
-}
-
-static int
-emphbytes(char *s, int nr)
-{
-	char *p;
-	Rune r;
-
-	for(p = s; --nr >= 0; p += chartorune(&r, p))
-		;
-	return p - s;
-}
-
-static void
-emphpaint(Text *t, uint p0, uint p1, Font *ef)
-{
-	Frame *f;
-	Frbox *b;
-	int nb, nr, w, x;
-	uint p;
-	char *ptr;
-	Point pt, qt;
-	Image *back, *text;
-
-	if(p0 >= p1)
-		return;
-	f = &t->fr;
-	pt = frptofchar(f, p0);
-	p = 0;
-	for(nb = 0, b = f->box; nb < f->nbox && p < p1; nb++){
-		nr = b->nrune < 0 ? 1 : b->nrune;
-		if(p + nr <= p0)
-			goto Continue;
-		if(p >= p0){
-			qt = pt;
-			_frcklinewrap(f, &pt, b);
-			if(pt.y > qt.y)
-				draw(f->b, Rect(qt.x, qt.y, f->r.max.x, pt.y), f->cols[BACK], nil, qt);
-		}
-		ptr = (char*)b->ptr;
-		if(p < p0){
-			ptr += emphbytes(ptr, p0 - p);
-			nr -= p0 - p;
-			p = p0;
-		}
-		if(p + nr > p1)
-			nr -= p + nr - p1;
-		if(b->nrune < 0 || nr == b->nrune)
-			w = b->wid;
-		else
-			w = stringnwidth(f->font, ptr, nr);
-		x = pt.x + w;
-		if(x > f->r.max.x)
-			x = f->r.max.x;
-		if(f->p0 < (uint)(p + nr) && p < f->p1){
-			back = f->cols[HIGH];
-			text = f->cols[HTEXT];
-		}else{
-			back = f->cols[BACK];
-			text = f->cols[TEXT];
-		}
-		draw(f->b, Rect(pt.x, pt.y, x, pt.y + f->font->height), back, nil, pt);
-		if(b->nrune >= 0)
-			stringnbg(f->b, pt, text, ZP, ef, ptr, nr, back, ZP);
-		pt.x += w;
-	Continue:
-		b++;
-		p += nr;
+	if(w->emphfont != nil){
+		rfclose(w->emphfont);
+		w->emphfont = nil;
 	}
 }
 
-void
-textemphdraw(Text *t)
-{
-	Window *w;
-	int i;
-	uint vstart, vend, mq0, mq1;
-	Font *ef;
-
-	if(t == nil || t->w == nil)
-		return;
-	w = t->w;
-	if(!w->emphon || w->nemphmatch == 0 || t->what != Body)
-		return;
-	ef = emphfont(t);
-	if(ef == nil || ef == t->fr.font)
-		return;
-
-	vstart = t->org;
-	vend = t->org + t->fr.nchars;
-	for(i = 0; i < w->nemphmatch; i++){
-		mq0 = w->emphmatch[i].q0;
-		mq1 = w->emphmatch[i].q1;
-		if(mq1 <= vstart) continue;
-		if(mq0 >= vend) break;
-		if(mq0 < vstart) mq0 = vstart;
-		if(mq1 > vend) mq1 = vend;
-		emphpaint(t, mq0 - t->org, mq1 - t->org, ef);
-	}
-}

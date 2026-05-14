@@ -241,7 +241,8 @@ void		emphrecompute(Window*);
 void		emphrefreshlocal(Window*, uint q0, uint q1);
 void		emphshift(Window*, uint q, int delta);
 void		emphfree(Window*);
-void		textemphdraw(Text*);
+void		emphapply(Window*);
+void		emphapplylocal(Window*, uint q0, uint q1);
 
 struct Window
 {
@@ -270,6 +271,7 @@ struct Window
 	Range	*emphmatch;		/* sorted, non-overlapping match ranges */
 	int		nemphmatch;		/* used count */
 	int		aemphmatch;		/* allocated capacity */
+	Reffont	*emphfont;		/* per-window emphasis font (nil until first Emph) */
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;
