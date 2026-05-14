@@ -21,7 +21,7 @@ _frptofcharptb(Frame *f, ulong p, Point pt, int bn)
 						w = 1;
 					else
 						w = chartorune(&r, (char*)s);
-					pt.x += stringnwidth(f->font, (char*)s, 1);
+					pt.x += stringnwidth(FRBOXFONT(f, b), (char*)s, 1);
 					if(r==0 || pt.x>f->r.max.x)
 						drawerror(f->display, "frptofchar");
 				}
@@ -99,7 +99,7 @@ frcharofpt(Frame *f, Point pt)
 						w = chartorune(&r, (char*)s);
 					if(r == 0)
 						drawerror(f->display, "end of string in frcharofpt");
-					qt.x += stringnwidth(f->font, (char*)s, 1);
+					qt.x += stringnwidth(FRBOXFONT(f, b), (char*)s, 1);
 					s += w;
 					if(qt.x > pt.x)
 						break;

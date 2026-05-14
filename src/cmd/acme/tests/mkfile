@@ -1,13 +1,20 @@
 <$PLAN9/src/mkhdr
 
 TARG=emph_test
-# Stage 0: only emphranges is exercised; G1-G4 (rxexecute integration)
-# are skipped. Stage 5 will need ../regx.$O ../buff.$O ../disk.$O
-# ../util.$O plus mocks for the global `disk` and `textreadc` symbols.
 OFILES=emph_test.$O ../emphranges.$O
 
 <$PLAN9/src/mkone
 
-test:V:	$O.emph_test
+GTARG=g_test
+GOFILES=g_test.$O ../regx.$O
+
+$O.$GTARG:	$GOFILES
+	$LD -o $target $prereq $LDFLAGS
+
+test:V:	$O.emph_test $O.$GTARG
 	./$O.emph_test
+	./$O.$GTARG
 	rc ./test_ctl.rc
+
+clean:V:
+	rm -f $O.emph_test $O.$GTARG *.o

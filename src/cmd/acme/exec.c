@@ -667,6 +667,11 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 		}
 		textscrdraw(u);
 	}
+	if(w->emphon){
+		emphrecompute(w);
+		emphapply(w);
+		frredraw(&w->body.fr);
+	}
 	free(addr);
 	xfidlog(w, "get");
 }
@@ -1115,30 +1120,35 @@ emph(Text *et, Text *t, Text *argt, int _1, int _2, Rune *arg, int narg)
 	if(et == nil || et->w == nil)
 		return;
 	w = et->w;
-	winlock(w, 'E');
+	/*
+	 * The caller already holds winlock(w): either via the mouse path
+	 * (acme.c, 'M' tag before execute()) or the 9P event path
+	 * (xfid.c, 'F' tag around xfidexecute()). winlock is not reentrant
+	 * (qlock-based), so taking it again here would self-deadlock.
+	 * setemph mutates w->emphmatch and frame boxes safely under the
+	 * caller's lock.
+	 */
 	if(narg > 0){
 		setemph(w, arg, narg, TRUE);
-		goto unlock;
+		return;
 	}
 	/* try chorded argument first (1-2-1 chord, like Look) */
 	getarg(argt, FALSE, TRUE, &r, &n);
 	if(r != nil && n > 0){
 		setemph(w, r, n, TRUE);
 		free(r);
-		goto unlock;
+		return;
 	}
 	/* toggle */
 	if(w->emphon){
 		setemph(w, nil, 0, FALSE);
-		goto unlock;
+		return;
 	}
 	if(w->emphpat != nil){
 		setemph(w, w->emphpat, w->nemphpat, TRUE);
-		goto unlock;
+		return;
 	}
 	warning(nil, "Emph: no pattern set\n");
-unlock:
-	winunlock(w);
 }
 
 static Rune Lnl[] = { '\n', 0 };

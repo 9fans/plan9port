@@ -66,6 +66,10 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 		}
 	}else{
 		textfill(t);
+		if(t->what == Body && t->w && t->w->emphon){
+			emphapply(t->w);
+			frredraw(&t->fr);
+		}
 		textsetselect(t, t->q0, t->q1);
 	}
 }
@@ -1652,6 +1656,10 @@ textsetorigin(Text *t, uint org, int exact)
 		frdelete(&t->fr, 0, t->fr.nchars);
 	t->org = org;
 	textfill(t);
+	if(t->what == Body && t->w && t->w->emphon){
+		emphapply(t->w);
+		frredraw(&t->fr);
+	}
 	textscrdraw(t);
 	textsetselect(t, t->q0, t->q1);
 	if(fixup && t->fr.p1 > t->fr.p0)
@@ -1714,6 +1722,8 @@ emphapplylocal(Window *w, uint q0, uint q1)
 {
 	USED(q0); USED(q1);
 	emphapply(w);
+	if(w != nil && w->emphfont != nil)
+		frredraw(&w->body.fr);
 }
 
 void

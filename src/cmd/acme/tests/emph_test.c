@@ -336,17 +336,10 @@ test_free_resets(void)
 	assert_eq("F1: free_resets.m_nil", m == nil ? 1 : 0, 1);
 }
 
-/* Group G - regex integration (stubs - would need rxexecute linking) */
-static void
-test_regex_stubs(void)
-{
-	print("G1-G4: skipped (require rxexecute linking)\n");
-}
-
-int
+void
 main(void)
 {
-	print("=== Emphasis Range Test Suite ===\n");
+	print("=== Emphasis Range Test Suite (A-F) ===\n");
 
 	print("\nGroup A - emphpush:\n");
 	test_push_empty();
@@ -380,11 +373,8 @@ main(void)
 	print("\nGroup F - emphfreearr:\n");
 	test_free_resets();
 
-	print("\nGroup G - regex integration:\n");
-	test_regex_stubs();
-
 	print("\n=== Summary ===\n");
 	print("%d PASS / %d FAIL\n", npass, nfail);
 
-	return nfail > 0 ? 1 : 0;
+	exits(nfail > 0 ? "FAIL" : nil);
 }
