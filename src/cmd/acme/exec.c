@@ -38,6 +38,7 @@ void	delcol(Text*, Text*, Text*, int, int, Rune*, int);
 void	dotfiles(Text*, Text*, Text*, int, int, Rune*, int);
 void	dump(Text*, Text*, Text*, int, int, Rune*, int);
 void	edit(Text*, Text*, Text*, int, int, Rune*, int);
+void	emph(Text*, Text*, Text*, int, int, Rune*, int);
 void	xexit(Text*, Text*, Text*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	get(Text*, Text*, Text*, int, int, Rune*, int);
@@ -73,6 +74,7 @@ static Rune LDelcol[] = { 'D', 'e', 'l', 'c', 'o', 'l', 0 };
 static Rune LDelete[] = { 'D', 'e', 'l', 'e', 't', 'e', 0 };
 static Rune LDump[] = { 'D', 'u', 'm', 'p', 0 };
 static Rune LEdit[] = { 'E', 'd', 'i', 't', 0 };
+static Rune LEmph[] = { 'E', 'm', 'p', 'h', 0 };
 static Rune LExit[] = { 'E', 'x', 'i', 't', 0 };
 static Rune LFont[] = { 'F', 'o', 'n', 't', 0 };
 static Rune LGet[] = { 'G', 'e', 't', 0 };
@@ -104,6 +106,7 @@ Exectab exectab[] = {
 	{ LDelete,		del,		FALSE,	TRUE,	XXX		},
 	{ LDump,		dump,	FALSE,	TRUE,	XXX		},
 	{ LEdit,		edit,		FALSE,	XXX,		XXX		},
+	{ LEmph,		emph,		FALSE,	XXX,		XXX		},
 	{ LExit,		xexit,	FALSE,	XXX,		XXX		},
 	{ LFont,		fontx,	FALSE,	XXX,		XXX		},
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
@@ -1096,6 +1099,42 @@ look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 		search(t, r, n, FALSE);
 		free(r);
 	}
+}
+
+void
+emph(Text *et, Text *t, Text *argt, int _1, int _2, Rune *arg, int narg)
+{
+	Window *w;
+	Rune *r;
+	int n;
+
+	USED(_1);
+	USED(_2);
+
+	if(et == nil || et->w == nil)
+		return;
+	w = et->w;
+	if(narg > 0){
+		setemph(w, arg, narg, TRUE);
+		return;
+	}
+	/* try chorded argument first (1-2-1 chord, like Look) */
+	getarg(argt, FALSE, TRUE, &r, &n);
+	if(r != nil && n > 0){
+		setemph(w, r, n, TRUE);
+		free(r);
+		return;
+	}
+	/* toggle */
+	if(w->emphon){
+		setemph(w, nil, 0, FALSE);
+		return;
+	}
+	if(w->emphpat != nil){
+		setemph(w, w->emphpat, w->nemphpat, TRUE);
+		return;
+	}
+	warning(nil, "Emph: no pattern set\n");
 }
 
 static Rune Lnl[] = { '\n', 0 };

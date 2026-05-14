@@ -796,6 +796,30 @@ out:
 			w->limit.q1 = w->addr.q1;
 			m = 10;
 		}else
+		if(strncmp(p, "emph=", 5) == 0){	/* set emphasis pattern */
+			pp = p+5;
+			m = 5;
+			q = memchr(pp, '\n', e-pp);
+			if(q==nil || q==pp){
+				err = Ebadctl;
+				break;
+			}
+			*q = 0;
+			nulls = FALSE;
+			cvttorunes(pp, q-pp, r, &nb, &nr, &nulls);
+			if(nulls){
+				err = "nulls in emph regex";
+				break;
+			}
+			setemph(w, r, nr, TRUE);
+			scrdraw = TRUE;
+			m += (q+1) - pp;
+		}else
+		if(strncmp(p, "noemph", 6) == 0){	/* turn off emphasis */
+			setemph(w, nil, 0, FALSE);
+			scrdraw = TRUE;
+			m = 6;
+		}else
 		if(strncmp(p, "nomark", 6) == 0){	/* turn off automatic marking */
 			w->nomark = TRUE;
 			m = 6;

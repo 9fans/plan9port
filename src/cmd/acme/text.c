@@ -1662,3 +1662,70 @@ textreset(Text *t)
 	filereset(t->file);
 	bufreset(&t->file->b);
 }
+
+/* Emphasis functions - stubs for now */
+void
+setemph(Window *w, Rune *pat, int npat, int on)
+{
+	Rune *p;
+
+	if(!on){
+		w->emphon = FALSE;
+		textscrdraw(&w->body);
+		return;
+	}
+	if(pat == nil || npat == 0){
+		warning(nil, "Emph: empty regex\n");
+		return;
+	}
+	/* compile to validate; rxcompile takes NUL-terminated rune string */
+	p = runemalloc(npat+1);
+	runemove(p, pat, npat);
+	p[npat] = 0;
+	if(rxcompile(p) == FALSE){
+		free(p);
+		warning(nil, "Emph: bad regex\n");
+		return;
+	}
+	/* swap in the new pattern; keep emphpat NUL-terminated */
+	free(w->emphpat);
+	w->emphpat = p;
+	w->nemphpat = npat;
+	w->emphon = TRUE;
+	emphrecompute(w);
+	textscrdraw(&w->body);
+}
+
+void
+emphrecompute(Window *w)
+{
+	USED(w);
+}
+
+void
+emphrefreshlocal(Window *w, uint q0, uint q1)
+{
+	USED(w);
+	USED(q0);
+	USED(q1);
+}
+
+void
+emphshift(Window *w, uint q, int delta)
+{
+	USED(w);
+	USED(q);
+	USED(delta);
+}
+
+void
+emphfree(Window *w)
+{
+	USED(w);
+}
+
+void
+textemphdraw(Text *t)
+{
+	USED(t);
+}

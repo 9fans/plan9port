@@ -229,6 +229,20 @@ void		textsetselect(Text*, uint, uint);
 void		textshow(Text*, uint, uint, int);
 void		texttype(Text*, Rune);
 
+/* emphasis functions - pure range operations */
+void		emphpush(Range **m, int *n, int *a, uint q0, uint q1);
+void		rangeshift(Range *m, int *n, uint q, int delta);
+void		rangemerge(Range **dst, int *ndst, int *adst, Range *src, int nsrc);
+void		emphfreearr(Range **m, int *n, int *a);
+
+/* emphasis functions - Window-aware */
+void		setemph(Window*, Rune *pat, int npat, int on);
+void		emphrecompute(Window*);
+void		emphrefreshlocal(Window*, uint q0, uint q1);
+void		emphshift(Window*, uint q, int delta);
+void		emphfree(Window*);
+void		textemphdraw(Text*);
+
 struct Window
 {
 	QLock	lk;
@@ -249,6 +263,13 @@ struct Window
 	uchar	nomark;
 	Range	wrselrange;
 	int		rdselfd;
+	/* emphasis (Emph / emph=) */
+	int		emphon;		/* TRUE if emphasis currently rendered */
+	Rune	*emphpat;		/* last compiled pattern, NUL-terminated rune string */
+	int		nemphpat;		/* runes in emphpat (excluding NUL) */
+	Range	*emphmatch;		/* sorted, non-overlapping match ranges */
+	int		nemphmatch;		/* used count */
+	int		aemphmatch;		/* allocated capacity */
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;

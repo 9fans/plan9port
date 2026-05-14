@@ -249,7 +249,8 @@ test_shift_compact_many(void)
 	assert_eq("D1: shift_compact_many.n", n, 4);
 	assert_range_eq("D1: shift_compact_many[0]", m, 0, 10, 12);
 	assert_range_eq("D1: shift_compact_many[1]", m, 1, 20, 22);
-	assert_range_eq("D1: shift_compact_many[3]", m, 3, 43, 45);
+	assert_range_eq("D1: shift_compact_many[2]", m, 2, 43, 45);
+	assert_range_eq("D1: shift_compact_many[3]", m, 3, 53, 55);
 }
 
 /* Group E - rangemerge tests */

@@ -81,6 +81,12 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->filemenu = TRUE;
 	w->maxlines = w->body.fr.maxlines;
 	w->autoindent = globalautoindent;
+	w->emphon = FALSE;
+	w->emphpat = nil;
+	w->nemphpat = 0;
+	w->emphmatch = nil;
+	w->nemphmatch = 0;
+	w->aemphmatch = 0;
 	if(clone){
 		w->dirty = clone->dirty;
 		w->autoindent = clone->autoindent;
@@ -325,6 +331,7 @@ winclose(Window *w)
 		textclose(&w->body);
 		if(activewin == w)
 			activewin = nil;
+		emphfree(w);
 		for(i=0; i<w->nincl; i++)
 			free(w->incl[i]);
 		free(w->incl);
