@@ -12,6 +12,7 @@ OFILES=\
 	ecmd.$O\
 	edit.$O\
 	elog.$O\
+	emphranges.$O\
 	exec.$O\
 	file.$O\
 	fsys.$O\
@@ -35,6 +36,9 @@ HFILES=dat.h\
 <$PLAN9/src/mkdirs
 
 edit.$O ecmd.$O elog.$O:	edit.h
+
+test:V:
+	cd tests && mk test
 
 likeplan9:V:
 	mkdir -p likeplan9

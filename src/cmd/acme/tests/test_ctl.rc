@@ -1,0 +1,75 @@
+#!/bin/rc
+# Tests for emph=/noemph 9P control verbs.
+#
+# These tests require a running acme instance with its 9P service mounted
+# at /mnt/acme (typical: `9pfuse 'unix!'^$NAMESPACE^'/acme' /mnt/acme`).
+# If the mount is absent the suite SKIPs (exit 77, TAP convention),
+# because spinning up a headless acme reliably needs Xvfb plus a working
+# /mnt/acme bridge that is out of scope for stage 0.
+
+if(! test -e /mnt/acme/new/ctl) {
+	echo 'SKIP: /mnt/acme not mounted; start acme and 9pfuse it first'
+	exit 77
+}
+
+winid=`{cat /mnt/acme/new/ctl | awk '{print $1; exit}'}
+if(~ $#winid 0 || ~ $winid '') {
+	echo 'SKIP: unable to obtain a fresh acme window id'
+	exit 77
+}
+
+npass=0
+nfail=0
+
+fn check {
+	expected=$1
+	label=$2
+	shift 2
+	got=$status
+	if(~ $expected pass) {
+		if(~ $got '' '|0') {
+			echo PASS: $label
+			npass=`{expr $npass + 1}
+		}
+		if not {
+			echo FAIL: $label '(expected success, got '$got')'
+			nfail=`{expr $nfail + 1}
+		}
+	}
+	if not {
+		if(! ~ $got '' '|0') {
+			echo PASS: $label
+			npass=`{expr $npass + 1}
+		}
+		if not {
+			echo FAIL: $label '(expected failure, got success)'
+			nfail=`{expr $nfail + 1}
+		}
+	}
+}
+
+# T01: emph=foo accepted
+echo 'emph=foo' >/mnt/acme/$winid/ctl
+check pass 'T01 emph=foo'
+
+# T02: emph= (empty pattern) rejected with Ebadctl
+echo 'emph=' >/mnt/acme/$winid/ctl
+check fail 'T02 emph= rejected'
+
+# T03: invalid regex accepted at parse, warning emitted in +Errors
+echo 'emph=[unclosed' >/mnt/acme/$winid/ctl
+check pass 'T03 emph=[unclosed parsed'
+
+# T04: noemph accepted
+echo 'noemph' >/mnt/acme/$winid/ctl
+check pass 'T04 noemph'
+
+# T06: two verbs in one write
+printf 'emph=foo\nnoemph\n' >/mnt/acme/$winid/ctl
+check pass 'T06 emph=foo + noemph'
+
+echo '=== Summary ==='
+echo $npass' PASS / '$nfail' FAIL'
+
+if(test $nfail -gt 0) exit 1
+exit 0
