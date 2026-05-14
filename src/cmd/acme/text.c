@@ -400,6 +400,10 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 		t->org += n;
 	else if(q0 <= t->org+t->fr.nchars)
 		frinsert(&t->fr, r, r+n, q0-t->org);
+	if(t->what == Body && t->w && t->w->emphon){
+		emphshift(t->w, q0, n);
+		emphrefreshlocal(t->w, q0, q0 + n);
+	}
 	if(t->w){
 		c = 'i';
 		if(t->what == Body)
@@ -504,6 +508,10 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 			p0 = q0 - t->org;
 		frdelete(&t->fr, p0, p1);
 		textfill(t);
+	}
+	if(t->what == Body && t->w && t->w->emphon){
+		emphshift(t->w, q0, -(int)(q1 - q0));
+		emphrefreshlocal(t->w, q0, q0);
 	}
 	if(t->w){
 		c = 'd';
@@ -1699,23 +1707,79 @@ setemph(Window *w, Rune *pat, int npat, int on)
 void
 emphrecompute(Window *w)
 {
-	USED(w);
+	Text *t = &w->body;
+	Rangeset s;
+	uint p, eof;
+
+	w->nemphmatch = 0;
+	if(!w->emphon || w->emphpat == nil)
+		return;
+	if(rxcompile(w->emphpat) == FALSE)
+		return;
+	eof = t->file->b.nc;
+	p = 0;
+	while(p <= eof && rxexecute(t, nil, p, eof, &s)){
+		emphpush(&w->emphmatch, &w->nemphmatch, &w->aemphmatch, s.r[0].q0, s.r[0].q1);
+		p = (s.r[0].q1 > s.r[0].q0) ? s.r[0].q1 : s.r[0].q0 + 1;
+	}
 }
 
 void
 emphrefreshlocal(Window *w, uint q0, uint q1)
 {
-	USED(w);
-	USED(q0);
-	USED(q1);
+	Text *t = &w->body;
+	Rangeset s;
+	uint p, eof, lo, hi;
+	Range *newmatches;
+	int nnew, anew;
+	int i, j;
+	uint K = 200;
+
+	if(!w->emphon || w->emphpat == nil)
+		return;
+	if(rxcompile(w->emphpat) == FALSE)
+		return;
+
+	eof = t->file->b.nc;
+	lo = (q0 > K) ? q0 - K : 0;
+	hi = (q1 + K < eof) ? q1 + K : eof;
+
+	/* Compact emphmatch by removing ranges that overlap [lo, hi) */
+	j = 0;
+	for(i = 0; i < w->nemphmatch; i++){
+		Range *r = &w->emphmatch[i];
+		if(r->q1 > lo && r->q0 < hi)
+			continue;  /* overlaps, skip */
+		if(j != i)
+			w->emphmatch[j] = *r;
+		j++;
+	}
+	w->nemphmatch = j;
+
+	/* Find new matches in [lo, hi) and merge */
+	newmatches = nil;
+	nnew = 0;
+	anew = 0;
+	p = lo;
+	while(p <= hi && rxexecute(t, nil, p, hi, &s)){
+		if(s.r[0].q1 > hi)
+			break;  /* match extends beyond search window */
+		emphpush(&newmatches, &nnew, &anew, s.r[0].q0, s.r[0].q1);
+		p = (s.r[0].q1 > s.r[0].q0) ? s.r[0].q1 : s.r[0].q0 + 1;
+	}
+
+	/* Merge newmatches back into emphmatch in sorted order */
+	if(nnew > 0)
+		rangemerge(&w->emphmatch, &w->nemphmatch, &w->aemphmatch, newmatches, nnew);
+	free(newmatches);
 }
 
 void
 emphshift(Window *w, uint q, int delta)
 {
-	USED(w);
-	USED(q);
-	USED(delta);
+	if(!w->emphon)
+		return;
+	rangeshift(w->emphmatch, &w->nemphmatch, q, delta);
 }
 
 void

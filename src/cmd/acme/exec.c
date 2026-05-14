@@ -1110,31 +1110,35 @@ emph(Text *et, Text *t, Text *argt, int _1, int _2, Rune *arg, int narg)
 
 	USED(_1);
 	USED(_2);
+	USED(t);
 
 	if(et == nil || et->w == nil)
 		return;
 	w = et->w;
+	winlock(w, 'E');
 	if(narg > 0){
 		setemph(w, arg, narg, TRUE);
-		return;
+		goto unlock;
 	}
 	/* try chorded argument first (1-2-1 chord, like Look) */
 	getarg(argt, FALSE, TRUE, &r, &n);
 	if(r != nil && n > 0){
 		setemph(w, r, n, TRUE);
 		free(r);
-		return;
+		goto unlock;
 	}
 	/* toggle */
 	if(w->emphon){
 		setemph(w, nil, 0, FALSE);
-		return;
+		goto unlock;
 	}
 	if(w->emphpat != nil){
 		setemph(w, w->emphpat, w->nemphpat, TRUE);
-		return;
+		goto unlock;
 	}
 	warning(nil, "Emph: no pattern set\n");
+unlock:
+	winunlock(w);
 }
 
 static Rune Lnl[] = { '\n', 0 };
