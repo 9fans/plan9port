@@ -495,3 +495,34 @@ makenewwindow(Text *t)
 		colgrow(w->col, w, 1);
 	return w;
 }
+
+int
+parsecolor(char *spec, ulong *rgb)
+{
+	int i, len, d;
+	ulong val;
+
+	if(spec == nil)
+		return -1;
+	len = strlen(spec);
+	if(len != 3 && len != 6)
+		return -1;
+	val = 0;
+	for(i = 0; i < len; i++){
+		if(spec[i] >= '0' && spec[i] <= '9')
+			d = spec[i] - '0';
+		else if(spec[i] >= 'a' && spec[i] <= 'f')
+			d = spec[i] - 'a' + 10;
+		else if(spec[i] >= 'A' && spec[i] <= 'F')
+			d = spec[i] - 'A' + 10;
+		else
+			return -1;
+		val = (val << 4) | d;
+	}
+	if(len == 3)
+		val = ((val & 0xf00) << 12) | ((val & 0xf00) << 8) |
+		      ((val & 0x0f0) << 8) | ((val & 0x0f0) << 4) |
+		      ((val & 0x00f) << 4) | (val & 0x00f);
+	*rgb = (val << 8) | 0xFF;
+	return 0;
+}

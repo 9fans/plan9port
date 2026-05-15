@@ -10,7 +10,7 @@ changements apportés par rapport au dépôt en amont. Il décrit *ce qui* a ét
 
 On ajoute à l'éditeur `acme` la possibilité de **mettre en évidence** (« emphasis »)
 toutes les occurrences d'une expression régulière dans le corps d'une fenêtre, en
-les rendant dans une **police différente**.
+les rendant dans une **police différente** et une **couleur différente**.
 
 Deux façons de l'utiliser :
 
@@ -24,7 +24,8 @@ Deux façons de l'utiliser :
    - `noemph` : la désactive (le regex reste mémorisé).
 
 La police d'emphase se configure au lancement : `-e` (police à chasse variable),
-`-E` (police à chasse fixe).
+`-E` (police à chasse fixe). La couleur d'emphase se configure avec `-C colorspec`
+(3 ou 6 chiffres hexadécimaux RGB, ex: `82f` ou `8822ff`).
 
 ---
 
@@ -55,7 +56,7 @@ gagne que la *capacité* technique de rendre boîte par boîte.
 ## 3. Architecture en deux couches
 
 ```
-   COUCHE ACME (la politique : quoi emphaser)
+   COUCHE ACME (la politique : quoi emphaser, quelle couleur)
    --------------------------------------------------------------
    commande Emph / ctl emph=        ->  setemph()
    emphmatch[] : liste triée des plages qui matchent le regex
@@ -66,14 +67,17 @@ gagne que la *capacité* technique de rendre boîte par boîte.
    COUCHE LIBFRAME (le mécanisme : rendre une boîte autrement)
    --------------------------------------------------------------
    Frbox.font : police propre à la boîte (nil => police du frame)
+   Frame.cols[EMPH] : couleur de premier plan pour texte emphasé
    FRBOXFONT(f,b) : macro qui choisit la bonne police
    frsetboxfont() : affecte une police à une plage de boîtes
+   _frdrawtext() / frdrawsel0() : utilisent cols[EMPH] si b->font != nil
 ```
 
 Point clé de **rétrocompatibilité** : une boîte dont `font == nil` se comporte
-exactement comme avant (`FRBOXFONT` retombe sur `frame->font`). Les autres
-programmes qui utilisent libframe (`sam`, `samterm`, `9term`) n'appellent jamais
-`frsetboxfont` — ils ne voient donc aucun changement.
+exactement comme avant (`FRBOXFONT` retombe sur `frame->font`, couleur sur `TEXT`).
+Les autres programmes qui utilisent libframe (`sam`, `samterm`, `9term`) n'appellent
+jamais `frsetboxfont` — ils ne voient donc aucun changement (ils initialisent
+`cols[EMPH]` à noir par précaution).
 
 ---
 
@@ -109,6 +113,10 @@ Deux endroits dessinaient le texte avec `f->font` ; remplacés par
 - `_frdrawtext` (dessin normal du texte).
 - `frdrawsel0` (dessin avec sélection — mesure *et* dessin doivent utiliser la
   même police, sinon le rectangle d'effacement ne couvre pas le glyphe).
+
+**Extension ultérieure (2026-05-15)** : ces deux fonctions ont été modifiées pour
+utiliser `f->cols[EMPH]` au lieu de `f->cols[TEXT]` lorsque `b->font != nil`,
+permettant ainsi de colorer le texte emphasé différemment (voir § 5.1).
 
 ### `src/libframe/frutil.c` — la mise en page
 
@@ -262,6 +270,138 @@ Dans `xfidctlwrite` (qui traite ligne par ligne les écritures dans le fichier
 
 ---
 
+## 5.1. Extension : couleur d'emphase (ajout 2026-05-15)
+
+Après l'implémentation de la police par boîte, une extension naturelle consiste à
+permettre de **changer la couleur** du texte emphasé. Par défaut, le texte emphasé
+était dessiné en noir (comme le texte normal), seule la police changeait.
+
+### Le problème : libframe « mono-couleur » par fonction
+
+Les fonctions de dessin de libframe (`_frdrawtext`, `frdrawsel0`) recevaient une
+couleur de texte en paramètre (`Image *text`) et l'utilisaient pour *toutes* les
+boîtes. Pour colorer différemment le texte emphasé, il faut que libframe puisse
+choisir une couleur différente selon la boîte.
+
+### La solution : extension du système de couleurs
+
+**Décision architecturale** : étendre l'enum des couleurs de `Frame.cols[]` pour
+ajouter un slot `EMPH` dédié au texte emphasé. C'est cohérent avec l'approche
+« police par boîte » : libframe fournit le *mécanisme* (capacité de rendre avec
+une couleur différente), acme fournit la *politique* (quelle couleur utiliser).
+
+### `include/frame.h` — extension de l'enum des couleurs
+
+L'enum des couleurs passe de 5 à 6 entrées :
+```c
+enum{
+    BACK,   // fond
+    HIGH,   // fond de sélection
+    BORD,   // bordure
+    TEXT,   // texte normal
+    HTEXT,  // texte sélectionné
+    EMPH,   // texte emphasé (nouveau)
+    NCOL
+};
+```
+
+`NCOL` passe de 5 à 6. Tous les programmes qui utilisent libframe (`acme`, `sam`,
+`samterm`, `9term`) doivent initialiser ce nouveau slot.
+
+### `src/libframe/frdraw.c` — utilisation de la couleur d'emphase
+
+Deux fonctions de dessin modifiées :
+
+- **`_frdrawtext`** : au lieu d'utiliser toujours le paramètre `text`, on choisit
+  `f->cols[EMPH]` si la boîte a une police personnalisée (`b->font != nil`).
+  ```c
+  col = (b->font != nil) ? f->cols[EMPH] : text;
+  stringbg(f->b, pt, col, ZP, FRBOXFONT(f, b), (char*)b->ptr, back, ZP);
+  ```
+
+- **`frdrawsel0`** : même logique pour le dessin avec sélection.
+  ```c
+  col = (b->font != nil) ? f->cols[EMPH] : text;
+  stringnbg(f->b, pt, col, ZP, FRBOXFONT(f, b), ptr, nr, back, ZP);
+  ```
+
+Le test `b->font != nil` sert de **marqueur** : une boîte avec police personnalisée
+est une boîte emphasée, donc elle doit être dessinée avec la couleur d'emphase.
+
+### `src/cmd/acme/acme.c` — option `-C` et parsing de couleur
+
+Nouvelle option de ligne de commande `-C colorspec` :
+- `colorspec` : 3 ou 6 chiffres hexadécimaux RGB.
+- 3 chiffres : chaque chiffre est doublé (ex: `82f` → `0x8822ff`).
+- 6 chiffres : utilisé tel quel (ex: `8822ff` → `0x8822ff`).
+
+Variable globale `emphcolorspec` (déclarée dans `dat.h`, définie dans `dat.c`)
+stocke la chaîne fournie par l'utilisateur.
+
+Fonction `iconinit()` modifiée pour :
+1. Parser `emphcolorspec` via `parsecolor()` (voir ci-dessous).
+2. Créer une `Image` de couleur via `allocimage()`.
+3. Affecter cette image à `tagcols[EMPH]` et `textcols[EMPH]`.
+4. Si `-C` n'est pas fourni, utiliser une couleur par défaut (bleu foncé `0x0000AAFF`).
+
+### `src/cmd/acme/util.c` — fonction `parsecolor`
+
+Nouvelle fonction utilitaire :
+```c
+int parsecolor(char *spec, ulong *rgb)
+```
+
+Parsing :
+- Vérifie que `spec` contient 3 ou 6 caractères hexadécimaux.
+- Convertit en valeur numérique.
+- Si 3 chiffres : expansion par doublement de chaque chiffre.
+  ```
+  0x82f → 0x8 0x2 0xf
+       → 0x88 0x22 0xff
+       → 0x8822ff
+  ```
+- Ajoute le canal alpha (`0xFF`) pour obtenir un RGBA 32 bits.
+- Retourne 0 en cas de succès, -1 en cas d'erreur.
+
+Prototype ajouté dans `fns.h`.
+
+### Rétrocompatibilité avec sam, samterm, 9term
+
+Ces programmes utilisent libframe mais n'ont pas besoin de la fonctionnalité
+d'emphase. Pour qu'ils compilent avec `NCOL=6`, on initialise `cols[EMPH]` à
+`display->black` dans leurs fonctions d'initialisation :
+
+- `src/cmd/samterm/flayer.c` : `flstart()` initialise `maincols[EMPH]` et `cmdcols[EMPH]`.
+- `src/cmd/9term/wind.c` : `wmk()` initialise `cols[EMPH]`.
+
+Comme ces programmes n'appellent jamais `frsetboxfont`, aucune boîte n'aura
+`font != nil`, donc `cols[EMPH]` ne sera jamais utilisé. L'initialisation à noir
+est purement défensive.
+
+### Documentation
+
+- `man/man1/acme.1` : ajout de l'option `-C colorspec` dans la section SYNOPSIS
+  et description du format dans la section OPTIONS.
+- Pas de changement dans `man/man4/acme.4` : la couleur est une option CLI, pas
+  un verbe `ctl`.
+
+### Pourquoi cette approche ?
+
+**Alternative envisagée** : passer la couleur d'emphase en paramètre aux fonctions
+de dessin. Rejeté car :
+- Plus invasif (changement de signature de fonctions publiques).
+- Moins cohérent avec l'architecture existante (`Frame.cols[]` centralise déjà
+  toutes les couleurs).
+
+**Choix retenu** : extension de `Frame.cols[]`. Avantages :
+- Cohérent avec le système de couleurs existant.
+- Minimal : une seule entrée ajoutée à l'enum, deux lignes de code dans les
+  fonctions de dessin.
+- Rétrocompatible : les programmes qui n'utilisent pas l'emphase initialisent
+  simplement le slot supplémentaire.
+
+---
+
 ## 6. Récapitulatif des difficultés rencontrées
 
 | Problème | Cause | Solution |
@@ -308,7 +448,7 @@ chemin de dessin se fait à la main en lançant `acme`.
 
 ## 8. Documentation
 
-- `man/man1/acme.1` : options `-e`/`-E` et commande `Emph`.
+- `man/man1/acme.1` : options `-e`/`-E` et commande `Emph`, option `-C` pour la couleur d'emphase.
 - `man/man4/acme.4` : verbes `ctl` `emph=` et `noemph`.
 
 La contrainte importante à connaître : la **police d'emphase doit avoir la même

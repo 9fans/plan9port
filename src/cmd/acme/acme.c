@@ -93,6 +93,11 @@ threadmain(int argc, char *argv[])
 		if(ncol <= 0)
 			goto Usage;
 		break;
+	case 'C':
+		emphcolorspec = ARGF();
+		if(emphcolorspec == nil)
+			goto Usage;
+		break;
 	case 'e':
 		fontnames[2] = ARGF();
 		if(fontnames[2] == nil)
@@ -133,7 +138,7 @@ threadmain(int argc, char *argv[])
 		break;
 	default:
 	Usage:
-		fprint(2, "usage: acme -a -c ncol -f font -F fixedwidth -e emphfont -E emphfixedwidthfont -l loadfile -W winsize\n");
+		fprint(2, "usage: acme -a -c ncol -C colorspec -f font -F fixedwidth -e emphfont -E emphfixedwidthfont -l loadfile -W winsize\n");
 		threadexitsall("usage");
 	}ARGEND
 
@@ -1057,6 +1062,8 @@ iconinit(void)
 	Image *tmp;
 
 	if(tagcols[BACK] == nil) {
+		ulong rgb;
+		
 		/* Blue */
 		tagcols[BACK] = allocimagemix(display, DPalebluegreen, DWhite);
 		tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPalegreygreen);
@@ -1070,6 +1077,15 @@ iconinit(void)
 		textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DYellowgreen);
 		textcols[TEXT] = display->black;
 		textcols[HTEXT] = display->black;
+
+		/* Emphasis color */
+		if(emphcolorspec && parsecolor(emphcolorspec, &rgb) == 0){
+			tagcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, rgb);
+			textcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, rgb);
+		}else{
+			tagcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x0000AAFF);
+			textcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x0000AAFF);
+		}
 	}
 
 	r = Rect(0, 0, Scrollwid, font->height+1);

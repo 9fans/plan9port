@@ -1726,6 +1726,15 @@ emphapplylocal(Window *w, uint q0, uint q1)
 		frredraw(&w->body.fr);
 }
 
+static char*
+emphfontname(Window *w)
+{
+	int fix;
+
+	fix = w != nil && strcmp(w->body.fr.font->name, fontnames[1]) == 0;
+	return fontnames[fix ? 3 : 2];
+}
+
 void
 setemph(Window *w, Rune *pat, int npat, int on)
 {
@@ -1751,10 +1760,11 @@ setemph(Window *w, Rune *pat, int npat, int on)
 		return;
 	}
 	if(w->emphfont == nil){
-		w->emphfont = rfget(0, FALSE, FALSE, fontnames[2]);
+		char *fn = emphfontname(w);
+		w->emphfont = rfget(0, FALSE, FALSE, fn);
 		if(w->emphfont == nil){
 			free(p);
-			warning(nil, "Emph: cannot load emphasis font %s\n", fontnames[2]);
+			warning(nil, "Emph: cannot load emphasis font %s\n", fn);
 			return;
 		}
 	}
@@ -1861,5 +1871,26 @@ emphfree(Window *w)
 		rfclose(w->emphfont);
 		w->emphfont = nil;
 	}
+}
+
+/* Reload the emphasis font to match the body font's mode (var/fixed). */
+void
+emphfontupdate(Window *w)
+{
+	char *fn;
+	Reffont *r;
+
+	if(w == nil || w->emphfont == nil)
+		return;
+	fn = emphfontname(w);
+	if(strcmp(w->emphfont->f->name, fn) == 0)
+		return;
+	r = rfget(0, FALSE, FALSE, fn);
+	if(r == nil)
+		return;
+	rfclose(w->emphfont);
+	w->emphfont = r;
+	emphapply(w);
+	frredraw(&w->body.fr);
 }
 

@@ -58,6 +58,7 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 		cols[BORD] = allocimage(display, Rect(0,0,1,1), CMAP8, 1, 0x999999FF);
 		cols[TEXT] = display->black;
 		cols[HTEXT] = display->black;
+		cols[EMPH] = display->black;
 		titlecol = allocimage(display, Rect(0,0,1,1), CMAP8, 1, DGreygreen);
 		lighttitlecol = allocimage(display, Rect(0,0,1,1), CMAP8, 1, DPalegreygreen);
 		holdcol = allocimage(display, Rect(0,0,1,1), CMAP8, 1, DMedblue);

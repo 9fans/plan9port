@@ -35,6 +35,7 @@ flstart(Rectangle r)
 	maincols[BORD] = allocimage(display, Rect(0,0,2,2), screen->chan, 1, DYellowgreen);
 	maincols[TEXT] = display->black;
 	maincols[HTEXT] = display->black;
+	maincols[EMPH] = display->black;
 
 	/* Command text is blueish */
 	cmdcols[BACK] = allocimagemix(display, DPalebluegreen, DWhite);
@@ -42,6 +43,7 @@ flstart(Rectangle r)
 	cmdcols[BORD] = allocimage(display, Rect(0,0,2,2), screen->chan, 1, DPurpleblue);
 	cmdcols[TEXT] = display->black;
 	cmdcols[HTEXT] = display->black;
+	cmdcols[EMPH] = display->black;
 }
 
 void

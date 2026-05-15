@@ -24,10 +24,11 @@ No automated test suite — verification is by running `acme` and exercising the
 CLI:
 
 ```
-acme [-a] [-c ncol] [-f varfont] [-F fixfont] [-e emphfont] [-E emphfixfont] [-l loadfile] [-W winsize] [file ...]
+acme [-a] [-c ncol] [-C colorspec] [-f varfont] [-F fixfont] [-e emphfont] [-E emphfixfont] [-l loadfile] [-W winsize] [file ...]
 ```
 
 `-e` / `-E` populate `fontnames[2]` / `fontnames[3]` and `$emphfont`; they supply the per-window emphasis font loaded on demand by the Emph feature.
+`-C` sets the foreground color for emphasized text (3 or 6 hex digits RGB, e.g., `82f` or `8822ff`); defaults to dark blue if unset.
 
 ## References — read the plan9port man pages
 
@@ -100,8 +101,9 @@ The emphasis feature is fully implemented. Summary of all touchpoints:
 - **ctl verbs** `emph=regex` / `noemph`: implemented in `xfidctlwrite` (`xfid.c`).
 - **User command** `Emph [regex]`: `LEmph` entry in `exectab[]` + `emph` handler (`exec.c`); toggles when called with no argument.
 - **Font/Emph coupling**: the emphasis font follows the body font mode (variable/fixed). `emphfontname` (`text.c`) picks `fontnames[2]` or `fontnames[3]`; `setemph` loads the right one, and `fontx` (the `Font` command) calls `emphfontupdate` so a `Font` toggle switches both body and emphasis fonts.
+- **Color**: `-C colorspec` sets emphasis foreground color (parsed by `parsecolor` in `util.c`). libframe extended with `EMPH` color slot (frame.h, NCOL=6); `_frdrawtext` and `frdrawsel0` (frdraw.c) use `cols[EMPH]` when `b->font != nil`. Backward-compatible: sam/samterm/9term initialize `cols[EMPH]` to black.
 - **Per-window state** in `dat.h` `Window`: `emphon`, `emphpat`/`nemphpat`, `emphmatch`/`nemphmatch`/`aemphmatch`, `emphfont`.
-- **Rendering**: extended via `libframe` — `Frbox.font`, macro `FRBOXFONT`, `frsetboxfont`; acme applies it through `emphapply` (`text.c`). libframe now supports per-range fonts natively.
+- **Rendering**: extended via `libframe` — `Frbox.font`, macro `FRBOXFONT`, `frsetboxfont`; acme applies it through `emphapply` (`text.c`). libframe now supports per-range fonts and colors natively.
 - **Range logic**: `emphranges.c`, tested under `tests/`.
 - **Documentation**: update `man/man4/acme.4` (ctl verbs) and `man/man1/acme.1` (command list) when changing this feature.
 

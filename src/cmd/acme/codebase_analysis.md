@@ -271,7 +271,7 @@ Column / Row     géométrie (cols.c, rows.c)
 
 La fonctionnalité d'emphase (`Emph`) est **implémentée et opérationnelle**.
 Elle met en évidence toutes les occurrences d'un regex dans le corps d'une
-fenêtre, en les rendant dans une police différente.
+fenêtre, en les rendant dans une police différente **et une couleur différente**.
 
 ### Polices
 
@@ -292,10 +292,26 @@ quand la commande `Font` bascule la police du corps.
 > que la police principale. La largeur des glyphes peut différer (les
 > lignes se recomposent), mais libframe suppose une hauteur uniforme.
 
+### Couleur d'emphase
+
+L'option `-C colorspec` (acme.c) définit la couleur de premier plan du texte
+emphasé. Le `colorspec` accepte 3 ou 6 chiffres hexadécimaux RGB :
+- 3 chiffres : chaque chiffre est doublé (ex: `82f` → `0x8822ffff`)
+- 6 chiffres : utilisé tel quel (ex: `8822ff` → `0x8822ffff`)
+
+Parsing via `parsecolor(char *spec, ulong *rgb)` (util.c). Si `-C` n'est pas
+fourni, la couleur par défaut est bleu foncé (`0x0000AAFF`).
+
+Les couleurs sont stockées dans `tagcols[EMPH]` et `textcols[EMPH]` (initialisées
+dans `iconinit()`, acme.c). libframe a été étendu avec un slot `EMPH` dans
+l'enum des couleurs (frame.h, NCOL passe de 5 à 6). Les fonctions de dessin
+`_frdrawtext()` et `frdrawsel0()` (frdraw.c) utilisent `f->cols[EMPH]` au lieu
+de `f->cols[TEXT]` lorsqu'une boîte a une police personnalisée (`b->font != nil`).
+
 ### Architecture en deux couches
 
 ```
-   COUCHE ACME (la politique : quoi emphaser)        -- text.c, emphranges.c
+   COUCHE ACME (la politique : quoi emphaser, quelle couleur)  -- text.c, emphranges.c
    ---------------------------------------------------------------
    commande Emph / ctl emph=        ->  setemph()
    emphmatch[] : liste triée des plages qui matchent le regex
@@ -306,8 +322,10 @@ quand la commande `Font` bascule la police du corps.
    COUCHE LIBFRAME (le mécanisme : rendre une boîte autrement)
    ---------------------------------------------------------------
    Frbox.font : police propre à la boîte (nil => police du frame)
+   Frame.cols[EMPH] : couleur de premier plan pour texte emphasé
    FRBOXFONT(f,b) : macro qui choisit la bonne police
    frsetboxfont() : affecte une police à une plage de boîtes
+   _frdrawtext() / frdrawsel0() : utilisent cols[EMPH] si b->font != nil
 ```
 
 ### État de l'emphase (couche acme)
@@ -339,7 +357,7 @@ quand la commande `Font` bascule la police du corps.
 - **Variables d'environnement notables** : `$PLAN9`, `$font`, `$emphfont`, `$acmeshell`, `$home`.
 - **Lancement** :
   ```
-  acme [-a] [-c ncol] [-f varfont] [-F fixfont] [-e emphfont] [-E emphfixfont]
+  acme [-a] [-c ncol] [-C colorspec] [-f varfont] [-F fixfont] [-e emphfont] [-E emphfixfont]
        [-l loadfile] [-W winsize] [file ...]
   ```
 - **Pas de CI/CD** : ni `.github/workflows`, ni Dockerfile, ni `.gitlab-ci.yml`. Build et test sont locaux.
@@ -398,7 +416,7 @@ quand la commande `Font` bascule la police du corps.
 - **Sécurité / robustesse** : code mature, usage intensif de pointeurs bruts et `emalloc` (qui aborte au lieu de retourner nil). Rester rigoureux sur la libération des `Rune*` lorsqu'on ajoute des champs `Window`.
 - **Concurrence** : tout passage par `xfidctlwrite` est sérialisé par `winlock` — bonne pratique pour tout nouveau verbe `/ctl`. Le handler `emph` ne verrouille **pas** : la sérialisation vient de l'appelant. Reprendre `winlock` y provoquerait un deadlock (`qlock` non réentrant — cf. § 11).
 - **Compatibilité Plan 9 amont** : la cible `likeplan9` du `mkfile` aligne ce fork via des `sed`. Toute extension locale (fontnames[2..3], `emphranges.c`, `Frbox.font`) divergera — surveiller avec `mk diffplan9`. Si on renomme un champ ciblé par les `sed` (`fcall`, `lk`, `b`, `fr`, `ref`, `m`, `u`, `u1`), mettre la règle à jour.
-- **Rétrocompatibilité libframe** : une boîte dont `font == nil` se comporte exactement comme avant ; `sam`, `samterm`, `9term` n'appellent jamais `frsetboxfont` et ne voient aucun changement.
+- **Rétrocompatibilité libframe** : une boîte dont `font == nil` se comporte exactement comme avant ; `sam`, `samterm`, `9term` n'appellent jamais `frsetboxfont` et ne voient aucun changement. Ces programmes initialisent `cols[EMPH]` à `display->black` pour compatibilité avec l'extension NCOL=6.
 - **Documentation** : les manpages `man/man1/acme.1` et `man/man4/acme.4` doivent être mises à jour à chaque ajout de commande utilisateur ou de verbe `/ctl`.
 - **Dépendance Dirtab** : ne pas casser l'ordre du `Dirtab` ni l'énumération `Q…`/`QW…` — les macros `QID` et `FILE` en dépendent.
 

@@ -243,6 +243,7 @@ void		emphshift(Window*, uint q, int delta);
 void		emphfree(Window*);
 void		emphapply(Window*);
 void		emphapplylocal(Window*, uint q0, uint q1);
+void		emphfontupdate(Window*);
 
 struct Window
 {
@@ -570,6 +571,7 @@ extern char			*objtype;
 extern char			*home;
 extern char			*acmeshell;
 extern char			*fontnames[4];
+extern char			*emphcolorspec;
 extern Image		*tagcols[NCOL];
 extern Image		*textcols[NCOL];
 extern char		wdir[]; /* must use extern because no dimension given */

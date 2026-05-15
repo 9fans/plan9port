@@ -15,6 +15,7 @@ enum{
 	BORD,
 	TEXT,
 	HTEXT,
+	EMPH,
 	NCOL
 };
 

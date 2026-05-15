@@ -9,11 +9,14 @@ _frdrawtext(Frame *f, Point pt, Image *text, Image *back)
 {
 	Frbox *b;
 	int nb;
+	Image *col;
 
 	for(nb=0,b=f->box; nb<f->nbox; nb++, b++){
 		_frcklinewrap(f, &pt, b);
-		if(!f->noredraw && b->nrune >= 0)
-			stringbg(f->b, pt, text, ZP, FRBOXFONT(f, b), (char*)b->ptr, back, ZP);
+		if(!f->noredraw && b->nrune >= 0){
+			col = (b->font != nil) ? f->cols[EMPH] : text;
+			stringbg(f->b, pt, col, ZP, FRBOXFONT(f, b), (char*)b->ptr, back, ZP);
+		}
 		pt.x += b->wid;
 	}
 }
@@ -62,6 +65,7 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 	Point qt;
 	uint p;
 	char *ptr;
+	Image *col;
 
 	if(p0 > p1)
 		sysfatal("libframe: frdrawsel0 p0=%lud > p1=%lud", p0, p1);
@@ -101,8 +105,10 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 		if(x > f->r.max.x)
 			x = f->r.max.x;
 		draw(f->b, Rect(pt.x, pt.y, x, pt.y+f->font->height), back, nil, pt);
-		if(b->nrune >= 0)
-			stringnbg(f->b, pt, text, ZP, FRBOXFONT(f, b), ptr, nr, back, ZP);
+		if(b->nrune >= 0){
+			col = (b->font != nil) ? f->cols[EMPH] : text;
+			stringnbg(f->b, pt, col, ZP, FRBOXFONT(f, b), ptr, nr, back, ZP);
+		}
 		pt.x += w;
 	    Continue:
 		b++;

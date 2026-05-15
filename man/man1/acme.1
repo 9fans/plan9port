@@ -23,6 +23,10 @@ acme, win, awd \- interactive text windows
 .I emphfixfont
 ]
 [
+.B -C
+.I colorspec
+]
+[
 .B -c
 .I ncol
 ]
@@ -99,6 +103,21 @@ If unset,
 .B Emph
 is unavailable.
 The emphasis font must share the same line height as the corresponding main font.
+.PP
+The
+.B -C
+option sets the foreground color for emphasized text.
+The
+.I colorspec
+is a 3-digit or 6-digit hexadecimal RGB value (e.g.,
+.B 82f
+or
+.BR 8822ff ).
+Three-digit values are expanded by doubling each digit
+.RB ( 82f
+becomes
+.BR 8822ff ).
+If unset, emphasized text is drawn in dark blue.
 .PP
 The
 .B -m

@@ -1395,6 +1395,7 @@ fontx(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 		}
 		/* avoid shrinking of window due to quantization */
 		colgrow(t->w->col, t->w, -1);
+		emphfontupdate(t->w);
 	}
 	free(file);
 	free(flag);
