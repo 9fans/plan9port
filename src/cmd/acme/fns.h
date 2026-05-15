@@ -60,6 +60,8 @@ void	put(Text*, Text*, Text*, int, int, Rune*, int);
 void	putfile(File*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	emphfontx(Text*, Text*, Text*, int, int, Rune*, int);
+int	emphbyext(Window*);
+void	emphauto(Window*);
 #undef isalnum
 #define isalnum acmeisalnum
 int	isalnum(Rune);

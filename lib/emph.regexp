@@ -1,0 +1,26 @@
+# Emph ^[a-z][a-z0-9]*
+
+flix=(^|[^a-zA-Z0-9_])(mod|import|def|if|else|run|let|val|match|case|pub|pub eff|pub def|eff|type|alias)([^a-zA-Z0-9_]|$)|(with handler)|(\|)
+eff=(^|[^a-zA-Z0-9_])(type|iter|if|else|run|let|match|finally|perform|effect|handler|with|in)([^a-zA-Z0-9_]|$)
+jl=(^|[^a-zA-Z0-9_])(function|end|if|elseif|else|for|while|return|struct|module|using|import|const|macro|begin|do|let|quote|where)([^a-zA-Z0-9_]|$)|(abstract type|primitive type|mutable struct)
+c=(^|[^a-zA-Z0-9_])(if|else|for|while|return|switch|case|break|continue|struct|typedef|static|const|void|int|char)([^a-zA-Z0-9_]|$)
+h=(^|[^a-zA-Z0-9_])(if|else|for|while|return|struct|typedef|static|const|void|int|char)([^a-zA-Z0-9_]|$)
+py=(^|[^a-zA-Z0-9_])(def|class|if|elif|else|for|while|return|import|from|with|try|except|raise|lambda|yield|async|await|pass|None|True|False)([^a-zA-Z0-9_]|$)
+rs=(^|[^a-zA-Z0-9_])(fn|let|mut|if|else|for|while|loop|match|return|struct|enum|impl|trait|pub|use|mod|const|static|where)([^a-zA-Z0-9_]|$)
+go=(^|[^a-zA-Z0-9_])(func|package|import|if|else|for|return|struct|interface|type|var|const|range|defer|go|chan|select|switch|case)([^a-zA-Z0-9_]|$)
+js=(^|[^a-zA-Z0-9_])(function|const|let|var|if|else|for|while|return|class|import|export|async|await|new|this)([^a-zA-Z0-9_]|$)|(=>)
+md=^#.*|\*\*[^*]*(\*[^*][^*]*)*\*\*
+sh=(^|[^a-zA-Z0-9_])(if|then|else|elif|fi|for|while|do|done|case|esac|function|return|local)([^a-zA-Z0-9_]|$)|#!/.*
+rc=(^|[^a-zA-Z0-9_])(if|else|for|while|fn|switch|case|in)([^a-zA-Z0-9_]|$)|[!~]|#!/.*
+hs=(^|[^a-zA-Z0-9_])(module|import|where|data|type|class|instance|let|in|case|of|do|if|then|else)([^a-zA-Z0-9_]|$)
+lua=(^|[^a-zA-Z0-9_])(function|local|if|then|else|elseif|end|for|while|do|return|nil|true|false)([^a-zA-Z0-9_]|$)
+scala=(^|[^a-zA-Z0-9_])(def|val|var|class|object|trait|extends|with|import|package|match|case|if|else|for|while|return|yield|new|this|super|sealed|abstract|override|implicit|lazy|final|type|forSome|throw|try|catch|finally|null|true|false)([^a-zA-Z0-9_]|$)|(=>|<-|<:|>:|#|@)
+cpp=(^|[^a-zA-Z0-9_])(if|else|for|while|do|return|switch|case|break|continue|struct|class|public|private|protected|virtual|override|final|static|const|constexpr|inline|explicit|namespace|using|template|typename|auto|void|int|char|bool|float|double|long|short|unsigned|signed|nullptr|true|false|new|delete|this|try|catch|throw|noexcept|operator|friend|extern|volatile|mutable|typedef|enum)([^a-zA-Z0-9_]|$)|(::)
+glsl=#[a-z][a-z]*|(^|[^a-zA-Z0-9_])(void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler2D|sampler3D|samplerCube|sampler2DShadow|struct|if|else|for|while|do|return|break|continue|discard|switch|case|default|in|out|inout|uniform|attribute|varying|layout|precision|lowp|mediump|highp|const|flat|smooth|centroid)([^a-zA-Z0-9_]|$)
+vert=#[a-z][a-z]*|(^|[^a-zA-Z0-9_])(void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler2D|sampler3D|samplerCube|sampler2DShadow|struct|if|else|for|while|do|return|break|continue|discard|switch|case|default|in|out|inout|uniform|attribute|varying|layout|precision|lowp|mediump|highp|const|flat|smooth|centroid)([^a-zA-Z0-9_]|$)
+frag=#[a-z][a-z]*|(^|[^a-zA-Z0-9_])(void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler2D|sampler3D|samplerCube|sampler2DShadow|struct|if|else|for|while|do|return|break|continue|discard|switch|case|default|in|out|inout|uniform|attribute|varying|layout|precision|lowp|mediump|highp|const|flat|smooth|centroid)([^a-zA-Z0-9_]|$)
+gd=(^|[^a-zA-Z0-9_])(func|var|const|if|elif|else|for|while|match|return|pass|break|continue|class|class_name|extends|is|in|and|or|not|null|true|false|self|super|signal|enum|static|onready|export|setget|yield|await|preload|load|new|as|tool|master|puppet|remotesync|remote|slave)([^a-zA-Z0-9_]|$)|(@[a-zA-Z_][a-zA-Z0-9_]*)
+tscn=(^\[([a-zA-Z_][a-zA-Z0-9_ ]*)\])|( [a-zA-Z_][a-zA-Z0-9_]* *=)
+godot=(^\[([a-zA-Z_][a-zA-Z0-9_ ]*)\])|( [a-zA-Z_][a-zA-Z0-9_]* *=)
+toml=(^\[+[a-zA-Z_][a-zA-Z0-9_.]*\]+)|(^[a-zA-Z_][a-zA-Z0-9_.]*( *=))
+desktop=(^\[[a-zA-Z][a-zA-Z0-9 -]*\])|(^[A-Za-z][A-Za-z0-9-]*( *=))

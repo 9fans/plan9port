@@ -327,6 +327,7 @@ readfile(Column *c, char *s)
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
 	xfidlog(w, "new");
+	emphauto(w);
 }
 
 char *ignotes[] = {

@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <bio.h>
 #include <draw.h>
 #include <thread.h>
 #include <cursor.h>
@@ -1927,5 +1928,111 @@ emphfontupdate(Window *w)
 	if(w->emphfontpath != nil)
 		return; /* pinned font: do not auto-switch on body font change */
 	winensureemphfont(w);
+}
+
+static Rune*
+fileext(Rune *name, int nname, int *plen)
+{
+	int i, j;
+
+	j = -1;
+	for(i = 0; i < nname; i++){
+		if(name[i] == '/')
+			j = -1;
+		else if(name[i] == '.')
+			j = i;
+	}
+	if(j >= 0){
+		*plen = nname - j - 1;
+		return name + j + 1;
+	}
+	*plen = 0;
+	return nil;
+}
+
+static Rune*
+emphpattern(char *ext)
+{
+	Biobuf *b;
+	char *home, *plan9, *path, *line, *start;
+	int extlen, patlen, i, linelen, nb, nr;
+	Rune *pat;
+
+	extlen = strlen(ext);
+	plan9 = getenv("PLAN9");
+	home = getenv("HOME");
+
+	for(i = 0; i < 2; i++){
+		if(i == 0){
+			if(plan9 == nil)
+				continue;
+			path = smprint("%s/lib/emph.regexp", plan9);
+		}else{
+			if(home == nil)
+				continue;
+			path = smprint("%s/lib/emph.regexp", home);
+		}
+
+		b = Bopen(path, OREAD);
+		free(path);
+		if(b == nil)
+			continue;
+
+		while((line = Brdline(b, '\n')) != nil){
+			linelen = Blinelen(b);
+			if(linelen > 0)
+				line[linelen-1] = 0;
+			if(line[0] == ext[0] && strncmp(line, ext, extlen) == 0 && line[extlen] == '='){
+				start = line + extlen + 1;
+				patlen = strlen(start);
+				pat = runemalloc(patlen + 1);
+				cvttorunes(start, patlen, pat, &nb, &nr, nil);
+				Bterm(b);
+				return pat;
+			}
+		}
+		Bterm(b);
+	}
+	return nil;
+}
+
+int
+emphbyext(Window *w)
+{
+	Rune *ext, *pat;
+	char *extstr;
+	int extlen, patlen, i;
+
+	if(w == nil || w->body.file == nil)
+		return 0;
+	ext = fileext(w->body.file->name, w->body.file->nname, &extlen);
+	if(ext == nil || extlen == 0)
+		return 0;
+
+	extstr = emalloc(extlen + 1);
+	for(i = 0; i < extlen; i++)
+		extstr[i] = ext[i];
+	extstr[extlen] = 0;
+
+	pat = emphpattern(extstr);
+	free(extstr);
+
+	if(pat == nil)
+		return 0;
+
+	patlen = runestrlen(pat);
+	setemph(w, pat, patlen, TRUE);
+	free(pat);
+	return 1;
+}
+
+void
+emphauto(Window *w)
+{
+	if(w == nil || !autoemph)
+		return;
+	if(w->emphon || w->emphpat != nil)
+		return;
+	emphbyext(w);
 }
 

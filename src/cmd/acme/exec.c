@@ -40,6 +40,10 @@ void	dump(Text*, Text*, Text*, int, int, Rune*, int);
 void	edit(Text*, Text*, Text*, int, int, Rune*, int);
 void	emph(Text*, Text*, Text*, int, int, Rune*, int);
 void	emphfontx(Text*, Text*, Text*, int, int, Rune*, int);
+void	emphall(Text*, Text*, Text*, int, int, Rune*, int);
+void	emphme(Text*, Text*, Text*, int, int, Rune*, int);
+void	emphnone(Text*, Text*, Text*, int, int, Rune*, int);
+void	autoemphx(Text*, Text*, Text*, int, int, Rune*, int);
 void	xexit(Text*, Text*, Text*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	get(Text*, Text*, Text*, int, int, Rune*, int);
@@ -69,6 +73,7 @@ struct Exectab
 };
 
 static Rune LAbort[] = { 'A', 'b', 'o', 'r', 't', 0 };
+static Rune LAutoEmph[] = { 'A', 'u', 't', 'o', 'E', 'm', 'p', 'h', 0 };
 static Rune LCut[] = { 'C', 'u', 't', 0 };
 static Rune LDel[] = { 'D', 'e', 'l', 0 };
 static Rune LDelcol[] = { 'D', 'e', 'l', 'c', 'o', 'l', 0 };
@@ -76,7 +81,10 @@ static Rune LDelete[] = { 'D', 'e', 'l', 'e', 't', 'e', 0 };
 static Rune LDump[] = { 'D', 'u', 'm', 'p', 0 };
 static Rune LEdit[] = { 'E', 'd', 'i', 't', 0 };
 static Rune LEmph[] = { 'E', 'm', 'p', 'h', 0 };
+static Rune LEmphAll[] = { 'E', 'm', 'p', 'h', 'A', 'l', 'l', 0 };
 static Rune LEmphFont[] = { 'E', 'm', 'p', 'h', 'F', 'o', 'n', 't', 0 };
+static Rune LEmphMe[] = { 'E', 'm', 'p', 'h', 'M', 'e', 0 };
+static Rune LEmphNone[] = { 'E', 'm', 'p', 'h', 'N', 'o', 'n', 'e', 0 };
 static Rune LExit[] = { 'E', 'x', 'i', 't', 0 };
 static Rune LFont[] = { 'F', 'o', 'n', 't', 0 };
 static Rune LGet[] = { 'G', 'e', 't', 0 };
@@ -102,6 +110,7 @@ static Rune LZerox[] = { 'Z', 'e', 'r', 'o', 'x', 0 };
 
 Exectab exectab[] = {
 	{ LAbort,		doabort,	FALSE,	XXX,		XXX,		},
+	{ LAutoEmph,	autoemphx,	FALSE,	XXX,		XXX		},
 	{ LCut,		cut,		TRUE,	TRUE,	TRUE	},
 	{ LDel,		del,		FALSE,	FALSE,	XXX		},
 	{ LDelcol,		delcol,	FALSE,	XXX,		XXX		},
@@ -109,7 +118,10 @@ Exectab exectab[] = {
 	{ LDump,		dump,	FALSE,	TRUE,	XXX		},
 	{ LEdit,		edit,		FALSE,	XXX,		XXX		},
 	{ LEmph,		emph,		FALSE,	XXX,		XXX		},
+	{ LEmphAll,	emphall,	FALSE,	XXX,		XXX		},
 	{ LEmphFont,	emphfontx,	FALSE,	XXX,		XXX		},
+	{ LEmphMe,	emphme,		FALSE,	XXX,		XXX		},
+	{ LEmphNone,	emphnone,	FALSE,	XXX,		XXX		},
 	{ LExit,		xexit,	FALSE,	XXX,		XXX		},
 	{ LFont,		fontx,	FALSE,	XXX,		XXX		},
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
@@ -677,6 +689,7 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	}
 	free(addr);
 	xfidlog(w, "get");
+	emphauto(w);
 }
 
 static void
@@ -1190,6 +1203,87 @@ emphfontx(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 		emphapply(w);
 		frredraw(&w->body.fr);
 	}
+}
+
+void
+emphme(Text *et, Text *t, Text *_0, int _1, int _2, Rune *_3, int _4)
+{
+	USED(_0);
+	USED(_1);
+	USED(_2);
+	USED(_3);
+	USED(_4);
+	USED(t);
+
+	if(et == nil || et->w == nil)
+		return;
+	if(!emphbyext(et->w))
+		warning(nil, "no pattern for this file\n");
+}
+
+void
+emphall(Text *et, Text *t, Text *_0, int _1, int _2, Rune *_3, int _4)
+{
+	int i, j;
+	Column *c;
+	Window *w;
+
+	USED(et);
+	USED(t);
+	USED(_0);
+	USED(_1);
+	USED(_2);
+	USED(_3);
+	USED(_4);
+
+	for(i = 0; i < row.ncol; i++){
+		c = row.col[i];
+		for(j = 0; j < c->nw; j++){
+			w = c->w[j];
+			if(w->isdir || w->isscratch || w->body.file->nname == 0)
+				continue;
+			emphbyext(w);
+		}
+	}
+}
+
+void
+emphnone(Text *et, Text *t, Text *_0, int _1, int _2, Rune *_3, int _4)
+{
+	int i, j;
+	Column *c;
+	Window *w;
+
+	USED(et);
+	USED(t);
+	USED(_0);
+	USED(_1);
+	USED(_2);
+	USED(_3);
+	USED(_4);
+
+	for(i = 0; i < row.ncol; i++){
+		c = row.col[i];
+		for(j = 0; j < c->nw; j++){
+			w = c->w[j];
+			setemph(w, nil, 0, FALSE);
+		}
+	}
+}
+
+void
+autoemphx(Text *et, Text *t, Text *_0, int _1, int _2, Rune *_3, int _4)
+{
+	USED(et);
+	USED(t);
+	USED(_0);
+	USED(_1);
+	USED(_2);
+	USED(_3);
+	USED(_4);
+
+	autoemph = !autoemph;
+	warning(nil, "AutoEmph %s\n", autoemph ? "on" : "off");
 }
 
 static Rune Lnl[] = { '\n', 0 };

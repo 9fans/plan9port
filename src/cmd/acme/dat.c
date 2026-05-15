@@ -45,6 +45,7 @@ char			*emphcolorspec;
 extern char		wdir[]; /* must use extern because no dimension given */
 int			globalautoindent;
 int			dodollarsigns;
+int			autoemph;
 
 Channel	*cplumb;		/* chan(Plumbmsg*) */
 Channel	*cwait;		/* chan(Waitmsg) */

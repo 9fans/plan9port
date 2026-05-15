@@ -470,6 +470,8 @@ rowdump1(Row *row, Biobuf *b)
 	}
 	fbuffree(r);
 	fbuffree(buf);
+	if(autoemph)
+		Bprint(b, "A %d\n", autoemph);
 }
 
 void
@@ -765,7 +767,7 @@ rowload(Row *row, char *file, int initing)
 			goto Nextline;
 		case 'A':
 			l[Blinelen(b)-1] = 0;
-			/* Phase 4 will add: autoemph = atoi(l+2); */
+			autoemph = atoi(l+2);
 			goto Nextline;
 		default:
 			goto Rescue2;

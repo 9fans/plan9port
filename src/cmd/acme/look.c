@@ -308,6 +308,7 @@ plumbshow(Plumbmsg *m)
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
 	xfidlog(w, "new");
+	emphauto(w);
 }
 
 int
@@ -873,6 +874,7 @@ openfile(Text *t, Expand *e)
 		}else
 			w->autoindent = globalautoindent;
 		xfidlog(w, "new");
+		emphauto(w);
 	}
 	if(e->a1 == e->a0)
 		eval = FALSE;

@@ -55,3 +55,6 @@ likeplan9:V:
 diffplan9:V:
 	mk likeplan9
 	9 diff -n plan9 likeplan9 | sed 's;likeplan9/;;'
+
+clean:V:
+	rm -rf likeplan9
