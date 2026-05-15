@@ -231,6 +231,23 @@ Set the command string to recreate the window from a dump file.
 .BI dumpdir " directory
 Set the directory in which to run the command to recreate the window from a dump file.
 .TP
+.BI emph= regex
+Set and activate the emphasis regular expression.
+Subsequent matches in the body are rendered with the emphasis font
+.RB ( -e
+variable or
+.B -E
+fixed).
+Setting an invalid regex is an error.
+.TP
+.B noemph
+Deactivate emphasis rendering.
+The regex is retained; sending
+.B emph=
+with the same regex or running
+.B Emph
+with no argument re-enables it.
+.TP
 .B get
 Equivalent to the
 .B Get

@@ -15,6 +15,14 @@ acme, win, awd \- interactive text windows
 .I fixfont
 ]
 [
+.B -e
+.I emphfont
+]
+[
+.B -E
+.I emphfixfont
+]
+[
 .B -c
 .I ncol
 ]
@@ -80,6 +88,17 @@ the default is
 Tab intervals are set to the width of 4 (or the value of
 .BR $tabstop )
 numeral zeros in the appropriate font.
+.PP
+The
+.B -e
+.RB ( -E )
+option sets the emphasis font used by the
+.B Emph
+command, usually variable-pitch (alternate, usually fixed-pitch).
+If unset,
+.B Emph
+is unavailable.
+The emphasis font must share the same line height as the corresponding main font.
 .PP
 The
 .B -m
@@ -328,6 +347,22 @@ command would be typed in a tag; longer commands may be prepared in a
 scratch window and executed, with
 .B Edit
 itself in the current window, using the 2-1 chord described below.
+.TP
+.B Emph
+With an argument, treat the argument as a regular expression (as in
+.MR sam 1 )
+and emphasize all matches in the body of the window using the emphasis font
+(see
+.B -e
+and
+.B -E
+in the SYNOPSIS).
+Without arguments, toggle the most recently set emphasis on or off.
+A 2-1 chord supplies the argument.
+Setting an invalid regular expression prints a diagnostic.
+.B Emph
+requires the emphasis font to share the same line height as the main font;
+glyph width may differ and lines will reflow accordingly.
 .TP
 .B Exit
 Exit
