@@ -402,6 +402,149 @@ de dessin. Rejeté car :
 
 ---
 
+## 5.2. Extension : hauteur de ligne variable (Phase 1, 2026-05-15)
+
+Jusqu'à la Phase 1, libframe supposait que toutes les boîtes d'un frame ont la
+même hauteur — celle de `f->font`. Avec une police d'emphase de hauteur différente,
+ce supposé était violé, produisant des lignes trop courtes, une mauvaise détection
+de clic, et un curseur de saisie trop petit.
+
+### Nouveaux champs dans `Frame`
+
+```c
+int  lineheight;   /* hauteur de ligne effective (>= font->height) */
+int  ascent;       /* distance haut-de-ligne -> baseline */
+```
+
+`frinit` initialise ces champs à `ft->height` et `ft->ascent`. Tous les calculs
+de hauteur dans libframe utilisent désormais `f->lineheight` à la place de
+`f->font->height`.
+
+### Macro `FRBOXDY`
+
+```c
+#define FRBOXDY(f,b)  ((f)->ascent - FRBOXFONT(f,b)->ascent)
+```
+
+Cette macro calcule le décalage vertical pour aligner le texte d'une boîte sur la
+baseline commune du frame. Pour une boîte standard (`b->font == nil`) avec une
+police de même ascent que le frame, `FRBOXDY` vaut 0 — comportement identique à
+l'existant (rétrocompatibilité `sam`/`samterm`/`9term`).
+
+### Côté acme : `emphsetmetrics`
+
+Appelé juste après `frinit` dans `textredraw`, ce helper calcule
+`max(font->height, emphfont->height)` et `max(font->ascent, emphfont->ascent)`
+et met à jour `fr.lineheight` / `fr.ascent`. Il requantifie ensuite `fr.r.max.y`
+et `fr.maxlines` à partir de `fr.entire` (non quantifié par `frsetrects`), puis
+appelle `frinittick` pour redimensionner le curseur.
+
+**Décision de conception** : la hauteur de ligne d'un body est fixée dès que la
+fenêtre possède une police d'emphase chargée, indépendamment de `emphon`. Activer
+ou désactiver l'emphase ne provoque pas de recomposition — seul le chargement ou
+le changement de police d'emphase le fait (via `winresize` dans `winensureemphfont`).
+
+---
+
+## 5.3. Commande `EmphFont` + fichier 9P `nctl` (Phase 2, 2026-05-15)
+
+### Champ `Window.emphfontpath`
+
+Nouveau champ `char *emphfontpath` dans `struct Window` : chemin de la police
+d'emphase épinglée par `EmphFont`. Nil = choix automatique selon `emphfontname`.
+
+### `winensureemphfont`
+
+Centralise l'acquisition de la police d'emphase : choisit `emphfontpath` s'il est
+non-nil, sinon `emphfontname(w)`. Si la police change (nouvelle hauteur possible),
+appelle `rfclose` puis `winresize(w, w->r, FALSE, TRUE)` pour recomposer.
+
+### Commande `EmphFont` (`exec.c`)
+
+Enregistrée dans `exectab[]` (entre `Emph` et `Exit`). Handler `emphfontx` :
+argument direct ou chord 2-1, stocke le chemin dans `w->emphfontpath`, appelle
+`winensureemphfont`, puis ré-applique l'emphase. Sans argument : reset au choix
+automatique.
+
+### Fichier 9P `nctl`
+
+Nouveau fichier par fenêtre dans `dirtabw[]` (QWnctl, entre `event` et `rdsel`).
+
+- **Lecture** : renvoie le nom de la police d'emphase courante + `\n`, ou `\n`
+  seul si aucune police n'est chargée.
+- **Écriture** : verbes `emphfont <path>`, `emphfont` (reset), `emph=<regex>`,
+  `noemph`. Traités par `xfidnctlwrite`.
+
+Les verbes `emph=` et `noemph` ont été **retirés de `ctl`** pour que `ctl` reste
+strictement standard. Toute écriture d'emphase doit désormais passer par `nctl`.
+
+---
+
+## 5.4. Persistance dump/load (Phase 3, 2026-05-15)
+
+### Bloc emphase `m` par fenêtre
+
+`rowdump1` émet, après le bloc corps/dumpstr de chaque fenêtre, trois lignes
+supplémentaires si la fenêtre a une emphase active :
+
+```
+m <emphon>
+<emphfontpath ou ligne vide>
+<emphpat en UTF ou ligne vide>
+```
+
+`rowload` reconnaît `case 'm'` dans son `switch(l[0])` et restaure `emphfontpath`,
+appelle `winensureemphfont`, puis `setemph`. Rétrocompatible : un dump sans ligne
+`m` est chargé normalement.
+
+### Ligne `A` globale
+
+`rowdump1` émet `A <autoemph>` en toute fin de fichier si `autoemph != 0`.
+`rowload case 'A'` restaure `autoemph = atoi(l+2)`.
+
+---
+
+## 5.5. `lib/emph.regexp` + `EmphMe`/`EmphAll`/`EmphNone`/`AutoEmph` (Phase 4, 2026-05-15)
+
+### `lib/emph.regexp`
+
+Fichier `$PLAN9/lib/emph.regexp` (ou `$HOME/lib/emph.regexp` en repli) : une
+ligne `ext=motif` par extension de fichier reconnue (13 langages initiaux : flix,
+jl, c, h, py, rs, go, js, md, sh, rc, hs, lua).
+
+### Fonctions de logique commune (`text.c`)
+
+- `fileext(Rune *name, int nname, int *plen)` : extrait l'extension après le
+  dernier `.` situé après le dernier `/`.
+- `emphpattern(char *ext)` : ouvre `lib/emph.regexp`, cherche `ext=...`, renvoie
+  le motif en runes.
+- `emphbyext(Window *w)` : combine les deux, appelle `setemph` si le motif est
+  trouvé.
+- `emphauto(Window *w)` : appelle `emphbyext` si `autoemph && !w->emphon &&
+  w->emphpat == nil`.
+
+### Nouvelles commandes (`exec.c`)
+
+| Commande | Comportement |
+|---|---|
+| `EmphMe` | `emphbyext` sur la fenêtre courante |
+| `EmphAll` | `emphbyext` sur toutes les fenêtres non-scratch |
+| `EmphNone` | `setemph(w, nil, 0, FALSE)` sur toutes les fenêtres |
+| `AutoEmph` | bascule `autoemph` (global), affiche l'état |
+
+### Hook `emphauto`
+
+Appelé à la fin de `get()` (`exec.c`) et dans les trois entonnoirs d'ouverture de
+fichier : `readfile()` (`acme.c`), `plumbshow()` et `openfile()` (`look.c`).
+`AutoEmph` s'applique donc à l'ouverture CLI, plumb, `New`, et `Get`.
+
+### Variable globale `autoemph`
+
+`int autoemph;` défini dans `dat.c`, déclaré `extern` dans `dat.h`. Persisté par
+le dump (ligne `A`, voir § 5.4).
+
+---
+
 ## 6. Récapitulatif des difficultés rencontrées
 
 | Problème | Cause | Solution |
@@ -448,10 +591,11 @@ chemin de dessin se fait à la main en lançant `acme`.
 
 ## 8. Documentation
 
-- `man/man1/acme.1` : options `-e`/`-E` et commande `Emph`, option `-C` pour la couleur d'emphase.
-- `man/man4/acme.4` : verbes `ctl` `emph=` et `noemph`.
-
-La contrainte importante à connaître : la **police d'emphase doit avoir la même
-hauteur de ligne** que la police principale. La largeur des glyphes peut différer
-(les lignes se recomposent en conséquence), mais pas la hauteur — libframe suppose
-une hauteur de ligne uniforme dans tout le frame.
+- `man/man1/acme.1` : options `-e`/`-E` (sans restriction de hauteur), option
+  `-C`, commandes `Emph`, `EmphAll`, `EmphFont`, `EmphMe`, `EmphNone`, `AutoEmph`.
+  Fichier `$PLAN9/lib/emph.regexp` dans la section FILES.
+- `man/man4/acme.4` : fichier `nctl` (verbes `emphfont path`, `emphfont`, `emph=`,
+  `noemph` ; lecture = police courante). Les verbes `emph=`/`noemph` ont été
+  **retirés de `ctl`** pour garder `ctl` strictement standard.
+- `man/man3/frame.3` : champs `lineheight` et `ascent` de `Frame`, sémantique de
+  hauteur variable, slot `EMPH` dans l'enum `cols[]` (NCOL = 6).

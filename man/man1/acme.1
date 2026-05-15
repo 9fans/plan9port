@@ -96,13 +96,15 @@ numeral zeros in the appropriate font.
 The
 .B -e
 .RB ( -E )
-option sets the emphasis font used by the
+option sets the default emphasis font used by the
 .B Emph
 command, usually variable-pitch (alternate, usually fixed-pitch).
 If unset,
 .B Emph
-is unavailable.
-The emphasis font must share the same line height as the corresponding main font.
+is unavailable unless an emphasis font is set per-window with
+.BR EmphFont .
+The body line height adjusts to the taller of the two fonts;
+enabling or disabling emphasis does not change the line height.
 .PP
 The
 .B -C
@@ -320,6 +322,16 @@ Some commands, all by convention starting with a capital letter, are
 that are executed directly by
 .IR acme :
 .TP
+.B AutoEmph
+Toggle automatic emphasis mode.
+When on, any file opened or loaded is automatically emphasized
+using the pattern from
+.B $PLAN9/lib/emph.regexp
+matched to the file's extension.
+Use
+.B EmphAll
+to apply emphasis retroactively to already-open windows.
+.TP
 .B Cut
 Delete most recently selected text and place in snarf buffer.
 .TP
@@ -379,9 +391,32 @@ in the SYNOPSIS).
 Without arguments, toggle the most recently set emphasis on or off.
 A 2-1 chord supplies the argument.
 Setting an invalid regular expression prints a diagnostic.
-.B Emph
-requires the emphasis font to share the same line height as the main font;
-glyph width may differ and lines will reflow accordingly.
+Glyph width may differ between the main and emphasis fonts; lines reflow accordingly.
+.TP
+.B EmphAll
+Apply emphasis to all non-scratch windows according to the patterns in
+.BR $PLAN9/lib/emph.regexp ,
+matched by each window's file extension.
+Windows with an unrecognized extension are left unchanged.
+.TP
+.B EmphFont
+With a file-name argument, set the emphasis font for this window,
+overriding the global default set by
+.B -e
+or
+.BR -E .
+Without an argument, reset to the global default.
+A 2-1 chord supplies the argument.
+The body line height adjusts automatically.
+.TP
+.B EmphMe
+Emphasize the current window using the pattern from
+.B $PLAN9/lib/emph.regexp
+for the window's file extension.
+Prints a warning if no pattern is found.
+.TP
+.B EmphNone
+Deactivate and clear emphasis from all windows.
 .TP
 .B Exit
 Exit
@@ -814,6 +849,25 @@ and
 also where state is written if
 .I acme
 dies or is killed unexpectedly, e.g. by deleting its window.
+.TP
+.B $PLAN9/lib/emph.regexp
+patterns used by
+.BR EmphMe ,
+.BR EmphAll ,
+and
+.BR AutoEmph ,
+indexed by file extension.
+Format: one
+.BI ext = pattern
+line per extension, where
+.I pattern
+is a regular expression in the style of
+.MR sam 1 .
+A user-local copy at
+.B $HOME/lib/emph.regexp
+takes precedence if
+.B $PLAN9
+is unset.
 .TP
 .B /acme/*/guide
 template files for applications

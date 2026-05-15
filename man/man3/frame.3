@@ -66,6 +66,7 @@ enum{
 	BORD,
 	TEXT,
 	HTEXT,
+	EMPH,
 	NCOL
 };
 .fi
@@ -90,6 +91,8 @@ typedef struct Frame Frame;
 struct Frame
 {
 	Font	*font;		/* of chars in the frame */
+	int	lineheight;	/* line height (>= font->height) */
+	int	ascent;		/* font ascent from top of line */
 	Display	*display;	/* on which frame appears */
 	Image	*b;		/* on which frame appears */
 	Image	*cols[NCOL];	/* text and background colors */
@@ -200,8 +203,31 @@ borders and scroll bar in
 .BR cols[BORD] ;
 regular text in
 .BR cols[TEXT] ;
-and highlighted text in
-.BR cols[HTEXT] .
+highlighted text in
+.BR cols[HTEXT] ;
+and text in boxes with a per-box font (set via
+.IR frsetboxfont )
+in
+.BR cols[EMPH] .
+.PP
+.I Lineheight
+is the height in pixels of each text line in the frame;
+it is initialized by
+.I frinit
+to
+.IB ft ->height
+and may be increased (but not decreased) by the application before text is
+inserted, for example to accommodate a second font taller than the frame font.
+.I Ascent
+is the distance in pixels from the top of a line to the baseline;
+it governs vertical alignment when boxes of different fonts share a line.
+Both fields are maintained automatically by
+.I frinit
+and
+.IR frsetrects ;
+applications that change them must call
+.I frinittick
+afterwards to resize the typing cursor.
 .PP
 .I Frclear
 frees the internal structures associated with

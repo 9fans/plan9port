@@ -111,9 +111,9 @@ viennent de `$PLAN9/include`.
 ### Cœur applicatif
 
 - **`acme.c`** (1176 lignes) : `threadmain`, parsing CLI (`-f` police variable, `-F` chasse fixe, `-e`/`-E` polices d'emphase), `fontnames[4]` global, démarrage des threads, boucle principale d'événements. Fournit `rfget(int fix, int save, int setfont, char *name)` (~ligne 899) — cache de `Reffont` par nom, avec comptage de références.
-- **`fsys.c`** (749 lignes) : serveur 9P d'acme. Définit le `Dirtab` (table des fichiers virtuels : `cons`, `index`, `log`, `new`, et par fenêtre `addr`/`body`/`ctl`/`data`/`event`/`tag`/`xdata`/...). Énumération `Q…`/`QW…` au sommet de `dat.h`.
-- **`xfid.c`** (1171 lignes) : implémentation des opérations 9P côté serveur. **Crochet `/ctl`** : `xfidctlwrite` gère les verbes `clean`, `dirty`, `show`, `name X`, `font X`, `del`, `get`, `put`, `dot=addr`, `addr=dot`, `limit=addr`, `nomark`, `mark`, `cleartag`, `dumpdir`, `dump`, plus **`emph=REGEX`** (xfid.c:799) et **`noemph`** (xfid.c:818). Tout `xfidctlwrite` tourne sous `winlock(w, 'F')`.
-- **`exec.c`** (1870 lignes) : table `exectab[]` des commandes acme (Cut, Paste, Del, Edit, Font, Get, Put, Look, Send, Sort, Tab, Undo, Zerox, ...). Dispatch `execute()` qui mappe un nom de commande vers un handler `void f(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)`. Entrée `LEmph` (exec.c:77/109) et handler `emph` (exec.c:1110). Le handler `get` rejoue `emphrecompute`+`emphapply` (exec.c:670) pour préserver l'emphase après un rechargement disque ; le handler `fontx` (commande `Font`) appelle `emphfontupdate` pour basculer aussi la police d'emphase.
+- **`fsys.c`** (749 lignes) : serveur 9P d'acme. Définit le `Dirtab` (table des fichiers virtuels : `cons`, `index`, `log`, `new`, et par fenêtre `addr`/`body`/`ctl`/`nctl`/`data`/`event`/`tag`/`xdata`/...). Énumération `Q…`/`QW…` au sommet de `dat.h`.
+- **`xfid.c`** (1171 lignes) : implémentation des opérations 9P côté serveur. **Crochet `/ctl`** : `xfidctlwrite` gère les verbes `clean`, `dirty`, `show`, `name X`, `font X`, `del`, `get`, `put`, `dot=addr`, `addr=dot`, `limit=addr`, `nomark`, `mark`, `cleartag`, `dumpdir`, `dump`. Tout `xfidctlwrite` tourne sous `winlock(w, 'F')`. **Crochet `/nctl`** : `xfidnctlwrite` gère les verbes d'emphase `emph=REGEX`, `noemph`, `emphfont <path>`, `emphfont` ; la lecture de `nctl` renvoie le nom de la police d'emphase courante.
+- **`exec.c`** (1870 lignes) : table `exectab[]` des commandes acme (Cut, Paste, Del, Edit, Font, Get, Put, Look, Send, Sort, Tab, Undo, Zerox, ...). Dispatch `execute()` qui mappe un nom de commande vers un handler `void f(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)`. Commandes d'emphase : `LEmph`/`emph`, `LEmphFont`/`emphfontx`, `LEmphMe`/`emphme`, `LEmphAll`/`emphall`, `LEmphNone`/`emphnone`, `LAutoEmph`/`autoemphx`. Le handler `get` rejoue `emphrecompute`+`emphapply`+`emphauto` ; le handler `fontx` (commande `Font`) appelle `emphfontupdate`.
 - **`wind.c`** (733 lignes) : cycle de vie d'une `Window`. `wininit` initialise les champs Emph à zéro/`nil` (wind.c:84-89) ; `winclose` appelle `emphfree` (wind.c:334).
 - **`text.c`** (1865 lignes) : couche `Text` (Frame libframe + buffer) — rendu, sélection, insertion (`textinsert`), suppression (`textdelete`), double-clic, fill, redraw. Contient tout le **pipeline de politique d'emphase** (cf. § 6).
 - **`cols.c`** (591 lignes), **`rows.c`** (857 lignes) : géométrie (colonnes / lignes de fenêtres) — drag, resize, drop.
@@ -121,7 +121,7 @@ viennent de `$PLAN9/include`.
 
 ### Données et buffers
 
-- **`dat.h`** (605 lignes) : structures centrales — `Buffer`, `Block`, `File`, `Elog`, `Text`, `Window`, `Column`, `Row`, `Reffont`, `Range`, `Rangeset`, `Dirtab`, `Fid`, `Xfid`, `Command`, `Mntdir`, `Timer`, `Expand`. Déclare `fontnames[4]`, les channels globaux, et les prototypes des fonctions d'emphase (dat.h:232-245). **`Window`** porte 7 champs d'emphase (dat.h:267-274) : `emphon`, `emphpat`/`nemphpat`, `emphmatch`/`nemphmatch`/`aemphmatch`, `emphfont`.
+- **`dat.h`** (605 lignes) : structures centrales — `Buffer`, `Block`, `File`, `Elog`, `Text`, `Window`, `Column`, `Row`, `Reffont`, `Range`, `Rangeset`, `Dirtab`, `Fid`, `Xfid`, `Command`, `Mntdir`, `Timer`, `Expand`. Déclare `fontnames[4]`, les channels globaux, et les prototypes des fonctions d'emphase. **`Window`** porte 8 champs d'emphase : `emphon`, `emphpat`/`nemphpat`, `emphmatch`/`nemphmatch`/`aemphmatch`, `emphfont`, `emphfontpath`. Variable globale `autoemph` (int, définie dans dat.c) : active l'auto-emphase à l'ouverture de fichier.
 - **`dat.c`** (62 lignes) : définitions/instances des variables globales.
 - **`buff.c`** (325 lignes) : `Buffer` (insertion/suppression de runes, pagination disque via `Block`).
 - **`disk.c`** (133 lignes) : stockage temporaire des blocs sur disque.
@@ -185,7 +185,8 @@ fichiers globaux et par fenêtre sous `/mnt/acme` :
 | `<id>/tag`   | barre de tag |
 | `<id>/data`  | accès aléatoire au corps, indexé par `addr` |
 | `<id>/xdata` | comme `data`, lecture bornée à fin d'`addr` |
-| `<id>/ctl`   | lecture : 10 entiers + nom de police ; écriture : messages texte (`dot=addr`, `clean`, `name X`, `font X`, **`emph=REGEX`**, **`noemph`**, ...) |
+| `<id>/ctl`   | lecture : 10 entiers + nom de police ; écriture : messages texte (`dot=addr`, `clean`, `name X`, `font X`, ...) |
+| `<id>/nctl`  | emphase par fenêtre : écriture : `emph=REGEX`, `noemph`, `emphfont <path>`, `emphfont` ; lecture : nom de la police d'emphase courante |
 | `<id>/event` | rapporte/intercepte les actions souris B2/B3 |
 | `<id>/errors`| ajoute au `+Errors` du dossier |
 | `<id>/editout` | sortie des commandes `Edit` |

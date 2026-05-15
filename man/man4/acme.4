@@ -231,23 +231,6 @@ Set the command string to recreate the window from a dump file.
 .BI dumpdir " directory
 Set the directory in which to run the command to recreate the window from a dump file.
 .TP
-.BI emph= regex
-Set and activate the emphasis regular expression.
-Subsequent matches in the body are rendered with the emphasis font
-.RB ( -e
-variable or
-.B -E
-fixed).
-Setting an invalid regex is an error.
-.TP
-.B noemph
-Deactivate emphasis rendering.
-The regex is retained; sending
-.B emph=
-with the same regex or running
-.B Emph
-with no argument re-enables it.
-.TP
 .B get
 Equivalent to the
 .B Get
@@ -442,6 +425,43 @@ will cause the action to be applied to the file exactly as it would
 have been if the
 .B event
 file had not been open.
+.TP
+.B nctl
+is a per-window control file for the emphasis feature.
+Text messages, one per line, may be written to it:
+.RS .5i
+.TF "emphfont path"
+.TP
+.BI emphfont " path
+Load the font at
+.I path
+as the emphasis font for this window,
+overriding the global default set by
+.B -e
+or
+.BR -E .
+.TP
+.B emphfont
+Reset the emphasis font to the global default.
+.TP
+.BI emph= regex
+Set and activate the emphasis regular expression.
+Subsequent matches in the body are rendered with the emphasis font.
+Setting an invalid regex is an error.
+.TP
+.B noemph
+Deactivate emphasis rendering.
+The regex is retained; re-writing
+.B emph=
+with the same regex or running
+.B Emph
+interactively re-enables it.
+.RE
+.PD
+When read,
+.B nctl
+returns the name of the window's current emphasis font followed by a newline,
+or a bare newline if no emphasis font is loaded.
 .TP
 .B tag
 holds contents of the window tag.  It may be read at any byte offset.

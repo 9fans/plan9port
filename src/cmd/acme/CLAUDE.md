@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Source of the `acme` editor (Plan 9 / plan9port port). C, Plan 9 style, multithreaded via `libthread`. Acme exposes its windows as a 9P filesystem (`cons`, `index`, `log`, `new/`, and per-window `addr`, `body`, `tag`, `ctl`, `data`, `event`, `xdata`, `errors`, `editout`). External programs drive the editor by reading/writing these virtual files. The authoritative reference for that interface is `man/man4/acme.4` (or `9 man 4 acme`).
+Source of the `acme` editor (Plan 9 / plan9port port). C, Plan 9 style, multithreaded via `libthread`. Acme exposes its windows as a 9P filesystem (`cons`, `index`, `log`, `new/`, and per-window `addr`, `body`, `tag`, `ctl`, `nctl`, `data`, `event`, `xdata`, `errors`, `editout`). External programs drive the editor by reading/writing these virtual files. The authoritative reference for that interface is `man/man4/acme.4` (or `9 man 4 acme`). Note: emphasis-related verbs (`emph=`, `noemph`, `emphfont`) live in `nctl`, not `ctl`.
 
 ## Build / run
 
@@ -74,7 +74,7 @@ Edits go through `Elog` (`elog.c`) when batched (the `Edit` sam-style command pi
 Two parallel "command" surfaces — keep them distinct when adding features:
 
 1. **User commands** (button-2 click on text like `Put`, `Edit`, `Look`). Dispatch via `execute()` → `exectab[]` in `exec.c`. Each handler has signature `void f(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)`. Command names are `Rune*` literals (`L…`) typically declared near the table.
-2. **External 9P control** (writes to `<id>/ctl`). Dispatch is a chain of `strncmp` in `xfidctlwrite` (`xfid.c`). Each message is one line: `clean`, `dirty`, `dot=addr`, `addr=dot`, `limit=addr`, `name X`, `font X`, `nomark`, `mark`, `cleartag`, `show`, `get`, `put`, `del`, `delete`, `dump …`, `dumpdir …`. New `ctl` verbs go here and **must also be documented in `man/man4/acme.4`**.
+2. **External 9P control** (writes to `<id>/ctl`). Dispatch is a chain of `strncmp` in `xfidctlwrite` (`xfid.c`). Each message is one line: `clean`, `dirty`, `dot=addr`, `addr=dot`, `limit=addr`, `name X`, `font X`, `nomark`, `mark`, `cleartag`, `show`, `get`, `put`, `del`, `delete`, `dump …`, `dumpdir …`. New `ctl` verbs go here and **must also be documented in `man/man4/acme.4`**. Emphasis-specific verbs go in `nctl` / `xfidnctlwrite` instead.
 
 9P plumbing: `fsys.c` defines the `Dirtab` (per-file `Qid` constants `Q…`/`QW…` in the `enum` at top of `dat.h`); each request is wrapped in an `Xfid` and routed to the right `xfid*` handler in `xfid.c`. Read/write of `body`/`tag` go through `xfidutfread` / `xfidwrite`. Random access uses `addr` + `data`/`xdata`.
 
@@ -96,16 +96,26 @@ External library API: `include/acme.h` is consumed by clients like `mail/` and `
 
 ## Emphasis feature
 
-The emphasis feature is fully implemented. Summary of all touchpoints:
+The emphasis feature is fully implemented across five phases. Summary of all touchpoints:
 
-- **ctl verbs** `emph=regex` / `noemph`: implemented in `xfidctlwrite` (`xfid.c`).
-- **User command** `Emph [regex]`: `LEmph` entry in `exectab[]` + `emph` handler (`exec.c`); toggles when called with no argument.
-- **Font/Emph coupling**: the emphasis font follows the body font mode (variable/fixed). `emphfontname` (`text.c`) picks `fontnames[2]` or `fontnames[3]`; `setemph` loads the right one, and `fontx` (the `Font` command) calls `emphfontupdate` so a `Font` toggle switches both body and emphasis fonts.
+- **nctl verbs** `emph=regex` / `noemph` / `emphfont <path>` / `emphfont`: implemented in `xfidnctlwrite` (`xfid.c`). The file `nctl` (QWnctl) is a separate per-window file; `ctl` no longer carries any emphasis verbs.
+- **User commands** (`exec.c`, `exectab[]`):
+  - `Emph [regex]` — toggle or set emphasis on the current window.
+  - `EmphFont [path]` — pin / reset the emphasis font for this window.
+  - `EmphMe` — apply `lib/emph.regexp` pattern for this window's extension.
+  - `EmphAll` — apply `EmphMe` logic to all non-scratch windows.
+  - `EmphNone` — clear emphasis from all windows.
+  - `AutoEmph` — toggle the global `autoemph` flag (auto-emphase on file open).
+- **Variable line height**: libframe now has `Frame.lineheight` and `Frame.ascent`; all height calculations use `f->lineheight`. `emphsetmetrics` (`text.c`) adjusts these fields after `frinit` when an emphasis font is loaded. The line height is `max(font->height, emphfont->height)`.
+- **Font/Emph coupling**: the default emphasis font follows the body font mode (variable/fixed). `emphfontname` picks `fontnames[2]` or `fontnames[3]`; `fontx` calls `emphfontupdate` so `Font` toggles both fonts. Per-window override: `w->emphfontpath` pins a specific font; `winensureemphfont` centralizes font loading and triggers `winresize` when the font changes.
 - **Color**: `-C colorspec` sets emphasis foreground color (parsed by `parsecolor` in `util.c`). libframe extended with `EMPH` color slot (frame.h, NCOL=6); `_frdrawtext` and `frdrawsel0` (frdraw.c) use `cols[EMPH]` when `b->font != nil`. Backward-compatible: sam/samterm/9term initialize `cols[EMPH]` to black.
-- **Per-window state** in `dat.h` `Window`: `emphon`, `emphpat`/`nemphpat`, `emphmatch`/`nemphmatch`/`aemphmatch`, `emphfont`.
+- **Per-window state** in `dat.h` `Window`: `emphon`, `emphpat`/`nemphpat`, `emphmatch`/`nemphmatch`/`aemphmatch`, `emphfont`, `emphfontpath`.
 - **Rendering**: extended via `libframe` — `Frbox.font`, macro `FRBOXFONT`, `frsetboxfont`; acme applies it through `emphapply` (`text.c`). libframe now supports per-range fonts and colors natively.
 - **Range logic**: `emphranges.c`, tested under `tests/`.
-- **Documentation**: update `man/man4/acme.4` (ctl verbs) and `man/man1/acme.1` (command list) when changing this feature.
+- **Pattern file**: `$PLAN9/lib/emph.regexp` (or `$HOME/lib/emph.regexp`), one `ext=pattern` line per extension. Read by `emphpattern` (`text.c`).
+- **AutoEmph hook**: `emphauto` is called from `get()` (exec.c), `readfile()` (acme.c), `plumbshow()` and `openfile()` (look.c) after file content is loaded.
+- **Persistence**: `rowdump1` emits `m <emphon>\n<path>\n<pat>\n` per emphased window and `A <autoemph>` globally. `rowload` restores both.
+- **Documentation**: `man/man1/acme.1` (commands), `man/man4/acme.4` (nctl file), `man/man3/frame.3` (lineheight/ascent/EMPH).
 
 ## Subproject
 
