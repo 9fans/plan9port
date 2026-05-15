@@ -336,7 +336,7 @@ de `f->cols[TEXT]` lorsqu'une boîte a une police personnalisée (`b->font != ni
 - **Point d'entrée unique** : `setemph` (text.c:1730) — branche « off » : éteint et redessine ; branche « on » : compile le regex, charge la police à la demande (`emphfontname`), recalcule `emphmatch[]`, applique, redessine.
 - **Source de vérité** : `Window.emphmatch[]` — tableau dynamique trié, sans chevauchement, de `Range` ; stocke des **offsets dans le fichier** (survivent au défilement).
 - **Calcul des matches** : `emphrecompute` (text.c:1772) balaye tout le fichier via `rxexecute` ; `emphrefreshlocal` (text.c:1792) ne réexamine qu'une fenêtre locale autour d'une édition.
-- **Application au rendu** : `emphclear` (text.c:1685) remet toutes les boîtes en police standard ; `emphapply` (text.c:1693) efface tout puis applique la police d'emphase aux boîtes des plages *visibles*, en convertissant les offsets fichier en offsets frame via `body.org` ; `emphapplylocal` (text.c:1721) fait suivre d'un `frredraw`.
+- **Application au rendu** : `emphclear` (text.c:1685) remet toutes les boîtes en police standard ; `emphapply` (text.c:1693) efface tout puis applique la police d'emphase aux boîtes des plages *visibles*, en convertissant les offsets fichier en offsets frame via `body.org`, puis rejoue la mise en page via `frrelayout` (libframe) + `textfill` — `frsetboxfont` ne refait pas le repli des lignes, donc sans cela une police d'emphase plus large déborde le corps sur la tagline et finit par planter acme ; `emphapplylocal` (text.c:1721) fait suivre d'un `frredraw`.
 - **Hooks d'édition** : `textinsert` (text.c:407) et `textdelete` (text.c:517) appellent `emphshift` + `emphrefreshlocal` + `emphapplylocal`. `textredraw` / `textsetorigin` (text.c:69, 1659) rejouent `emphapply` après remplissage du frame — sinon l'emphase disparaît au scroll (les boîtes sont reconstruites avec `font = nil`).
 - **Couplage avec `Font`** : `fontx` (exec.c) appelle `emphfontupdate` après avoir changé la police du corps — un seul `Font` bascule corps *et* emphase (variable <-> fixe).
 - **Cycle de vie** : `wininit` initialise les champs à zéro/`nil` ; `winclose` -> `emphfree` (text.c:1850) libère regex, tableau de plages et police (`rfclose`).
@@ -459,6 +459,7 @@ que la *capacité* technique de rendre boîte par boîte. Modifications :
 | Fusion de boîtes incohérente | `_frclean` fusionnait des polices différentes | garde `b[0].font == b[1].font` |
 | Deadlock de la commande `Emph` | `winlock` non réentrant, déjà tenu par l'appelant | suppression du verrou interne dans le handler |
 | Emphase fantôme après collage | `emphapply` corrige la donnée mais ne repeint pas | `emphapplylocal` fait suivre d'un `frredraw` |
+| Débordement / crash après `Emph` (police plus large) | `frsetboxfont` élargit les boîtes sans refaire le repli des lignes | `frrelayout` rejoue `_frdraw` ; `emphapply` l'appelle puis `textfill` |
 | Police d'emphase fixe (`-E`) jamais utilisée | `setemph` chargeait toujours `fontnames[2]` | `emphfontname` choisit `[2]`/`[3]` selon le mode du corps |
 | `Font` ne basculait pas l'emphase | `fontx` ignorait `w->emphfont` | `emphfontupdate` appelé après le changement de police |
 

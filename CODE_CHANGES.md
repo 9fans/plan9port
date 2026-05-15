@@ -545,6 +545,53 @@ le dump (ligne `A`, voir § 5.4).
 
 ---
 
+## 5.6. Correctif : débordement / crash après `Emph` (2026-05-16)
+
+La police d'emphase est souvent **plus large** que la police standard. Or
+`frsetboxfont` (libframe) se contente d'élargir les boîtes emphasées
+(`b->wid` recalculé) **sans refaire la mise en page**. Les boîtes dépassent
+alors `f->r.max.x` tandis que `nlines`/`maxlines`/`nchars` restent figés sur
+la mise en page calculée en police standard.
+
+Conséquences observées :
+
+1. `frdrawsel0`/`_frcklinewrap` replient une boîte **entière** dès qu'elle ne
+   tient plus — d'où des plis « étranges » tôt dans une longue ligne, et
+   **plus de lignes affichées** que prévu. La zone de corps déborde sur la
+   tagline de la fenêtre du dessous.
+2. `nlines` périmé (trop petit) rend incohérents les calculs de scroll et de
+   conversion pixel ↔ caractère → `drawerror`/`sysfatal` (crash) après
+   quelques scrolls et déplacements de fenêtres.
+
+### `src/libframe/frboxfont.c` — nouvelle fonction `frrelayout`
+
+`frrelayout(Frame *f)` rejoue la passe de mise en page **pure** `_frdraw`
+(re-découpe les boîtes pour la largeur courante, supprime le trop-plein qui
+déborde du frame et ajuste `nchars`), puis `_frclean` (fusion des boîtes
+adjacentes, `lastlinefull`), recalcule `nlines` et borne `p0`/`p1` sur
+`nchars`. Aucun dessin : l'appelant redessine ensuite via `frredraw`.
+
+Rejouer `_frdraw` sur un tableau déjà découpé est sûr : l'emphase ne fait
+qu'élargir, donc les points de repli ne peuvent que reculer.
+
+### `src/cmd/acme/text.c` — branchement
+
+`emphapply` appelle désormais `frrelayout` **dans tous les cas** (emphase on
+*et* off), suivi de `textfill` : à l'extinction de l'emphase les boîtes
+rétrécissent et le frame sous-rempli est complété (`textfill` s'auto-garde
+via `lastlinefull`). `setemph` (et `emphrefresh`) appellent `textsetselect`
+avant `frredraw` pour resynchroniser la sélection si `_frdraw` a supprimé des
+boîtes.
+
+### `src/cmd/acme/cols.c` — durcissement hauteur
+
+`colresize` utilisait encore le `font->height` global comme hauteur minimale
+de fenêtre ; remplacé par `tag.fr.font->height*taglines + body.fr.lineheight`,
+de sorte qu'une police d'emphase plus **haute** laisse toujours la place
+d'au moins une ligne de corps.
+
+---
+
 ## 6. Récapitulatif des difficultés rencontrées
 
 | Problème | Cause | Solution |
@@ -558,6 +605,7 @@ le dump (ligne `A`, voir § 5.4).
 | Police d'emphase fixe (`-E`) jamais utilisée | `setemph` chargeait toujours `fontnames[2]` | `emphfontname` choisit `[2]`/`[3]` selon le mode du corps |
 | `Font` ne basculait pas l'emphase | `fontx` ignorait `w->emphfont` | `emphfontupdate` appelé après le changement de police |
 | Emphase fantôme après collage | `frinsert` repeint les boîtes *avant* que `emphapply` corrige leur police, et `emphapply` seul ne redessine pas | `emphapplylocal` appelle `frredraw` après `emphapply` |
+| Débordement / crash après `Emph` (police plus large) | `frsetboxfont` élargit les boîtes sans refaire la mise en page ; `nlines`/`nchars` périmés | `frrelayout` rejoue `_frdraw` après `frsetboxfont`, appelée par `emphapply` ; voir § 5.6 |
 
 Le **dernier** cas mérite un mot, car il illustre un piège d'ordre des opérations.
 Lorsqu'on colle un caractère au milieu d'un mot emphasé (`abc` devient `a bc`,

@@ -68,10 +68,6 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 	Rectangle rr;
 
 	frinit(&t->fr, r, f, b, t->fr.cols);
-	rr = t->fr.r;
-	rr.min.x -= Scrollwid+Scrollgap;	/* back fill to scroll bar */
-	if(!t->fr.noredraw)
-		draw(t->fr.b, rr, t->fr.cols[BACK], nil, ZP);
 	/* use no wider than 3-space tabs in a directory */
 	maxt = maxtab;
 	if(t->what == Body){
@@ -81,7 +77,11 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 			maxt = t->tabstop;
 	}
 	t->fr.maxtab = maxt*stringwidth(f, "0");
-	emphsetmetrics(t);
+	emphsetmetrics(t);	/* may expand fr.r.max.y; must precede background fill */
+	rr = t->fr.r;
+	rr.min.x -= Scrollwid+Scrollgap;	/* back fill to scroll bar */
+	if(!t->fr.noredraw)
+		draw(t->fr.b, rr, t->fr.cols[BACK], nil, ZP);
 	if(t->what==Body && t->w->isdir && odx!=Dx(t->all)){
 		if(t->fr.maxlines > 0){
 			textreset(t);
@@ -430,7 +430,14 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 		frinsert(&t->fr, r, r+n, q0-t->org);
 	if(t->what == Body && t->w && t->w->emphon){
 		emphshift(t->w, q0, n);
-		emphrefreshlocal(t->w, q0, q0 + n);
+		/*
+		 * When tofile=FALSE the file has not been updated yet
+		 * (character is buffered in cache), so emphrefreshlocal
+		 * would search the old text and incorrectly restore dropped
+		 * ranges.  Defer the re-search to textcommit.
+		 */
+		if(tofile)
+			emphrefreshlocal(t->w, q0, q0 + n);
 		emphapplylocal(t->w, q0, q0 + n);
 	}
 	if(t->w){
@@ -981,10 +988,24 @@ texttype(Text *t, Rune r)
 void
 textcommit(Text *t, int tofile)
 {
+	uint q0, n;
+
 	if(t->ncache == 0)
 		return;
-	if(tofile)
-		fileinsert(t->file, t->cq0, t->cache, t->ncache);
+	q0 = t->cq0;
+	n = t->ncache;
+	if(tofile){
+		fileinsert(t->file, q0, t->cache, n);
+		/*
+		 * Now that the file reflects the typed characters, re-search
+		 * the local area for emphasis matches (deferred from textinsert
+		 * because tofile was FALSE at that point).
+		 */
+		if(t->what == Body && t->w && t->w->emphon){
+			emphrefreshlocal(t->w, q0, q0 + n);
+			emphapplylocal(t->w, q0, q0 + n);
+		}
+	}
 	if(t->what == Body){
 		t->w->dirty = TRUE;
 		t->w->utflastqid = -1;
@@ -1726,19 +1747,21 @@ emphapply(Window *w)
 		return;
 	f = &w->body.fr;
 	emphclear(w);
-	if(!w->emphon || w->nemphmatch == 0)
-		return;
-	ef = w->emphfont->f;
-	vstart = w->body.org;
-	vend   = w->body.org + f->nchars;
-	for(i = 0; i < w->nemphmatch; i++){
-		m = &w->emphmatch[i];
-		if(m->q1 <= vstart) continue;
-		if(m->q0 >= vend) break;
-		p0 = (m->q0 < vstart) ? 0 : m->q0 - vstart;
-		p1 = (m->q1 > vend)   ? f->nchars : m->q1 - vstart;
-		frsetboxfont(f, p0, p1, ef);
+	if(w->emphon && w->nemphmatch > 0){
+		ef = w->emphfont->f;
+		vstart = w->body.org;
+		vend   = w->body.org + f->nchars;
+		for(i = 0; i < w->nemphmatch; i++){
+			m = &w->emphmatch[i];
+			if(m->q1 <= vstart) continue;
+			if(m->q0 >= vend) break;
+			p0 = (m->q0 < vstart) ? 0 : m->q0 - vstart;
+			p1 = (m->q1 > vend)   ? f->nchars : m->q1 - vstart;
+			frsetboxfont(f, p0, p1, ef);
+		}
 	}
+	frrelayout(f);
+	textfill(&w->body);
 }
 
 void
@@ -1789,6 +1812,7 @@ setemph(Window *w, Rune *pat, int npat, int on)
 	if(!on){
 		w->emphon = FALSE;
 		emphapply(w);
+		textsetselect(&w->body, w->body.q0, w->body.q1);
 		frredraw(&w->body.fr);
 		textscrdraw(&w->body);
 		return;
@@ -1818,6 +1842,7 @@ setemph(Window *w, Rune *pat, int npat, int on)
 	w->emphon = TRUE;
 	emphrecompute(w);
 	emphapply(w);
+	textsetselect(&w->body, w->body.q0, w->body.q1);
 	frredraw(&w->body.fr);
 	textscrdraw(&w->body);
 }
@@ -1840,6 +1865,18 @@ emphrecompute(Window *w)
 		emphpush(&w->emphmatch, &w->nemphmatch, &w->aemphmatch, s.r[0].q0, s.r[0].q1);
 		p = (s.r[0].q1 > s.r[0].q0) ? s.r[0].q1 : s.r[0].q0 + 1;
 	}
+}
+
+void
+emphrefresh(Window *w)
+{
+	if(w == nil || !w->emphon)
+		return;
+	emphrecompute(w);
+	emphapply(w);
+	textsetselect(&w->body, w->body.q0, w->body.q1);
+	frredraw(&w->body.fr);
+	textscrdraw(&w->body);
 }
 
 void

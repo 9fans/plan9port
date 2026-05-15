@@ -70,6 +70,7 @@ void	frsetrects(Frame*, Rectangle, Image*);
 void	frclear(Frame*, int);
 void	frredraw(Frame*);
 void	frsetboxfont(Frame*, ulong, ulong, Font*);
+void	frrelayout(Frame*);
 
 uchar	*_frallocstr(Frame*, unsigned);
 void	_frinsure(Frame*, int, unsigned);

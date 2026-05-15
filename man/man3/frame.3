@@ -1,6 +1,6 @@
 .TH FRAME 3
 .SH NAME
-frinit, frsetrects, frinittick, frclear, frcharofpt, frptofchar, frinsert, frdelete, frselect, frtick, frselectpaint, frdrawsel, frdrawsel0, frgetmouse \- frames of text
+frinit, frsetrects, frinittick, frclear, frcharofpt, frptofchar, frinsert, frdelete, frselect, frtick, frselectpaint, frdrawsel, frdrawsel0, frsetboxfont, frrelayout, frgetmouse \- frames of text
 .SH SYNOPSIS
 .nf
 .B
@@ -58,6 +58,12 @@ void  frdrawsel(Frame *f, Point pt0, ulong p0, ulong p1,
 void  frdrawsel0(Frame *f, Point pt0, ulong p0, ulong p1,
 .B
 		Image *back, Image *text)
+.PP
+.B
+void  frsetboxfont(Frame *f, ulong p0, ulong p1, Font *font)
+.PP
+.B
+void  frrelayout(Frame *f)
 .PP
 .ft L
 enum{
@@ -380,6 +386,31 @@ to paint a region of the frame defined by the
 .I p0
 and
 .IR p1 .
+.PP
+.I Frsetboxfont
+assigns
+.I font
+to every box covering the rune range
+.RI [ p0 , p1 ),
+splitting boxes at the range boundaries as needed; a null
+.I font
+restores the frame font.
+It updates box widths but does not reflow the frame, so the layout
+(line wrapping,
+.IB f ->nlines\fR,
+.IB f ->nchars\fR)
+may become inconsistent if the new font is wider.
+.I Frrelayout
+recomputes the layout of
+.I f
+after such per-box font changes: it re-splits boxes for the current
+.B Frame
+width, drops boxes that overflow the frame, and refreshes
+.IB f ->nlines
+and the selection bounds.
+It performs no drawing; the caller redraws with
+.I frredraw
+afterwards.
 .SH SOURCE
 .B \*9/src/libframe
 .SH SEE ALSO

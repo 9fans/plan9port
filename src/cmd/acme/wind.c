@@ -376,6 +376,7 @@ winundo(Window *w, int isundo)
 			v->body.q0 = v->body.fr.p0+v->body.org;
 			v->body.q1 = v->body.fr.p1+v->body.org;
 		}
+		emphrefresh(v);
 	}
 	winsettag(w);
 }

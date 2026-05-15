@@ -239,6 +239,7 @@ void		emphfreearr(Range **m, int *n, int *a);
 /* emphasis functions - Window-aware */
 void		setemph(Window*, Rune *pat, int npat, int on);
 void		emphrecompute(Window*);
+void		emphrefresh(Window*);
 void		emphrefreshlocal(Window*, uint q0, uint q1);
 void		emphshift(Window*, uint q, int delta);
 void		emphfree(Window*);

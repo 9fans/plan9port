@@ -37,3 +37,23 @@ frsetboxfont(Frame *f, ulong p0, ulong p1, Font *font)
 	}
 	f->modified = 1;
 }
+
+void
+frrelayout(Frame *f)
+{
+	Point pt, org;
+
+	if(f->b == nil)
+		return;
+	org = Pt(f->r.min.x, f->r.min.y);
+	pt = _frdraw(f, org);
+	_frclean(f, org, 0, f->nbox);
+	if(pt.y >= f->r.max.y)
+		f->nlines = f->maxlines;
+	else
+		f->nlines = (pt.y-f->r.min.y)/f->lineheight + (pt.x>f->r.min.x);
+	if(f->p0 > f->nchars)
+		f->p0 = f->nchars;
+	if(f->p1 > f->nchars)
+		f->p1 = f->nchars;
+}

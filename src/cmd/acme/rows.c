@@ -871,6 +871,24 @@ rowload(Row *row, char *file, int initing)
 	}
 	Bterm(b);
 	fbuffree(buf);
+	/*
+	 * Apply auto-emphasis to all loaded windows.  The 'A' line in the
+	 * dump is written last, so autoemph was 0 while windows were being
+	 * created (emphauto inside get() did nothing).  Now that autoemph
+	 * is correctly restored, sweep the row to catch up.
+	 */
+	if(autoemph){
+		int ai, aj;
+		Column *ac;
+		Window *aw;
+		for(ai = 0; ai < row->ncol; ai++){
+			ac = row->col[ai];
+			for(aj = 0; aj < ac->nw; aj++){
+				aw = ac->w[aj];
+				emphauto(aw);
+			}
+		}
+	}
 	return TRUE;
 
 Rescue2:

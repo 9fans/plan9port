@@ -113,8 +113,8 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		r.max.y = ymax;
 		draw(screen, r, textcols[BACK], nil, ZP);
 		r1 = r;
-		y = min(y, ymax-(v->tag.fr.font->height*v->taglines+v->body.fr.font->height+Border+1));
-		r1.max.y = min(y, v->body.fr.r.min.y+v->body.fr.nlines*v->body.fr.font->height);
+		y = min(y, ymax-(v->tag.fr.font->height*v->taglines+v->body.fr.lineheight+Border+1));
+		r1.max.y = min(y, v->body.fr.r.min.y+v->body.fr.nlines*v->body.fr.lineheight);
 		r1.min.y = winresize(v, r1, FALSE, FALSE);
 		r1.max.y = r1.min.y+Border;
 		draw(screen, r1, display->black, nil, ZP);
@@ -261,7 +261,8 @@ colresize(Column *c, Rectangle r)
 				r1.max.y += (Dy(w->r)-Border-font->height)*new/old + Border + font->height;
 			}
 		}
-		r1.max.y = max(r1.max.y, r1.min.y + Border+font->height);
+		r1.max.y = max(r1.max.y, r1.min.y + Border
+			+ w->tag.fr.font->height*w->taglines + w->body.fr.lineheight);
 		r2 = r1;
 		r2.max.y = r2.min.y+Border;
 		draw(screen, r2, display->black, nil, ZP);
@@ -415,7 +416,7 @@ colgrow(Column *c, Window *w, int but)
 		r.min.y = y1;
 		r.max.y = y1+Dy(v->tagtop);
 		if(nl[j])
-			r.max.y += 1 + nl[j]*v->body.fr.font->height;
+			r.max.y += 1 + nl[j]*v->body.fr.lineheight;
 		r.min.y = winresize(v, r, c->safe, FALSE);
 		r.max.y = r.min.y + Border;
 		draw(screen, r, display->black, nil, ZP);
@@ -428,7 +429,7 @@ colgrow(Column *c, Window *w, int but)
 		r = v->r;
 		r.min.y = y2-Dy(v->tagtop);
 		if(nl[j])
-			r.min.y -= 1 + nl[j]*v->body.fr.font->height;
+			r.min.y -= 1 + nl[j]*v->body.fr.lineheight;
 		r.min.y -= Border;
 		ny[j] = r.min.y;
 		y2 = r.min.y;
@@ -437,7 +438,7 @@ colgrow(Column *c, Window *w, int but)
 	r = w->r;
 	r.min.y = y1;
 	r.max.y = y2;
-	h = w->body.fr.font->height;
+	h = w->body.fr.lineheight;
 	if(Dy(r) < Dy(w->tagtop)+1+h+Border)
 		r.max.y = r.min.y + Dy(w->tagtop)+1+h+Border;
 	/* draw window */
@@ -457,7 +458,7 @@ colgrow(Column *c, Window *w, int but)
 		r.min.y = y1;
 		r.max.y = y1+Dy(v->tagtop);
 		if(nl[j])
-			r.max.y += 1 + nl[j]*v->body.fr.font->height;
+			r.max.y += 1 + nl[j]*v->body.fr.lineheight;
 		y1 = winresize(v, r, c->safe, j==c->nw-1);
 		if(j < c->nw-1){	/* no border on last window */
 			r.min.y = y1;
@@ -538,7 +539,7 @@ coldragwin(Column *c, Window *w, int but)
 	r = v->r;
 	r.max.y = p.y;
 	if(r.max.y > v->body.fr.r.min.y){
-		r.max.y -= (r.max.y-v->body.fr.r.min.y)%v->body.fr.font->height;
+		r.max.y -= (r.max.y-v->body.fr.r.min.y)%v->body.fr.lineheight;
 		if(v->body.fr.r.min.y == v->body.fr.r.max.y)
 			r.max.y++;
 	}
