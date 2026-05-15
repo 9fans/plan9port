@@ -20,6 +20,8 @@ bxscan(Frame *f, Rune *sp, Rune *ep, Point *ppt)
 	frame.r = f->r;
 	frame.b = f->b;
 	frame.font = f->font;
+	frame.lineheight = f->lineheight;
+	frame.ascent = f->ascent;
 	frame.maxtab = f->maxtab;
 	frame.nbox = 0;
 	frame.nchars = 0;
@@ -174,14 +176,14 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 		_frdelbox(f, n0, f->nbox-1);
 	}
 	if(n0 == f->nbox)
-		f->nlines = (pt1.y-f->r.min.y)/f->font->height+(pt1.x>f->r.min.x);
+		f->nlines = (pt1.y-f->r.min.y)/f->lineheight+(pt1.x>f->r.min.x);
 	else if(pt1.y!=pt0.y){
 		int q0, q1;
 
 		y = f->r.max.y;
-		q0 = pt0.y+f->font->height;
-		q1 = pt1.y+f->font->height;
-		f->nlines += (q1-q0)/f->font->height;
+		q0 = pt0.y+f->lineheight;
+		q1 = pt1.y+f->lineheight;
+		f->nlines += (q1-q0)/f->lineheight;
 		if(f->nlines > f->maxlines)
 			chopframe(f, ppt1, p0, nn0);
 		if(pt1.y < y){
@@ -207,7 +209,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 			r.min = pt;
 			r.max = r.min;
 			r.max.x += b->wid;
-			r.max.y += f->font->height;
+			r.max.y += f->lineheight;
 			draw(f->b, r, f->b, nil, pts[npts].pt0);
 			/* clear bit hanging off right */
 			if(npts==0 && pt.y>pt0.y){
@@ -218,7 +220,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 				r.min = opt0;
 				r.max = opt0;
 				r.max.x = f->r.max.x;
-				r.max.y += f->font->height;
+				r.max.y += f->lineheight;
 				if(f->p0<=cn0 && cn0<f->p1)	/* b+1 is inside selection */
 					col = f->cols[HIGH];
 				else
@@ -229,7 +231,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 				r.max = pt;
 				r.min.x += b->wid;
 				r.max.x = f->r.max.x;
-				r.max.y += f->font->height;
+				r.max.y += f->lineheight;
 				if(f->p0<=cn0 && cn0<f->p1)	/* b+1 is inside selection */
 					col = f->cols[HIGH];
 				else
@@ -242,7 +244,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 			r.min = pt;
 			r.max = pt;
 			r.max.x += b->wid;
-			r.max.y += f->font->height;
+			r.max.y += f->lineheight;
 			if(r.max.x >= f->r.max.x)
 				r.max.x = f->r.max.x;
 			cn0--;

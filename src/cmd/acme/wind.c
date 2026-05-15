@@ -233,7 +233,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	r1.min.y = y;
 	if(!safe || !eqrect(w->body.all, r1)){
 		oy = y;
-		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
+		if(y+1+w->body.fr.lineheight <= r.max.y){	/* room for one line */
 			r1.min.y = y;
 			r1.max.y = y+1;
 			draw(screen, r1, tagcols[BORD], nil, ZP);

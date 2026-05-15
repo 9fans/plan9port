@@ -50,7 +50,7 @@ frdelete(Frame *f, ulong p0, ulong p1)
 			drawerror(f->display, "_frcanfit==0");
 		r.min = pt0;
 		r.max = pt0;
-		r.max.y += f->font->height;
+		r.max.y += f->lineheight;
 		if(b->nrune > 0){
 			w0 = b->wid;
 			if(n != b->nrune){
@@ -93,9 +93,9 @@ frdelete(Frame *f, ulong p0, ulong p1)
 		if(n1 < f->nbox){
 			int q0, q1, q2;
 
-			q0 = pt0.y+f->font->height;
-			q1 = pt1.y+f->font->height;
-			q2 = pt2.y+f->font->height;
+			q0 = pt0.y+f->lineheight;
+			q1 = pt1.y+f->lineheight;
+			q2 = pt2.y+f->lineheight;
 			if(q2 > f->r.max.y)
 				q2 = f->r.max.y;
 			draw(f->b, Rect(pt0.x, pt0.y, pt0.x+(f->r.max.x-pt1.x), q0),
@@ -125,6 +125,6 @@ frdelete(Frame *f, ulong p0, ulong p1)
 		frtick(f, frptofchar(f, f->p0), 1);
 	pt0 = frptofchar(f, f->nchars);
 	n = f->nlines;
-	f->nlines = (pt0.y-f->r.min.y)/f->font->height+(pt0.x>f->r.min.x);
+	f->nlines = (pt0.y-f->r.min.y)/f->lineheight+(pt0.x>f->r.min.x);
 	return n - f->nlines;
 }

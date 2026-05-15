@@ -8,6 +8,8 @@ void
 frinit(Frame *f, Rectangle r, Font *ft, Image *b, Image *cols[NCOL])
 {
 	f->font = ft;
+	f->lineheight = ft->height;
+	f->ascent = ft->ascent;
 	f->display = b->display;
 	f->maxtab = 8*stringwidth(ft, "0");
 	f->nbox = 0;
@@ -38,7 +40,7 @@ frinittick(Frame *f)
 	ft = f->font;
 	if(f->tick)
 		freeimage(f->tick);
-	f->tick = allocimage(f->display, Rect(0, 0, f->tickscale*FRTICKW, ft->height), b->chan, 0, DWhite);
+	f->tick = allocimage(f->display, Rect(0, 0, f->tickscale*FRTICKW, f->lineheight), b->chan, 0, DWhite);
 	if(f->tick == nil)
 		return;
 	if(f->tickback)
@@ -52,10 +54,10 @@ frinittick(Frame *f)
 	/* background color */
 	draw(f->tick, f->tick->r, f->cols[BACK], nil, ZP);
 	/* vertical line */
-	draw(f->tick, Rect(f->tickscale*(FRTICKW/2), 0, f->tickscale*(FRTICKW/2+1), ft->height), f->cols[TEXT], nil, ZP);
+	draw(f->tick, Rect(f->tickscale*(FRTICKW/2), 0, f->tickscale*(FRTICKW/2+1), f->lineheight), f->cols[TEXT], nil, ZP);
 	/* box on each end */
 	draw(f->tick, Rect(0, 0, f->tickscale*FRTICKW, f->tickscale*FRTICKW), f->cols[TEXT], nil, ZP);
-	draw(f->tick, Rect(0, ft->height-f->tickscale*FRTICKW, f->tickscale*FRTICKW, ft->height), f->cols[TEXT], nil, ZP);
+	draw(f->tick, Rect(0, f->lineheight-f->tickscale*FRTICKW, f->tickscale*FRTICKW, f->lineheight), f->cols[TEXT], nil, ZP);
 }
 
 void
@@ -64,8 +66,8 @@ frsetrects(Frame *f, Rectangle r, Image *b)
 	f->b = b;
 	f->entire = r;
 	f->r = r;
-	f->r.max.y -= (r.max.y-r.min.y)%f->font->height;
-	f->maxlines = (r.max.y-r.min.y)/f->font->height;
+	f->r.max.y -= (r.max.y-r.min.y)%f->lineheight;
+	f->maxlines = (r.max.y-r.min.y)/f->lineheight;
 }
 
 void

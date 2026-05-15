@@ -38,12 +38,12 @@ frselect(Frame *f, Mousectl *mc)	/* when called, button 1 is down */
 		scrled = 0;
 		if(f->scroll){
 			if(mp.y < f->r.min.y){
-				(*f->scroll)(f, -(f->r.min.y-mp.y)/(int)f->font->height-1);
+				(*f->scroll)(f, -(f->r.min.y-mp.y)/(int)f->lineheight-1);
 				p0 = f->p1;
 				p1 = f->p0;
 				scrled = 1;
 			}else if(mp.y > f->r.max.y){
-				(*f->scroll)(f, (mp.y-f->r.max.y)/(int)f->font->height+1);
+				(*f->scroll)(f, (mp.y-f->r.max.y)/(int)f->lineheight+1);
 				p0 = f->p0;
 				p1 = f->p1;
 				scrled = 1;
@@ -110,9 +110,9 @@ frselectpaint(Frame *f, Point p0, Point p1, Image *col)
 
 	q0 = p0;
 	q1 = p1;
-	q0.y += f->font->height;
-	q1.y += f->font->height;
-	n = (p1.y-p0.y)/f->font->height;
+	q0.y += f->lineheight;
+	q1.y += f->lineheight;
+	n = (p1.y-p0.y)/f->lineheight;
 	if(f->b == nil)
 		drawerror(f->display, "frselectpaint b==0");
 	if(p0.y == f->r.max.y)

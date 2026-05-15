@@ -15,7 +15,7 @@ _frdrawtext(Frame *f, Point pt, Image *text, Image *back)
 		_frcklinewrap(f, &pt, b);
 		if(!f->noredraw && b->nrune >= 0){
 			col = (b->font != nil) ? f->cols[EMPH] : text;
-			stringbg(f->b, pt, col, ZP, FRBOXFONT(f, b), (char*)b->ptr, back, ZP);
+			stringbg(f->b, addpt(pt, Pt(0, FRBOXDY(f,b))), col, ZP, FRBOXFONT(f, b), (char*)b->ptr, back, ZP);
 		}
 		pt.x += b->wid;
 	}
@@ -104,10 +104,10 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 		x = pt.x+w;
 		if(x > f->r.max.x)
 			x = f->r.max.x;
-		draw(f->b, Rect(pt.x, pt.y, x, pt.y+f->font->height), back, nil, pt);
+		draw(f->b, Rect(pt.x, pt.y, x, pt.y+f->lineheight), back, nil, pt);
 		if(b->nrune >= 0){
 			col = (b->font != nil) ? f->cols[EMPH] : text;
-			stringnbg(f->b, pt, col, ZP, FRBOXFONT(f, b), ptr, nr, back, ZP);
+			stringnbg(f->b, addpt(pt, Pt(0, FRBOXDY(f,b))), col, ZP, FRBOXFONT(f, b), ptr, nr, back, ZP);
 		}
 		pt.x += w;
 	    Continue:
@@ -154,7 +154,7 @@ _frtick(Frame *f, Point pt, int ticked)
 	if(f->ticked==ticked || f->tick==0 || !ptinrect(pt, f->r))
 		return;
 	pt.x -= f->tickscale;	/* looks best just left of where requested */
-	r = Rect(pt.x, pt.y, pt.x+FRTICKW*f->tickscale, pt.y+f->font->height);
+	r = Rect(pt.x, pt.y, pt.x+FRTICKW*f->tickscale, pt.y+f->lineheight);
 	/* can go into left border but not right */
 	if(r.max.x > f->r.max.x)
 		r.max.x = f->r.max.x;
@@ -202,7 +202,7 @@ _frdraw(Frame *f, Point pt)
 		}else{
 			if(b->bc == '\n'){
 				pt.x = f->r.min.x;
-				pt.y+=f->font->height;
+				pt.y+=f->lineheight;
 			}else
 				pt.x += _frnewwid(f, pt, b);
 		}

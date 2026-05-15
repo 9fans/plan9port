@@ -21,6 +21,28 @@ enum{
 	TABDIR = 3	/* width of tabs in directory windows */
 };
 
+static void
+emphsetmetrics(Text *t)
+{
+	int h, a;
+	Font *ef;
+	Rectangle entire;
+
+	if(t->what != Body || t->w == nil || t->w->emphfont == nil)
+		return;
+	ef = t->w->emphfont->f;
+	h = max(t->fr.font->height, ef->height);
+	a = max(t->fr.font->ascent, ef->ascent);
+	if(h == t->fr.lineheight && a == t->fr.ascent)
+		return;
+	t->fr.lineheight = h;
+	t->fr.ascent = a;
+	entire = t->fr.entire;
+	t->fr.r.max.y = entire.max.y - (entire.max.y - entire.min.y) % h;
+	t->fr.maxlines = (t->fr.r.max.y - entire.min.y) / h;
+	frinittick(&t->fr);
+}
+
 void
 textinit(Text *t, File *f, Rectangle r, Reffont *rf, Image *cols[NCOL])
 {
@@ -58,6 +80,7 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 			maxt = t->tabstop;
 	}
 	t->fr.maxtab = maxt*stringwidth(f, "0");
+	emphsetmetrics(t);
 	if(t->what==Body && t->w->isdir && odx!=Dx(t->all)){
 		if(t->fr.maxlines > 0){
 			textreset(t);
@@ -82,7 +105,7 @@ textresize(Text *t, Rectangle r, int keepextra)
 	if(Dy(r) <= 0)
 		r.max.y = r.min.y;
 	else if(!keepextra)
-		r.max.y -= Dy(r)%t->fr.font->height;
+		r.max.y -= Dy(r)%t->fr.lineheight;
 	odx = Dx(t->all);
 	t->all = r;
 	t->scrollr = r;
