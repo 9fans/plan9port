@@ -39,6 +39,7 @@ void	dotfiles(Text*, Text*, Text*, int, int, Rune*, int);
 void	dump(Text*, Text*, Text*, int, int, Rune*, int);
 void	edit(Text*, Text*, Text*, int, int, Rune*, int);
 void	emph(Text*, Text*, Text*, int, int, Rune*, int);
+void	emphfontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	xexit(Text*, Text*, Text*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	get(Text*, Text*, Text*, int, int, Rune*, int);
@@ -75,6 +76,7 @@ static Rune LDelete[] = { 'D', 'e', 'l', 'e', 't', 'e', 0 };
 static Rune LDump[] = { 'D', 'u', 'm', 'p', 0 };
 static Rune LEdit[] = { 'E', 'd', 'i', 't', 0 };
 static Rune LEmph[] = { 'E', 'm', 'p', 'h', 0 };
+static Rune LEmphFont[] = { 'E', 'm', 'p', 'h', 'F', 'o', 'n', 't', 0 };
 static Rune LExit[] = { 'E', 'x', 'i', 't', 0 };
 static Rune LFont[] = { 'F', 'o', 'n', 't', 0 };
 static Rune LGet[] = { 'G', 'e', 't', 0 };
@@ -107,6 +109,7 @@ Exectab exectab[] = {
 	{ LDump,		dump,	FALSE,	TRUE,	XXX		},
 	{ LEdit,		edit,		FALSE,	XXX,		XXX		},
 	{ LEmph,		emph,		FALSE,	XXX,		XXX		},
+	{ LEmphFont,	emphfontx,	FALSE,	XXX,		XXX		},
 	{ LExit,		xexit,	FALSE,	XXX,		XXX		},
 	{ LFont,		fontx,	FALSE,	XXX,		XXX		},
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
@@ -1149,6 +1152,44 @@ emph(Text *et, Text *t, Text *argt, int _1, int _2, Rune *arg, int narg)
 		return;
 	}
 	warning(nil, "Emph: no pattern set\n");
+}
+
+void
+emphfontx(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
+{
+	Window *w;
+	Rune *r;
+	int n;
+
+	USED(_0);
+	USED(_1);
+	USED(t);
+
+	if(et == nil || et->w == nil)
+		return;
+	w = et->w;
+	r = nil;
+	n = 0;
+	if(narg > 0){
+		r = runemalloc(narg);
+		runemove(r, arg, narg);
+		n = narg;
+	}else
+		getarg(argt, FALSE, TRUE, &r, &n);
+	free(w->emphfontpath);
+	if(r != nil && n > 0){
+		w->emphfontpath = runetobyte(r, n);
+		free(r);
+	}else{
+		free(r);
+		w->emphfontpath = nil;
+	}
+	winensureemphfont(w);
+	if(w->emphon){
+		emphrecompute(w);
+		emphapply(w);
+		frredraw(&w->body.fr);
+	}
 }
 
 static Rune Lnl[] = { '\n', 0 };

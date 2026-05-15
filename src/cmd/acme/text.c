@@ -743,7 +743,7 @@ texttype(Text *t, Rune r)
 	case Kpgdown:
 		n = 2*t->fr.maxlines/3;
 	case_Down:
-		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
+		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.lineheight));
 		textsetorigin(t, q0, TRUE);
 		return;
 	case Kup:
@@ -1025,7 +1025,7 @@ textframescroll(Text *t, int dl)
 	}else{
 		if(t->org+t->fr.nchars == t->file->b.nc)
 			return;
-		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+dl*t->fr.font->height));
+		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+dl*t->fr.lineheight));
 		if(selectq > t->org+t->fr.p1)
 			textsetselect(t, t->org+t->fr.p1, selectq);
 		else
@@ -1759,6 +1759,28 @@ emphfontname(Window *w)
 }
 
 void
+winensureemphfont(Window *w)
+{
+	char *fn;
+	Reffont *r;
+
+	if(w == nil)
+		return;
+	fn = w->emphfontpath ? w->emphfontpath : emphfontname(w);
+	if(w->emphfont != nil && strcmp(w->emphfont->f->name, fn) == 0)
+		return;
+	r = rfget(0, FALSE, FALSE, fn);
+	if(r == nil){
+		warning(nil, "EmphFont: cannot load font %s\n", fn);
+		return;
+	}
+	if(w->emphfont != nil)
+		rfclose(w->emphfont);
+	w->emphfont = r;
+	winresize(w, w->r, FALSE, TRUE);
+}
+
+void
 setemph(Window *w, Rune *pat, int npat, int on)
 {
 	Rune *p;
@@ -1783,11 +1805,9 @@ setemph(Window *w, Rune *pat, int npat, int on)
 		return;
 	}
 	if(w->emphfont == nil){
-		char *fn = emphfontname(w);
-		w->emphfont = rfget(0, FALSE, FALSE, fn);
+		winensureemphfont(w);
 		if(w->emphfont == nil){
 			free(p);
-			warning(nil, "Emph: cannot load emphasis font %s\n", fn);
 			return;
 		}
 	}
@@ -1894,26 +1914,18 @@ emphfree(Window *w)
 		rfclose(w->emphfont);
 		w->emphfont = nil;
 	}
+	free(w->emphfontpath);
+	w->emphfontpath = nil;
 }
 
 /* Reload the emphasis font to match the body font's mode (var/fixed). */
 void
 emphfontupdate(Window *w)
 {
-	char *fn;
-	Reffont *r;
-
 	if(w == nil || w->emphfont == nil)
 		return;
-	fn = emphfontname(w);
-	if(strcmp(w->emphfont->f->name, fn) == 0)
-		return;
-	r = rfget(0, FALSE, FALSE, fn);
-	if(r == nil)
-		return;
-	rfclose(w->emphfont);
-	w->emphfont = r;
-	emphapply(w);
-	frredraw(&w->body.fr);
+	if(w->emphfontpath != nil)
+		return; /* pinned font: do not auto-switch on body font change */
+	winensureemphfont(w);
 }
 

@@ -139,7 +139,7 @@ textscroll(Text *t, int but)
 			continue;
 		}
 		if(but == 1)
-			p0 = textbacknl(t, t->org, (my-s.min.y)/t->fr.font->height);
+			p0 = textbacknl(t, t->org, (my-s.min.y)/t->fr.lineheight);
 		else
 			p0 = t->org+frcharofpt(&t->fr, Pt(s.max.x, my));
 		if(oldp0 != p0)

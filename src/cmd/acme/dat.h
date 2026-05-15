@@ -14,6 +14,7 @@ enum
 	QWaddr,
 	QWbody,
 	QWctl,
+	QWnctl,
 	QWdata,
 	QWeditout,
 	QWerrors,
@@ -244,6 +245,7 @@ void		emphfree(Window*);
 void		emphapply(Window*);
 void		emphapplylocal(Window*, uint q0, uint q1);
 void		emphfontupdate(Window*);
+void		winensureemphfont(Window*);
 
 struct Window
 {
@@ -273,6 +275,7 @@ struct Window
 	int		nemphmatch;		/* used count */
 	int		aemphmatch;		/* allocated capacity */
 	Reffont	*emphfont;		/* per-window emphasis font (nil until first Emph) */
+	char	*emphfontpath;	/* explicit emphasis font path (nil => auto) */
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;
@@ -439,6 +442,7 @@ void		xfidclose(Xfid*);
 void		xfidread(Xfid*);
 void		xfidwrite(Xfid*);
 void		xfidctlwrite(Xfid*, Window*);
+void		xfidnctlwrite(Xfid*, Window*);
 void		xfideventread(Xfid*, Window*);
 void		xfideventwrite(Xfid*, Window*);
 void		xfidindexread(Xfid*);
