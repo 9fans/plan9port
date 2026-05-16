@@ -1081,9 +1081,11 @@ iconinit(void)
 
 		/* Emphasis color */
 		if(emphcolorspec && parsecolor(emphcolorspec, &rgb) == 0){
+			emphglobalcolorrgb = rgb;
 			tagcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, rgb);
 			textcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, rgb);
 		}else{
+			emphglobalcolorrgb = 0x0000AAFF;
 			tagcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x0000AAFF);
 			textcols[EMPH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x0000AAFF);
 		}

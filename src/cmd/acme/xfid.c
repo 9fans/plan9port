@@ -338,12 +338,17 @@ xfidread(Xfid *x)
 		b = winctlprint(w, buf, 1);
 		goto Readb;
 
-	case QWnctl:
-		if(w->emphfont != nil)
-			b = smprint("%s\n", w->emphfont->f->name);
-		else
-			b = smprint("\n");
+	case QWnctl: {
+		char *fn;
+		ulong col;
+		fn = w->emphfont ? w->emphfont->f->name
+			: (w->emphfontpath ? w->emphfontpath : emphfontname(w));
+		if(fn == nil)
+			fn = w->body.reffont->f->name;
+		col = w->emphcolor ? w->emphcolorrgb : emphglobalcolorrgb;
+		b = smprint("%s %06lux ", fn, col >> 8);
 		goto Readb;
+	}
 
 	Readbuf:
 		b = buf;

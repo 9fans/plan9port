@@ -475,8 +475,20 @@ Reset the emphasis color to the global default.
 .PD
 When read,
 .B nctl
-returns the name of the window's current emphasis font followed by a newline,
-or a bare newline if no emphasis font is loaded.
+returns a single line of space-separated fields, consistent with
+.BR ctl :
+the effective emphasis font name (quoted, per-window override if set, otherwise
+the global default from
+.B -e
+or
+.BR -E ,
+or
+.B ""
+if none is configured),
+followed by the effective emphasis color as a six-digit hexadecimal RGB string
+(e.g.,
+.BR 0000aa ),
+reflecting the per-window override if set, otherwise the global default.
 .TP
 .B tag
 holds contents of the window tag.  It may be read at any byte offset.

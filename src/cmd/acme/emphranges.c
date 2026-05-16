@@ -1,11 +1,16 @@
 #include <u.h>
 #include <libc.h>
-
-typedef struct Range Range;
-struct Range {
-	uint	q0;
-	uint	q1;
-};
+#include <draw.h>
+#include <thread.h>
+#include <cursor.h>
+#include <mouse.h>
+#include <keyboard.h>
+#include <frame.h>
+#include <fcall.h>
+#include <plumb.h>
+#include <libsec.h>
+#include "dat.h"
+#include "fns.h"
 
 void
 emphpush(Range **m, int *n, int *a, uint q0, uint q1)
@@ -13,9 +18,7 @@ emphpush(Range **m, int *n, int *a, uint q0, uint q1)
 	/* Grow by doubling when needed */
 	if(*n >= *a) {
 		*a = (*a == 0) ? 1 : *a * 2;
-		*m = realloc(*m, *a * sizeof(Range));
-		if(*m == nil)
-			sysfatal("realloc: %r");
+		*m = erealloc(*m, *a * sizeof(Range));
 	}
 	(*m)[*n].q0 = q0;
 	(*m)[*n].q1 = q1;
@@ -75,9 +78,7 @@ rangemerge(Range **dst, int *ndst, int *adst, Range *src, int nsrc)
 		return;
 
 	total = *ndst + nsrc;
-	tmp = malloc(total * sizeof(Range));
-	if(tmp == nil)
-		sysfatal("malloc: %r");
+	tmp = emalloc(total * sizeof(Range));
 
 	/* Merge dst and src into tmp, maintaining sorted order */
 	i = 0;  /* pointer into *dst */

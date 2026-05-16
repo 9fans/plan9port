@@ -245,6 +245,7 @@ void		emphshift(Window*, uint q, int delta);
 void		emphfree(Window*);
 void		emphapply(Window*);
 void		emphapplylocal(Window*, uint q0, uint q1);
+char*		emphfontname(Window*);
 void		emphfontupdate(Window*);
 void		winensureemphfont(Window*);
 void		winsetemphcolor(Window*, ulong);
@@ -280,6 +281,7 @@ struct Window
 	Reffont	*emphfont;		/* per-window emphasis font (nil until first Emph) */
 	char	*emphfontpath;	/* explicit emphasis font path (nil => auto) */
 	Image	*emphcolor;		/* per-window emphasis color (nil => global default) */
+	ulong	emphcolorrgb;	/* RGB (RRGGBB, valid when emphcolor != nil) */
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;
@@ -580,6 +582,7 @@ extern char			*home;
 extern char			*acmeshell;
 extern char			*fontnames[4];
 extern char			*emphcolorspec;
+extern ulong			emphglobalcolorrgb;
 extern Image		*tagcols[NCOL];
 extern Image		*textcols[NCOL];
 extern char		wdir[]; /* must use extern because no dimension given */

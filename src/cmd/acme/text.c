@@ -1750,6 +1750,8 @@ emphapply(Window *w)
 	if(w == nil || w->emphfont == nil)
 		return;
 	f = &w->body.fr;
+	if(f->b == nil || f->maxlines == 0)
+		return;
 	emphclear(w);
 	if(w->emphon && w->nemphmatch > 0){
 		ef = w->emphfont->f;
@@ -1757,9 +1759,10 @@ emphapply(Window *w)
 		vend   = w->body.org + f->nchars;
 		for(i = 0; i < w->nemphmatch; i++){
 			m = &w->emphmatch[i];
+			if(m->q0 > m->q1)
+				continue;
 			if(m->q1 <= vstart) continue;
 			if(m->q0 >= vend) break;
-			if(m->q0 > m->q1) continue;
 			p0 = (m->q0 < vstart) ? 0 : m->q0 - vstart;
 			p1 = (m->q1 > vend)   ? f->nchars : m->q1 - vstart;
 			if(p0 >= p1) continue;
@@ -1779,7 +1782,7 @@ emphapplylocal(Window *w, uint q0, uint q1)
 		frredraw(&w->body.fr);
 }
 
-static char*
+char*
 emphfontname(Window *w)
 {
 	int fix;
@@ -1803,6 +1806,7 @@ winsetemphcolor(Window *w, ulong rgb)
 	if(w->emphcolor != nil)
 		freeimage(w->emphcolor);
 	w->emphcolor = i;
+	w->emphcolorrgb = rgb;
 	w->body.fr.cols[EMPH] = i;
 	frredraw(&w->body.fr);
 }
@@ -1900,6 +1904,8 @@ emphrecompute(Window *w)
 	eof = t->file->b.nc;
 	p = 0;
 	while(p <= eof && rxexecute(t, nil, p, eof, &s)){
+		if(s.r[0].q1 > eof)
+			break;
 		emphpush(&w->emphmatch, &w->nemphmatch, &w->aemphmatch, s.r[0].q0, s.r[0].q1);
 		p = (s.r[0].q1 > s.r[0].q0) ? s.r[0].q1 : s.r[0].q0 + 1;
 	}

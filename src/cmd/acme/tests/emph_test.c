@@ -7,6 +7,29 @@ struct Range {
 	uint	q1;
 };
 
+void*
+erealloc(void *p, uint n)
+{
+	p = realloc(p, n);
+	if(p == nil) {
+		fprint(2, "erealloc: out of memory\n");
+		exits("erealloc");
+	}
+	return p;
+}
+
+void*
+emalloc(uint n)
+{
+	void *p = malloc(n);
+	if(p == nil) {
+		fprint(2, "emalloc: out of memory\n");
+		exits("emalloc");
+	}
+	memset(p, 0, n);
+	return p;
+}
+
 /* Test infrastructure */
 static int npass = 0;
 static int nfail = 0;
