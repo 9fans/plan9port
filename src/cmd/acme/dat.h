@@ -247,6 +247,8 @@ void		emphapply(Window*);
 void		emphapplylocal(Window*, uint q0, uint q1);
 void		emphfontupdate(Window*);
 void		winensureemphfont(Window*);
+void		winsetemphcolor(Window*, ulong);
+void		winresetemphcolor(Window*);
 
 struct Window
 {
@@ -277,6 +279,7 @@ struct Window
 	int		aemphmatch;		/* allocated capacity */
 	Reffont	*emphfont;		/* per-window emphasis font (nil until first Emph) */
 	char	*emphfontpath;	/* explicit emphasis font path (nil => auto) */
+	Image	*emphcolor;		/* per-window emphasis color (nil => global default) */
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;

@@ -861,6 +861,7 @@ xfidnctlwrite(Xfid *x, Window *w)
 	Rune *r;
 	char *err, *p, *pp, *q, *e;
 	int isfbuf, scrdraw;
+	ulong rgb;
 
 	err = nil;
 	e = x->fcall.data+x->fcall.count;
@@ -922,6 +923,25 @@ xfidnctlwrite(Xfid *x, Window *w)
 			setemph(w, nil, 0, FALSE);
 			scrdraw = TRUE;
 			m = 6;
+		}else
+		if(strncmp(p, "emphcolor ", 10) == 0){
+			pp = p+10;
+			m = 10;
+			q = memchr(pp, '\n', e-pp);
+			if(q==nil || q==pp){
+				err = Ebadctl;
+				break;
+			}
+			*q = 0;
+			if(parsecolor(pp, &rgb) != 0){ err = "bad emphcolor spec"; break; }
+			winsetemphcolor(w, rgb);
+			scrdraw = TRUE;
+			m += (q+1) - pp;
+		}else
+		if(strncmp(p, "emphcolor\n", 10) == 0 || strcmp(p, "emphcolor") == 0){
+			winresetemphcolor(w);
+			scrdraw = TRUE;
+			m = 9;
 		}else{
 			err = Ebadctl;
 			break;

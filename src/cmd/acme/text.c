@@ -1783,6 +1783,38 @@ emphfontname(Window *w)
 }
 
 void
+winsetemphcolor(Window *w, ulong rgb)
+{
+	Image *i;
+
+	if(w == nil)
+		return;
+	i = allocimage(display, Rect(0,0,1,1), screen->chan, 1, rgb);
+	if(i == nil){
+		warning(nil, "emphcolor: cannot allocate image\n");
+		return;
+	}
+	if(w->emphcolor != nil)
+		freeimage(w->emphcolor);
+	w->emphcolor = i;
+	w->body.fr.cols[EMPH] = i;
+	frredraw(&w->body.fr);
+}
+
+void
+winresetemphcolor(Window *w)
+{
+	if(w == nil)
+		return;
+	if(w->emphcolor != nil){
+		freeimage(w->emphcolor);
+		w->emphcolor = nil;
+	}
+	w->body.fr.cols[EMPH] = textcols[EMPH];
+	frredraw(&w->body.fr);
+}
+
+void
 winensureemphfont(Window *w)
 {
 	char *fn;
@@ -1954,6 +1986,10 @@ emphfree(Window *w)
 	}
 	free(w->emphfontpath);
 	w->emphfontpath = nil;
+	if(w->emphcolor != nil){
+		freeimage(w->emphcolor);
+		w->emphcolor = nil;
+	}
 }
 
 /* Reload the emphasis font to match the body font's mode (var/fixed). */

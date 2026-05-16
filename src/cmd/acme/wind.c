@@ -88,6 +88,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->nemphmatch = 0;
 	w->aemphmatch = 0;
 	w->emphfontpath = nil;
+	w->emphcolor = nil;
 	if(clone){
 		w->dirty = clone->dirty;
 		w->autoindent = clone->autoindent;
