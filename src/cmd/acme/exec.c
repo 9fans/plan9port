@@ -1167,6 +1167,20 @@ emph(Text *et, Text *t, Text *argt, int _1, int _2, Rune *arg, int narg)
 	warning(nil, "Emph: no pattern set\n");
 }
 
+static char*
+emphfonttoggle(Window *w)
+{
+	int fix, same;
+	char *cur;
+
+	fix = strcmp(w->body.fr.font->name, fontnames[1]) == 0;
+	cur = w->emphfont != nil ? w->emphfont->f->name : nil;
+	same = cur == nil || strcmp(cur, w->body.fr.font->name) == 0;
+	if(same)
+		return fontnames[fix ? 3 : 2];
+	return fontnames[fix ? 1 : 0];
+}
+
 void
 emphfontx(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 {
@@ -1190,13 +1204,11 @@ emphfontx(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 	}else
 		getarg(argt, FALSE, TRUE, &r, &n);
 	free(w->emphfontpath);
-	if(r != nil && n > 0){
+	if(r != nil && n > 0)
 		w->emphfontpath = runetobyte(r, n);
-		free(r);
-	}else{
-		free(r);
-		w->emphfontpath = nil;
-	}
+	else
+		w->emphfontpath = estrdup(emphfonttoggle(w));
+	free(r);
 	winensureemphfont(w);
 	if(w->emphon){
 		emphrecompute(w);

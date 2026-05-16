@@ -405,7 +405,12 @@ overriding the global default set by
 .B -e
 or
 .BR -E .
-Without an argument, reset to the global default.
+Without an argument, toggle the emphasis font between matching the body font
+and using a distinct emphasis font
+.RB ( fontnames [2]
+for variable-width body,
+.RB fontnames [3]
+for fixed-width body).
 A 2-1 chord supplies the argument.
 The body line height adjusts automatically.
 .TP
@@ -417,6 +422,41 @@ Prints a warning if no pattern is found.
 .TP
 .B EmphNone
 Deactivate and clear emphasis from all windows.
+.PP
+.RS
+External programs can also adjust emphasis color on a per-window basis
+using the
+.B nctl
+file's
+.B emphcolor
+verb.
+A useful helper script, saved as
+.B Color
+in the home directory or on
+.BR $PATH :
+.PP
+.in +.5i
+.ft CW
+#!/bin/rc
+echo emphcolor $1 | 9p write acme/$winid/nctl
+.ft R
+.in
+.PP
+Run
+.B "Color 08f"
+from the button-2 menu of any acme window to change its emphasis color to light blue.
+.PP
+A variant to change all windows at once, called
+.B ColorAll :
+.PP
+.in +.5i
+.ft CW
+#!/bin/rc
+for(id in `{9p read acme/index | awk '{print $1}'})
+    echo emphcolor $1 | 9p write acme/$id/nctl
+.ft R
+.in
+.RE
 .TP
 .B Exit
 Exit

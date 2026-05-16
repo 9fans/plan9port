@@ -442,7 +442,7 @@ or
 .BR -E .
 .TP
 .B emphfont
-Reset the emphasis font to the global default.
+Toggle the emphasis font between matching the body font and using a distinct emphasis font.
 .TP
 .BI emph= regex
 Set and activate the emphasis regular expression.
@@ -456,6 +456,21 @@ The regex is retained; re-writing
 with the same regex or running
 .B Emph
 interactively re-enables it.
+.TP
+.BI emphcolor " colorspec
+Set the foreground color for emphasized text in this window.
+.I colorspec
+is either 3 or 6 hexadecimal digits specifying an RGB color
+(e.g.,
+.B f00
+for red or
+.B ff0000
+for red in 6-digit form),
+overriding the global default set by
+.B -C .
+.TP
+.B emphcolor
+Reset the emphasis color to the global default.
 .RE
 .PD
 When read,
