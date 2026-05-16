@@ -1,5 +1,5 @@
 #!/bin/rc
-# Tests for emph=/noemph 9P control verbs.
+# Tests for emph=/noemph 9P control verbs (in nctl file).
 #
 # Uses 9p(1) to talk directly to acme's 9P server via the unix socket,
 # avoiding the FUSE session restriction that blocks writes from processes
@@ -56,24 +56,28 @@ fn ctl {
 	echo $1 | 9p -a $addr write $winid/ctl
 }
 
+fn nctl {
+	echo $1 | 9p -a $addr write $winid/nctl >[2]/dev/null
+}
+
 # T01: emph=foo accepted
-ctl 'emph=foo'
+nctl 'emph=foo'
 check pass 'T01 emph=foo'
 
 # T02: emph= (empty pattern) rejected with Ebadctl
-ctl 'emph='
+nctl 'emph='
 check fail 'T02 emph= rejected'
 
 # T03: invalid regex silently accepted (warning in +Errors, no 9P error)
-ctl 'emph=[unclosed'
+nctl 'emph=[unclosed'
 check pass 'T03 emph=[unclosed parsed'
 
 # T04: noemph accepted
-ctl 'noemph'
+nctl 'noemph'
 check pass 'T04 noemph'
 
 # T06: two verbs in one write
-{echo 'emph=foo'; echo 'noemph'} | 9p -a $addr write $winid/ctl
+{echo 'emph=foo'; echo 'noemph'} | 9p -a $addr write $winid/nctl
 check pass 'T06 emph=foo + noemph in one write'
 
 # cleanup
