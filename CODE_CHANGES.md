@@ -647,3 +647,86 @@ chemin de dessin se fait à la main en lançant `acme`.
   **retirés de `ctl`** pour garder `ctl` strictement standard.
 - `man/man3/frame.3` : champs `lineheight` et `ascent` de `Frame`, sémantique de
   hauteur variable, slot `EMPH` dans l'enum `cols[]` (NCOL = 6).
+
+---
+
+## 9. Correctifs des bugs d'emphasis (2026-05-16)
+
+Après le déploiement initial, deux bugs critiques ont été identifiés et corrigés :
+
+### Bug 1 — Crash immédiat après toute écriture avec emphasis activée
+
+**Symptôme** : Lors de la frappe avec un EmphFont plus grand, acme plantait
+quelques millisecondes après chaque caractère sans message d'erreur.
+
+**Cause racinaire** : `textinsert` appelait `emphapplylocal()` même quand `tofile==FALSE`
+(c'est-à-dire quand le texte était juste en cache, pas encore dans le fichier).
+`emphapply` utilisait alors des ranges d'emphasis qui ne correspondaient pas au
+contenu réel du fichier, ce qui causait un état invalide dans `frrelayout`.
+
+**Correctif** (`text.c:433`) :
+```c
+// AVANT:
+if(t->what == Body && t->w && t->w->emphon){
+    emphshift(t->w, q0, n);
+    if(tofile)
+        emphrefreshlocal(t->w, q0, q0 + n);
+    emphapplylocal(t->w, q0, q0 + n);  // BUG: toujours appelé
+}
+
+// APRÈS:
+if(t->what == Body && t->w && t->w->emphon){
+    emphshift(t->w, q0, n);
+    // Defer all emphasis refresh/apply to textcommit
+}
+```
+
+Similaire dans `textdelete` (ligne 553) : rendre `emphshift` seul.
+
+**Résultat** : L'emphasis n'est appliquée/rafraîchie que dans `textcommit`, une
+seule fois par opération d'édition, quand le fichier est effectivement à jour.
+
+### Bug 2 — Caractères corrompus et crashes lors de cut/paste massif avec emphasis
+
+**Symptôme** : Après un paste massif (boucle) avec emphasis activée, des caractères
+« face » (non-imprimables, génériques) apparaissaient dans la zone collée. Suivi
+d'un crash au clic suivant ou au cut suivant.
+
+**Cause racinaire** : `textinsert` appelait `emphapplylocal()` à **chaque itération**
+de la boucle paste. Cela modifiait progressivement `emphmatch[]` sans synchronisation :
+la première itération supprimait les ranges qui chevauchaient la première tranche
+insérée, mais les itérations suivantes travaillaient sur des ranges désynchronisées,
+causant une corruption progressive des données d'emphasis et des artefacts visuels.
+
+**Correctif** (même changement que Bug 1) : Ne pas appeler `emphapplylocal` dans
+`textinsert`/`textdelete`, seulement `emphshift` (qui décale les positions sans
+refaire la recherche). Laisser `textcommit` faire le refresh+apply une seule fois.
+
+**Résultat** : Le paste n'appelle plus `emphapplylocal()` en boucle. Après la
+boucle, un seul commit final rafraîchit proprement l'emphasis sans corruption.
+
+### Changements supplémentaires
+
+`src/cmd/acme/exec.c` (cut/paste) :
+- Ligne 1008: `if(docut && t->ncache != 0)` — ne vider le cache que lors du
+  vrai cut, pas lors de snarf pur.
+- Ligne 1072: `if(t->ncache != 0)` — vider le cache avant paste pour éviter
+  les conflits de cache/données.
+
+`src/cmd/acme/fns.h` :
+- Ajout de `void typecommit(Text*);` pour que `exec.c` puisse l'appeler.
+
+`src/cmd/acme/text.c:1003` :
+- (Bug 1 du plan original, déjà fix) : `t->ncache = 0` avant `emphrefreshlocal`
+  pour prévenir la récursion infinie textcommit→textfill→typecommit.
+
+### Résumé
+
+| Bug | Cause | Correctif | Impact |
+|---|---|---|---|
+| Crash write | emphasis appliquée sur cache (tofile==FALSE) | déférer emphasis à textcommit | Write =\> no crash ✓ |
+| Corruption paste | emphapplylocal en boucle | déférer emphasis à textcommit | Paste =\> clean data ✓ |
+
+La **clé architecturale** : centraliser tout refresh/apply d'emphasis dans
+`textcommit()`, appelé une seule fois par opération logique, plutôt que dans
+chaque `textinsert`/`textdelete` qui peut être appelé en boucle.

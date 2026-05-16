@@ -1005,6 +1005,8 @@ cut(Text *et, Text *t, Text *_0, int dosnarf, int docut, Rune *_2, int _3)
 			c = et->w->owner;
 		winlock(t->w, c);
 	}
+	if(docut && t->ncache != 0)
+		typecommit(t);
 	if(t->q0 == t->q1){
 		if(locked)
 			winunlock(t->w);
@@ -1067,6 +1069,8 @@ paste(Text *et, Text *t, Text *_0, int selectall, int tobody, Rune *_1, int _2)
 			c = et->w->owner;
 		winlock(t->w, c);
 	}
+	if(t->ncache != 0)
+		typecommit(t);
 	cut(t, t, nil, FALSE, TRUE, nil, 0);
 	q = 0;
 	q0 = t->q0;

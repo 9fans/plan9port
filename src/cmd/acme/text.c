@@ -396,8 +396,10 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 	int c, i;
 	Text *u;
 
-	if(tofile && t->ncache != 0)
-		error("text.insert");
+	if(tofile && t->ncache != 0){
+		warning(nil, "text.insert: cache not empty");
+		typecommit(t);
+	}
 	if(n == 0)
 		return;
 	if(tofile){
@@ -431,14 +433,11 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 	if(t->what == Body && t->w && t->w->emphon){
 		emphshift(t->w, q0, n);
 		/*
-		 * When tofile=FALSE the file has not been updated yet
-		 * (character is buffered in cache), so emphrefreshlocal
-		 * would search the old text and incorrectly restore dropped
-		 * ranges.  Defer the re-search to textcommit.
+		 * Defer all emphasis re-search and re-apply to textcommit.
+		 * When tofile=FALSE the file is not updated (cache only).
+		 * When tofile=TRUE, large pastes would call this too many times,
+		 * corrupting ranges. Let textcommit handle it once.
 		 */
-		if(tofile)
-			emphrefreshlocal(t->w, q0, q0 + n);
-		emphapplylocal(t->w, q0, q0 + n);
 	}
 	if(t->w){
 		c = 'i';
@@ -503,8 +502,10 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 	int i, c;
 	Text *u;
 
-	if(tofile && t->ncache != 0)
-		error("text.delete");
+	if(tofile && t->ncache != 0){
+		warning(nil, "text.delete: cache not empty");
+		typecommit(t);
+	}
 	n = q1-q0;
 	if(n == 0)
 		return;
@@ -547,8 +548,10 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 	}
 	if(t->what == Body && t->w && t->w->emphon){
 		emphshift(t->w, q0, -(int)(q1 - q0));
-		emphrefreshlocal(t->w, q0, q0);
-		emphapplylocal(t->w, q0, q0);
+		/*
+		 * Defer all emphasis re-search and re-apply to textcommit.
+		 * Like textinsert, let textcommit handle it once.
+		 */
 	}
 	if(t->w){
 		c = 'd';
@@ -996,6 +999,7 @@ textcommit(Text *t, int tofile)
 	n = t->ncache;
 	if(tofile){
 		fileinsert(t->file, q0, t->cache, n);
+		t->ncache = 0;
 		/*
 		 * Now that the file reflects the typed characters, re-search
 		 * the local area for emphasis matches (deferred from textinsert
@@ -1755,8 +1759,10 @@ emphapply(Window *w)
 			m = &w->emphmatch[i];
 			if(m->q1 <= vstart) continue;
 			if(m->q0 >= vend) break;
+			if(m->q0 > m->q1) continue;
 			p0 = (m->q0 < vstart) ? 0 : m->q0 - vstart;
 			p1 = (m->q1 > vend)   ? f->nchars : m->q1 - vstart;
+			if(p0 >= p1) continue;
 			frsetboxfont(f, p0, p1, ef);
 		}
 	}
