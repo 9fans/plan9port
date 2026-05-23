@@ -1922,7 +1922,8 @@ command(void)
 			*sl++ = c;
 		*sl = 0;
 		if((pid = fork()) == 0) {
-			execl("/bin/rc","rc","-c",line,0);
+			execlp("rc","rc","-c",line,nil);
+			fprint(2,"dc: can't exec rc\n");
 			exits("shell");
 		}
 		for(;;) {
