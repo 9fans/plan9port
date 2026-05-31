@@ -51,7 +51,6 @@ printfile(int f)
 	int i, j, n;
 	char *s, *cmd;
 	Biobuf *b;
-	static char *rc;
 
 	b = malloc(sizeof(Biobuf));
 	Binit(b, f, OREAD);
@@ -80,12 +79,10 @@ printfile(int f)
 			exits(0);
 		cmd[Blinelen(cons)-1] = 0;
 		if(*cmd == '!'){
-			if(rc == nil)
-				rc = unsharp("#9/bin/rc");
 			if(fork() == 0){
 				dup(Bfildes(cons), 0);
-				execl(rc, "rc", "-c", cmd+1, 0);
-				fprint(2, "p: can't exec %s\n", rc);
+				execlp("rc", "rc", "-c", cmd+1, nil);
+				fprint(2, "p: can't exec rc\n");
 				exits("exec failed");
 			}
 			waitpid();
