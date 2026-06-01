@@ -2,6 +2,7 @@
 #include <u.h>
 #include <libc.h>
 
+#include <errno.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -95,8 +96,15 @@ _await(int pid4, char *str, int n, int opt)
 			pid = wait3(&status, opt, &ru);
 		else
 			pid = wait4(pid4, &status, opt, &ru);
-		if(pid <= 0)
+		if(pid <= 0){
+			if(errno == EINTR)
+				continue;
+#ifdef ERESTART
+			if(errno == ERESTART)
+				continue;
+#endif
 			return -1;
+		}
 		u = ru.ru_utime.tv_sec*1000+((ru.ru_utime.tv_usec+500)/1000);
 		s = ru.ru_stime.tv_sec*1000+((ru.ru_stime.tv_usec+500)/1000);
 		if(WIFEXITED(status)){
