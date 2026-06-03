@@ -1,16 +1,15 @@
 Character class with enough ranges to grow the regexp class allocation
 (regexp.c reallocs the class in DCLASS-sized steps once it overflows the
 initial buffer). The substitution replaces every letter a-i with X.
-args: -d input
 
 -- stdin --
 ,s/[a-cd-fg-i]/X/g
 ,p
 q
+-- input --
+abcdefghij
 -- stdout --
 XXXXXXXXXj
 -- stderr --
  -. input
 ?changed files
--- input --
-abcdefghij

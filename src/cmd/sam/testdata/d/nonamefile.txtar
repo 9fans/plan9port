@@ -1,5 +1,4 @@
 On the nameless startup file, e and w with no name error.
-args: -d
 
 -- stdin --
 a
@@ -11,7 +10,7 @@ w
 -- stdout --
 hi
 -- stderr --
- -. 
+ -. ^J
 ?no file name
 ?no file name
 ?changed files

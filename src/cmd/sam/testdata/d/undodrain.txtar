@@ -1,13 +1,12 @@
 Undoing the only edit drains the undo log (fileundo isundo end, f.seq=0).
-args: -d input
 
 -- stdin --
 1c/X/
 u
 ,p
+-- input --
+hello
 -- stdout --
 hello
 -- stderr --
  -. input
--- input --
-hello

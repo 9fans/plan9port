@@ -1,26 +1,30 @@
 Open a new empty frame (Tstartnewfile).
-args: -R
 
--- script --
-startnewfile
-exit
--- host --
+-- proto --
 Hversion 2
+Tversion 2
+Tstartcmdfile
 Hnewname tag=0
 Hbindname tag=0
 Hcurrent tag=0
 Hmovname tag=0 "~~sam~~"
 Hcheck0 tag=0
 Hack
+Tack
 Hunlock
+Tstartnewfile
 Hnewname tag=1
 Hbindname tag=1
 Hmovname tag=1 ""
 Hcurrent tag=1
 Hcheck0 tag=1
 Hack
+Tack
 Hgrow tag=0 p=0 n=5
 Hcheck0 tag=0
 Hack
+Trequest 0 0 5
 Hdata tag=0 p=0 " +. \n"
+Tack
 Hsetdot tag=0 p=5 n=5
+Texit

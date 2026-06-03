@@ -1,11 +1,17 @@
 x with empty matches, line-loop, and file loops.
-args: -d a b
 
+-- args --
+-d a b
 -- stdin --
 ,x/ */ =
 ,x =
 X/./ ,p
 Y/zz/ ,p
+-- b --
+ef
+-- a --
+a b
+cd
 -- stdout --
 a b
 cd
@@ -25,8 +31,3 @@ ef
 1; #0,#4
 2; #4,#7
  -  b
--- b --
-ef
--- a --
-a b
-cd

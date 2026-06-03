@@ -1,6 +1,5 @@
 More regexp errors and features: unmatched (, >10 groups, \n in regex,
 bad classes, leading operators.
-args: -d input
 
 -- stdin --
 g/(a/p
@@ -9,12 +8,11 @@ g/((((((((((((a))))))))))))/p
 g/[a-]/p
 g/[-x]/p
 g/a**/p
--- stdout --
+-- input --
+a
+ab
 -- stderr --
  -. input
 ?unmatched `('
 ?malformed `[]'
 ?malformed `[]'
--- input --
-a
-ab

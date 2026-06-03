@@ -1,15 +1,13 @@
 A bare w uses the default address (the whole file).
-args: -d input
 
 -- stdin --
 w scratch
--- stdout --
--- stderr --
- -. input
-scratch: #11
 -- input --
 alpha
 beta
+-- stderr --
+ -. input
+scratch: #11
 -- scratch.out --
 alpha
 beta

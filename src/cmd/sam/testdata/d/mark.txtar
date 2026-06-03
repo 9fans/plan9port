@@ -1,11 +1,14 @@
 Set a mark with k and reference it with the ' address.
-args: -d input
 
 -- stdin --
 2k
 1,'p
 'd
 ,p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 beta
@@ -14,7 +17,3 @@ gamma
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha
-beta
-gamma

@@ -1,45 +1,52 @@
 A big insert then a small insert (>50 apart, one command) flushes a pending grow (169).
 The undo log is built in increasing-position order; LIFO redo replays the high
 (big) insert first, leaving grown pending when the low (small) insert runs.
-args: -R input
 
--- script --
-startfile 0
-type {\n1a/Z/\n2a/WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW/\n}\n
-exit
 -- input --
 a
 pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
 b
--- host --
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=1
 Hbindname tag=1
 Hcurrent tag=1
 Hmovname tag=1 "~~sam~~"
 Hcheck0 tag=1
 Hack
+Tack
 Hunlock
+Tstartfile 0
 Hbindname tag=0
 Hcurrent tag=0
 Hgrow tag=0 p=0 n=65
 Hcheck0 tag=0
 Hcheck0 tag=0
 Hack
+Trequest 0 0 65
 Hdata tag=0 p=0 "a\npppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp\nb\n"
+Tack
 Hgrow tag=1 p=0 n=10
 Hcheck0 tag=1
 Hack
+Trequest 1 0 10
 Hdata tag=1 p=0 " +. input\n"
+Tack
 Hsetdot tag=1 p=10 n=10
 Hunlock
+cmd {\n1a/Z/\n2a/WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW/\n}\n
 Hdirty tag=0
 Hgrow tag=0 p=63 n=60
 Hgrowdata tag=0 p=2 n=1 "Z"
 Hcheck0 tag=0
 Hack
+Trequest 0 63 60
 Hdata tag=0 p=64 "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+Tack
 Hsetdot tag=0 p=64 n=124
 Hunlock
+Texit

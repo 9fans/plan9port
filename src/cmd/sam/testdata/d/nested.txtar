@@ -1,9 +1,12 @@
 x with an explicit nested command, and a guard with g inside x.
-args: -d input
 
 -- stdin --
 ,x/[a-z]+/ g/a/ s/a/A/
 ,p
+-- input --
+cat
+dog
+bat
 -- stdout --
 cAt
 dog
@@ -11,7 +14,3 @@ bAt
 -- stderr --
  -. input
 ?changed files
--- input --
-cat
-dog
-bat

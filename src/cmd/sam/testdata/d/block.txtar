@@ -1,17 +1,16 @@
 Brace-grouped commands applied to an address.
-args: -d input
 
 -- stdin --
 {
 1p
 3p
 }
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 gamma
 -- stderr --
  -. input
--- input --
-alpha
-beta
-gamma

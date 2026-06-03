@@ -1,13 +1,12 @@
 Editing a nonexistent file reports the open error.
-args: -d input
 
 -- stdin --
 e /no/such/file
 ,p
+-- input --
+alpha
 -- stdout --
 alpha
 -- stderr --
  -. input
 ?can't open "/no/such/file": No such file or directory
--- input --
-alpha

@@ -1,7 +1,8 @@
 Writing a file whose own name does not exist prints (new file); a later
 partial write of the same name leaves it dirty.
-args: -d new
 
+-- args --
+-d new
 -- stdin --
 a
 hi
@@ -9,7 +10,6 @@ there
 .
 w
 1w
--- stdout --
 -- stderr --
  -. new
 ?can't open "new": No such file or directory

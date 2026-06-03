@@ -1,5 +1,4 @@
 Redo stops at the next-older seq boundary (fileundo redo u.seq>stop).
-args: -d input
 
 -- stdin --
 1c/A/
@@ -7,11 +6,11 @@ args: -d input
 u2
 u-1
 ,p
+-- input --
+one
+two
 -- stdout --
 Atwo
 -- stderr --
  -. input
 ?changed files
--- input --
-one
-two

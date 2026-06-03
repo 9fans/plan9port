@@ -1,14 +1,12 @@
 Zero-width searches that wrap around the buffer, forward and backward.
-args: -d input
 
 -- stdin --
 $
 /^/
 0
 ?$?
--- stdout --
--- stderr --
- -. input
 -- input --
 alpha
 beta
+-- stderr --
+ -. input

@@ -1,6 +1,5 @@
 Parser/command errors: address on a no-address command, missing pattern,
 missing destination, stray brace, bad = argument, escaped backslash in re.
-args: -d input
 
 -- stdin --
 1q
@@ -9,7 +8,9 @@ args: -d input
 }
 =xy
 g/a\\b/p
--- stdout --
+-- input --
+alpha
+beta
 -- stderr --
  -. input
 ?command takes no address
@@ -17,6 +18,3 @@ g/a\\b/p
 ?address
 ?unmatched `}'
 ?newline expected
--- input --
-alpha
-beta

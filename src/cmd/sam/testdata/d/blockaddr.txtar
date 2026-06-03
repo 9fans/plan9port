@@ -1,15 +1,14 @@
 A brace group with an explicit address.
-args: -d input
 
 -- stdin --
 2{
 p
 }
--- stdout --
-beta
--- stderr --
- -. input
 -- input --
 alpha
 beta
 gamma
+-- stdout --
+beta
+-- stderr --
+ -. input

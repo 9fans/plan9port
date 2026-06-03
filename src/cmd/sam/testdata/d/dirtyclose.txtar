@@ -1,14 +1,12 @@
 Closing a modified file warns; closing after writing succeeds.
-args: -d input
 
 -- stdin --
 1d
 D input
--- stdout --
+-- input --
+alpha
+beta
 -- stderr --
  -. input
 ?changes to "input"
 ?changed files
--- input --
-alpha
-beta

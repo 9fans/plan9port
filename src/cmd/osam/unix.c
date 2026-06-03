@@ -79,8 +79,12 @@ getuser(void)
 {
 	static char user[64];
 	if(user[0] == 0){
-		struct passwd *pw = getpwuid(getuid());
-		strcpy(user, pw ? pw->pw_name : "nobody");
+		char *p = getenv("USER");
+		if(p == nil || p[0] == 0){
+			struct passwd *pw = getpwuid(getuid());
+			p = pw ? pw->pw_name : "nobody";
+		}
+		strecpy(user, user+sizeof user, p);
 	}
 	return user;
 }

@@ -1,18 +1,12 @@
 Rewrite the whole file under its own name; warns about the missing final newline.
-args: -d input
 
 -- stdin --
 w input
--- stdout --
--- stderr --
- -. input
-input: ?warning: last char not newline
-#16
 -- input --
 alpha
 beta
 gamma^D
--- input.out --
-alpha
-beta
-gamma^D
+-- stderr --
+ -. input
+input: ?warning: last char not newline
+#16

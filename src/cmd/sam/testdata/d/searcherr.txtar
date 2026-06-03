@@ -1,17 +1,16 @@
 A failing search and out-of-range relative addresses.
-args: -d input
 
 -- stdin --
 /zzzzz/p
 1-5p
 ++p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 beta
 -- stderr --
  -. input
 ?search
 ?address range
--- input --
-alpha
-beta
-gamma

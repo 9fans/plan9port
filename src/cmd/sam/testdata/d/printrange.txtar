@@ -1,15 +1,13 @@
 = over a multi-line range prints first,last line numbers.
-args: -d input
 
 -- stdin --
 1,3=
 2=
--- stdout --
--- stderr --
- -. input
-1,3; #0,#17
-2; #6,#11
 -- input --
 alpha
 beta
 gamma
+-- stderr --
+ -. input
+1,3; #0,#17
+2; #6,#11

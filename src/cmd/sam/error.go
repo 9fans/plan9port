@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 // Err enumerates sam's error conditions.
 type Err int
 
@@ -137,43 +141,54 @@ var wmsg = []string{
 	Wbadstatus:  "exit status not 0",
 }
 
-// samErr is the panic value used to model C's error()->hiccough()->longjmp.
-// The message (already prefixed with '?') is printed by hiccough during the
-// recover at the command-loop boundary; quiet means print nothing (the C
-// hiccough(nil) case from whichfile).
-type samErr struct {
-	msg   string
-	quiet bool
-}
+// mainloopJump is panicked by hiccough to unwind to the command-loop boundary
+// after it has already rolled the failed command back in place. It is C's
+// longjmp(mainloop, 1).
+type mainloopJump struct{}
 
-// fail* build the "?..."-prefixed message and panic, unwinding to the nearest
-// recover (the mainloop boundary), exactly as C's error*() longjmp to mainloop.
-func fail(e Err)             { panic(samErr{msg: "?" + emsg[e]}) }
-func fail_s(e Err, a string) { panic(samErr{msg: "?" + emsg[e] + ` "` + a + `"`}) }
-func fail_c(e Err, c int)    { panic(samErr{msg: "?" + emsg[e] + " `" + string(rune(c)) + "'"}) }
-func fail_r(e Err, a, r string) {
-	panic(samErr{msg: "?" + emsg[e] + " \"" + a + "\": " + r})
-}
+// error and its variants build sam's "?..."-prefixed message and call hiccough,
+// exactly as error.c's error()/error_s()/error_c()/error_r(): hiccough rolls the
+// command back in place, then unwinds to the command loop.
+func (s *Sam) error(e Err)             { s.hiccough("?" + emsg[e]) }
+func (s *Sam) error_s(e Err, a string) { s.hiccough("?" + emsg[e] + ` "` + a + `"`) }
+func (s *Sam) error_c(e Err, c rune)   { s.hiccough("?" + emsg[e] + " `" + string(c) + "'") }
 
-// quietHiccough is C's hiccough((char*)0): roll back without a message.
-func quietHiccough() { panic(samErr{quiet: true}) }
+// error_r appends a rendered OS error (C's %r) to error_s's message.
+func (s *Sam) error_r(e Err, a, r string) {
+	s.hiccough("?" + emsg[e] + " \"" + a + "\": " + r)
+}
 
 func (s *Sam) warn(w Warn) {
 	s.dprint("?warning: %s\n", wmsg[w])
 }
 
-// (C's warn_s is omitted: it has no caller in the ported engine.)
-
-func (s *Sam) warn_S(w Warn, a *String) {
-	s.dprint("?warning: %s `%s'\n", wmsg[w], runesToStr(a))
+func (s *Sam) warn_S(w Warn, a []rune) {
+	s.dprint("?warning: %s `%s'\n", wmsg[w], string(a))
 }
 
-func (s *Sam) warn_SS(w Warn, a, b *String) {
-	s.dprint("?warning: %s: `%s' and `%s'\n", wmsg[w], runesToStr(a), runesToStr(b))
+func (s *Sam) warn_SS(w Warn, a, b []rune) {
+	s.dprint("?warning: %s: `%s' and `%s'\n", wmsg[w], string(a), string(b))
 }
 
-// runesToStr renders all n runes of a String (C %.*S), unlike Strtoc which
-// stops at the first NUL.
-func runesToStr(a *String) string {
-	return string(a.s)
+// dprint formats and writes diagnostic/menu output. When not downloaded it
+// goes to stderr; when downloaded it is inserted into the command window
+// (error.c dprint -> termwrite).
+func (s *Sam) dprint(format string, a ...any) {
+	s.termwrite(fmt.Sprintf(format, a...))
+}
+
+// termwrite routes text either into the command file (downloaded) or to
+// stderr (error.c termwrite).
+func (s *Sam) termwrite(str string) {
+	if s.downloaded {
+		r := []rune(str)
+		if s.cmd != nil {
+			s.loginsert(s.cmd, s.cmdpt, r)
+		} else {
+			s.cmdstr = s.insertString(s.cmdstr, r, Posn(len(s.cmdstr)))
+		}
+		s.cmdptadv += Posn(len(r))
+	} else {
+		s.Write(s.err, []byte(str))
+	}
 }

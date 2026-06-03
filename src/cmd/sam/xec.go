@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"slices"
+	"strings"
 )
-
-// Command execution (xec.c).
 
 func (s *Sam) resetxec() {
 	s.glooping = 0
@@ -17,9 +16,9 @@ func (s *Sam) cmdexec(f *File, cp *Cmd) bool {
 		s.load(f)
 	}
 	if f == nil && (cp.addr == nil || cp.addr.typ != '"') &&
-		!runeIn("bBnqUXY!", cp.cmdc) &&
+		!strings.ContainsRune("bBnqUXY!", cp.cmdc) &&
 		cp.cmdc != ('c'|0x100) && !(cp.cmdc == 'D' && cp.ctext != nil) {
-		fail(Enofile)
+		s.error(Enofile)
 	}
 	i := lookup(cp.cmdc)
 	if i >= 0 && cmdtab[i].defaddr != aNo {
@@ -106,7 +105,7 @@ func (s *Sam) D_cmd(f *File, cp *Cmd) bool {
 
 func (s *Sam) e_cmd(f *File, cp *Cmd) bool {
 	if s.getname(f, cp.ctext, cp.cmdc == 'e') == 0 {
-		fail(Enoname)
+		s.error(Enoname)
 	}
 	s.edit(f, cp.cmdc)
 	return true
@@ -121,7 +120,7 @@ func (s *Sam) f_cmd(f *File, cp *Cmd) bool {
 func (s *Sam) g_cmd(f *File, cp *Cmd) bool {
 	if f != s.addr.f {
 		// unreachable
-		s.panicf("g_cmd f!=addr.f")
+		s.panic("g_cmd f!=addr.f")
 	}
 	s.compile(cp.re)
 	if s.execute(f, s.addr.r.p1, s.addr.r.p2) != (cp.cmdc == 'v') {
@@ -155,7 +154,7 @@ func (s *Sam) n_cmd(f *File, cp *Cmd) bool {
 		if g == s.cmd {
 			continue
 		}
-		Strduplstr(&s.genstr, &g.name)
+		s.genstr = slices.Clone(g.name)
 		s.filename(g)
 	}
 	return true
@@ -178,7 +177,7 @@ func (s *Sam) s_cmd(f *File, cp *Cmd) bool {
 	n := cp.num
 	op := Posn(-1)
 	didsub := false
-	var delta Posn
+	delta := Posn(0)
 	s.compile(cp.re)
 	for p1 := s.addr.r.p1; p1 <= s.addr.r.p2 && s.execute(f, p1, s.addr.r.p2); {
 		if s.sel.p[0].p1 == s.sel.p[0].p2 { // empty match?
@@ -195,41 +194,41 @@ func (s *Sam) s_cmd(f *File, cp *Cmd) bool {
 		if n > 0 {
 			continue
 		}
-		Strzero(&s.genstr)
-		for i := 0; i < cp.ctext.n(); i++ {
-			c := int(cp.ctext.s[i])
-			if c == '\\' && i < cp.ctext.n()-1 {
+		s.genstr = nil
+		for i := Posn(0); i < Posn(len(cp.ctext)); i++ {
+			c := cp.ctext[i]
+			if c == '\\' && i < Posn(len(cp.ctext))-1 {
 				i++
-				c = int(cp.ctext.s[i])
+				c = cp.ctext[i]
 				if '1' <= c && c <= '9' {
-					j := c - '0'
+					j := int(c - '0')
 					if s.sel.p[j].p2-s.sel.p[j].p1 > BLOCKSIZE {
-						fail(Elongtag)
+						s.error(Elongtag)
 					}
-					nn := int(s.sel.p[j].p2 - s.sel.p[j].p1)
-					bufread(&f.b, s.sel.p[j].p1, s.genbuf[:], nn)
-					Strinsert(&s.genstr, tmprstr(s.genbuf[:], nn), Posn(s.genstr.n()))
+					nn := s.sel.p[j].p2 - s.sel.p[j].p1
+					s.bufread(&f.b, s.sel.p[j].p1, s.genbuf[:nn])
+					s.genstr = s.insertString(s.genstr, s.genbuf[:nn], Posn(len(s.genstr)))
 				} else {
-					Straddc(&s.genstr, c)
+					s.genstr = s.appendString(s.genstr, c)
 				}
 			} else if c != '&' {
-				Straddc(&s.genstr, c)
+				s.genstr = s.appendString(s.genstr, c)
 			} else {
 				if s.sel.p[0].p2-s.sel.p[0].p1 > BLOCKSIZE {
-					fail(Elongrhs)
+					s.error(Elongrhs)
 				}
-				nn := int(s.sel.p[0].p2 - s.sel.p[0].p1)
-				bufread(&f.b, s.sel.p[0].p1, s.genbuf[:], nn)
-				Strinsert(&s.genstr, tmprstr(s.genbuf[:], nn), Posn(s.genstr.n()))
+				nn := s.sel.p[0].p2 - s.sel.p[0].p1
+				s.bufread(&f.b, s.sel.p[0].p1, s.genbuf[:nn])
+				s.genstr = s.insertString(s.genstr, s.genbuf[:nn], Posn(len(s.genstr)))
 			}
 		}
 		if s.sel.p[0].p1 != s.sel.p[0].p2 {
 			s.logdelete(f, s.sel.p[0].p1, s.sel.p[0].p2)
 			delta -= s.sel.p[0].p2 - s.sel.p[0].p1
 		}
-		if s.genstr.n() != 0 {
-			s.loginsert(f, s.sel.p[0].p2, s.genstr.s, s.genstr.n())
-			delta += Posn(s.genstr.n())
+		if len(s.genstr) != 0 {
+			s.loginsert(f, s.sel.p[0].p2, s.genstr)
+			delta += Posn(len(s.genstr))
 		}
 		didsub = true
 		if cp.flag == 0 {
@@ -237,7 +236,7 @@ func (s *Sam) s_cmd(f *File, cp *Cmd) bool {
 		}
 	}
 	if !didsub && s.nest == 0 {
-		fail(Enosub)
+		s.error(Enosub)
 	}
 	f.ndot.r.p1 = s.addr.r.p1
 	f.ndot.r.p2 = s.addr.r.p2 + delta
@@ -247,18 +246,14 @@ func (s *Sam) s_cmd(f *File, cp *Cmd) bool {
 func (s *Sam) u_cmd(f *File, cp *Cmd) bool {
 	n := cp.num
 	if n >= 0 {
-		for {
-			old := n
-			n--
-			if old == 0 || !s.undo(true) {
+		for range n {
+			if !s.undo(true) {
 				break
 			}
 		}
 	} else {
-		for {
-			old := n
-			n++
-			if old == 0 || !s.undo(false) {
+		for range -n {
+			if !s.undo(false) {
 				break
 			}
 		}
@@ -269,10 +264,10 @@ func (s *Sam) u_cmd(f *File, cp *Cmd) bool {
 func (s *Sam) w_cmd(f *File, cp *Cmd) bool {
 	fseq := f.seq
 	if s.getname(f, cp.ctext, false) == 0 {
-		fail(Enoname)
+		s.error(Enoname)
 	}
 	if fseq == s.seq {
-		fail_s(Ewseq, s.genc)
+		s.error_s(Ewseq, s.genc)
 	}
 	s.writef(f)
 	return true
@@ -292,24 +287,24 @@ func (s *Sam) X_cmd(f *File, cp *Cmd) bool {
 	return true
 }
 
-func (s *Sam) plan9_cmd(f *File, cp *Cmd) bool {
-	s.plan9(f, cp.cmdc, cp.ctext, s.nest)
+func (s *Sam) shell_cmd(f *File, cp *Cmd) bool {
+	s.shell(f, cp.cmdc, cp.ctext, s.nest)
 	return true
 }
 
 func (s *Sam) eq_cmd(f *File, cp *Cmd) bool {
 	charsonly := false
-	switch cp.ctext.n() {
-	case 1:
+	switch Posn(len(cp.ctext)) {
+	case 0:
 		charsonly = false
-	case 2:
-		if cp.ctext.s[0] == '#' {
+	case 1:
+		if cp.ctext[0] == '#' {
 			charsonly = true
 			break
 		}
-		fail(Enewline)
+		s.error(Enewline)
 	default:
-		fail(Enewline)
+		s.error(Enewline)
 	}
 	s.printposn(f, charsonly)
 	return true
@@ -339,39 +334,32 @@ func (s *Sam) cd_cmd(f *File, cp *Cmd) bool {
 }
 
 func (s *Sam) append(f *File, cp *Cmd, p Posn) bool {
-	if cp.ctext.n() > 0 && cp.ctext.s[cp.ctext.n()-1] == 0 {
-		cp.ctext.s = cp.ctext.s[:cp.ctext.n()-1]
-	}
-	if cp.ctext.n() > 0 {
-		s.loginsert(f, p, cp.ctext.s, cp.ctext.n())
+	if len(cp.ctext) > 0 {
+		s.loginsert(f, p, cp.ctext)
 	}
 	f.ndot.r.p1 = p
-	f.ndot.r.p2 = p + Posn(cp.ctext.n())
+	f.ndot.r.p2 = p + Posn(len(cp.ctext))
 	return true
 }
 
 func (s *Sam) display(f *File) bool {
 	p1 := s.addr.r.p1
 	p2 := s.addr.r.p2
-	if p2 > Posn(f.b.nc()) {
+	if p2 > f.b.nc() {
 		// unreachable
 		fmt.Fprintf(s.err, "bad display addr p1=%d p2=%d f->b.nc=%d\n", p1, p2, f.b.nc())
-		p2 = Posn(f.b.nc())
+		p2 = f.b.nc()
 	}
 	for p1 < p2 {
-		np := int(p2 - p1)
-		if np > BLOCKSIZE-1 {
-			np = BLOCKSIZE - 1
-		}
-		bufread(&f.b, p1, s.genbuf[:], np)
-		s.genbuf[np] = 0
-		c := Strtoc(tmprstr(s.genbuf[:], np+1))
+		np := min(p2-p1, BLOCKSIZE-1)
+		s.bufread(&f.b, p1, s.genbuf[:np])
+		c := string(s.genbuf[:np])
 		if s.downloaded {
 			s.termwrite(c)
 		} else {
-			io.WriteString(s.out, c)
+			s.Write(s.out, []byte(c))
 		}
-		p1 += Posn(np)
+		p1 += np
 	}
 	f.dot = s.addr
 	return true
@@ -465,11 +453,16 @@ func (s *Sam) filelooper(cp *Cmd, XY bool) {
 	old := s.glooping
 	s.glooping++
 	if old != 0 {
-		fail(EnestXY)
+		s.error(EnestXY)
 	}
 	s.nest++
 	s.settempfile()
 	cur := s.curfile
+
+	// TODO: This is not range because it is possible for a cmdexec
+	// to reassign tempfile, such as with append.
+	// However, we need to think about when that is actually okay
+	// beyond being sure to look at the latest backing store of tempfile.
 	for i := 0; i < len(s.tempfile); i++ {
 		f := s.tempfile[i]
 		if f == s.cmd {

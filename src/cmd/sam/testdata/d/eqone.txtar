@@ -1,11 +1,9 @@
 = with a single non-# character argument errors.
-args: -d input
 
 -- stdin --
 =z
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?newline expected
--- input --
-alpha

@@ -1,6 +1,5 @@
 Regex features: alternation, ?, +, ^, $, classes, ranges, negation, \n,
 and backward search exercising the reverse machine's anchors.
-args: -d input
 
 -- stdin --
 ,x/a|x/
@@ -12,6 +11,12 @@ args: -d input
 ,x/[\]]/
 $?^a?p
 ?[0-9]?p
+-- input --
+abc
+ac
+a1b2c3
+xenon
+hello]
 -- stdout --
 aaaxabcac123]abc
 ac
@@ -26,9 +31,3 @@ hello]
 ]a3^D
 -- stderr --
  -. input
--- input --
-abc
-ac
-a1b2c3
-xenon
-hello]

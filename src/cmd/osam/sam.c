@@ -1,3 +1,5 @@
+#include <u.h>
+#include <errno.h>
 #include "sam.h"
 
 Rune	genbuf[BLOCKSIZE];
@@ -164,13 +166,17 @@ void
 panic(char *s)
 {
 	int wasd;
+	char *fmt;
 
 	if(!panicking++ && !setjmp(mainloop)){
 		wasd = downloaded;
 		downloaded = 0;
-		dprint("sam: panic: %s: %r\n", s);
+		fmt = "sam: panic: %s: %r\n";
+		if(errno == 0)
+			fmt = "sam: panic: %s\n";
+		dprint(fmt, s);
 		if(wasd)
-			fprint(2, "sam: panic: %s: %r\n", s);
+			fprint(2, fmt, s);
 		rescue();
 		abort();
 	}

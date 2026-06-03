@@ -1,12 +1,11 @@
 Explicit q exits.
-args: -d input
 
 -- stdin --
 ,p
 q
+-- input --
+alpha
 -- stdout --
 alpha
 -- stderr --
  -. input
--- input --
-alpha

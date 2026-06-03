@@ -1,17 +1,16 @@
 A bare newline prints the next line.
-args: -d input
 
 -- stdin --
 1
 
 2
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 beta
 beta
 -- stderr --
  -. input
--- input --
-alpha
-beta
-gamma

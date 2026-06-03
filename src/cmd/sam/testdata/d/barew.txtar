@@ -1,15 +1,14 @@
 A bare w (no name) rewrites the file under its current name.
-args: -d input
 
 -- stdin --
 ,p
 w
+-- input --
+alpha
+beta
 -- stdout --
 alpha
 beta
 -- stderr --
  -. input
 input: #11
--- input --
-alpha
-beta

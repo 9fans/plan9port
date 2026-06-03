@@ -2,10 +2,19 @@ package main
 
 import "fmt"
 
+const INFINITY = 0x7FFFFFFF
+
+type Posn int // file position or address
+
 // Address is a range within a particular file.
 type Address struct {
 	r Range
 	f *File
+}
+
+// Range is a span of text (sam.h struct Range).
+type Range struct {
+	p1, p2 Posn
 }
 
 func (s *Sam) address(ap *Addr, a Address, sign int) Address {
@@ -16,7 +25,7 @@ func (s *Sam) address(ap *Addr, a Address, sign int) Address {
 		switch ap.typ {
 		case 'l', '#':
 			if ap.typ == '#' {
-				a = charaddr(ap.num, a, sign)
+				a = s.charaddr(ap.num, a, sign)
 			} else {
 				a = s.lineaddr(ap.num, a, sign)
 			}
@@ -25,8 +34,8 @@ func (s *Sam) address(ap *Addr, a Address, sign int) Address {
 			a = f.dot
 
 		case '$':
-			a.r.p1 = Posn(f.b.nc())
-			a.r.p2 = Posn(f.b.nc())
+			a.r.p1 = f.b.nc()
+			a.r.p2 = f.b.nc()
 
 		case '\'':
 			a.r = f.mark
@@ -56,7 +65,7 @@ func (s *Sam) address(ap *Addr, a Address, sign int) Address {
 
 		case '*':
 			a.r.p1 = 0
-			a.r.p2 = Posn(f.b.nc())
+			a.r.p2 = f.b.nc()
 			return a
 
 		case ',', ';':
@@ -76,18 +85,18 @@ func (s *Sam) address(ap *Addr, a Address, sign int) Address {
 				a2 = s.address(ap.next, a, 0)
 			} else {
 				a2.f = a.f
-				a2.r.p1 = Posn(f.b.nc())
-				a2.r.p2 = Posn(f.b.nc())
+				a2.r.p1 = f.b.nc()
+				a2.r.p2 = f.b.nc()
 			}
 			if a1.f != a2.f {
 				// untested
-				fail(Eorder)
+				s.error(Eorder)
 			}
 			a.f = a1.f
 			a.r.p1 = a1.r.p1
 			a.r.p2 = a2.r.p2
 			if a.r.p2 < a.r.p1 {
-				fail(Eorder)
+				s.error(Eorder)
 			}
 			return a
 
@@ -102,47 +111,47 @@ func (s *Sam) address(ap *Addr, a Address, sign int) Address {
 
 		default:
 			// unreachable
-			s.panicf("address")
+			s.panic("address")
 			return a
 		}
 	}
 	return a
 }
 
-func (s *Sam) nextmatch(f *File, r *String, p Posn, sign int) {
+func (s *Sam) nextmatch(f *File, r []rune, p Posn, sign int) {
 	s.compile(r)
 	if sign >= 0 {
 		if !s.execute(f, p, INFINITY) {
-			fail(Esearch)
+			s.error(Esearch)
 		}
 		if s.sel.p[0].p1 == s.sel.p[0].p2 && s.sel.p[0].p1 == p {
-			if p++; p > Posn(f.b.nc()) {
+			if p++; p > f.b.nc() {
 				// untested: zero-width search that matches at the search position then wraps
 				p = 0
 			}
 			if !s.execute(f, p, INFINITY) {
 				// unreachable
-				s.panicf("address")
+				s.panic("address")
 			}
 		}
 	} else {
 		if !s.bexecute(f, p) {
-			fail(Esearch)
+			s.error(Esearch)
 		}
 		if s.sel.p[0].p1 == s.sel.p[0].p2 && s.sel.p[0].p2 == p {
 			if p--; p < 0 {
 				// untested: zero-width search that matches at the search position then wraps
-				p = Posn(f.b.nc())
+				p = f.b.nc()
 			}
 			if !s.bexecute(f, p) {
 				// unreachable
-				s.panicf("address")
+				s.panic("address")
 			}
 		}
 	}
 }
 
-func (s *Sam) matchfile(r *String) *File {
+func (s *Sam) matchfile(r []rune) *File {
 	var match *File
 	for _, f := range s.file {
 		if f == s.cmd {
@@ -150,25 +159,25 @@ func (s *Sam) matchfile(r *String) *File {
 		}
 		if s.filematch(f, r) {
 			if match != nil {
-				fail(Emanyfiles)
+				s.error(Emanyfiles)
 			}
 			match = f
 		}
 	}
 	if match == nil {
-		fail(Efsearch)
+		s.error(Efsearch)
 	}
 	return match
 }
 
-func (s *Sam) filematch(f *File, r *String) bool {
-	c := Strtoc(&f.name)
+func (s *Sam) filematch(f *File, r []rune) bool {
+	c := string(f.name)
 	mc := byte(' ')
 	if f.mod {
 		mc = '\''
 	}
 	rc := byte('-')
-	if f.hasrasp {
+	if f.rasp.init {
 		rc = '+'
 	}
 	cc := byte(' ')
@@ -176,20 +185,18 @@ func (s *Sam) filematch(f *File, r *String) bool {
 		cc = '.'
 	}
 	buf := fmt.Sprintf("%c%c%c %s\n", mc, rc, cc, c)
-	t := tmpcstr(buf)
-	Strduplstr(&s.genstr, t)
-	freetmpstr(t)
+	s.genstr = []rune(buf)
 	// A little dirty...
 	if s.menu == nil {
 		s.menu = s.fileopen()
 	}
 	bufreset(&s.menu.b)
-	bufinsert(&s.menu.b, 0, s.genstr.s, s.genstr.n())
+	s.bufinsert(&s.menu.b, 0, s.genstr)
 	s.compile(r)
-	return s.execute(s.menu, 0, Posn(s.menu.b.nc()))
+	return s.execute(s.menu, 0, s.menu.b.nc())
 }
 
-func charaddr(l Posn, addr Address, sign int) Address {
+func (s *Sam) charaddr(l Posn, addr Address, sign int) Address {
 	if sign == 0 {
 		addr.r.p1 = l
 		addr.r.p2 = l
@@ -200,15 +207,15 @@ func charaddr(l Posn, addr Address, sign int) Address {
 		addr.r.p2 += l
 		addr.r.p1 = addr.r.p2
 	}
-	if addr.r.p1 < 0 || addr.r.p2 > Posn(addr.f.b.nc()) {
-		fail(Erange)
+	if addr.r.p1 < 0 || addr.r.p2 > addr.f.b.nc() {
+		s.error(Erange)
 	}
 	return addr
 }
 
 func (s *Sam) lineaddr(l Posn, addr Address, sign int) Address {
-	var n int
-	var c int
+	var n Posn
+	var c rune
 	f := addr.f
 	var a Address
 	var p Posn
@@ -237,8 +244,8 @@ func (s *Sam) lineaddr(l Posn, addr Address, sign int) Address {
 				p++
 			}
 			for n < l {
-				if p >= Posn(f.b.nc()) {
-					fail(Erange)
+				if p >= f.b.nc() {
+					s.error(Erange)
 				}
 				if filereadc(f, p) == '\n' {
 					n++
@@ -247,7 +254,7 @@ func (s *Sam) lineaddr(l Posn, addr Address, sign int) Address {
 			}
 			a.r.p1 = p
 		}
-		for p < Posn(f.b.nc()) {
+		for p < f.b.nc() {
 			ch := filereadc(f, p)
 			p++
 			if ch == '\n' {
@@ -263,7 +270,7 @@ func (s *Sam) lineaddr(l Posn, addr Address, sign int) Address {
 			for n = 0; n < l; {
 				if p == 0 {
 					if n++; n != l {
-						fail(Erange)
+						s.error(Erange)
 					}
 				} else {
 					c = filereadc(f, p-1)

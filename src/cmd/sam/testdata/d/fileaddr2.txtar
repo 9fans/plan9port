@@ -1,17 +1,16 @@
 The " file address loads/selects another file; ambiguous match errors.
-args: -d aaa bbb
 
 -- stdin --
 "bbb"1p
 "b"1p
+-- aaa --
+one
+-- bbb --
+two
+three
 -- stdout --
 two
 two
 -- stderr --
  -. aaa
  -  bbb
--- aaa --
-one
--- bbb --
-two
-three

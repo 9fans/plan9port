@@ -1,11 +1,9 @@
 cd to a nonexistent directory reports the system error.
-args: -d input
 
 -- stdin --
 cd /no/such/dir
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 chdir: ?I/O error: "No such file or directory"
--- input --
-alpha

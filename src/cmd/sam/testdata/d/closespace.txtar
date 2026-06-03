@@ -1,16 +1,14 @@
 D with a blank operand, and D of a named file.
-args: -d a b
 
 -- stdin --
-D 
+D ^J
 D b
 n
--- stdout --
--- stderr --
- -. a
-?newline expected
- -. a
 -- a --
 one
 -- b --
 two
+-- stderr --
+ -. a
+?newline expected
+ -. a

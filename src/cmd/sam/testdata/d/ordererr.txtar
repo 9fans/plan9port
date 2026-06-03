@@ -1,16 +1,14 @@
 Out-of-order and reversed addresses report errors.
-args: -d input
 
 -- stdin --
 2,1p
 /gamma/,/alpha/p
 #100
--- stdout --
--- stderr --
- -. input
-?addresses out of order
-?address range
 -- input --
 alpha
 beta
 gamma
+-- stderr --
+ -. input
+?addresses out of order
+?address range

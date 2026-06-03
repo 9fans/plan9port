@@ -1,15 +1,13 @@
 A " file address combined with a default-whole-file w.
-args: -d input
 
 -- stdin --
 "input"w out
--- stdout --
--- stderr --
- -. input
-out: #11
 -- input --
 alpha
 beta
+-- stderr --
+ -. input
+out: #11
 -- out.out --
 alpha
 beta

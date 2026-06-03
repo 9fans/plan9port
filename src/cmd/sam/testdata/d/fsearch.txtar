@@ -1,11 +1,9 @@
 A " address matching no file.
-args: -d input
 
 -- stdin --
 "nomatch"p
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?file search
--- input --
-alpha

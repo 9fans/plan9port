@@ -1,12 +1,10 @@
 A backward regexp search with more threads than NLIST overflows the match list
 (bexecute Eoverflow).
-args: -d input
 
 -- stdin --
 $?a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a?
--- stdout --
+-- input --
+hello
 -- stderr --
  -. input
 ?reg. exp. list overflow
--- input --
-hello

@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"io"
 	"os"
+
+	"rsc.io/getopt"
 )
 
 func main() {
@@ -17,9 +20,8 @@ func main() {
 	os.Exit(1)
 }
 
-// compatMode, when set, makes every Sam created by Run use s.compat
-// (Unix C-style error formatting).
-// It stays false in the real binary; the test binary sets it via an init in a _test.go file.
+// If compatMode is true, every Sam created by Run sets s.compat (Unix C-style error formatting).
+// The flag stays false in the real binary; the test binary sets it via an init in a _test.go file.
 var compatMode bool
 
 // newSam constructs a Sam with fresh state, wired to the given streams.
@@ -32,77 +34,61 @@ func newSam(in io.Reader, out, err io.Writer) *Sam {
 		compat: compatMode,
 	}
 	s.inbr = bufio.NewReader(in)
-	s.line = make([]Rune, BLOCKSIZE)
-	s.termline = make([]Rune, BLOCKSIZE)
-	Strinit(&s.cmdstr)
-	Strinit0(&s.lastpat)
-	Strinit0(&s.lastregexp)
-	Strinit0(&s.genstr)
-	Strinit0(&s.rhs)
-	Strinit0(&s.curwd)
-	Strinit0(&s.plan9cmd)
+	s.line = make([]rune, BLOCKSIZE)
+	s.termline = make([]rune, BLOCKSIZE)
+	s.cmdstr = nil
+	s.lastpat = nil
+	s.lastregexp = nil
+	s.genstr = nil
+	s.rhs = nil
+	s.curwd = nil
+	s.shellcmd = nil
 	s.reginit()
-	s.meginit()
+	s.mesginit()
 	return s
 }
 
-// machineName returns "" (remote operation is out of scope).
-func (s *Sam) machineName() string { return "" }
+// machineName returns the -r remote machine ("" for local operation).
+func (s *Sam) machineName() string { return s.machine }
 
-//FIX: use rsc.io/getopt instead of custom flag parsing
-// parseArgs handles sam's flags (ARGBEGIN), returning the file arguments.
-func (s *Sam) parseArgs(args []string) []string {
-	i := 0
-	for i < len(args) {
-		a := args[i]
-		if len(a) < 2 || a[0] != '-' {
-			break
-		}
-		if a == "--" {
-			i++
-			break
-		}
-		j := 1
-		for j < len(a) {
-			c := a[j]
-			switch c {
-			case 'd':
-				s.dflag = true
-			case 'R':
-				s.Rflag = true
-			case 'a':
-				// samterm option: pass through.
-				s.termargs = append(s.termargs, "-a")
-			case 'r', 't', 's', 'W':
-				// these take an argument (EARGF): the rest of this arg, else
-				// the next arg.
-				var val string
-				if j+1 < len(a) {
-					val = a[j+1:]
-					j = len(a)
-				} else {
-					i++
-					if i < len(args) {
-						val = args[i]
-					}
-				}
-				switch c {
-				case 't':
-					s.termprog = val
-				case 'W':
-					s.termargs = append(s.termargs, "-W", val)
-				case 'r', 's':
-					// remote operation is out of scope; ignore.
-				}
-			default:
-				s.dprint("sam: unknown flag %c\n", c)
-				s.exits("usage")
-			}
-			j++
-		}
-		i++
+// termFlag is a flag.Value that accumulates samterm pass-through options into
+// s.termargs in the order they appear on the command line, mirroring sam.c's
+// `*ap++ = ...` in ARGBEGIN. opt is the literal option ("-a" or "-W"); when
+// bool is false the flag's value is appended after it ("-W" size).
+type termFlag struct {
+	s    *Sam
+	opt  string
+	bool bool
+}
+
+func (t *termFlag) String() string   { return "" }
+func (t *termFlag) IsBoolFlag() bool { return t.bool }
+func (t *termFlag) Set(v string) error {
+	t.s.termargs = append(t.s.termargs, t.opt)
+	if !t.bool {
+		t.s.termargs = append(t.s.termargs, v)
 	}
-	return args[i:]
+	return nil
+}
+
+// parseArgs handles sam's flags (sam.c ARGBEGIN), returning the file arguments.
+// It uses rsc.io/getopt so a single dash combines single-letter flags (-dR) and
+// value flags take the rest of the arg or the next arg (EARGF), exactly as
+// ARGBEGIN does.
+func (s *Sam) parseArgs(args []string) []string {
+	fs := getopt.NewFlagSet("sam", flag.ContinueOnError)
+	fs.SetOutput(s.err)
+	fs.BoolVar(&s.dflag, "d", false, "download nothing (no samterm)")
+	fs.BoolVar(&s.Rflag, "R", false, "read-only")
+	fs.StringVar(&s.termprog, "t", s.termprog, "samterm program")
+	fs.StringVar(&s.machine, "r", "", "remote machine")
+	fs.StringVar(&s.rsamname, "s", "sam", "remote sam name")
+	fs.Var(&termFlag{s: s, opt: "-a", bool: true}, "a", "samterm: enable autoindent")
+	fs.Var(&termFlag{s: s, opt: "-W"}, "W", "samterm: window size")
+	if err := fs.Parse(args); err != nil {
+		s.exits("usage")
+	}
+	return fs.Args()
 }
 
 // Run executes sam over the given args and streams, returning the exit status
@@ -132,12 +118,9 @@ func (s *Sam) run(args []string) (status string) {
 
 	for _, arg := range files {
 		s.protect(func() {
-			t := tmpcstr(arg)
-			Straddc(t, 0)
-			Strduplstr(&s.genstr, t)
-			freetmpstr(t)
-			s.fixname(&s.genstr)
-			s.logsetname(s.newfile(), &s.genstr)
+			s.genstr = []rune(arg)
+			s.genstr = s.fixname(s.genstr)
+			s.logsetname(s.newfile(), s.genstr)
 		})
 	}
 	if len(files) == 0 && !s.downloaded {
@@ -149,7 +132,7 @@ func (s *Sam) run(args []string) (status string) {
 	}
 
 	for {
-		if s.mainOnce(func() {
+		if s.protect(func() {
 			s.cmdloop()
 			s.trytoquit() // if we already q'ed, quitok will be TRUE
 		}) {
@@ -159,34 +142,20 @@ func (s *Sam) run(args []string) (status string) {
 	return "0"
 }
 
-// protect runs body, turning a samErr panic into a hiccough (mirroring a
-// per-file setjmp(mainloop)). samExit propagates to run's recover.
-func (s *Sam) protect(body func()) {
+// protect runs body at the command-loop boundary (C's setjmp(mainloop)). An
+// error deep in body calls s.error -> s.hiccough, which rolls the command back
+// in place and then panics mainloopJump to unwind here -- C's
+// longjmp(mainloop, 1) returning nonzero into setjmp. protect catches it and
+// reports completed=false so the caller re-runs; it returns true if body
+// completed normally. samExit and other panics propagate to run's recover.
+func (s *Sam) protect(body func()) (completed bool) {
 	defer func() {
-		if r := recover(); r != nil {
-			// untested
-			if e, ok := r.(samErr); ok {
-				// untested: a non-samErr panic reaching the mainloop boundary
-				s.dohiccough(e.msg, e.quiet)
-				return
-			}
-			// untested
-			panic(r)
-		}
-	}()
-	body()
-}
-
-// mainOnce runs body at the mainloop boundary. It returns true if body
-// completed normally, false if a samErr was handled (so the caller re-runs).
-func (s *Sam) mainOnce(body func()) (completed bool) {
-	defer func() {
-		if r := recover(); r != nil {
-			if e, ok := r.(samErr); ok {
-				s.dohiccough(e.msg, e.quiet)
-				completed = false
-				return
-			}
+		switch r := recover().(type) {
+		case nil:
+			// body completed normally
+		case mainloopJump:
+			completed = false
+		default:
 			panic(r)
 		}
 	}()

@@ -1,14 +1,13 @@
 A literal \n escape in a substitution replacement.
-args: -d input
 
 -- stdin --
 ,s/a/X\nY/
 ,p
+-- input --
+alpha
 -- stdout --
 X
 Ylpha
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha

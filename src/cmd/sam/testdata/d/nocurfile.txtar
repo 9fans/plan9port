@@ -1,12 +1,10 @@
 A " address when there is no current file (after closing the only one).
-args: -d input
 
 -- stdin --
 D input
 "input"p
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?file search
--- input --
-alpha

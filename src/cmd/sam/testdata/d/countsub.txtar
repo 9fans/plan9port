@@ -1,11 +1,13 @@
 Counted substitution and global empty-match substitution.
-args: -d input
 
 -- stdin --
 ,s2/a/X/
 ,p
 ,s/b*/-/g
 ,p
+-- input --
+aaa
+abc
 -- stdout --
 aXa
 abc
@@ -15,6 +17,3 @@ abc
 -- stderr --
  -. input
 ?changed files
--- input --
-aaa
-abc

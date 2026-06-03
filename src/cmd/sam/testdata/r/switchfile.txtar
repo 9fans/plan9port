@@ -1,44 +1,50 @@
 A command that switches the current file makes the host send Hcurrent.
-args: -R a b
 
--- script --
-startfile 0
-type b b\n
-exit
--- b --
-three
 -- a --
 one
 two
--- host --
+-- b --
+three
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "a"
 Hnewname tag=1
 Hmovname tag=1 "b"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=2
 Hbindname tag=2
 Hcurrent tag=2
 Hmovname tag=2 "~~sam~~"
 Hcheck0 tag=2
 Hack
+Tack
 Hunlock
+Tstartfile 0
 Hbindname tag=0
 Hcurrent tag=0
 Hgrow tag=0 p=0 n=8
 Hcheck0 tag=0
 Hcheck0 tag=0
 Hack
+Trequest 0 0 8
 Hdata tag=0 p=0 "one\ntwo\n"
+Tack
 Hgrow tag=2 p=0 n=6
 Hcheck0 tag=2
 Hack
+Trequest 2 0 6
 Hdata tag=2 p=0 " +. a\n"
+Tack
 Hsetdot tag=2 p=6 n=6
 Hunlock
+cmd b b\n
 Hgrowdata tag=2 p=10 n=6 " -. b\n"
 Hcheck0 tag=2
 Hack
+Tack
 Hsetdot tag=2 p=16 n=16
 Hcurrent tag=1
 Hunlock
+Texit

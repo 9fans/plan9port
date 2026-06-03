@@ -1,12 +1,11 @@
 Redo (u with a negative count) when there is nothing to redo.
-args: -d input
 
 -- stdin --
 u-1
 ,p
+-- input --
+alpha
 -- stdout --
 alpha
 -- stderr --
  -. input
--- input --
-alpha

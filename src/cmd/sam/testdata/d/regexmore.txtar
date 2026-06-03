@@ -1,10 +1,13 @@
 Escaped metacharacters, \n in a class, and groups in a backward search.
-args: -d input
 
 -- stdin --
 ,x/a\.b/ p
-,x/[\n]/ 
+,x/[\n]/ ^J
 $?(b)(eta)?p
+-- input --
+a.b
+xx
+beta
 -- stdout --
 a.b
 
@@ -12,7 +15,3 @@ a.b
 beta^D
 -- stderr --
  -. input
--- input --
-a.b
-xx
-beta

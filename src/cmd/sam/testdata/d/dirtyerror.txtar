@@ -1,5 +1,4 @@
 An error while an already-modified file is changed again rolls back to dirty.
-args: -d input
 
 -- stdin --
 1d
@@ -8,6 +7,10 @@ args: -d input
 #99
 }
 ,p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 beta
 gamma
@@ -15,7 +18,3 @@ gamma
  -. input
 ?address range
 ?changed files
--- input --
-alpha
-beta
-gamma

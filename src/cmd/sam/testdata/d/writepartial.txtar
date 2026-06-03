@@ -1,15 +1,15 @@
 A partial write under the same name leaves the file dirty.
-args: -d input
 
 -- stdin --
 1d
 1w input
--- stdout --
--- stderr --
- -. input
-input: #5
-?changed files
 -- input --
 alpha
 beta
 gamma
+-- stderr --
+ -. input
+input: #5
+?changed files
+-- input.out --
+beta

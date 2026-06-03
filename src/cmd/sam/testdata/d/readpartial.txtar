@@ -1,16 +1,14 @@
 Reading command output that is an incomplete UTF-8 byte (a lone 0xC3 lead byte)
 inserts zero runes, exercising readio's empty-loginsert and trailing partial-rune
 (b!=0 -> nulls) handling and the "null characters elided" warning.
-args: -d input
 
 -- stdin --
 ,<printf '\303'
 ,p
--- stdout --
+-- input --
+hello
 -- stderr --
  -. input
 ?warning: null characters elided
 !
 ?changed files
--- input --
-hello

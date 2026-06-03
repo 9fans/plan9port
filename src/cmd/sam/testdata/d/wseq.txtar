@@ -1,14 +1,12 @@
 Writing a file in the same command that changed it is rejected.
-args: -d input
 
 -- stdin --
 {
 ,s/a/b/
 w scratch
 }
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?can't write while changing: "scratch"
--- input --
-alpha

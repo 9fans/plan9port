@@ -1,16 +1,15 @@
 Delete a line and reprint; on EOF the dirty file warns.
-args: -d input
 
 -- stdin --
 2d
 ,p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 gamma
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha
-beta
-gamma

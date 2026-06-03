@@ -1,42 +1,58 @@
 package main
 
-// Faithful port of rasp.c.
+// The rasp routines inform the terminal of changes to the file.
 //
-// The rasp routines inform the terminal of changes to the file. A rasp (f.rasp)
-// is a list of spans within the file with a high bit (M) marking spans the
-// terminal already knows about. It is optimized by coalescing multiple updates
-// to the same span when the terminal does not know it. (Other possible
-// optimizations: flush the terminal's rasp by cutting everything and inserting
-// everything if the rasp gets too large.)
+// A rasp (f.rasp) is a list of spans within the file with a high bit (M)
+// marking spans the terminal already knows about.
 //
-// raspinsert/raspdelete also shift dot and mark to track edits, which matters
-// even in -d mode (where f.rasp is nil), so that adjustment runs before the
-// nil check.
+// It is optimized by coalescing multiple updates to the same span
+// when the terminal does not know about the span.
+//
+// Other possible optimizations: flush the terminal's rasp by cutting
+// everything and inserting everything if the rasp gets too large.
+//
+// Note that raspinsert/raspdelete also shift dot and mark to track edits,
+// which matters even in -d mode, when f.rasp is nil.
 
-// GROWDATASIZE must be big enough that all errors go out as Hgrowdata's, so
-// they will be scrolled into visibility in the ~~sam~~ window (yuck!).
+import "slices"
+
+// GROWDATASIZE must be big enough that all errors go out as Hgrowdata's,
+// so they will be scrolled into visibility in the ~~sam~~ window (yuck!).
 const GROWDATASIZE = 50 // if size is <= this, send data with grow
 
+// M marks, in a Rasp span, that the terminal already knows about the span.
 const M = 0x80000000
 
-func rT(p Posn) bool { return p&M != 0 } // in terminal
-func rL(p Posn) Posn { return p &^ M }   // length of this piece
+// A Rasp is a list of spans covering a file: each entry is a length with the
+// high bit M set if the terminal already knows that span (rasp.c's Posn list).
+// init reports whether the rasp has been allocated, i.e. the file is bound to a
+// terminal (C's File.rasp != nil test).
+type Rasp struct {
+	p    []uint32
+	init bool
+}
+
+// T reports whether span i is in the terminal.
+func (r *Rasp) T(i int) bool { return r.p[i]&M != 0 }
+
+// L returns the length of span i.
+func (r *Rasp) L(i int) Posn { return Posn(r.p[i] &^ M) }
 
 // raspload is only called for the initial load of a file.
 func (s *Sam) raspload(f *File) {
-	if !f.hasrasp {
+	if !f.rasp.init {
 		return
 	}
-	s.grown = Posn(f.b.nc())
+	s.grown = f.b.nc()
 	s.growpos = 0
 	if f.b.nc() != 0 {
-		rgrow(&f.rasp, 0, Posn(f.b.nc()))
+		s.rgrow(&f.rasp, 0, f.b.nc())
 	}
 	s.raspdone(f, true)
 }
 
 func (s *Sam) raspstart(f *File) {
-	if !f.hasrasp {
+	if !f.rasp.init {
 		return
 	}
 	s.grown = 0
@@ -45,19 +61,19 @@ func (s *Sam) raspstart(f *File) {
 }
 
 func (s *Sam) raspdone(f *File, toterm bool) {
-	if f.dot.r.p1 > Posn(f.b.nc()) {
-		f.dot.r.p1 = Posn(f.b.nc())
+	if f.dot.r.p1 > f.b.nc() {
+		f.dot.r.p1 = f.b.nc()
 	}
-	if f.dot.r.p2 > Posn(f.b.nc()) {
-		f.dot.r.p2 = Posn(f.b.nc())
+	if f.dot.r.p2 > f.b.nc() {
+		f.dot.r.p2 = f.b.nc()
 	}
-	if f.mark.p1 > Posn(f.b.nc()) {
-		f.mark.p1 = Posn(f.b.nc())
+	if f.mark.p1 > f.b.nc() {
+		f.mark.p1 = f.b.nc()
 	}
-	if f.mark.p2 > Posn(f.b.nc()) {
-		f.mark.p2 = Posn(f.b.nc())
+	if f.mark.p2 > f.b.nc() {
+		f.mark.p2 = f.b.nc()
 	}
-	if !f.hasrasp {
+	if !f.rasp.init {
 		return
 	}
 	if s.grown != 0 {
@@ -103,7 +119,7 @@ func (s *Sam) raspdelete(f *File, p1, p2 Posn, toterm bool) {
 		f.mark.p2 -= n
 	}
 
-	if !f.hasrasp {
+	if !f.rasp.init {
 		return
 	}
 
@@ -127,29 +143,30 @@ func (s *Sam) raspdelete(f *File, p1, p2 Posn, toterm bool) {
 		}
 		s.shrunk += n
 	}
-	rcut(&f.rasp, p1, p2)
+	s.rcut(&f.rasp, p1, p2)
 }
 
-func (s *Sam) raspinsert(f *File, p1 Posn, buf []Rune, n int, toterm bool) {
+func (s *Sam) raspinsert(f *File, p1 Posn, buf []rune, toterm bool) {
+	n := Posn(len(buf))
 	if n == 0 {
 		// untested: fileundo only replays records with n>0 (loginsert/logdelete drop zero-length edits)
 		return
 	}
 
 	if p1 < f.dot.r.p1 {
-		f.dot.r.p1 += Posn(n)
-		f.dot.r.p2 += Posn(n)
+		f.dot.r.p1 += n
+		f.dot.r.p2 += n
 	}
 	if p1 < f.mark.p1 {
-		f.mark.p1 += Posn(n)
-		f.mark.p2 += Posn(n)
+		f.mark.p1 += n
+		f.mark.p2 += n
 	}
 
-	if !f.hasrasp {
+	if !f.rasp.init {
 		return
 	}
 	if f == s.cmd && p1 < s.cmdpt {
-		s.cmdpt += Posn(n)
+		s.cmdpt += n
 	}
 	if toterm {
 		if s.shrunk != 0 {
@@ -157,7 +174,7 @@ func (s *Sam) raspinsert(f *File, p1 Posn, buf []Rune, n int, toterm bool) {
 			s.shrunk = 0
 		}
 		if n > GROWDATASIZE || !rterm(&f.rasp, p1) {
-			rgrow(&f.rasp, p1, Posn(n))
+			s.rgrow(&f.rasp, p1, n)
 			if s.grown != 0 && s.growpos+s.grown != p1 && s.growpos != p1 {
 				s.outTsll(Hgrow, f.tag, s.growpos, s.grown)
 				s.grown = 0
@@ -165,196 +182,184 @@ func (s *Sam) raspinsert(f *File, p1 Posn, buf []Rune, n int, toterm bool) {
 			if s.grown == 0 {
 				s.growpos = p1
 			}
-			s.grown += Posn(n)
+			s.grown += n
 		} else {
 			if s.grown != 0 {
 				s.outTsll(Hgrow, f.tag, s.growpos, s.grown)
 				s.grown = 0
 			}
-			rgrow(&f.rasp, p1, Posn(n))
-			r := rdata(&f.rasp, p1, Posn(n))
-			if r.p1 != p1 || r.p2 != p1+Posn(n) {
+			s.rgrow(&f.rasp, p1, n)
+			r := s.rdata(&f.rasp, p1, n)
+			if r.p1 != p1 || r.p2 != p1+n {
 				// unreachable
-				s.panicf("rdata in toterminal")
+				s.panic("rdata in toterminal")
 			}
-			s.outTsllS(Hgrowdata, f.tag, p1, Posn(n), tmprstr(buf, n))
+			s.outTsllS(Hgrowdata, f.tag, p1, n, buf)
 		}
 	} else {
-		rgrow(&f.rasp, p1, Posn(n))
-		r := rdata(&f.rasp, p1, Posn(n))
-		if r.p1 != p1 || r.p2 != p1+Posn(n) {
+		s.rgrow(&f.rasp, p1, n)
+		r := s.rdata(&f.rasp, p1, n)
+		if r.p1 != p1 || r.p2 != p1+n {
 			// unreachable
-			s.panicf("rdata in toterminal")
+			s.panic("rdata in toterminal")
 		}
 	}
 }
 
-// rasp list primitives. inslist/dellist operate on the []Posn slice.
-
-func raspInsAt(r *[]Posn, i int, v Posn) {
-	*r = append(*r, 0)
-	copy((*r)[i+1:], (*r)[i:])
-	(*r)[i] = v
-}
-
-func raspDelAt(r *[]Posn, i int) {
-	*r = append((*r)[:i], (*r)[i+1:]...)
-}
-
-func rcut(r *[]Posn, p1, p2 Posn) {
+func (s *Sam) rcut(r *Rasp, p1, p2 Posn) {
 	if p1 == p2 {
 		// unreachable
-		bug("rcut 0")
+		s.panic("rcut 0")
 	}
-	var p Posn
+	p := Posn(0)
 	i := 0
-	for ; i < len(*r) && p+rL((*r)[i]) <= p1; i++ {
-		p += rL((*r)[i])
+	for ; i < len(r.p) && p+r.L(i) <= p1; i++ {
+		p += r.L(i)
 	}
-	if i == len(*r) {
+	if i == len(r.p) {
 		// unreachable
-		bug("rcut 1")
+		s.panic("rcut 1")
 	}
 	if p < p1 { // chop this piece
 		var x Posn
-		if p+rL((*r)[i]) < p2 {
+		if p+r.L(i) < p2 {
 			x = p1 - p
-			p += rL((*r)[i])
+			p += r.L(i)
 		} else {
-			x = rL((*r)[i]) - (p2 - p1)
+			x = r.L(i) - (p2 - p1)
 			p = p2
 		}
-		if rT((*r)[i]) {
-			(*r)[i] = x | M
+		if r.T(i) {
+			r.p[i] = uint32(x) | M
 		} else {
-			(*r)[i] = x
+			r.p[i] = uint32(x)
 		}
 		i++
 	}
-	for i < len(*r) && p+rL((*r)[i]) <= p2 {
-		p += rL((*r)[i])
-		raspDelAt(r, i)
+	for i < len(r.p) && p+r.L(i) <= p2 {
+		p += r.L(i)
+		r.p = slices.Delete(r.p, i, i+1)
 	}
 	if p < p2 {
-		if i == len(*r) {
+		if i == len(r.p) {
 			// unreachable
-			bug("rcut 2")
+			s.panic("rcut 2")
 		}
-		x := rL((*r)[i]) - (p2 - p)
-		if rT((*r)[i]) {
-			(*r)[i] = x | M
+		x := r.L(i) - (p2 - p)
+		if r.T(i) {
+			r.p[i] = uint32(x) | M
 		} else {
-			(*r)[i] = x
+			r.p[i] = uint32(x)
 		}
 	}
 	// can we merge i and i-1 ?
-	if i > 0 && i < len(*r) && rT((*r)[i-1]) == rT((*r)[i]) {
-		x := rL((*r)[i-1]) + rL((*r)[i])
-		raspDelAt(r, i)
+	if i > 0 && i < len(r.p) && r.T(i-1) == r.T(i) {
+		x := r.L(i-1) + r.L(i)
+		r.p = slices.Delete(r.p, i, i+1)
 		i--
-		if rT((*r)[i]) {
-			(*r)[i] = x | M
+		if r.T(i) {
+			r.p[i] = uint32(x) | M
 		} else {
-			(*r)[i] = x
+			r.p[i] = uint32(x)
 		}
 	}
 }
 
-func rgrow(r *[]Posn, p1, n Posn) {
+func (s *Sam) rgrow(r *Rasp, p1, n Posn) {
 	if n == 0 {
 		// unreachable
-		bug("rgrow 0")
+		s.panic("rgrow 0")
 	}
-	var p Posn
+	p := Posn(0)
 	i := 0
-	for ; i < len(*r) && p+rL((*r)[i]) <= p1; i++ {
-		p += rL((*r)[i])
+	for ; i < len(r.p) && p+r.L(i) <= p1; i++ {
+		p += r.L(i)
 	}
-	if i == len(*r) { // stick on end of file
+	if i == len(r.p) { // stick on end of file
 		if p != p1 {
 			// unreachable
-			bug("rgrow 1")
+			s.panic("rgrow 1")
 		}
-		if i > 0 && !rT((*r)[i-1]) {
-			(*r)[i-1] += n
+		if i > 0 && !r.T(i-1) {
+			r.p[i-1] += uint32(n)
 		} else {
-			raspInsAt(r, i, n)
+			r.p = slices.Insert(r.p, i, uint32(n))
 		}
-	} else if !rT((*r)[i]) { // goes in this empty piece
-		(*r)[i] += n
-	} else if p == p1 && i > 0 && !rT((*r)[i-1]) { // special case; simplifies life
-		(*r)[i-1] += n
+	} else if !r.T(i) { // goes in this empty piece
+		r.p[i] += uint32(n)
+	} else if p == p1 && i > 0 && !r.T(i-1) { // special case; simplifies life
+		r.p[i-1] += uint32(n)
 	} else if p == p1 {
-		raspInsAt(r, i, n)
+		r.p = slices.Insert(r.p, i, uint32(n))
 	} else { // must break piece in terminal
-		raspInsAt(r, i+1, (rL((*r)[i])-(p1-p))|M)
-		raspInsAt(r, i+1, n)
-		(*r)[i] = (p1 - p) | M
+		r.p = slices.Insert(r.p, i+1, uint32(r.L(i)-(p1-p))|M)
+		r.p = slices.Insert(r.p, i+1, uint32(n))
+		r.p[i] = uint32(p1-p) | M
 	}
 }
 
-func rterm(r *[]Posn, p1 Posn) bool {
-	var p Posn
+func rterm(r *Rasp, p1 Posn) bool {
+	p := Posn(0)
 	i := 0
-	for ; i < len(*r) && p+rL((*r)[i]) <= p1; i++ {
-		p += rL((*r)[i])
+	for ; i < len(r.p) && p+r.L(i) <= p1; i++ {
+		p += r.L(i)
 	}
-	if i == len(*r) {
-		return i > 0 && rT((*r)[i-1])
+	if i == len(r.p) {
+		return i > 0 && r.T(i-1)
 	}
-	return rT((*r)[i])
+	return r.T(i)
 }
 
-func rdata(r *[]Posn, p1, n Posn) Range {
+func (s *Sam) rdata(r *Rasp, p1, n Posn) Range {
 	if n == 0 {
 		// unreachable
-		bug("rdata 0")
+		s.panic("rdata 0")
 	}
-	var p Posn
+	p := Posn(0)
 	i := 0
-	for ; i < len(*r) && p+rL((*r)[i]) <= p1; i++ {
-		p += rL((*r)[i])
+	for ; i < len(r.p) && p+r.L(i) <= p1; i++ {
+		p += r.L(i)
 	}
-	if i == len(*r) {
+	if i == len(r.p) {
 		// unreachable
-		bug("rdata 1")
+		s.panic("rdata 1")
 	}
-	if rT((*r)[i]) {
-		n -= rL((*r)[i]) - (p1 - p)
+	if r.T(i) {
+		n -= r.L(i) - (p1 - p)
 		if n <= 0 {
 			return Range{p1, p1}
 		}
-		p += rL((*r)[i])
+		p += r.L(i)
 		i++
 		p1 = p
 	}
-	if (i < len(*r) && rT((*r)[i])) || i == len(*r) {
+	if (i < len(r.p) && r.T(i)) || i == len(r.p) {
 		// unreachable
-		bug("rdata 2")
+		s.panic("rdata 2")
 	}
-	if p+rL((*r)[i]) < p1+n {
-		n = rL((*r)[i]) - (p1 - p)
+	if p+r.L(i) < p1+n {
+		n = r.L(i) - (p1 - p)
 	}
 	rg := Range{p1, p1 + n}
 	if p != p1 {
-		raspInsAt(r, i+1, rL((*r)[i])-(p1-p))
-		(*r)[i] = p1 - p
+		r.p = slices.Insert(r.p, i+1, uint32(r.L(i)-(p1-p)))
+		r.p[i] = uint32(p1 - p)
 		i++
 	}
-	if rL((*r)[i]) != n {
-		raspInsAt(r, i+1, rL((*r)[i])-n)
-		(*r)[i] = n
+	if r.L(i) != n {
+		r.p = slices.Insert(r.p, i+1, uint32(r.L(i)-n))
+		r.p[i] = uint32(n)
 	}
-	(*r)[i] |= M
+	r.p[i] |= M
 	// now i is set; can we merge?
-	if i < len(*r)-1 && rT((*r)[i+1]) {
-		n += rL((*r)[i+1])
-		(*r)[i] = n | M
-		raspDelAt(r, i+1)
+	if i < len(r.p)-1 && r.T(i+1) {
+		n += r.L(i + 1)
+		r.p[i] = uint32(n) | M
+		r.p = slices.Delete(r.p, i+1, i+2)
 	}
-	if i > 0 && rT((*r)[i-1]) {
-		(*r)[i] = (n + rL((*r)[i-1])) | M
-		raspDelAt(r, i-1)
+	if i > 0 && r.T(i-1) {
+		r.p[i] = uint32(n+r.L(i-1)) | M
+		r.p = slices.Delete(r.p, i-1, i)
 	}
 	return rg
 }

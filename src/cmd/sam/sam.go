@@ -1,8 +1,149 @@
 package main
 
-import "os"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"slices"
+)
 
-// Remaining sam.c functions (main is in main.go).
+const BLOCKSIZE = 2048
+
+// Sam holds all of sam's state. In C these are global variables; gathering
+// them here lets the Go sam run in-process so each test gets a fresh Sam.
+type Sam struct {
+	// I/O. These replace fds 0/1/2 (and the protocol connection for -R).
+	in  io.Reader
+	out io.Writer
+	err io.Writer
+
+	// flags / mode (sam.c)
+	downloaded bool
+	dflag      bool
+	Rflag      bool
+	quitok     bool
+
+	// samterm launch (io.c bootterm). termprog is the samterm binary (-t),
+	// default "samterm"; termargs are options passed through to it (-a, -W size).
+	// Set during argument parsing, used by startup.
+	termprog string
+	termargs []string
+
+	// remote operation (io.c connectto). machine (-r) is the host to ssh to;
+	// rsamname (-s, default "sam") is the sam command run there. remotefd0/1 are
+	// the ssh pipes connectto leaves for bootterm to hand to samterm.
+	machine   string
+	rsamname  string
+	remotefd0 *os.File
+	remotefd1 *os.File
+	// compat makes error text match the C sam byte-for-byte (capitalized %r
+	// strings). Off in ordinary use (Go's lowercase errors read better and
+	// match Plan 9); the tests turn it on to compare against the C oracle.
+	compat     bool
+	panicking  int
+	rescuing   int
+	bpipeok    bool
+	termlocked int
+
+	// core editor state (sam.c). The C global fd `io` becomes ioR/ioW/ioC.
+	genbuf   [BLOCKSIZE]rune
+	ioR      io.Reader
+	ioW      io.Writer
+	ioC      io.Closer
+	inbr     *bufio.Reader // buffered command input (non-downloaded)
+	genstr   []rune
+	rhs      []rune
+	curwd    []rune
+	cmdstr   []rune
+	genc     string
+	curfile  *File
+	flist    *File
+	cmd      *File
+	lastfile *File
+	seq      int
+
+	// command list / input buffer (cmd.c)
+	line     []rune // pending input line (runes), consumed via linep
+	linep    int
+	eof      bool
+	termline []rune
+	terminp  int
+	termoutp int
+
+	// addressing (address.c)
+	addr    Address
+	lastpat []rune
+	patset  bool
+	menu    *File
+
+	// regexp machine (regexp.c)
+	sel         Rangeset
+	lastregexp  []rune
+	program     []Inst
+	progp       int
+	startinst   *Inst // first inst. of program; might not be program[0]
+	bstartinst  *Inst // same for backwards machine
+	relist      [2][]Ilist
+	sempty      Rangeset
+	andstack    []Node
+	andp        int
+	atorstack   []int
+	atorp       int
+	subidstack  []int
+	subidp      int
+	lastwasand  bool // last token was operand
+	cursubid    int
+	backwards   bool
+	nbra        int
+	exprp       []rune // source expression
+	exprpos     int    // index of next character in exprp
+	class       [][]rune
+	negateclass bool
+
+	// undo merge state (file.c)
+	merge Merge
+
+	// file menu (multi.c)
+	file     []*File
+	tempfile []*File
+	tag      int
+
+	// executor (xec.c)
+	glooping int
+	nest     int
+
+	// shell (shell.c)
+	errfile  string
+	shellcmd []rune
+	plan9buf Buffer
+
+	// wire protocol (mesg.c)
+	indata      []byte
+	outdata     []byte
+	inp         int
+	outp        int
+	outmsg      int
+	cmdpt       Posn
+	cmdptadv    Posn
+	snarfbuf    Buffer
+	waitack     bool
+	outbuffered bool
+	tversion    int
+	// rcvchar's 64-byte read buffer (mesg.c rcvchar static locals)
+	rcvbuf [64]byte
+	rcvn   int
+	rcvi   int
+
+	// rasp (rasp.c)
+	growpos   Posn
+	grown     Posn
+	shrinkpos Posn
+	shrunk    Posn
+
+	// sys.c
+	inerror bool
+}
 
 // samExit models C exits(): unwinds to the top-level Run.
 type samExit struct{ status string }
@@ -11,10 +152,10 @@ func (s *Sam) exits(status string) {
 	panic(samExit{status})
 }
 
+// rescue writes every unsaved, dirty, non-empty file to $HOME/sam.save as a
+// shell script that pipes each file's contents back through $PLAN9/bin/samsave,
+// then marks the files unusable (sam.c rescue()).
 func (s *Sam) rescue() {
-	// The C rescue() writes unsaved dirty files to $HOME/sam.save. That output
-	// is not part of the observable stdout/stderr/wire stream the tests check,
-	// so we only set the guard and mark files unusable.
 	if s.rescuing != 0 {
 		// untested
 		return
@@ -23,13 +164,111 @@ func (s *Sam) rescue() {
 	for _, f := range s.file {
 		f.rescuing = true
 	}
+	// C sets io = -1 here, abandoning any in-progress I/O.
+	s.ioR, s.ioW, s.ioC = nil, nil, nil
+	var save *os.File
+	nblank := 0
+	for _, f := range s.file {
+		if f == s.cmd || f.b.nc() == 0 || !fileisdirty(f) {
+			continue
+		}
+		if save == nil {
+			fd, err := os.OpenFile(s.home()+"/sam.save", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+			if err != nil {
+				// untested
+				return
+			}
+			save = fd
+			s.ioW = save
+		}
+		var name string
+		if len(f.name) != 0 {
+			name = string(f.name)
+			if len(name) > 255 {
+				// untested
+				name = name[:255]
+			}
+		} else {
+			name = fmt.Sprintf("nameless.%d", nblank)
+			nblank++
+		}
+		root := os.Getenv("PLAN9")
+		if root == "" {
+			// untested
+			root = "/usr/local/plan9"
+		}
+		fmt.Fprintf(save, "#!/bin/sh\n%s/bin/samsave '%s' $* <<'---%s'\n", root, name, name)
+		s.addr.r.p1 = 0
+		s.addr.r.p2 = f.b.nc()
+		s.writeio(f)
+		fmt.Fprintf(save, "\n---%s\n", name)
+	}
+	if save != nil {
+		save.Close()
+		s.ioW = nil
+	}
 }
 
-// dohiccough is the body of C hiccough(): it prints the message, resets parser/
-// executor/sys state, backs out logged changes, and resyncs. It runs at the
-// mainloop recover boundary (see Run); panics route here via samErr.
-func (s *Sam) dohiccough(msg string, quiet bool) {
-	if !quiet && msg != "" {
+// panic is a fatal internal error: it prints the message, rescues unsaved work,
+// and exits. It is mainly for "can't happen" situations but is also reachable
+// via malformed protocol messages. Mirrors sam.c panic():
+//
+//	if(!panicking++ && !setjmp(mainloop)){
+//		wasd = downloaded; downloaded = 0;
+//		dprint("sam: panic: %s: %r\n", s);
+//		if(wasd) fprint(2, "sam: panic: %s: %r\n", s);
+//		rescue();
+//		abort();
+//	}
+//
+// We drop C's ": %r" (Go has no global errstr) and abort() becomes exits("panic").
+func (s *Sam) panic(msg string) {
+	if s.panicking == 0 {
+		s.panicking++
+		func() {
+			// C's setjmp(mainloop): the dprint below goes through Write, which
+			// can fail and panic (syserror -> error_s -> hiccough). C catches
+			// that longjmp here so the abort() at the end of the block is
+			// skipped and panic returns instead of resuming the command loop;
+			// we recover the equivalent mainloopJump for the same reason. The
+			// samExit from exits (and real panics) still propagate.
+			defer func() {
+				if r := recover(); r != nil {
+					if _, ok := r.(mainloopJump); !ok {
+						panic(r)
+					}
+				}
+			}()
+			wasd := s.downloaded
+			s.downloaded = false
+			s.dprint("sam: panic: %s\n", msg)
+			if wasd {
+				// dprint's command-window target is unusable mid-panic, so C
+				// also writes the message straight to stderr (fprint(2, ...)).
+				fmt.Fprintf(s.err, "sam: panic: %s\n", msg)
+			}
+			s.rescue()
+			s.exits("abort")
+		}()
+	}
+	// A re-entrant panic (panicking != 0), or one whose body was interrupted by
+	// the recovered mainloopJump, returns to its caller -- as in C, where the
+	// if is false and panic() falls off the end.
+}
+
+// hiccough is error.c's hiccough(): bail out if already rescuing, print the
+// message (unless quiet), reset parser/executor/sys state, close any open io,
+// back out logged changes, resync, and finally unwind to the command loop.
+// error*/whichfile call it directly, deep in the call stack, so the rollback
+// happens at the point of the error as in C, and the closing panic(mainloopJump)
+// is C's longjmp(mainloop, 1). msg=="" is C's hiccough((char*)0) (whichfile's
+// quiet case): roll back without printing.
+func (s *Sam) hiccough(msg string) {
+	if s.rescuing != 0 {
+		// untested
+		s.exits("rescue")
+	}
+	if msg != "" {
 		s.dprint("%s\n", msg)
 	}
 	s.resetcmd()
@@ -68,6 +307,7 @@ func (s *Sam) dohiccough(msg string, quiet bool) {
 			s.outTs(Hcurrent, s.curfile.tag)
 		}
 	}
+	panic(mainloopJump{})
 }
 
 func (s *Sam) trytoclose(f *File) {
@@ -82,12 +322,12 @@ func (s *Sam) trytoclose(f *File) {
 	if fileisdirty(f) && !f.closeok {
 		f.closeok = true
 		var buf string
-		if f.name.s[0] != 0 {
-			buf = Strtoc(&f.name)
+		if len(f.name) != 0 {
+			buf = string(f.name)
 		} else {
 			buf = "nameless file"
 		}
-		fail_s(Emodified, buf)
+		s.error_s(Emodified, buf)
 	}
 	f.deleted = true
 }
@@ -98,16 +338,16 @@ func (s *Sam) trytoquit() {
 			if f != s.cmd && fileisdirty(f) {
 				s.quitok = true
 				s.eof = false
-				fail(Echanges)
+				s.error(Echanges)
 			}
 		}
 	}
 }
 
 func (s *Sam) load(f *File) {
-	Strduplstr(&s.genstr, &f.name)
+	s.genstr = slices.Clone(f.name)
 	s.filename(f)
-	if f.name.s[0] != 0 {
+	if len(f.name) != 0 {
 		saveaddr := s.addr
 		s.edit(f, 'I')
 		s.addr = saveaddr
@@ -121,14 +361,14 @@ func (s *Sam) load(f *File) {
 func (s *Sam) cmdupdate() {
 	if s.cmd != nil && s.cmd.seq != 0 {
 		s.fileupdate(s.cmd, false, s.downloaded)
-		s.cmd.dot.r.p1 = Posn(s.cmd.b.nc())
-		s.cmd.dot.r.p2 = Posn(s.cmd.b.nc())
+		s.cmd.dot.r.p1 = s.cmd.b.nc()
+		s.cmd.dot.r.p2 = s.cmd.b.nc()
 		s.telldot(s.cmd)
 	}
 }
 
 func (s *Sam) delete(f *File) {
-	if s.downloaded && f.hasrasp {
+	if s.downloaded && f.rasp.init {
 		s.outTs(Hclose, f.tag)
 	}
 	s.delfile(f)
@@ -140,8 +380,7 @@ func (s *Sam) delete(f *File) {
 func (s *Sam) update() {
 	s.settempfile()
 	anymod := false
-	for i := 0; i < len(s.tempfile); i++ {
-		f := s.tempfile[i]
+	for _, f := range s.tempfile {
 		if f == s.cmd { // cmd gets done in main()
 			continue
 		}
@@ -152,7 +391,7 @@ func (s *Sam) update() {
 		if f.seq == s.seq && s.fileupdate(f, false, s.downloaded) {
 			anymod = true
 		}
-		if f.hasrasp {
+		if f.rasp.init {
 			s.telldot(f)
 		}
 	}
@@ -166,15 +405,15 @@ func (s *Sam) current(f *File) *File {
 	return f
 }
 
-func (s *Sam) edit(f *File, cmd int) {
+func (s *Sam) edit(f *File, cmd rune) {
 	empty := true
 	if cmd == 'r' {
 		s.logdelete(f, s.addr.r.p1, s.addr.r.p2)
 	}
 	if cmd == 'e' || cmd == 'I' {
-		s.logdelete(f, 0, Posn(f.b.nc()))
-		s.addr.r.p2 = Posn(f.b.nc())
-	} else if f.b.nc() != 0 || (f.name.s[0] != 0 && Strcmp(&s.genstr, &f.name) != 0) {
+		s.logdelete(f, 0, f.b.nc())
+		s.addr.r.p2 = f.b.nc()
+	} else if f.b.nc() != 0 || (len(f.name) != 0 && runesCompare(s.genstr, f.name) != 0) {
 		empty = false
 	}
 	fd, err := os.Open(s.genc)
@@ -182,7 +421,7 @@ func (s *Sam) edit(f *File, cmd int) {
 		if s.curfile != nil && s.curfile.unread {
 			s.curfile.unread = false
 		}
-		fail_r(Eopen, s.genc, s.oserr(err))
+		s.error_r(Eopen, s.genc, s.oserr(err))
 	}
 	s.ioR = fd
 	s.ioC = fd
@@ -219,65 +458,53 @@ func (s *Sam) edit(f *File, cmd int) {
 	}
 }
 
-func (s *Sam) getname(f *File, t *String, save bool) int {
-	Strzero(&s.genstr)
+func (s *Sam) getname(f *File, t []rune, save bool) Posn {
+	s.genstr = nil
 	s.genc = ""
-	var c int
-	if t == nil || t.s[0] == 0 { // no name provided
+	if len(t) == 0 { // no name provided
 		if f != nil {
-			Strduplstr(&s.genstr, &f.name)
+			s.genstr = slices.Clone(f.name)
 		}
-		goto Return
-	}
-	c = int(t.s[0])
-	if c != ' ' && c != '\t' {
-		fail(Eblank)
-	}
-	{
+	} else {
+		if t[0] != ' ' && t[0] != '\t' {
+			s.error(Eblank)
+		}
 		i := 0
-		for ; ; i++ {
-			c = int(t.s[i])
-			if c != ' ' && c != '\t' {
-				break
-			}
-		}
-		for t.s[i] > ' ' {
-			Straddc(&s.genstr, int(t.s[i]))
+		for i < len(t) && (t[i] == ' ' || t[i] == '\t') {
 			i++
 		}
-		if t.s[i] != 0 {
+		for i < len(t) && t[i] > ' ' {
+			s.genstr = s.appendString(s.genstr, t[i])
+			i++
+		}
+		if i < len(t) {
 			// untested
-			fail(Enewline)
+			s.error(Enewline)
+		}
+		s.genstr = s.fixname(s.genstr)
+		if f != nil && (save || len(f.name) == 0) {
+			s.logsetname(f, s.genstr)
+			if runesCompare(f.name, s.genstr) != 0 {
+				s.quitok = false
+				f.closeok = false
+				f.qidpath = 0
+				f.mtime = 0
+				s.state(f, Dirty) // if it's 'e', fix later
+			}
 		}
 	}
-	s.fixname(&s.genstr)
-	if f != nil && (save || f.name.s[0] == 0) {
-		s.logsetname(f, &s.genstr)
-		if Strcmp(&f.name, &s.genstr) != 0 {
-			s.quitok = false
-			f.closeok = false
-			f.qidpath = 0
-			f.mtime = 0
-			s.state(f, Dirty) // if it's 'e', fix later
-		}
-	}
-Return:
-	s.genc = Strtoc(&s.genstr)
-	i := s.genstr.n()
-	if i != 0 && s.genstr.s[i-1] == 0 {
-		i--
-	}
-	return i // strlen(name)
+	s.genc = string(s.genstr)
+	return Posn(len(s.genstr)) // strlen(name)
 }
 
 func (s *Sam) filename(f *File) {
-	s.genc = Strtoc(&s.genstr)
+	s.genc = string(s.genstr)
 	mc := byte(' ')
 	if f.mod {
 		mc = '\''
 	}
 	rc := byte('-')
-	if f.hasrasp {
+	if f.rasp.init {
 		rc = '+'
 	}
 	cc := byte(' ')
@@ -315,8 +542,7 @@ func (s *Sam) undo(isundo bool) bool {
 		return false
 	}
 	s.settempfile()
-	for i := 0; i < len(s.tempfile); i++ {
-		f := s.tempfile[i]
+	for _, f := range s.tempfile {
 		if f != s.cmd && s.undoseq(f, isundo) == max {
 			s.undostep(f, isundo)
 		}
@@ -324,40 +550,37 @@ func (s *Sam) undo(isundo bool) bool {
 	return true
 }
 
-func (s *Sam) readcmd(t *String) int {
+func (s *Sam) readcmd(t []rune) int {
 	if s.flist != nil {
 		s.fileclose(s.flist)
 	}
 	s.flist = s.fileopen()
 	s.addr.r.p1 = 0
-	s.addr.r.p2 = Posn(s.flist.b.nc())
-	retcode := s.plan9(s.flist, '<', t, 0)
+	s.addr.r.p2 = s.flist.b.nc()
+	retcode := s.shell(s.flist, '<', t, 0)
 	s.fileupdate(s.flist, false, false)
 	s.flist.seq = 0
 	if s.flist.b.nc() > BLOCKSIZE {
-		fail(Etoolong)
+		s.error(Etoolong)
 	}
-	Strzero(&s.genstr)
-	Strinsure(s.flist.b.nc())
-	s.genstr.s = append(s.genstr.s[:0], s.flist.b.c...)
-	Straddc(&s.genstr, 0)
+	s.genstr = nil
+	s.extendString(s.flist.b.nc())
+	s.genstr = append(s.genstr[:0], s.flist.b.c...)
 	return retcode
 }
 
 func (s *Sam) getcurwd() {
 	buf, _ := os.Getwd()
-	t := tmpcstr(buf)
-	Strduplstr(&s.curwd, t)
-	freetmpstr(t)
-	if s.curwd.n() == 0 {
+	s.curwd = []rune(buf)
+	if len(s.curwd) == 0 {
 		// untested
 		s.warn(Wpwd)
-	} else if s.curwd.s[s.curwd.n()-1] != '/' {
-		Straddc(&s.curwd, '/')
+	} else if s.curwd[Posn(len(s.curwd))-1] != '/' {
+		s.curwd = s.appendString(s.curwd, '/')
 	}
 }
 
-func (s *Sam) cd(str *String) {
+func (s *Sam) cd(str []rune) {
 	s.getcurwd()
 	var dir string
 	if s.getname(nil, str, false) != 0 {
@@ -369,172 +592,176 @@ func (s *Sam) cd(str *String) {
 		s.syserror("chdir", err)
 	}
 	s.dprint("!\n")
-	var owd String
-	Strinit(&owd)
-	Strduplstr(&owd, &s.curwd)
+	var owd []rune
+	owd = nil
+	owd = slices.Clone(s.curwd)
 	s.getcurwd()
 	s.settempfile()
 	// Two passes so that if we have open /a/foo.c and /b/foo.c and cd from /b
 	// to /a, we don't ever have two foo.c simultaneously.
-	for i := 0; i < len(s.tempfile); i++ {
-		f := s.tempfile[i]
-		if f != s.cmd && f.name.s[0] != '/' && f.name.s[0] != 0 {
-			Strinsert(&f.name, &owd, 0)
-			s.fixname(&f.name)
+	for _, f := range s.tempfile {
+		if f != s.cmd && len(f.name) != 0 && f.name[0] != '/' {
+			f.name = s.insertString(f.name, owd, 0)
+			f.name = s.fixname(f.name)
 			s.sortname(f)
 		}
 	}
-	for i := 0; i < len(s.tempfile); i++ {
-		f := s.tempfile[i]
-		if f != s.cmd && Strispre(&s.curwd, &f.name) {
+	for _, f := range s.tempfile {
+		if f != s.cmd && runesHasPrefix(f.name, s.curwd) {
 			// untested: rescue/dead/menu edge not reached by the differential cases
-			s.fixname(&f.name)
+			f.name = s.fixname(f.name)
 			s.sortname(f)
 		}
 	}
-	Strclose(&owd)
+	owd = nil
 }
 
-func (s *Sam) loadflist(str *String) int {
-	c := int(str.s[0])
-	i := 0
-	for ; str.s[i] == ' ' || str.s[i] == '\t'; i++ {
+func (s *Sam) loadflist(str []rune) rune {
+	var c rune
+	if len(str) > 0 {
+		c = str[0]
 	}
-	if (c == ' ' || c == '\t') && str.s[i] != '\n' {
-		if str.s[i] == '<' {
-			Strdelete(str, 0, Posn(i)+1)
-			s.readcmd(str)
+	i := 0
+	for i < len(str) && (str[i] == ' ' || str[i] == '\t') {
+		i++
+	}
+	if (c == ' ' || c == '\t') && (i >= len(str) || str[i] != '\n') {
+		if i < len(str) && str[i] == '<' {
+			s.readcmd(str[i+1:])
 		} else {
-			Strzero(&s.genstr)
-			for {
-				c = int(str.s[i])
+			s.genstr = nil
+			for i < len(str) {
+				c = str[i]
 				i++
-				if c == 0 || c == '\n' {
+				if c == '\n' {
 					break
 				}
-				Straddc(&s.genstr, c)
+				s.genstr = s.appendString(s.genstr, c)
 			}
-			Straddc(&s.genstr, 0)
 		}
 	} else {
 		if c != '\n' {
-			fail(Eblank)
+			s.error(Eblank)
 		}
 		// untested: rescue/dead/menu edge not reached by the differential cases
-		Strdupl(&s.genstr, empty)
+		s.genstr = slices.Clone(empty)
 	}
-	s.genc = Strtoc(&s.genstr)
-	return int(s.genstr.s[0])
+	s.genc = string(s.genstr)
+	if len(s.genstr) == 0 {
+		return 0
+	}
+	return s.genstr[0]
 }
 
 func (s *Sam) readflist(readall, delete bool) *File {
 	var f *File
-	var t String
-	Strinit(&t)
-	// The C version reads one rune past genstr.n relying on stale buffer
-	// bytes (then the i>=n test breaks); Go slices would panic, so the scans
-	// are bounded by length, which is equivalent.
-	i := 0
-	for f == nil || readall || delete { // trailing i++ below skips the blank
-		Strdelete(&s.genstr, 0, Posn(i))
-		for i = 0; i < s.genstr.n(); i++ {
-			c := int(s.genstr.s[i])
+	var t []rune
+	t = nil
+
+	i := Posn(0)
+	nameend := Posn(-1)
+	for f == nil || readall || delete {
+		s.genstr = slices.Delete(s.genstr, 0, int(i))
+		for i = 0; i < Posn(len(s.genstr)); i++ {
+			c := s.genstr[i]
 			if c != ' ' && c != '\t' && c != '\n' {
 				break
 			}
 		}
-		if i >= s.genstr.n() {
+		if i >= Posn(len(s.genstr)) {
 			break
 		}
-		Strdelete(&s.genstr, 0, Posn(i))
-		for i = 0; i < s.genstr.n(); i++ {
-			c := int(s.genstr.s[i])
-			if c == 0 || c == ' ' || c == '\t' || c == '\n' {
+		s.genstr = slices.Delete(s.genstr, 0, int(i))
+		for i = 0; i < Posn(len(s.genstr)); i++ {
+			c := s.genstr[i]
+			if c == ' ' || c == '\t' || c == '\n' {
 				break
 			}
 		}
 		if i == 0 {
+			// unreachable: the preceding blank skip+delete leaves a non-blank
+			// first char, so the name scan always advances past 0
 			break
 		}
-		if i < s.genstr.n() {
-			s.genstr.s[i] = 0
-		} else {
-			// untested: rescue/dead/menu edge not reached by the differential cases
-			Straddc(&s.genstr, 0) // ensure a terminator for tmprstr(i+1)
-		}
-		Strduplstr(&t, tmprstr(s.genstr.s, i+1))
-		s.fixname(&t)
-		f = s.lookfile(&t)
+		nameend = i
+		t = slices.Clone(s.genstr[:i])
+		t = s.fixname(t)
+		f = s.lookfile(t)
 		if delete {
 			if f == nil {
-				s.warn_S(Wfile, &t)
+				s.warn_S(Wfile, t)
 			} else {
 				s.trytoclose(f)
 			}
 		} else if f == nil && readall {
 			f = s.newfile()
-			s.logsetname(f, &t)
+			s.logsetname(f, t)
 		}
-		i++ // skip the separating blank
+		if i < Posn(len(s.genstr)) {
+			i++ // skip the separating blank
+		}
 	}
-	Strclose(&t)
+	// The C code wrote a NUL over the matched name's separating blank, so a
+	// later read of genstr (e.g. via filename) yielded just that name. Without
+	// NULs, truncate genstr to the matched name in the single-file case.
+	if !readall && !delete && nameend >= 0 {
+		s.genstr = s.genstr[:nameend]
+	}
+	t = nil
 	return f
 }
 
-func (s *Sam) tofile(str *String) *File {
-	if str.s[0] != ' ' {
-		fail(Eblank)
+func (s *Sam) tofile(str []rune) *File {
+	if len(str) == 0 || str[0] != ' ' {
+		s.error(Eblank)
 	}
 	var f *File
 	if s.loadflist(str) == 0 {
-		f = s.lookfile(&s.genstr) // empty string ==> nameless file
-		if f == nil {
-			fail_s(Emenu, s.genc)
-		}
-	} else if f = s.readflist(false, false); f == nil {
-		fail_s(Emenu, s.genc)
+		f = s.lookfile(s.genstr) // empty string ==> nameless file
+	} else {
+		f = s.readflist(false, false)
+	}
+	if f == nil {
+		s.error_s(Emenu, s.genc)
 	}
 	return s.current(f)
 }
 
-func (s *Sam) getfile(str *String) *File {
+func (s *Sam) getfile(str []rune) *File {
 	var f *File
 	if s.loadflist(str) == 0 {
 		f = s.newfile()
-		s.logsetname(f, &s.genstr)
+		s.logsetname(f, s.genstr)
 	} else if f = s.readflist(true, false); f == nil {
 		// untested: rescue/dead/menu edge not reached by the differential cases
-		fail(Eblank)
+		s.error(Eblank)
 	}
 	return s.current(f)
 }
 
-func (s *Sam) closefiles(f *File, str *String) {
-	if str.s[0] == 0 {
+func (s *Sam) closefiles(f *File, str []rune) {
+	if len(str) == 0 {
 		if f == nil {
-			fail(Enofile)
+			s.error(Enofile)
 		}
 		s.trytoclose(f)
 		return
 	}
-	if str.s[0] != ' ' {
-		fail(Eblank)
+	if str[0] != ' ' {
+		s.error(Eblank)
 	}
 	if s.loadflist(str) == 0 {
-		fail(Enewline)
+		s.error(Enewline)
 	}
 	s.readflist(false, true)
 }
 
 func (s *Sam) copy(f *File, addr2 Address) {
 	for p := s.addr.r.p1; p < s.addr.r.p2; {
-		ni := int(s.addr.r.p2 - p)
-		if ni > BLOCKSIZE {
-			ni = BLOCKSIZE
-		}
-		bufread(&f.b, p, s.genbuf[:], ni)
-		s.loginsert(addr2.f, addr2.r.p2, tmprstr(s.genbuf[:], ni).s, ni)
-		p += Posn(ni)
+		ni := min(s.addr.r.p2-p, BLOCKSIZE)
+		s.bufread(&f.b, p, s.genbuf[:ni])
+		s.loginsert(addr2.f, addr2.r.p2, s.genbuf[:ni])
+		p += ni
 	}
 	addr2.f.ndot.r.p2 = addr2.r.p2 + (f.dot.r.p2 - f.dot.r.p1)
 	addr2.f.ndot.r.p1 = addr2.r.p2
@@ -548,12 +775,12 @@ func (s *Sam) move(f *File, addr2 Address) {
 		s.copy(f, addr2)
 		s.logdelete(f, s.addr.r.p1, s.addr.r.p2)
 	} else {
-		fail(Eoverlap)
+		s.error(Eoverlap)
 	}
 }
 
 func nlcount(f *File, p0, p1 Posn) Posn {
-	var nl Posn
+	nl := Posn(0)
 	for p0 < p1 {
 		if filereadc(f, p0) == '\n' {
 			nl++
@@ -586,16 +813,6 @@ func (s *Sam) printposn(f *File, charsonly bool) {
 
 func (s *Sam) settempfile() {
 	s.tempfile = append(s.tempfile[:0], s.file...)
-}
-
-func (s *Sam) resetsys() { s.inerror = false }
-
-func (s *Sam) syserror(a string, e error) {
-	if !s.inerror {
-		s.inerror = true
-		s.dprint("%s: ", a)
-		fail_s(Eio, s.oserr(e)) // C: errstr(buf); error_s(Eio, buf)
-	}
 }
 
 func (s *Sam) home() string {

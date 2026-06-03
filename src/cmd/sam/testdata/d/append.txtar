@@ -1,5 +1,4 @@
 Append, insert and change with dot text.
-args: -d input
 
 -- stdin --
 1a
@@ -13,6 +12,9 @@ INS
 CH
 .
 ,p
+-- input --
+alpha
+beta
 -- stdout --
 INS
 alpha
@@ -25,6 +27,3 @@ beta
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha
-beta

@@ -1,17 +1,16 @@
 Backward search and relative line addresses.
-args: -d input
 
 -- stdin --
 $?beta?p
 /alpha/+1p
 $-1p
--- stdout --
-betabeta
-delta
--- stderr --
- -. input
 -- input --
 alpha
 beta
 gamma
 delta
+-- stdout --
+betabeta
+delta
+-- stderr --
+ -. input

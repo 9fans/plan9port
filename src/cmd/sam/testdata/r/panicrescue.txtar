@@ -1,0 +1,56 @@
+A malformed message crashes the host (panic), which rescues the dirty file to sam.save.
+
+-- input --
+alpha
+beta
+gamma
+-- proto --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
+Hnewname tag=1
+Hbindname tag=1
+Hcurrent tag=1
+Hmovname tag=1 "~~sam~~"
+Hcheck0 tag=1
+Hack
+Tack
+Hunlock
+Tstartfile 0
+Hbindname tag=0
+Hcurrent tag=0
+Hgrow tag=0 p=0 n=17
+Hcheck0 tag=0
+Hcheck0 tag=0
+Hack
+Trequest 0 0 17
+Hdata tag=0 p=0 "alpha\nbeta\ngamma\n"
+Tack
+Hgrow tag=1 p=0 n=10
+Hcheck0 tag=1
+Hack
+Trequest 1 0 10
+Hdata tag=1 p=0 " +. input\n"
+Tack
+Hsetdot tag=1 p=10 n=10
+Hunlock
+cmd 1d\n
+Hdirty tag=0
+Hcut tag=0 p=0 n=6
+Hcheck0 tag=0
+Hack
+Tack
+Hunlock
+crash
+-- stderr --
+sam: panic: inmesg
+sam: panic: inmesg
+-- sam.save.out --
+#!/bin/sh
+/plan9/bin/samsave 'input' $* <<'---input'
+beta
+gamma
+
+---input

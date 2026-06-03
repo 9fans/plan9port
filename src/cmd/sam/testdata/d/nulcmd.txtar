@@ -1,12 +1,11 @@
 A NUL in the command input is elided with a warning.
-args: -d input
 
 -- stdin --
 ,p^@
+-- input --
+alpha
 -- stdout --
 alpha
 -- stderr --
  -. input
 ?warning: null characters elided
--- input --
-alpha

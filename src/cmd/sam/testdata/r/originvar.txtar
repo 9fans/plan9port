@@ -1,40 +1,45 @@
 Origin requests at different positions exercise lookorigin's branches.
-args: -R input
 
--- script --
-startfile 0
-origin 0 0 0
-origin 0 1 1
-origin 0 100 5
-exit
 -- input --
 alpha
 beta
 gamma
--- host --
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=1
 Hbindname tag=1
 Hcurrent tag=1
 Hmovname tag=1 "~~sam~~"
 Hcheck0 tag=1
 Hack
+Tack
 Hunlock
+Tstartfile 0
 Hbindname tag=0
 Hcurrent tag=0
 Hgrow tag=0 p=0 n=17
 Hcheck0 tag=0
 Hcheck0 tag=0
 Hack
+Trequest 0 0 17
 Hdata tag=0 p=0 "alpha\nbeta\ngamma\n"
+Tack
 Hgrow tag=1 p=0 n=10
 Hcheck0 tag=1
 Hack
+Trequest 1 0 10
 Hdata tag=1 p=0 " +. input\n"
+Tack
 Hsetdot tag=1 p=10 n=10
 Hunlock
+Torigin 0 0 0
 Horigin tag=0 p=0
+Torigin 0 1 1
 Horigin tag=0 p=0
+Torigin 0 100 5
 Horigin tag=0 p=0
+Texit

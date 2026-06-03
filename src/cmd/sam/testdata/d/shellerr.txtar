@@ -1,10 +1,12 @@
 Shell command with no text and no prior command; a command exiting nonzero.
-args: -d input
 
 -- stdin --
 !
 !echo hi
 ,|false
+-- input --
+gamma
+alpha
 -- stdout --
 hi
 -- stderr --
@@ -14,6 +16,3 @@ hi
 ?warning: exit status not 0
 !
 ?changed files
--- input --
-gamma
-alpha

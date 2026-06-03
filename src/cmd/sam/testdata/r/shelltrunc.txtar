@@ -1,0 +1,48 @@
+A shell command whose output exceeds 25 lines: checkerrs shows the first 25 and
+appends a "(sam: more in <errfile>)" note. $USER is fixed by the harness so the
+error-file path is identical for Go and C.
+
+-- input --
+alpha
+-- proto --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
+Hnewname tag=1
+Hbindname tag=1
+Hcurrent tag=1
+Hmovname tag=1 "~~sam~~"
+Hcheck0 tag=1
+Hack
+Tack
+Hunlock
+Tstartfile 0
+Hbindname tag=0
+Hcurrent tag=0
+Hgrow tag=0 p=0 n=6
+Hcheck0 tag=0
+Hcheck0 tag=0
+Hack
+Trequest 0 0 6
+Hdata tag=0 p=0 "alpha\n"
+Tack
+Hgrow tag=1 p=0 n=10
+Hcheck0 tag=1
+Hack
+Trequest 1 0 10
+Hdata tag=1 p=0 " +. input\n"
+Tack
+Hsetdot tag=1 p=10 n=10
+Hunlock
+cmd !awk 'BEGIN{for(i=0;i<30;i++)print i}'\n
+Hgrow tag=1 p=49 n=102
+Hcheck0 tag=1
+Hack
+Trequest 1 49 102
+Hdata tag=1 p=49 "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n(sam: more in /tmp/sam.tester.err)\n!\n"
+Tack
+Hsetdot tag=1 p=151 n=151
+Hunlock
+Texit

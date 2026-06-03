@@ -1,5 +1,4 @@
 A multi-line append whose total text exceeds STRSIZE errors.
-args: -d input
 
 -- stdin --
 1a
@@ -304,7 +303,8 @@ abcdefghijklmnopqrst
 abcdefghijklmnopqrst
 abcdefghijklmnopqrst
 .
--- stdout --
+-- input --
+x
 -- stderr --
  -. input
 ?string too long
@@ -412,5 +412,3 @@ abcdefghijklmnopqrst
 ?bad delimiter `b'
 ?bad delimiter `b'
 ?bad delimiter `b'
--- input --
-x

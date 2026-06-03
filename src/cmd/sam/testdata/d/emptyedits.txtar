@@ -1,16 +1,15 @@
 Empty-range delete, and an out-of-order insert inside a loop.
-args: -d input
 
 -- stdin --
 #3,#3d
 ,p
 ,x/./ 1a/Z/
+-- input --
+abc
+def
 -- stdout --
 abc
 def
 -- stderr --
  -. input
 ?changed files
--- input --
-abc
-def

@@ -1,5 +1,4 @@
 Writing/editing a nameless file with no name argument errors.
-args: -d input
 
 -- stdin --
 B
@@ -7,10 +6,12 @@ a
 hi
 .
 w
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?blank expected
 input: #9
--- input --
+-- input.out --
+hi
 alpha

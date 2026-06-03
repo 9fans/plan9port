@@ -1,18 +1,16 @@
 Various error messages: bad address, bad regexp, unknown command, no match.
-args: -d input
 
 -- stdin --
 99
 g/[/p
 Z
 ,s/zzz/x/
--- stdout --
+-- input --
+alpha
+beta
 -- stderr --
  -. input
 ?address range
 ?malformed `[]'
 ?unknown command `Z'
 ?substitution
--- input --
-alpha
-beta

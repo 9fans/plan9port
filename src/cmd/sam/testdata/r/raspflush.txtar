@@ -1,44 +1,52 @@
 A global substitution making hundreds of small edits in terminal-known
 regions fills the wire buffer mid-pass (raspflush) and interleaves grow/cut.
-args: -R input
 
--- script --
-startfile 0
-type ,s/a/aa/g\n
-exit
 -- input --
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
--- host --
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=1
 Hbindname tag=1
 Hcurrent tag=1
 Hmovname tag=1 "~~sam~~"
 Hcheck0 tag=1
 Hack
+Tack
 Hunlock
+Tstartfile 0
 Hbindname tag=0
 Hcurrent tag=0
 Hgrow tag=0 p=0 n=401
 Hcheck0 tag=0
 Hcheck0 tag=0
 Hack
+Trequest 0 0 401
 Hdata tag=0 p=0 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+Tack
 Hgrow tag=1 p=0 n=10
 Hcheck0 tag=1
 Hack
+Trequest 1 0 10
 Hdata tag=1 p=0 " +. input\n"
+Tack
 Hsetdot tag=1 p=10 n=10
 Hunlock
+cmd ,s/a/aa/g\n
 Hdirty tag=0
 Hgrow tag=0 p=400 n=800
 Hcut tag=0 p=0 n=400
 Hcheck0 tag=0
 Hack
+Trequest 0 400 512
 Hdata tag=0 p=400 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+Trequest 0 912 288
 Hdata tag=0 p=801 ""
+Tack
 Hsetdot tag=0 p=0 n=801
 Hsetpat "a"
 Hunlock
+Texit

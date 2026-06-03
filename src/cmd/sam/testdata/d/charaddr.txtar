@@ -1,15 +1,14 @@
 Character addresses (#n) and ranges.
-args: -d input
 
 -- stdin --
 #0,#5p
 #6p
 .,#11p
--- stdout --
-alphabeta
--- stderr --
- -. input
 -- input --
 alpha
 beta
 gamma
+-- stdout --
+alphabeta
+-- stderr --
+ -. input

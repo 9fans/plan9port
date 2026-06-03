@@ -1,15 +1,14 @@
 b with <command reads the file name from a command's output.
-args: -d input
 
 -- stdin --
 b <echo input
 1p
+-- input --
+alpha
+beta
 -- stdout --
 alpha
 -- stderr --
  -. input
 !
  -. input
--- input --
-alpha
-beta

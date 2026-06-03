@@ -1,12 +1,11 @@
 A file argument containing a NUL exercises NUL elision on load.
-args: -d input
 
 -- stdin --
 ,p
+-- input --
+ab^@cd
 -- stdout --
 abcd
 -- stderr --
  -. input
 ?warning: null characters elided
--- input --
-ab^@cd

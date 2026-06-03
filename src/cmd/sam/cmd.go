@@ -1,10 +1,15 @@
 package main
 
+import (
+	"slices"
+	"strings"
+)
+
 // Addr is a parsed address.
 type Addr struct {
-	typ  int     // # l / ? . $ + - , ; " *
-	are  *String // regexp (g.re)
-	left *Addr   // left side of , and ; (g.aleft)
+	typ  rune   // # l / ? . $ + - , ; " *
+	are  []rune // regexp (g.re)
+	left *Addr  // left side of , and ; (g.aleft)
 	num  Posn
 	next *Addr // or right side of , and ;
 }
@@ -12,25 +17,25 @@ type Addr struct {
 // Cmd is a parsed command.
 type Cmd struct {
 	addr  *Addr
-	re    *String
-	ccmd  *Cmd    // target of x, g, {, etc. (g.cmd)
-	ctext *String // text of a, c, i; rhs of s (g.text)
-	caddr *Addr   // address for m, t (g.addr)
+	re    []rune
+	ccmd  *Cmd   // target of x, g, {, etc. (g.cmd)
+	ctext []rune // text of a, c, i; rhs of s (g.text)
+	caddr *Addr  // address for m, t (g.addr)
 	next  *Cmd
 	num   int
 	flag  int
-	cmdc  int // command character
+	cmdc  rune // command character
 }
 
 type cmdFn func(*Sam, *File, *Cmd) bool
 
 // Cmdtab is one command-table entry.
 type Cmdtab struct {
-	cmdc    int
+	cmdc    rune
 	text    bool
 	regexp  bool
 	addr    bool
-	defcmd  int
+	defcmd  rune
 	defaddr int
 	count   int
 	token   string
@@ -80,10 +85,10 @@ var cmdtabInit = []Cmdtab{
 	{'y', false, true, false, 'p', aDot, 0, "", (*Sam).x_cmd},
 	{'X', false, true, false, 'f', aNo, 0, "", (*Sam).X_cmd},
 	{'Y', false, true, false, 'f', aNo, 0, "", (*Sam).X_cmd},
-	{'!', false, false, false, 0, aNo, 0, linex, (*Sam).plan9_cmd},
-	{'>', false, false, false, 0, aDot, 0, linex, (*Sam).plan9_cmd},
-	{'<', false, false, false, 0, aDot, 0, linex, (*Sam).plan9_cmd},
-	{'|', false, false, false, 0, aDot, 0, linex, (*Sam).plan9_cmd},
+	{'!', false, false, false, 0, aNo, 0, linex, (*Sam).shell_cmd},
+	{'>', false, false, false, 0, aDot, 0, linex, (*Sam).shell_cmd},
+	{'<', false, false, false, 0, aDot, 0, linex, (*Sam).shell_cmd},
+	{'|', false, false, false, 0, aDot, 0, linex, (*Sam).shell_cmd},
 	{'=', false, false, false, 0, aDot, 0, linex, (*Sam).eq_cmd},
 	{'c' | 0x100, false, false, false, 0, aNo, 0, wordx, (*Sam).cd_cmd},
 }
@@ -95,7 +100,7 @@ func (s *Sam) resetcmd() {
 	s.termoutp = 0
 }
 
-func (s *Sam) inputc() int {
+func (s *Sam) inputc() rune {
 Again:
 	if s.downloaded {
 		for s.termoutp == s.terminp {
@@ -122,7 +127,7 @@ Again:
 			s.warn(Wnulls)
 			goto Again
 		}
-		return int(r)
+		return r
 	}
 	r, _, err := s.inbr.ReadRune()
 	if err != nil {
@@ -132,7 +137,7 @@ Again:
 		s.warn(Wnulls)
 		goto Again
 	}
-	return int(r)
+	return r
 }
 
 func (s *Sam) inputline() int {
@@ -147,14 +152,14 @@ func (s *Sam) inputline() int {
 		}
 		if i == len(s.line)-1 {
 			if s.linep == 0 {
-				fail(Etoolong)
+				s.error(Etoolong)
 			}
 			start := s.linep
 			copy(s.line[0:], s.line[start:i])
 			i -= start
 			s.linep = 0
 		}
-		s.line[i] = Rune(c)
+		s.line[i] = c
 		i++
 		if c == '\n' {
 			break
@@ -164,7 +169,7 @@ func (s *Sam) inputline() int {
 	return 1
 }
 
-func (s *Sam) getch() int {
+func (s *Sam) getch() rune {
 	if s.eof {
 		return -1
 	}
@@ -174,26 +179,26 @@ func (s *Sam) getch() int {
 	}
 	c := s.line[s.linep]
 	s.linep++
-	return int(c)
+	return c
 }
 
-func (s *Sam) nextc() int {
+func (s *Sam) nextc() rune {
 	if s.line[s.linep] == 0 {
 		// untested: downloaded-mode input edge (EOF mid-parse / oversized command window)
 		return -1
 	}
-	return int(s.line[s.linep])
+	return s.line[s.linep]
 }
 
 func (s *Sam) ungetch() {
 	if s.linep--; s.linep < 0 {
 		// unreachable
-		s.panicf("ungetch")
+		s.panic("ungetch")
 	}
 }
 
 func (s *Sam) getnum(signok int) Posn {
-	var n Posn
+	n := Posn(0)
 	sign := Posn(1)
 	if signok > 1 && s.nextc() == '-' {
 		sign = -1
@@ -213,8 +218,8 @@ func (s *Sam) getnum(signok int) Posn {
 	return sign * n
 }
 
-func (s *Sam) skipbl() int {
-	var c int
+func (s *Sam) skipbl() rune {
+	var c rune
 	for {
 		c = s.getch()
 		if c != ' ' && c != '\t' {
@@ -228,16 +233,16 @@ func (s *Sam) skipbl() int {
 }
 
 func (s *Sam) termcommand() {
-	for p := s.cmdpt; p < Posn(s.cmd.b.nc()); p++ {
+	for p := s.cmdpt; p < s.cmd.b.nc(); p++ {
 		if s.terminp >= len(s.termline) {
 			// untested: downloaded-mode input edge (EOF mid-parse / oversized command window)
-			s.cmdpt = Posn(s.cmd.b.nc())
-			fail(Etoolong)
+			s.cmdpt = s.cmd.b.nc()
+			s.error(Etoolong)
 		}
-		s.termline[s.terminp] = Rune(filereadc(s.cmd, p))
+		s.termline[s.terminp] = filereadc(s.cmd, p)
 		s.terminp++
 	}
-	s.cmdpt = Posn(s.cmd.b.nc())
+	s.cmdpt = s.cmd.b.nc()
 }
 
 func (s *Sam) cmdloop() {
@@ -265,7 +270,7 @@ func (s *Sam) cmdloop() {
 			s.outTs(Hcurrent, s.curfile.tag)
 		}
 		// don't allow type ahead on files that aren't bound
-		if s.downloaded && s.curfile != nil && !s.curfile.hasrasp {
+		if s.downloaded && s.curfile != nil && !s.curfile.rasp.init {
 			s.terminp = s.termoutp
 		}
 	}
@@ -273,14 +278,15 @@ func (s *Sam) cmdloop() {
 
 func newcmd() *Cmd   { return new(Cmd) }
 func newaddr() *Addr { return new(Addr) }
-func newre() *String { return newstring() }
-func newstring() *String {
-	p := new(String)
-	Strinit(p)
-	return p
-}
 
-func lookup(c int) int {
+// newstring returns a non-nil empty rune slice. The non-nil-ness matters: a
+// command's ctext is nil when no text was collected for that command, but
+// []rune{} (len 0) when an empty token/text was, mirroring C's newstring()
+// returning a non-nil String* (see the cp.ctext != nil test in cmdexec).
+func newre() []rune     { return []rune{} }
+func newstring() []rune { return []rune{} }
+
+func lookup(c rune) int {
 	for i := range cmdtab {
 		if cmdtab[i].cmdc == c {
 			return i
@@ -289,21 +295,21 @@ func lookup(c int) int {
 	return -1
 }
 
-func (s *Sam) okdelim(c int) {
+func (s *Sam) okdelim(c rune) {
 	if c == '\\' || ('a' <= c && c <= 'z') ||
 		('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') {
-		fail_c(Edelim, c)
+		s.error_c(Edelim, c)
 	}
 }
 
 func (s *Sam) atnl() {
 	s.skipbl()
 	if s.getch() != '\n' {
-		fail(Enewline)
+		s.error(Enewline)
 	}
 }
 
-func (s *Sam) getrhs(str *String, delim, cmd int) {
+func (s *Sam) getrhs(str []rune, delim, cmd rune) []rune {
 	for {
 		c := s.getch()
 		if c <= 0 || c == delim || c == '\n' {
@@ -314,7 +320,7 @@ func (s *Sam) getrhs(str *String, delim, cmd int) {
 				// unreachable: getch returns <= 0 only at EOF,
 				// but a line with no terminating newline never completes,
 				// so getrhs is never reached at EOF.
-				fail(Ebadrhs)
+				s.error(Ebadrhs)
 			}
 			if c == '\n' {
 				s.ungetch()
@@ -322,75 +328,74 @@ func (s *Sam) getrhs(str *String, delim, cmd int) {
 			} else if c == 'n' {
 				c = '\n'
 			} else if c != delim && (cmd == 's' || c != '\\') { // s does its own
-				Straddc(str, '\\')
+				str = s.appendString(str, '\\')
 			}
 		}
-		Straddc(str, c)
+		str = s.appendString(str, c)
 	}
 	s.ungetch() // let client read whether delimiter, '\n' or whatever
+	return str
 }
 
-func (s *Sam) collecttoken(end string) *String {
+func (s *Sam) collecttoken(end string) []rune {
 	str := newstring()
 	for {
 		c := s.nextc()
 		if c != ' ' && c != '\t' {
 			break
 		}
-		Straddc(str, s.getch()) // blanks significant for getname()
+		str = s.appendString(str, s.getch()) // blanks significant for getname()
 	}
-	var c int
+	var c rune
 	for {
 		c = s.getch()
-		if c <= 0 || runeIn(end, c) {
+		if c <= 0 || strings.ContainsRune(end, c) {
 			break
 		}
-		Straddc(str, c)
+		str = s.appendString(str, c)
 	}
-	Straddc(str, 0)
 	if c != '\n' {
 		s.atnl()
 	}
 	return str
 }
 
-func (s *Sam) collecttext() *String {
+func (s *Sam) collecttext() []rune {
 	str := newstring()
 	if s.skipbl() == '\n' {
 		s.getch()
 		i := 0
 		for {
 			begline := i
-			var c int
+			var c rune
 			for {
 				c = s.getch()
 				if c <= 0 || c == '\n' {
 					break
 				}
 				i++
-				Straddc(str, c)
+				str = s.appendString(str, c)
 			}
 			i++
-			Straddc(str, '\n')
+			str = s.appendString(str, '\n')
 			if c < 0 {
 				goto Return
 			}
-			if str.s[begline] == '.' && str.s[begline+1] == '\n' {
+			if str[begline] == '.' && str[begline+1] == '\n' {
 				break
 			}
 		}
-		Strdelete(str, str.n()-2, str.n())
+		str = slices.Delete(str, int(Posn(len(str))-2), int(Posn(len(str))))
 	} else {
 		delim := s.getch()
 		s.okdelim(delim)
-		s.getrhs(str, delim, 'a')
+		str = s.getrhs(str, delim, 'a')
 		if s.nextc() == delim {
 			s.getch()
 		}
 		s.atnl()
 	}
 Return:
-	Straddc(str, 0) // JUST FOR CMDPRINT
 	return str
 }
 
@@ -416,7 +421,7 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 		}
 		ct := &cmdtab[i]
 		if ct.defaddr == aNo && cmd.addr != nil {
-			fail(Enoaddr)
+			s.error(Enoaddr)
 		}
 		if ct.count != 0 {
 			cmd.num = int(s.getnum(ct.count))
@@ -424,20 +429,19 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 		if ct.regexp {
 			// x without pattern -> .*\n, indicated by cmd.re==nil
 			// X without pattern is all files
-			if (ct.cmdc != 'x' && ct.cmdc != 'X') || !runeIn(" \t\n", s.nextc()) {
+			if (ct.cmdc != 'x' && ct.cmdc != 'X') || !strings.ContainsRune(" \t\n", s.nextc()) {
 				s.skipbl()
 				c := s.getch()
 				if c == '\n' || c < 0 {
-					fail(Enopattern)
+					s.error(Enopattern)
 				}
 				s.okdelim(c)
 				cmd.re = s.getregexp(c)
 				if ct.cmdc == 's' {
-					cmd.ctext = newstring()
-					s.getrhs(cmd.ctext, c, 's')
+					cmd.ctext = s.getrhs(newstring(), c, 's')
 					if s.nextc() == c {
 						if s.getch(); s.nextc() == 'g' {
-							cmd.flag = s.getch()
+							cmd.flag = int(s.getch())
 						}
 					}
 				}
@@ -445,7 +449,7 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 		}
 		if ct.addr {
 			if cmd.caddr = s.simpleaddr(); cmd.caddr == nil {
-				fail(Eaddress)
+				s.error(Eaddress)
 			}
 		}
 		if ct.defcmd != 0 {
@@ -455,7 +459,7 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 				cmd.ccmd.cmdc = ct.defcmd
 			} else if cmd.ccmd = s.parsecmd(nest); cmd.ccmd == nil {
 				// unreachable
-				s.panicf("defcmd")
+				s.panic("defcmd")
 			}
 		} else if ct.text {
 			cmd.ctext = s.collecttext()
@@ -486,11 +490,11 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 		case '}':
 			s.atnl()
 			if nest == 0 {
-				fail(Enolbrace)
+				s.error(Enolbrace)
 			}
 			return nil
 		default:
-			fail_c(Eunk, cmd.cmdc)
+			s.error_c(Eunk, cmd.cmdc)
 		}
 	}
 	return cmd
@@ -498,36 +502,35 @@ func (s *Sam) parsecmd(nest int) *Cmd {
 
 // getregexp reads a regular expression up to delim.
 // NOTE: The original C code was marked /* BUGGERED */.
-func (s *Sam) getregexp(delim int) *String {
+func (s *Sam) getregexp(delim rune) []rune {
 	r := newre()
-	var c int
-	Strzero(&s.genstr)
+	var c rune
+	s.genstr = nil
 	for {
 		c = s.getch()
 		if c == '\\' {
 			if s.nextc() == delim {
 				c = s.getch()
 			} else if s.nextc() == '\\' {
-				Straddc(&s.genstr, c)
+				s.genstr = s.appendString(s.genstr, c)
 				c = s.getch()
 			}
 		} else if c == delim || c == '\n' {
 			break
 		}
-		Straddc(&s.genstr, c)
+		s.genstr = s.appendString(s.genstr, c)
 	}
 	if c != delim && c != 0 {
 		s.ungetch()
 	}
-	if s.genstr.n() > 0 {
+	if len(s.genstr) > 0 {
 		s.patset = true
-		Strduplstr(&s.lastpat, &s.genstr)
-		Straddc(&s.lastpat, 0)
+		s.lastpat = slices.Clone(s.genstr)
 	}
-	if s.lastpat.n() <= 1 {
-		fail(Epattern)
+	if len(s.lastpat) == 0 {
+		s.error(Epattern)
 	}
-	Strduplstr(r, &s.lastpat)
+	r = slices.Clone(s.lastpat)
 	return r
 }
 
@@ -556,7 +559,7 @@ func (s *Sam) simpleaddr() *Addr {
 			}
 			fallthrough
 		case '"':
-			fail(Eaddress)
+			s.error(Eaddress)
 		case 'l', '#':
 			if addr.typ == '"' {
 				break
@@ -574,7 +577,7 @@ func (s *Sam) simpleaddr() *Addr {
 			// ok
 		default:
 			// unreachable
-			s.panicf("simpleaddr")
+			s.panic("simpleaddr")
 		}
 	}
 	ap := newaddr()
@@ -592,18 +595,9 @@ func (s *Sam) compoundaddr() *Addr {
 	next := s.compoundaddr()
 	addr.next = next
 	if next != nil && (next.typ == ',' || next.typ == ';') && next.left == nil {
-		fail(Eaddress)
+		s.error(Eaddress)
 	}
 	ap := newaddr()
 	*ap = addr
 	return ap
-}
-
-func runeIn(set string, c int) bool {
-	for _, r := range set {
-		if int(r) == c {
-			return true
-		}
-	}
-	return false
 }

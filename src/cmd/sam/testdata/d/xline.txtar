@@ -1,14 +1,13 @@
 x line-loop terminating at a line boundary and mid-range.
-args: -d input
 
 -- stdin --
 ,x/./ p
 1x/./ p
--- stdout --
-abcdefab^D
--- stderr --
- -. input
 -- input --
 ab
 cd
 ef^D
+-- stdout --
+abcdefab^D
+-- stderr --
+ -. input

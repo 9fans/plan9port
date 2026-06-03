@@ -1,17 +1,18 @@
 Duplicate file arguments warn before the command file is created, so the
 warning is buffered into the command window.
-args: -R a a
 
--- script --
-exit
+-- args --
+-R a a
 -- a --
 hello
--- host --
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "a"
 Hnewname tag=1
 Hmovname tag=1 "a"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=2
 Hbindname tag=2
 Hcurrent tag=2
@@ -19,5 +20,8 @@ Hmovname tag=2 "~~sam~~"
 Hgrow tag=2 p=0 n=34
 Hcheck0 tag=2
 Hack
+Trequest 2 0 34
 Hdata tag=2 p=0 "?warning: duplicate file name `a'\n"
+Tack
 Hunlock
+Texit

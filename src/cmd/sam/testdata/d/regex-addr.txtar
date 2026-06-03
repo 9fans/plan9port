@@ -1,11 +1,15 @@
 Regular-expression and compound addresses, = and =#.
-args: -d input
 
 -- stdin --
 /gamma/p
 /alpha/,/gamma/p
 $=
 /beta/=#
+-- input --
+alpha
+beta
+gamma
+delta
 -- stdout --
 gammaalpha
 beta
@@ -14,8 +18,3 @@ gamma^D
  -. input
 5; #23
 #6,#10
--- input --
-alpha
-beta
-gamma
-delta

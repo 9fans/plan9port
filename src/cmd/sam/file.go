@@ -5,12 +5,35 @@ import (
 	"slices"
 )
 
+// Undo record types.
+const (
+	Null     = '-'
+	Delete   = 'd'
+	Insert   = 'i'
+	Filename = 'f'
+	Dot      = 'D'
+	Mark     = 'm'
+)
+
+const (
+	Maxblock = 8 * 1024
+	BUFSIZE  = Maxblock
+	RBUFSIZE = BUFSIZE / 4 // sizeof(rune) == 4
+)
+
+// State of a file in the menu.
+const (
+	Clean  = ' '
+	Dirty  = '\''
+	Unread = '-'
+)
+
 // File is a file and its undo state.
 type File struct {
 	b       Buffer // the data
 	delta   []Undo // transcript of changes (undo)
 	epsilon []Undo // inverse of delta (redo)
-	name    String // name of associated file
+	name    []rune // name of associated file
 	qidpath uint64
 	mtime   uint
 	dev     uint32
@@ -27,11 +50,10 @@ type File struct {
 	tdot   Range   // what terminal thinks is current range
 	mark   Range   // tagged spot in text
 
-	rasp    []Posn // map of what terminal's got (nil if no terminal)
-	hasrasp bool   // rasp list has been allocated (distinguishes nil from empty)
-	tag     int    // for communicating with terminal
-	closeok bool   // ok to close file?
-	deleted bool   // delete at completion of command
+	rasp    Rasp // map of what terminal's got (rasp.init false if no terminal)
+	tag     int  // for communicating with terminal
+	closeok bool // ok to close file?
+	deleted bool // delete at completion of command
 
 	prevdot  Range // state before start of change
 	prevmark Range
@@ -56,7 +78,7 @@ type Undo struct {
 	seq int  // sequence number
 	p0  Posn
 	n   Posn   // # runes in buf, or count for Delete/Dot/Mark
-	buf []Rune // payload for Insert / Filename
+	buf []rune // payload for Insert / Filename
 }
 
 // Merge batches adjacent log changes.
@@ -66,7 +88,7 @@ type Merge struct {
 	p0   Posn
 	n    Posn
 	nbuf Posn
-	buf  [RBUFSIZE]Rune
+	buf  [RBUFSIZE]rune
 }
 
 const (
@@ -80,7 +102,7 @@ func (s *Sam) fileopen() *File {
 	f.seq = 0
 	f.mod = false
 	f.unread = true
-	Strinit0(&f.name)
+	f.name = nil
 	return f
 }
 
@@ -88,14 +110,14 @@ func fileisdirty(f *File) bool {
 	return f.seq != f.cleanseq
 }
 
-func wrinsert(delta []Undo, seq int, mod bool, p0 Posn, s []Rune, ns int) []Undo {
+func wrinsert(delta []Undo, seq int, mod bool, p0 Posn, s []rune) []Undo {
 	return append(delta, Undo{
 		typ: Insert,
 		mod: mod,
 		seq: seq,
 		p0:  p0,
-		n:   ns,
-		buf: slices.Clone(s[:ns]),
+		n:   Posn(len(s)),
+		buf: slices.Clone(s),
 	})
 }
 
@@ -117,13 +139,13 @@ func (s *Sam) flushmerge() {
 	}
 	if m.seq != f.seq {
 		// unreachable
-		s.panicf("flushmerge seq mismatch")
+		s.panic("flushmerge seq mismatch")
 	}
 	if m.n != 0 {
 		f.epsilon = wrdelete(f.epsilon, f.seq, true, m.p0, m.p0+m.n)
 	}
 	if m.nbuf != 0 {
-		f.epsilon = wrinsert(f.epsilon, f.seq, true, m.p0+m.n, m.buf[:m.nbuf], m.nbuf)
+		f.epsilon = wrinsert(f.epsilon, f.seq, true, m.p0+m.n, m.buf[:m.nbuf])
 	}
 	m.f = nil
 	m.n = 0
@@ -134,14 +156,15 @@ func (s *Sam) mergeextend(f *File, p0 Posn) {
 	m := &s.merge
 	mp0n := m.p0 + m.n
 	if mp0n != p0 {
-		bufread(&f.b, mp0n, m.buf[m.nbuf:], p0-mp0n)
+		s.bufread(&f.b, mp0n, m.buf[m.nbuf:m.nbuf+p0-mp0n])
 		m.nbuf += p0 - mp0n
 		m.n = p0 - m.p0
 	}
 }
 
 // loginsert is like fileundelete, but it gets the data from arguments.
-func (s *Sam) loginsert(f *File, p0 Posn, str []Rune, ns int) {
+func (s *Sam) loginsert(f *File, p0 Posn, str []rune) {
+	ns := Posn(len(str))
 	if f.rescuing {
 		// unreachable: rescue() is always followed by exits(), so nothing is logged while rescuing
 		return
@@ -151,13 +174,13 @@ func (s *Sam) loginsert(f *File, p0 Posn, str []Rune, ns int) {
 	}
 	if ns > STRSIZE {
 		// unreachable
-		s.panicf("loginsert")
+		s.panic("loginsert")
 	}
 	if f.seq < s.seq {
 		s.filemark(f)
 	}
 	if p0 < f.hiposn {
-		fail(Esequence)
+		s.error(Esequence)
 	}
 
 	merge := &s.merge
@@ -170,9 +193,9 @@ func (s *Sam) loginsert(f *File, p0 Posn, str []Rune, ns int) {
 	if ns >= RBUFSIZE {
 		if !(merge.n == 0 && merge.nbuf == 0 && merge.f == nil) {
 			// unreachable
-			s.panicf("loginsert bad merge state")
+			s.panic("loginsert bad merge state")
 		}
-		f.epsilon = wrinsert(f.epsilon, f.seq, true, p0, str, ns)
+		f.epsilon = wrinsert(f.epsilon, f.seq, true, p0, str)
 	} else {
 		if merge.f != f {
 			merge.f = f
@@ -182,7 +205,7 @@ func (s *Sam) loginsert(f *File, p0 Posn, str []Rune, ns int) {
 		s.mergeextend(f, p0)
 
 		// append string to merge
-		copy(merge.buf[merge.nbuf:], str[:ns])
+		copy(merge.buf[merge.nbuf:], str)
 		merge.nbuf += ns
 	}
 
@@ -204,7 +227,7 @@ func (s *Sam) logdelete(f *File, p0, p1 Posn) {
 		s.filemark(f)
 	}
 	if p0 < f.hiposn {
-		fail(Esequence)
+		s.error(Esequence)
 	}
 
 	merge := &s.merge
@@ -229,7 +252,7 @@ func (s *Sam) logdelete(f *File, p0, p1 Posn) {
 }
 
 // logsetname is like fileunsetname, but gets the data from arguments.
-func (s *Sam) logsetname(f *File, str *String) {
+func (s *Sam) logsetname(f *File, str []rune) {
 	if f.rescuing {
 		// unreachable: rescue() is always followed by exits(), so nothing is logged while rescuing
 		return
@@ -251,15 +274,15 @@ func (s *Sam) logsetname(f *File, str *String) {
 		mod: true,
 		seq: f.seq,
 		p0:  0,
-		n:   str.n(),
-		buf: append([]Rune(nil), str.s...),
+		n:   Posn(len(str)),
+		buf: slices.Clone(str),
 	})
 	if !f.unread && !f.mod {
 		s.state(f, Dirty)
 	}
 }
 
-func (s *Sam) fileuninsert(f *File, delta *[]Undo, p0 Posn, ns int) {
+func (s *Sam) fileuninsert(f *File, delta *[]Undo, p0 Posn, ns Posn) {
 	// undo an insertion by deleting
 	*delta = append(*delta, Undo{
 		typ: Delete,
@@ -272,8 +295,8 @@ func (s *Sam) fileuninsert(f *File, delta *[]Undo, p0 Posn, ns int) {
 
 func (s *Sam) fileundelete(f *File, delta *[]Undo, p0, p1 Posn) {
 	// undo a deletion by inserting
-	buf := make([]Rune, p1-p0)
-	bufread(&f.b, p0, buf, p1-p0)
+	buf := make([]rune, p1-p0)
+	s.bufread(&f.b, p0, buf)
 	*delta = append(*delta, Undo{
 		typ: Insert,
 		mod: f.mod,
@@ -284,36 +307,36 @@ func (s *Sam) fileundelete(f *File, delta *[]Undo, p0, p1 Posn) {
 	})
 }
 
-func filereadc(f *File, q Posn) int {
+func filereadc(f *File, q Posn) rune {
 	if q < 0 || q >= f.b.nc() {
 		return -1
 	}
-	return int(f.b.c[q])
+	return f.b.c[q]
 }
 
-func (s *Sam) filesetname(f *File, str *String) {
+func (s *Sam) filesetname(f *File, str []rune) {
 	if !f.unread {
 		// unreachable: the only caller (logsetname) calls filesetname only when f.unread
 		s.fileunsetname(f, &f.delta)
 	}
-	Strduplstr(&f.name, str)
+	f.name = slices.Clone(str)
 	s.sortname(f)
 	f.unread = true
 }
 
 func (s *Sam) fileunsetname(f *File, delta *[]Undo) {
 	// undo a file name change by restoring the old name
-	var ss String
-	Strinit(&ss)
-	Strduplstr(&ss, &f.name)
-	s.fullname(&ss)
+	var ss []rune
+	ss = nil
+	ss = slices.Clone(f.name)
+	ss = s.fullname(ss)
 	*delta = append(*delta, Undo{
 		typ: Filename,
 		mod: f.mod,
 		seq: f.seq,
 		p0:  0,
-		n:   ss.n(),
-		buf: slices.Clone(ss.s),
+		n:   Posn(len(ss)),
+		buf: slices.Clone(ss),
 	})
 }
 
@@ -337,12 +360,12 @@ func (s *Sam) fileunsetmark(f *File, delta *[]Undo, mark Range) {
 	})
 }
 
-func (s *Sam) fileload(f *File, p0 Posn, r io.Reader, nulls *bool) int {
+func (s *Sam) fileload(f *File, p0 Posn, r io.Reader, nulls *bool) Posn {
 	if f.seq > 0 {
 		// unreachable
-		s.panicf("undo in file.load unimplemented")
+		s.panic("undo in file.load unimplemented")
 	}
-	return bufload(&f.b, p0, r, nulls)
+	return s.bufload(&f.b, p0, r, nulls)
 }
 
 func (s *Sam) fileupdate(f *File, notrans, toterm bool) bool {
@@ -443,7 +466,7 @@ func (s *Sam) fileundo(f *File, isundo, canredo, flag bool) (q0p, q1p Posn) {
 		switch u.typ {
 		default:
 			// unreachable
-			s.panicf("undo unknown u.type")
+			s.panic("undo unknown u.type")
 
 		case Delete:
 			f.seq = u.seq
@@ -451,7 +474,7 @@ func (s *Sam) fileundo(f *File, isundo, canredo, flag bool) (q0p, q1p Posn) {
 				s.fileundelete(f, epsilon, u.p0, u.p0+u.n)
 			}
 			f.mod = u.mod
-			bufdelete(&f.b, u.p0, u.p0+u.n)
+			s.bufdelete(&f.b, u.p0, u.p0+u.n)
 			s.raspdelete(f, u.p0, u.p0+u.n, flag)
 			q0p = u.p0
 			q1p = u.p0
@@ -462,13 +485,10 @@ func (s *Sam) fileundo(f *File, isundo, canredo, flag bool) (q0p, q1p Posn) {
 				s.fileuninsert(f, epsilon, u.p0, u.n)
 			}
 			f.mod = u.mod
-			for i := 0; i < u.n; {
-				n := u.n - i
-				if n > RBUFSIZE {
-					n = RBUFSIZE
-				}
-				bufinsert(&f.b, u.p0+i, u.buf[i:i+n], n)
-				s.raspinsert(f, u.p0+i, u.buf[i:i+n], n, flag)
+			for i := Posn(0); i < u.n; {
+				n := min(u.n-i, RBUFSIZE)
+				s.bufinsert(&f.b, u.p0+i, u.buf[i:i+n])
+				s.raspinsert(f, u.p0+i, u.buf[i:i+n], flag)
 				i += n
 			}
 			q0p = u.p0
@@ -480,8 +500,8 @@ func (s *Sam) fileundo(f *File, isundo, canredo, flag bool) (q0p, q1p Posn) {
 				s.fileunsetname(f, epsilon)
 			}
 			f.mod = u.mod
-			f.name.s = append(f.name.s[:0], u.buf[:u.n]...)
-			s.fixname(&f.name)
+			f.name = append(f.name[:0], u.buf[:u.n]...)
+			f.name = s.fixname(f.name)
 			s.sortname(f)
 
 		case Dot:
@@ -514,12 +534,11 @@ func (s *Sam) fileundo(f *File, isundo, canredo, flag bool) (q0p, q1p Posn) {
 }
 
 func (s *Sam) fileclose(f *File) {
-	Strclose(&f.name)
+	f.name = nil
 	bufclose(&f.b)
 	f.delta = nil
 	f.epsilon = nil
-	f.rasp = nil
-	f.hasrasp = false
+	f.rasp = Rasp{}
 }
 
 func (s *Sam) filemark(f *File) {

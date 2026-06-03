@@ -1,14 +1,13 @@
 An empty append (a//) logs nothing (loginsert ns==0).
-args: -d input
 
 -- stdin --
 1a//
 ,p
+-- input --
+hello
+world
 -- stdout --
 hello
 world
 -- stderr --
  -. input
--- input --
-hello
-world

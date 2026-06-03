@@ -1,5 +1,4 @@
 Backward search exercising the reverse machine's ., [^], and | and anchors.
-args: -d input
 
 -- stdin --
 ?a.b?p
@@ -7,12 +6,12 @@ args: -d input
 ?x|z?p
 $
 /alpha/p
--- stdout --
-a1b9xalpha^D
--- stderr --
- -. input
 -- input --
 alpha
 a1b
 xy9
 zebra
+-- stdout --
+a1b9xalpha^D
+-- stderr --
+ -. input

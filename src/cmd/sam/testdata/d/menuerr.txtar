@@ -1,14 +1,12 @@
 Menu errors: switch to a non-menu file, D with no file, empty closefiles.
-args: -d input
 
 -- stdin --
 b nope
 D
 D nope
--- stdout --
+-- input --
+alpha
 -- stderr --
  -. input
 ?not in menu: "nope"
 ?warning: no such file `nope'
--- input --
-alpha

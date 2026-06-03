@@ -1,16 +1,14 @@
 Write a line range to a new file.
-args: -d input
 
 -- stdin --
 1,2w out
--- stdout --
--- stderr --
- -. input
-out: #11
 -- input --
 alpha
 beta
 gamma
+-- stderr --
+ -. input
+out: #11
 -- out.out --
 alpha
 beta

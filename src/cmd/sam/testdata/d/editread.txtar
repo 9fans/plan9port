@@ -1,11 +1,17 @@
 e replaces the file contents; r reads a file in at an address.
-args: -d input
 
+-- args --
+-d input
 -- stdin --
 0r other
 ,p
 e other
 ,p
+-- other --
+NEW1
+NEW2
+-- input --
+original
 -- stdout --
 NEW1
 NEW2
@@ -16,8 +22,3 @@ NEW2
  -. input
 #10
  -. other
--- other --
-NEW1
-NEW2
--- input --
-original

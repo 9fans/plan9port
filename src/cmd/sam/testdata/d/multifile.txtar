@@ -1,11 +1,16 @@
 Switch files with b, run X over all files, address another file with ".
-args: -d a b
 
 -- stdin --
 b b
 ,p
 X/.*/ ,p
 "a"/one/p
+-- a --
+one
+two
+-- b --
+three
+four
 -- stdout --
 three
 four
@@ -17,9 +22,3 @@ one^D
 -- stderr --
  -. a
  -. b
--- a --
-one
-two
--- b --
-three
-four

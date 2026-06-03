@@ -1,5 +1,4 @@
 Global and counted substitution, backreferences and &.
-args: -d input
 
 -- stdin --
 ,s/l/L/g
@@ -8,6 +7,10 @@ args: -d input
 ,p
 ,s/beta/[&]/
 ,p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 aLpha
 beta
@@ -21,7 +24,3 @@ gamma
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha
-beta
-gamma

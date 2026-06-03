@@ -1,12 +1,13 @@
 package main
 
-import "path"
-
-// File menu management (multi.c). The C List of File* becomes s.file []*File.
+import (
+	"path"
+	"slices"
+)
 
 func (s *Sam) newfile() *File {
 	f := s.fileopen()
-	s.file = append([]*File{f}, s.file...) // inslist(&file, 0, f)
+	s.file = slices.Insert(s.file, 0, f)
 	f.tag = s.tag
 	s.tag++
 	if s.downloaded {
@@ -35,29 +36,29 @@ func (s *Sam) delfile(f *File) {
 	if s.downloaded {
 		s.outTs(Hdelname, f.tag)
 	}
-	s.file = append(s.file[:w], s.file[w+1:]...)
+	s.file = slices.Delete(s.file, w, w+1)
 	s.fileclose(f)
 }
 
-func (s *Sam) fullname(name *String) {
-	if name.n() > 0 && name.s[0] != '/' && name.s[0] != 0 {
-		Strinsert(name, &s.curwd, 0)
+func (s *Sam) fullname(name []rune) []rune {
+	if len(name) > 0 && name[0] != '/' {
+		name = s.insertString(name, s.curwd, 0)
 	}
+	return name
 }
 
-func (s *Sam) fixname(name *String) {
-	s.fullname(name)
-	str := Strtoc(name)
+func (s *Sam) fixname(name []rune) []rune {
+	name = s.fullname(name)
+	str := string(name)
 	if len(str) > 0 {
 		str = cleanname(str)
 	}
-	t := tmpcstr(str)
-	Strduplstr(name, t)
-	freetmpstr(t)
+	name = []rune(str)
 
-	if Strispre(&s.curwd, name) {
-		Strdelete(name, 0, s.curwd.n())
+	if runesHasPrefix(name, s.curwd) {
+		name = slices.Delete(name, 0, len(s.curwd))
 	}
+	return name
 }
 
 // cleanname is plan9's cleanname; path.Clean matches it for the paths sam sees.
@@ -68,27 +69,24 @@ func cleanname(p string) string {
 func (s *Sam) sortname(f *File) {
 	w := s.whichmenu(f)
 	dupwarned := false
-	s.file = append(s.file[:w], s.file[w+1:]...) // dellist
+	s.file = slices.Delete(s.file, w, w+1)
 	var i int
 	if f == s.cmd {
 		i = 0
 	} else {
 		for i = 0; i < len(s.file); i++ {
-			cmp := Strcmp(&f.name, &s.file[i].name)
+			cmp := runesCompare(f.name, s.file[i].name)
 			if cmp == 0 && !dupwarned {
 				dupwarned = true
-				s.warn_S(Wdupname, &f.name)
+				s.warn_S(Wdupname, f.name)
 			} else if cmp < 0 && (i > 0 || s.cmd == nil) {
 				break
 			}
 		}
 	}
-	// inslist(&file, i, f)
-	s.file = append(s.file, nil)
-	copy(s.file[i+1:], s.file[i:])
-	s.file[i] = f
+	s.file = slices.Insert(s.file, i, f)
 	if s.downloaded {
-		s.outTsS(Hmovname, f.tag, &f.name)
+		s.outTsS(Hmovname, f.tag, f.name)
 	}
 }
 
@@ -111,9 +109,9 @@ func (s *Sam) state(f *File, cleandirty int) {
 	}
 }
 
-func (s *Sam) lookfile(str *String) *File {
+func (s *Sam) lookfile(str []rune) *File {
 	for _, f := range s.file {
-		if Strcmp(&f.name, str) == 0 {
+		if runesCompare(f.name, str) == 0 {
 			return f
 		}
 	}

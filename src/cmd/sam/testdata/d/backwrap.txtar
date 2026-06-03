@@ -1,18 +1,17 @@
 Backward search from the start wraps to the end; a backward search with no
 match wraps fully and fails.
-args: -d input
 
 -- stdin --
 1
 ?gamma?p
 ?zzzz?p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 gamma^D
 -- stderr --
  -. input
 ?search
--- input --
-alpha
-beta
-gamma

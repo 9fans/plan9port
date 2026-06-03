@@ -1,12 +1,11 @@
 Undo with nothing to undo.
-args: -d input
 
 -- stdin --
 u
 ,p
+-- input --
+alpha
 -- stdout --
 alpha
 -- stderr --
  -. input
--- input --
-alpha

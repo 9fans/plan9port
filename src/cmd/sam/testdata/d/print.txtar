@@ -1,9 +1,13 @@
 Print the whole file, then a line range.
-args: -d input
 
 -- stdin --
 ,p
 2,3p
+-- input --
+alpha
+beta
+gamma
+delta
 -- stdout --
 alpha
 beta
@@ -13,8 +17,3 @@ beta
 gamma
 -- stderr --
  -. input
--- input --
-alpha
-beta
-gamma
-delta

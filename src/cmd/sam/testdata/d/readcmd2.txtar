@@ -1,11 +1,13 @@
 b <command twice (reusing flist); and an overlong file list.
-args: -d input
 
 -- stdin --
 b <echo input
 b <echo input
 1p
 b <seq 1 1000
+-- input --
+alpha
+beta
 -- stdout --
 alpha
 -- stderr --
@@ -16,6 +18,3 @@ alpha
  -. input
 !
 ?string too long
--- input --
-alpha
-beta

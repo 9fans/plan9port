@@ -1,77 +1,88 @@
 Small inserts/deletes/changes in the middle of a viewed file split, break,
 and merge terminal-known rasp spans.
-args: -R input
 
--- script --
-startfile 0
-type 1a/AA/\n
-type 3c/BB/\n
-type 2d\n
-type ,s/e/EE/g\n
-type 4a/CCCC/\n
-type 1,2d\n
-exit
 -- input --
 alpha
 beta
 gamma
 delta
 epsilon
--- host --
+-- proto --
 Hversion 2
 Hnewname tag=0
 Hmovname tag=0 "input"
+Tversion 2
+Tstartcmdfile
 Hnewname tag=1
 Hbindname tag=1
 Hcurrent tag=1
 Hmovname tag=1 "~~sam~~"
 Hcheck0 tag=1
 Hack
+Tack
 Hunlock
+Tstartfile 0
 Hbindname tag=0
 Hcurrent tag=0
 Hgrow tag=0 p=0 n=31
 Hcheck0 tag=0
 Hcheck0 tag=0
 Hack
+Trequest 0 0 31
 Hdata tag=0 p=0 "alpha\nbeta\ngamma\ndelta\nepsilon\n"
+Tack
 Hgrow tag=1 p=0 n=10
 Hcheck0 tag=1
 Hack
+Trequest 1 0 10
 Hdata tag=1 p=0 " +. input\n"
+Tack
 Hsetdot tag=1 p=10 n=10
 Hunlock
+cmd 1a/AA/\n
 Hdirty tag=0
 Hgrowdata tag=0 p=6 n=2 "AA"
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=6 n=8
 Hunlock
+cmd 3c/BB/\n
 Hgrowdata tag=0 p=19 n=2 "BB"
 Hcut tag=0 p=13 n=6
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=13 n=15
 Hunlock
+cmd 2d\n
 Hcut tag=0 p=6 n=7
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=6 n=6
 Hunlock
+cmd ,s/e/EE/g\n
 Hgrowdata tag=0 p=15 n=8 "EElta\nEE"
 Hcut tag=0 p=9 n=6
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=0 n=24
 Hsetpat "e"
 Hunlock
+cmd 4a/CCCC/\n
 Hgrowdata tag=0 p=24 n=4 "CCCC"
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=24 n=28
 Hunlock
+cmd 1,2d\n
 Hcut tag=0 p=0 n=15
 Hcheck0 tag=0
 Hack
+Tack
 Hsetdot tag=0 p=0 n=0
 Hunlock
+Texit

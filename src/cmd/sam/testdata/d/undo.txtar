@@ -1,5 +1,4 @@
 Undo and redo a deletion.
-args: -d input
 
 -- stdin --
 ,d
@@ -7,6 +6,10 @@ u
 ,p
 u-1
 ,p
+-- input --
+alpha
+beta
+gamma
 -- stdout --
 alpha
 beta
@@ -14,7 +17,3 @@ gamma
 -- stderr --
  -. input
 ?changed files
--- input --
-alpha
-beta
-gamma
