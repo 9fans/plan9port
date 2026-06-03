@@ -27,6 +27,22 @@ static char *srvname;
 static int afd;
 static char adir[40];
 
+// hostgfx is the normal backend, implemented by the host window system
+// (mac-screen.m or x11-screen.c). testgfx (test-screen.c) is the in-memory
+// backend. gfx points at whichever is selected in threadmain.
+static Gfx hostgfx = {
+	gfx_main,
+	rpc_shutdown,
+	rpc_attach,
+	rpc_getsnarf,
+	rpc_putsnarf,
+	rpc_gfxdrawlock,
+	rpc_gfxdrawunlock,
+};
+Gfx *gfx = &hostgfx;
+char *testoutfile;
+char *testinfile;
+
 static void
 usage(void)
 {
@@ -59,6 +75,19 @@ threadmain(int argc, char **argv)
 	if((p = getenv("DEVDRAWTRACE")) != nil)
 		trace = atoi(p);
 
+	// Test instrumentation, all independent and composable:
+	//	DEVDRAW_TEST_MEMORY=1	use the in-memory backend, no host display
+	//	DEVDRAW_TEST_OUTPUT=file	dump each flushed frame to file.0, file.1, ...
+	//	DEVDRAW_TEST_INPUT=file	read a script of keyboard/mouse/resize commands
+	if((p = getenv("DEVDRAW_TEST_MEMORY")) != nil && strcmp(p, "1") == 0)
+		gfx = &testgfx;
+	testoutfile = getenv("DEVDRAW_TEST_OUTPUT");
+	if(testoutfile != nil && testoutfile[0] == '\0')
+		testoutfile = nil;
+	testinfile = getenv("DEVDRAW_TEST_INPUT");
+	if(testinfile != nil && testinfile[0] == '\0')
+		testinfile = nil;
+
 	if(srvname == nil) {
 		client0 = mallocz(sizeof(Client), 1);
 		if(client0 == nil){
@@ -82,7 +111,7 @@ threadmain(int argc, char **argv)
 	}
 
 	fmtinstall('W', drawfcallfmt);
-	gfx_main();
+	gfx->main();
 }
 
 void
@@ -93,6 +122,8 @@ gfx_started(void)
 	if(srvname == nil) {
 		// Legacy mode: serving single client on pipes.
 		proccreate(serveproc, client0, 0);
+		if(testinfile != nil)
+			test_input_start(client0);
 		return;
 	}
 
@@ -173,7 +204,7 @@ serveproc(void *v)
 	}
 
 	if(c == client0) {
-		rpc_shutdown();
+		gfx->shutdown();
 		threadexitsall(nil);
 	}
 }
@@ -207,7 +238,7 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tinit:
-		i = rpc_attach(c, m->label, m->winsize);
+		i = gfx->attach(c, m->label, m->winsize);
 		if(i == nil) {
 			replyerror(c, m);
 			break;
@@ -255,20 +286,27 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tcursor:
-		if(m->arrowcursor)
+		if(m->arrowcursor) {
+			c->testcursorset = 0;
 			c->impl->rpc_setcursor(c, nil, nil);
-		else {
+		} else {
 			scalecursor(&m->cursor2, &m->cursor);
+			c->testcursorset = 1;
+			c->testcursor = m->cursor;
 			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
 		}
 		replymsg(c, m);
 		break;
 
 	case Tcursor2:
-		if(m->arrowcursor)
+		if(m->arrowcursor) {
+			c->testcursorset = 0;
 			c->impl->rpc_setcursor(c, nil, nil);
-		else
+		} else {
+			c->testcursorset = 1;
+			c->testcursor = m->cursor;
 			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
+		}
 		replymsg(c, m);
 		break;
 
@@ -283,13 +321,13 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Trdsnarf:
-		m->snarf = rpc_getsnarf();
+		m->snarf = gfx->getsnarf();
 		replymsg(c, m);
 		free(m->snarf);
 		break;
 
 	case Twrsnarf:
-		rpc_putsnarf(m->snarf);
+		gfx->putsnarf(m->snarf);
 		replymsg(c, m);
 		break;
 

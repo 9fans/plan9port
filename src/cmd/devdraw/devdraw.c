@@ -143,11 +143,11 @@ addflush(Client *c, Rectangle r)
 		// Unlock drawlk because rpc_flush may want to run on gfx thread,
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
-		rpc_gfxdrawunlock();
+		gfx->drawunlock();
 		qunlock(&drawlk);
 		c->impl->rpc_flush(c, fr);
 		qlock(&drawlk);
-		rpc_gfxdrawlock();
+		gfx->drawlock();
 	}
 }
 
@@ -188,11 +188,11 @@ drawflush(Client *c)
 		// Unlock drawlk because rpc_flush may want to run on gfx thread,
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
-		rpc_gfxdrawunlock();
+		gfx->drawunlock();
 		qunlock(&drawlk);
 		c->impl->rpc_flush(c, r);
 		qlock(&drawlk);
-		rpc_gfxdrawlock();
+		gfx->drawlock();
 	}
 }
 
@@ -637,6 +637,25 @@ err:
 	return -1;
 }
 
+// drawlogfd returns the fd of the draw-protocol trace file named by
+// $DEVDRAW_DRAWLOG, or -1 if unset. Set it to dump the sequence of draw opcodes
+// the client (libdraw or src/draw) sends, so two clients driven identically can
+// be diffed to find where a draw library deviates. Opcodes only -- image ids and
+// coordinates are elided, since they legitimately differ by allocation order.
+static int
+drawlogfd(void)
+{
+	static int fd = -2;
+	char *p;
+
+	if(fd == -2){
+		fd = -1;
+		if((p = getenv("DEVDRAW_DRAWLOG")) != nil && p[0] != 0)
+			fd = create(p, OWRITE, 0666);
+	}
+	return fd;
+}
+
 int
 draw_datawrite(Client *client, void *v, int n)
 {
@@ -659,14 +678,19 @@ draw_datawrite(Client *client, void *v, int n)
 	Refx *refx;
 
 	qlock(&drawlk);
-	rpc_gfxdrawlock();
+	gfx->drawlock();
 	a = v;
 	m = 0;
 	oldn = n;
 
+	if(drawlogfd() >= 0)
+		fprint(drawlogfd(), "# write %d bytes\n", n);
+
 	while((n-=m) > 0){
 		a += m;
 /*fprint(2, "msgwrite %d(%d)...", n, *a); */
+		if(drawlogfd() >= 0)
+			fprint(drawlogfd(), "%c\n", *a);
 		switch(*a){
 		default:
 /*fprint(2, "bad command %d\n", *a); */
@@ -1432,7 +1456,7 @@ draw_datawrite(Client *client, void *v, int n)
 			continue;
 		}
 	}
-	rpc_gfxdrawunlock();
+	gfx->drawunlock();
 	qunlock(&drawlk);
 	return oldn - n;
 
@@ -1503,7 +1527,7 @@ Ebadarg:
 
 error:
 	werrstr("%s", err);
-	rpc_gfxdrawunlock();
+	gfx->drawunlock();
 	qunlock(&drawlk);
 	return -1;
 }

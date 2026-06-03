@@ -10,6 +10,9 @@ WSYSOFILES=\
 	latin1.$O\
 	mouseswap.$O\
 	srv.$O\
+	test-input.$O\
+	test-output.$O\
+	test-screen.$O\
 	winsize.$O\
 
 <|sh ./mkwsysrules.sh

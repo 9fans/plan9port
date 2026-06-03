@@ -510,6 +510,10 @@ rpc_flush(Client *client, Rectangle r)
 			bytesPerRow:self.img->width*sizeof(u32int)];
 		qunlock(&drawlk);
 
+		// In test mode, also dump the flushed frame to a file.
+		if(testoutfile != nil)
+			test_output(self.client);
+
 		NSRect nr = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 		dispatch_time_t time;
 

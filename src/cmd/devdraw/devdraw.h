@@ -108,6 +108,11 @@ struct Client
 	Tagbuf kbdtags;
 	Tagbuf mousetags;
 	Rectangle mouserect;
+
+	// Test mode support (DEVDRAW_TEST_*); see test-screen.c, test-output.c.
+	int		testoutn;	// next DEVDRAW_TEST_OUTPUT frame number
+	int		testcursorset;	// non-zero if testcursor is valid (else default arrow)
+	Cursor		testcursor;	// current cursor, recorded for output compositing
 };
 
 struct Refresh
@@ -234,3 +239,30 @@ int mouseswap(int);
 int parsewinsize(char*, Rectangle*, int*);
 
 extern Client *client0; // set in single-client mode
+
+// Gfx selects the graphics backend at startup: the host window system
+// (gfx_main et al., defined in mac-screen.m / x11-screen.c) or the
+// in-memory test backend (testgfx, in test-screen.c) when DEVDRAW_TEST_MEMORY
+// is set. The per-client ClientImpl callbacks are dispatched separately,
+// through c->impl, set by the backend's attach routine.
+typedef struct Gfx Gfx;
+struct Gfx
+{
+	void		(*main)(void);
+	void		(*shutdown)(void);
+	Memimage*	(*attach)(Client*, char*, char*);
+	char*		(*getsnarf)(void);
+	void		(*putsnarf)(char*);
+	void		(*drawlock)(void);
+	void		(*drawunlock)(void);
+};
+extern Gfx *gfx;	// selected backend; set in threadmain
+extern Gfx testgfx;	// in-memory backend (test-screen.c)
+
+// Test instrumentation, independent of the chosen backend.
+// testoutfile/testinfile are the values of $DEVDRAW_TEST_OUTPUT and
+// $DEVDRAW_TEST_INPUT, or nil; they are read once in threadmain.
+extern char *testoutfile;
+extern char *testinfile;
+void test_output(Client*);	// write the current window image to testoutfile.N
+void test_input_start(Client*);	// start the scripted-input reader proc
