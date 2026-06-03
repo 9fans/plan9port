@@ -1,0 +1,21 @@
+Menu: add a new named buffer, add via empty command output, bad close operand.
+args: -d input
+
+-- stdin --
+B brandnew
+B <true
+Dx
+n
+-- stdout --
+-- stderr --
+ -. input
+ -. brandnew
+?can't open "brandnew": No such file or directory
+!
+ -. 
+?blank expected
+ -. 
+ -  brandnew
+ -  input
+-- input --
+alpha

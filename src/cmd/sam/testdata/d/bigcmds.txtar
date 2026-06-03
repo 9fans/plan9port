@@ -1,0 +1,28 @@
+B (getfile), one-line append text, x line-loop, and y.
+args: -d a b
+
+-- stdin --
+B b
+,p
+b a
+1a/INLINE/
+,p
+,x p
+1,1y/,/ p
+-- stdout --
+three
+one
+INLINEtwo
+one
+INLINEtwo
+one
+-- stderr --
+ -. a
+ -. b
+ -. a
+?changed files
+-- b --
+three
+-- a --
+one
+two

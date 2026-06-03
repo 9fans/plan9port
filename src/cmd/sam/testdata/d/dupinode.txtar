@@ -1,0 +1,15 @@
+Opening a hard link to an already-open file warns that files might be aliased
+(checkqid Wdupfile via warn_SS).
+args: -d input
+
+-- stdin --
+!ln input dup
+B dup
+-- stdout --
+-- stderr --
+ -. input
+!
+ -. dup
+?warning: files might be aliased: `dup' and `input'
+-- input --
+hello

@@ -1,0 +1,22 @@
+Menu manipulation: add via command output, switch to unknown, close errors.
+args: -d input
+
+-- stdin --
+B <echo brandnew
+n
+b nope
+D x
+D nosuchfile
+-- stdout --
+-- stderr --
+ -. input
+!
+ -. brandnew
+?can't open "brandnew": No such file or directory
+ -. brandnew
+ -  input
+?not in menu: "nope"
+?warning: no such file `x'
+?warning: no such file `nosuchfile'
+-- input --
+alpha

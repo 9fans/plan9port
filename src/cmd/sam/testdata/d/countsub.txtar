@@ -1,0 +1,20 @@
+Counted substitution and global empty-match substitution.
+args: -d input
+
+-- stdin --
+,s2/a/X/
+,p
+,s/b*/-/g
+,p
+-- stdout --
+aXa
+abc
+-a-X-a-
+-a-c-
+-^D
+-- stderr --
+ -. input
+?changed files
+-- input --
+aaa
+abc

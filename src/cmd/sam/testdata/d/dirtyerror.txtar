@@ -1,0 +1,21 @@
+An error while an already-modified file is changed again rolls back to dirty.
+args: -d input
+
+-- stdin --
+1d
+{
+2d
+#99
+}
+,p
+-- stdout --
+beta
+gamma
+-- stderr --
+ -. input
+?address range
+?changed files
+-- input --
+alpha
+beta
+gamma

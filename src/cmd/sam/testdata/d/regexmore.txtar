@@ -1,0 +1,18 @@
+Escaped metacharacters, \n in a class, and groups in a backward search.
+args: -d input
+
+-- stdin --
+,x/a\.b/ p
+,x/[\n]/ 
+$?(b)(eta)?p
+-- stdout --
+a.b
+
+
+beta^D
+-- stderr --
+ -. input
+-- input --
+a.b
+xx
+beta

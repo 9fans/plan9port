@@ -1,0 +1,46 @@
+The send action (Tsend): type a command into the window and run it.
+args: -R input
+
+-- script --
+startfile 0
+sendtext ,p
+exit
+-- input --
+alpha
+beta
+gamma
+-- host --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "input"
+Hnewname tag=1
+Hbindname tag=1
+Hcurrent tag=1
+Hmovname tag=1 "~~sam~~"
+Hcheck0 tag=1
+Hack
+Hunlock
+Hbindname tag=0
+Hcurrent tag=0
+Hgrow tag=0 p=0 n=17
+Hcheck0 tag=0
+Hcheck0 tag=0
+Hack
+Hdata tag=0 p=0 "alpha\nbeta\ngamma\n"
+Hgrow tag=1 p=0 n=10
+Hcheck0 tag=1
+Hack
+Hdata tag=1 p=0 " +. input\n"
+Hsetdot tag=1 p=10 n=10
+Hunlock
+Hsnarflen 2
+Hgrowdata tag=1 p=12 n=3 ",p\n"
+Hcheck0 tag=1
+Hack
+Hsetdot tag=1 p=15 n=15
+Hcurrent tag=0
+Hgrowdata tag=1 p=15 n=18 "?newline expected\n"
+Hcheck0 tag=1
+Hack
+Hsetdot tag=1 p=33 n=33
+Hunlock

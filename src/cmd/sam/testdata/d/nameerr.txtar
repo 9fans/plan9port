@@ -1,0 +1,13 @@
+Name-argument errors: missing blank, and extra word.
+args: -d input
+
+-- stdin --
+efoo
+e a b
+-- stdout --
+-- stderr --
+ -. input
+?blank expected
+?newline expected
+-- input --
+alpha

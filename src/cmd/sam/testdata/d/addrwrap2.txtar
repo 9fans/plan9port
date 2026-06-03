@@ -1,0 +1,14 @@
+Zero-width $ and ^ searches from the far end/start, which wrap.
+args: -d input
+
+-- stdin --
+$
+/$/
+0
+?^?
+-- stdout --
+-- stderr --
+ -. input
+-- input --
+alpha
+beta

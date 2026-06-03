@@ -1,0 +1,27 @@
+Pipe (|), read (<) and write (>) through the shell.
+args: -d input
+
+-- stdin --
+,|sort
+,p
+2<echo inserted
+,p
+1>cat
+-- stdout --
+alpha
+beta
+gamma
+alpha
+inserted
+gamma
+alpha
+-- stderr --
+ -. input
+!
+!
+!
+?changed files
+-- input --
+gamma
+alpha
+beta

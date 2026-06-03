@@ -1,0 +1,32 @@
+x with empty matches, line-loop, and file loops.
+args: -d a b
+
+-- stdin --
+,x/ */ =
+,x =
+X/./ ,p
+Y/zz/ ,p
+-- stdout --
+a b
+cd
+ef
+a b
+cd
+ef
+-- stderr --
+ -. a
+1; #0
+1; #1,#2
+1; #3
+2; #4
+2; #5
+2; #6
+3; #7
+1; #0,#4
+2; #4,#7
+ -  b
+-- b --
+ef
+-- a --
+a b
+cd

@@ -1,0 +1,18 @@
+Out-of-order inserts in one {} transaction are rejected (loginsert Esequence).
+args: -d input
+
+-- stdin --
+{
+2a/X/
+1a/Y/
+}
+,p
+-- stdout --
+one
+two
+-- stderr --
+ -. input
+?changes not in sequence
+-- input --
+one
+two

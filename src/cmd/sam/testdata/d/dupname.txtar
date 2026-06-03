@@ -1,0 +1,10 @@
+Two menu entries with the same name warn about duplication.
+args: -d a a
+
+-- stdin --
+-- stdout --
+-- stderr --
+?warning: duplicate file name `a'
+ -. a
+-- a --
+hello

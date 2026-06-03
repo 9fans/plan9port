@@ -1,0 +1,19 @@
+Buffer-command operand errors: missing leading space, empty operand, and
+closing the only file then operating with none.
+args: -d input
+
+-- stdin --
+bx
+Bx
+b 
+D input
+D
+-- stdout --
+-- stderr --
+ -. input
+?blank expected
+?blank expected
+?not in menu: ""
+?no current file
+-- input --
+alpha

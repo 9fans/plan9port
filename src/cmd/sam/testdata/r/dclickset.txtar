@@ -1,0 +1,25 @@
+Double-click: nested brackets, on a newline, an unmatched open bracket at
+EOF, and a single-line file with no trailing newline.
+args: -R input
+
+-- script --
+-- input --
+((y))
+word
+a(^D-- script --
+startfile 0
+dclick 0 1
+dclick 0 5
+dclick 0 13
+exit
+-- host --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "input"
+Hnewname tag=1
+Hbindname tag=1
+Hcurrent tag=1
+Hmovname tag=1 "~~sam~~"
+Hcheck0 tag=1
+Hack
+Hunlock

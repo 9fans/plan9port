@@ -1,0 +1,16 @@
+Multibyte UTF-8 input exercises rune decoding on load.
+args: -d input
+
+-- stdin --
+,p
+1,1+#1p
+-- stdout --
+héllo
+wörld
+héllo
+w^D
+-- stderr --
+ -. input
+-- input --
+héllo
+wörld

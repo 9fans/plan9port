@@ -1,0 +1,13 @@
+A " address matching more than one file is ambiguous.
+args: -d aa1 aa2
+
+-- stdin --
+"aa"1p
+-- stdout --
+-- stderr --
+ -. aa1
+?non-unique match for ""
+-- aa2 --
+two
+-- aa1 --
+one

@@ -1,0 +1,33 @@
+A new (nameless) frame; writing it with no name errors (Twrite Enoname).
+args: -R
+
+-- script --
+startnewfile
+write 1
+exit
+-- host --
+Hversion 2
+Hnewname tag=0
+Hbindname tag=0
+Hcurrent tag=0
+Hmovname tag=0 "~~sam~~"
+Hcheck0 tag=0
+Hack
+Hunlock
+Hnewname tag=1
+Hbindname tag=1
+Hmovname tag=1 ""
+Hcurrent tag=1
+Hcheck0 tag=1
+Hack
+Hgrow tag=0 p=0 n=5
+Hcheck0 tag=0
+Hack
+Hdata tag=0 p=0 " +. \n"
+Hsetdot tag=0 p=5 n=5
+Hcurrent tag=1
+Hgrowdata tag=0 p=5 n=14 "?no file name\n"
+Hcheck0 tag=0
+Hack
+Hsetdot tag=0 p=19 n=19
+Hunlock

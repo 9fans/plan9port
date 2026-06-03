@@ -1,0 +1,22 @@
+Parser/command errors: address on a no-address command, missing pattern,
+missing destination, stray brace, bad = argument, escaped backslash in re.
+args: -d input
+
+-- stdin --
+1q
+,g
+1m
+}
+=xy
+g/a\\b/p
+-- stdout --
+-- stderr --
+ -. input
+?command takes no address
+?pattern expected
+?address
+?unmatched `}'
+?newline expected
+-- input --
+alpha
+beta

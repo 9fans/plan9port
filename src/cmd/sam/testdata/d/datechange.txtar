@@ -1,0 +1,14 @@
+Writing a file whose on-disk mtime advanced since sam read it warns instead of
+overwriting (writef Wdate).
+args: -d input
+
+-- stdin --
+!touch -t 203001010000 input
+w
+-- stdout --
+-- stderr --
+ -. input
+!
+?warning: write might change good version of `input'
+-- input --
+hello

@@ -1,0 +1,14 @@
+f sets the file name; n lists files.
+args: -d input
+
+-- stdin --
+f newname
+n
+-- stdout --
+-- stderr --
+ -. input
+'-. newname
+'-. newname
+?changed files
+-- input --
+alpha

@@ -1,0 +1,16 @@
+v runs its command on non-matching matches (inverse of g).
+args: -d input
+
+-- stdin --
+,v/beta/p
+,g/./p
+-- stdout --
+alpha
+beta
+gamma
+-- stderr --
+ -. input
+-- input --
+alpha
+beta
+gamma

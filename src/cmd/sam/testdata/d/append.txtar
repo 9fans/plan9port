@@ -1,0 +1,30 @@
+Append, insert and change with dot text.
+args: -d input
+
+-- stdin --
+1a
+APP
+.
+0i
+INS
+.
+,p
+2c
+CH
+.
+,p
+-- stdout --
+INS
+alpha
+APP
+beta
+INS
+CH
+APP
+beta
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta

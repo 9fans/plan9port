@@ -1,0 +1,11 @@
+Writing to an uncreatable path reports the create error.
+args: -d input
+
+-- stdin --
+w /no/such/dir/x
+-- stdout --
+-- stderr --
+ -. input
+?can't create "/no/such/dir/x": No such file or directory
+-- input --
+alpha

@@ -1,0 +1,21 @@
+A double-click at end of a file whose only line has no trailing newline.
+args: -R input
+
+-- script --
+-- input --
+hello^D-- script --
+startfile 0
+dclick 0 0
+dclick 0 5
+exit
+-- host --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "input"
+Hnewname tag=1
+Hbindname tag=1
+Hcurrent tag=1
+Hmovname tag=1 "~~sam~~"
+Hcheck0 tag=1
+Hack
+Hunlock

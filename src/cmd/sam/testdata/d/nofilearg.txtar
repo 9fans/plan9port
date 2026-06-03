@@ -1,0 +1,9 @@
+A nonexistent file argument is created but fails to load.
+args: -d nofile
+
+-- stdin --
+,p
+-- stdout --
+-- stderr --
+ -. nofile
+?can't open "nofile": No such file or directory

@@ -1,0 +1,20 @@
+Set a mark with k and reference it with the ' address.
+args: -d input
+
+-- stdin --
+2k
+1,'p
+'d
+,p
+-- stdout --
+alpha
+beta
+alpha
+gamma
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta
+gamma

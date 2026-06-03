@@ -1,0 +1,12 @@
+Editing out of left-to-right order within one command is rejected.
+args: -d input
+
+-- stdin --
+,x/./ 1d
+-- stdout --
+-- stderr --
+ -. input
+?changes not in sequence
+-- input --
+abc
+def

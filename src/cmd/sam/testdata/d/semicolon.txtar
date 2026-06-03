@@ -1,0 +1,16 @@
+Semicolon address sets dot for the right side.
+args: -d input
+
+-- stdin --
+1;/gamma/p
+-- stdout --
+alpha
+beta
+gamma^D
+-- stderr --
+ -. input
+-- input --
+alpha
+beta
+gamma
+delta

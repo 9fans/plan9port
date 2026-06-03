@@ -1,0 +1,13 @@
+cd to the current directory: reprefixes names and prints the prompt.
+args: -d input
+
+-- stdin --
+cd .
+,p
+-- stdout --
+alpha
+-- stderr --
+ -. input
+!
+-- input --
+alpha

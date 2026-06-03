@@ -1,0 +1,27 @@
+Global and counted substitution, backreferences and &.
+args: -d input
+
+-- stdin --
+,s/l/L/g
+,p
+1s/(.)(.)/\2\1/
+,p
+,s/beta/[&]/
+,p
+-- stdout --
+aLpha
+beta
+gamma
+Lapha
+beta
+gamma
+Lapha
+[beta]
+gamma
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta
+gamma

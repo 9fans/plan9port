@@ -1,0 +1,14 @@
+D removes a file from the menu; n then lists what remains.
+args: -d a b
+
+-- stdin --
+D b
+n
+-- stdout --
+-- stderr --
+ -. a
+ -. a
+-- a --
+one
+-- b --
+two

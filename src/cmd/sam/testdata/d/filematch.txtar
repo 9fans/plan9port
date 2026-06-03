@@ -1,0 +1,16 @@
+X and Y select files by name match.
+args: -d aa bb
+
+-- stdin --
+X/aa/ ,p
+Y/aa/ ,p
+-- stdout --
+alpha
+beta
+-- stderr --
+ -. aa
+ -  bb
+-- aa --
+alpha
+-- bb --
+beta

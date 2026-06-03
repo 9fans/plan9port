@@ -1,0 +1,14 @@
+A forward zero-width search matching at end-of-file wraps to the start
+(nextmatch p>nc -> p=0).
+args: -d input
+
+-- stdin --
+$/a*/
+=
+-- stdout --
+a^D
+-- stderr --
+ -. input
+1; #0,#1
+-- input --
+abc

@@ -1,0 +1,20 @@
+Print the whole file, then a line range.
+args: -d input
+
+-- stdin --
+,p
+2,3p
+-- stdout --
+alpha
+beta
+gamma
+delta
+beta
+gamma
+-- stderr --
+ -. input
+-- input --
+alpha
+beta
+gamma
+delta

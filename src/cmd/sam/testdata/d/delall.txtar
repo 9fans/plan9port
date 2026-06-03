@@ -1,0 +1,12 @@
+Deleting the only file leaves no current file, so a command errors.
+args: -d input
+
+-- stdin --
+D input
+,p
+-- stdout --
+-- stderr --
+ -. input
+?no current file
+-- input --
+alpha

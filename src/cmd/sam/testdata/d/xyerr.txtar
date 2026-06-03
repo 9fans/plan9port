@@ -1,0 +1,14 @@
+Nested X is rejected; x over lines with a guard.
+args: -d a b
+
+-- stdin --
+X/./ X/./ p
+,x/./ g/z/ d
+-- stdout --
+-- stderr --
+ -. a
+?can't nest X or Y
+-- b --
+two
+-- a --
+one

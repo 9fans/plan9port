@@ -1,0 +1,16 @@
+Escaped delimiter in a regexp and a backslash at end of an s replacement.
+args: -d input
+
+-- stdin --
+g/a\/b/p
+,s/a/X\
+,p
+-- stdout --
+X\/b
+aaa
+-- stderr --
+ -. input
+?changed files
+-- input --
+a/b
+aaa

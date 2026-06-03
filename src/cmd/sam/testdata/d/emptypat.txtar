@@ -1,0 +1,11 @@
+An empty pattern with no previous pattern is an error.
+args: -d input
+
+-- stdin --
+g//p
+-- stdout --
+-- stderr --
+ -. input
+?pattern
+-- input --
+alpha

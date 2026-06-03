@@ -1,0 +1,16 @@
+Writing/editing a nameless file with no name argument errors.
+args: -d input
+
+-- stdin --
+B
+a
+hi
+.
+w
+-- stdout --
+-- stderr --
+ -. input
+?blank expected
+input: #9
+-- input --
+alpha

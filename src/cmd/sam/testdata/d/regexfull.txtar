@@ -1,0 +1,34 @@
+Regex features: alternation, ?, +, ^, $, classes, ranges, negation, \n,
+and backward search exercising the reverse machine's anchors.
+args: -d input
+
+-- stdin --
+,x/a|x/
+,x/ab?c/
+,x/[0-9]+/
+,x/[^a-z0-9]/
+,g/^h/p
+,g/c$/p
+,x/[\]]/
+$?^a?p
+?[0-9]?p
+-- stdout --
+aaaxabcac123]abc
+ac
+a1b2c3
+xenon
+hello]
+abc
+ac
+a1b2c3
+xenon
+hello]
+]a3^D
+-- stderr --
+ -. input
+-- input --
+abc
+ac
+a1b2c3
+xenon
+hello]

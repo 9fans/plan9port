@@ -1,0 +1,14 @@
+The " file address against a modified file shows its menu flags.
+args: -d input
+
+-- stdin --
+1d
+"input"1p
+-- stdout --
+beta
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta

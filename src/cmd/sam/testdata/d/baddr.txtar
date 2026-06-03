@@ -1,0 +1,15 @@
+Malformed addresses.
+args: -d input
+
+-- stdin --
+2.p
+,,p
+"input".p
+-- stdout --
+-- stderr --
+ -. input
+?address
+?address
+-- input --
+alpha
+beta

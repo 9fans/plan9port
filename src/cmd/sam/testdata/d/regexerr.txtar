@@ -1,0 +1,17 @@
+Regex compile errors; sam reports each and continues.
+args: -d input
+
+-- stdin --
+g/(/p
+g/)/p
+g/[a-/p
+,s/x*//
+g//p
+-- stdout --
+-- stderr --
+ -. input
+?no operand for `('
+?unmatched `)'
+?malformed `[]'
+-- input --
+abc

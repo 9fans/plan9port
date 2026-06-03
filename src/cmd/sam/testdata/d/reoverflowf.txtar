@@ -1,0 +1,12 @@
+A regexp with more simultaneous threads than NLIST overflows the match list
+(forward execute Eoverflow).
+args: -d input
+
+-- stdin --
+/a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a|a/
+-- stdout --
+-- stderr --
+ -. input
+?reg. exp. list overflow
+-- input --
+hello

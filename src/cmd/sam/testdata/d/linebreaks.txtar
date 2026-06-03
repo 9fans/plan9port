@@ -1,0 +1,18 @@
+x line-loop over a file whose last line lacks a newline.
+args: -d input
+
+-- stdin --
+,x p
+,p
+-- stdout --
+one
+two
+threeone
+two
+three^D
+-- stderr --
+ -. input
+-- input --
+one
+two
+three^D

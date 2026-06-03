@@ -1,0 +1,25 @@
+m and t (move/copy), plus the overlap error.
+args: -d input
+
+-- stdin --
+1m$
+,p
+2t0
+,p
+1,3m2
+-- stdout --
+beta
+gamma
+alpha
+gamma
+beta
+gamma
+alpha
+-- stderr --
+ -. input
+?addresses overlap
+?changed files
+-- input --
+alpha
+beta
+gamma

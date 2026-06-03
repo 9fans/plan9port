@@ -1,0 +1,12 @@
+A NUL byte in the command input is elided with a warning (Wnulls in command reader).
+args: -d input
+
+-- stdin --
+^@,p
+-- stdout --
+hello
+-- stderr --
+ -. input
+?warning: null characters elided
+-- input --
+hello

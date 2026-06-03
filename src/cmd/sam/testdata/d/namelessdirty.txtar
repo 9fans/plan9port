@@ -1,0 +1,14 @@
+Closing a modified nameless file reports it as "nameless file".
+args: -d
+
+-- stdin --
+a
+hi
+.
+D
+-- stdout --
+-- stderr --
+ -. 
+?changes to "nameless file"
+?changed files
+-- input --

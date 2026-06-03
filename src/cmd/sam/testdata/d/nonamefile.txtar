@@ -1,0 +1,17 @@
+On the nameless startup file, e and w with no name error.
+args: -d
+
+-- stdin --
+a
+hi
+.
+e
+w
+,p
+-- stdout --
+hi
+-- stderr --
+ -. 
+?no file name
+?no file name
+?changed files

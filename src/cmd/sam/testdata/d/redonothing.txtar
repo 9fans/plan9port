@@ -1,0 +1,12 @@
+Redo (u with a negative count) when there is nothing to redo.
+args: -d input
+
+-- stdin --
+u-1
+,p
+-- stdout --
+alpha
+-- stderr --
+ -. input
+-- input --
+alpha

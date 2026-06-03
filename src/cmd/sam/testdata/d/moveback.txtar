@@ -1,0 +1,17 @@
+Move a later line before an earlier one (copy-then-delete branch).
+args: -d input
+
+-- stdin --
+3m0
+,p
+-- stdout --
+gamma
+alpha
+beta
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta
+gamma

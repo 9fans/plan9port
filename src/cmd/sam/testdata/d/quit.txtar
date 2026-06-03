@@ -1,0 +1,12 @@
+Explicit q exits.
+args: -d input
+
+-- stdin --
+,p
+q
+-- stdout --
+alpha
+-- stderr --
+ -. input
+-- input --
+alpha

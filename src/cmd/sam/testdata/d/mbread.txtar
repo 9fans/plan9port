@@ -1,0 +1,18 @@
+Reading a file with multibyte runes and a NUL into a loaded file.
+args: -d input
+
+-- stdin --
+0r mb
+,p
+-- stdout --
+αβ
+plain
+-- stderr --
+ -. input
+?warning: null characters elided
+#3
+?changed files
+-- input --
+plain
+-- mb --
+α^@β

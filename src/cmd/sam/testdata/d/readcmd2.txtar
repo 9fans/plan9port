@@ -1,0 +1,21 @@
+b <command twice (reusing flist); and an overlong file list.
+args: -d input
+
+-- stdin --
+b <echo input
+b <echo input
+1p
+b <seq 1 1000
+-- stdout --
+alpha
+-- stderr --
+ -. input
+!
+ -. input
+!
+ -. input
+!
+?string too long
+-- input --
+alpha
+beta

@@ -1,0 +1,17 @@
+Zero-width matches in addresses and x loops, forward and backward.
+args: -d input
+
+-- stdin --
+/^/p
+$?$?p
+,x/x*/ p
+$-2p
+.-#1p
+-- stdout --
+beta
+-- stderr --
+ -. input
+-- input --
+alpha
+beta
+gamma

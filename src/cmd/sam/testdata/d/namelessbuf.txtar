@@ -1,0 +1,18 @@
+B with no name selects/creates the nameless file.
+args: -d input
+
+-- stdin --
+B
+a
+hi
+.
+,p
+-- stdout --
+hi
+alpha
+-- stderr --
+ -. input
+?blank expected
+?changed files
+-- input --
+alpha

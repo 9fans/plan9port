@@ -1,0 +1,17 @@
+x and y loops with nested commands.
+args: -d input
+
+-- stdin --
+,x/[a-z]+/ s/./X/
+,p
+1,1y/,/ p
+-- stdout --
+Xb,Xd,Xf
+Xh,Xj
+XbXdXf
+-- stderr --
+ -. input
+?changed files
+-- input --
+ab,cd,ef
+gh,ij

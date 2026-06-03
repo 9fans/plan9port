@@ -1,0 +1,15 @@
+A new edit after an undo discards the redo log (filemark epsilon discard).
+args: -d input
+
+-- stdin --
+1c/A/
+u
+1c/B/
+,p
+-- stdout --
+B^D
+-- stderr --
+ -. input
+?changed files
+-- input --
+hello

@@ -1,0 +1,21 @@
+Regular-expression and compound addresses, = and =#.
+args: -d input
+
+-- stdin --
+/gamma/p
+/alpha/,/gamma/p
+$=
+/beta/=#
+-- stdout --
+gammaalpha
+beta
+gamma^D
+-- stderr --
+ -. input
+5; #23
+#6,#10
+-- input --
+alpha
+beta
+gamma
+delta

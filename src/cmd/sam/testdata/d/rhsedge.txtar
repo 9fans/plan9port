@@ -1,0 +1,20 @@
+Replacement with a backslash-newline continuation, and append text to EOF.
+args: -d input
+
+-- stdin --
+,s/a/x\
+y/
+,p
+1a
+appended^D
+-- stdout --
+x\lph
+bet
+x\lpha
+beta
+-- stderr --
+ -. input
+?changed files
+-- input --
+alpha
+beta

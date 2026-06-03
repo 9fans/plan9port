@@ -1,0 +1,19 @@
+Relative and char addresses, backward search with empty matches.
+args: -d input
+
+-- stdin --
+$-2p
+2-1p
+.+#2p
+.-#1p
+,x/$/ p
+-- stdout --
+gamma
+alpha
+-- stderr --
+ -. input
+-- input --
+alpha
+beta
+gamma
+delta

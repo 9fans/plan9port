@@ -1,0 +1,58 @@
+The n command (list files) skips the command window; X without a pattern
+loops over every file; a " address selects a file by name.
+args: -R a b
+
+-- script --
+startfile 0
+type n\n
+type X ,p\n
+type "a"p\n
+exit
+-- a --
+one
+-- b --
+two
+-- host --
+Hversion 2
+Hnewname tag=0
+Hmovname tag=0 "a"
+Hnewname tag=1
+Hmovname tag=1 "b"
+Hnewname tag=2
+Hbindname tag=2
+Hcurrent tag=2
+Hmovname tag=2 "~~sam~~"
+Hcheck0 tag=2
+Hack
+Hunlock
+Hbindname tag=0
+Hcurrent tag=0
+Hgrow tag=0 p=0 n=4
+Hcheck0 tag=0
+Hcheck0 tag=0
+Hack
+Hdata tag=0 p=0 "one\n"
+Hgrow tag=2 p=0 n=6
+Hcheck0 tag=2
+Hack
+Hdata tag=2 p=0 " +. a\n"
+Hsetdot tag=2 p=6 n=6
+Hunlock
+Hgrowdata tag=2 p=8 n=12 " +. a\n -  b\n"
+Hcheck0 tag=2
+Hack
+Hsetdot tag=2 p=20 n=20
+Hunlock
+Hgrowdata tag=2 p=25 n=4 "two\n"
+Hgrowdata tag=2 p=25 n=10 "one\n -  b\n"
+Hcheck0 tag=2
+Hack
+Hsetdot tag=2 p=39 n=39
+Hsetdot tag=0 p=0 n=4
+Hunlock
+Hgrowdata tag=2 p=44 n=4 "one\n"
+Hcheck0 tag=2
+Hack
+Hsetdot tag=2 p=48 n=48
+Hsetpat "a"
+Hunlock
