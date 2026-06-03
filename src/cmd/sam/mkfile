@@ -26,5 +26,17 @@ HFILES=sam.h\
 	errors.h\
 	mesg.h\
 
-
 <$PLAN9/src/mkone
+
+# Coverage-enabled sam for testing.
+COVCFLAGS=-fprofile-instr-generate -fcoverage-mapping
+COVLDFLAGS=-fprofile-instr-generate
+COVOFILES=${OFILES:%.$O=%.cover.$O}
+
+$O.$TARG.cover:	$COVOFILES
+	$LD -o $O.$TARG.cover $COVLDFLAGS $COVOFILES $LDFLAGS
+
+%.cover.$O:	%.c $HFILES
+	$CC $CFLAGS $COVCFLAGS -o $stem.cover.$O $stem.c
+
+CLEANFILES=$CLEANFILES $COVOFILES $O.sam.cover
