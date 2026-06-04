@@ -1112,8 +1112,10 @@ textshow(Text *t, uint q0, uint q1, int doselect)
 			textsetselect(t, q0, q1);
 		return;
 	}
-	if(t->w!=nil && t->fr.maxlines==0)
+	if(t->w!=nil && t->fr.maxlines==0){
 		colgrow(t->col, t->w, 1);
+		winmousebut(t->w);
+	}
 	if(doselect)
 		textsetselect(t, q0, q1);
 	qe = t->org+t->fr.nchars;
