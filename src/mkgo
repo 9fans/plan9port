@@ -1,0 +1,19 @@
+TARG=`pwd | sed 's;.*/;;'`
+PROG=$O.$TARG
+GOFILES=`ls *.go`
+
+all:V: $PROG
+
+$PROG:	$GOFILES
+	go build -o $target
+
+install:V: $TARG.install
+%.install:V:	$BIN/%
+
+$BIN/%:	$O.%
+	$INSTALL $O.$stem $BIN/$stem
+
+CLEANFILES=$CLEANFILES $PROG
+NUKEFILES=$NUKEFILES $BIN/$TARG
+
+<$PLAN9/src/mkcommon
