@@ -15,11 +15,11 @@ OFILES=\
 HFILES=\
 	samterm.h\
 	flayer.h\
-	../sam/sam.h\
-	../sam/mesg.h\
+	../osam/sam.h\
+	../osam/mesg.h\
 	$PLAN9/include/frame.h\
 	$PLAN9/include/draw.h\
 
-CFLAGS=$CFLAGS -I../sam
+CFLAGS=$CFLAGS -I../osam
 
 <$PLAN9/src/mkone

@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 
-TARG=sam
+TARG=osam
 OFILES=sam.$O\
 	address.$O\
 	buff.$O\
