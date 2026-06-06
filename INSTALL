@@ -73,6 +73,12 @@ esac
 
 echo "egrep='$egrep'" >>$PLAN9/config
 
+if ! go run lib/goversion.go; then
+	echo
+	echo "! Go not found or too old. Install Go 1.24 or later and add to PATH."
+	exit 1
+fi
+
 (
 if [ `uname` = SunOS ]; then
 	# On Solaris x86, uname -p cannot be trusted.
