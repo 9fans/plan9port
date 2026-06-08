@@ -129,7 +129,7 @@ func (f *Font) free() {
 	}
 	for _, subf := range f.subf {
 		s := subf.f
-		if s != nil && (f.Display == nil || s != f.Display.defaultSubfont) {
+		if s != nil {
 			s.free()
 		}
 	}

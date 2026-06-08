@@ -230,9 +230,7 @@ func agefont(f *Font) {
 			if s.age > 0 {
 				if s.age < _SUBFAGE && s.cf.name != "" {
 					/* clean up */
-					if f.Display == nil || s.f != f.Display.defaultSubfont {
-						s.f.free()
-					}
+					s.f.free()
 					s.cf = nil
 					s.f = nil
 					s.age = 0

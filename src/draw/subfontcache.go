@@ -13,9 +13,6 @@ var lastfont struct {
 }
 
 func lookupsubfont(d *Display, name string) *subfont {
-	if d != nil && name == "*default*" {
-		return d.defaultSubfont
-	}
 	lastfont.Lock()
 	defer lastfont.Unlock()
 	if lastfont.name == name && d == lastfont.sub.Bits.Display {

@@ -1,4 +1,4 @@
-package draw // import "9fans.net/go/draw"
+package draw
 
 // An Op represents a Porter-Duff compositing operator.
 //

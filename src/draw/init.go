@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"9fans.net/go/draw/drawfcall"
+	"9fans.net/plan9port/draw/drawfcall"
 )
 
 // Display locking:
@@ -58,8 +58,6 @@ type Display struct {
 	Transparent *Image // pre-allocated color
 
 	Font *Font // default font for UI
-
-	defaultSubfont *subfont // fallback subfont
 
 	mu       sync.Mutex // See comment above.
 	conn     *drawfcall.Conn
@@ -152,6 +150,13 @@ const (
 
 const deffontname = "*default*"
 
+// defontfile is the descriptor for the built-in default font, mirroring C
+// libdraw's _defontfile (src/libdraw/defont.h). buildFont needs only the
+// height/ascent and the subfont name; the named "*default*" subfont is loaded
+// lazily (getsubfont, from the embedded defontdata) on first use, so no subfont
+// image is sent to the server at init time -- matching C.
+const defontfile = "15 13\n0 255\t*default*\n"
+
 // Init connects to a display server and creates a single host window.
 // The error channel is unused.
 //
@@ -208,14 +213,11 @@ func Init(errch chan<- error, font, label, size string) (d *Display, err error) 
 	d.Transparent = d.Black
 
 	/*
-	 * Set up default font
+	 * Set up default font. As in C libdraw's geninitdraw, the default font is
+	 * built from a fixed descriptor (defontfile) and its "*default*" subfont is
+	 * NOT loaded here -- it is sent to the server lazily on first use, via
+	 * getsubfont reading the embedded defontdata.
 	 */
-	df, err := getdefont(d)
-	if err != nil {
-		return nil, err
-	}
-	d.defaultSubfont = df
-
 	if font == "" {
 		font = os.Getenv("font")
 	}
@@ -225,11 +227,7 @@ func Init(errch chan<- error, font, label, size string) (d *Display, err error) 
 	 * If conversion were faster, we'd use 0 and save memory.
 	 */
 	if font == "" {
-		buf := []byte(fmt.Sprintf("%d %d\n0 %d\t%s\n", df.Height, df.Ascent,
-			df.N-1, deffontname))
-		//fmt.Printf("%q\n", buf)
-		//BUG: Need something better for this	installsubfont("*default*", df);
-		d.Font, err = d.buildFont(buf, deffontname)
+		d.Font, err = d.buildFont([]byte(defontfile), deffontname)
 	} else {
 		d.Font, err = d.openFont(font) // BUG: grey fonts
 	}
@@ -247,10 +245,13 @@ func Init(errch chan<- error, font, label, size string) (d *Display, err error) 
 	if err != nil {
 		return nil, err
 	}
-	if err := d.flush(true); err != nil {
-		log.Fatal("allocwindow flush: ", err)
-	}
 
+	// Draw the initial white window and flush it with a single flush, matching
+	// C libdraw's initdraw (src/libdraw/init.c: _allocwindow, draw, one
+	// flushimage). Flushing once after allocwindow and again after the draw --
+	// as the upstream 9fans.net/go/draw does -- would emit a redundant extra
+	// startup frame (allocwindow already leaves the window white), making the
+	// flush stream differ from the C client for an identical window.
 	screen := d.ScreenImage
 	screen.draw(screen.R, d.White, nil, ZP)
 	if err := d.flush(true); err != nil {
@@ -384,7 +385,7 @@ func (d *Display) flushBuffer() error {
 			panic("draw flush: error loop: " + err.Error())
 		}
 		if d.flushErr > 110 {
-			log.Fatalf("draw flush: error loop: " + err.Error())
+			log.Fatal("draw flush: error loop: " + err.Error())
 		}
 		fmt.Fprintf(os.Stderr, "draw flush: %v\n", err)
 		return err
