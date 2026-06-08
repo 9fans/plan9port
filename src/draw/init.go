@@ -2,10 +2,13 @@ package draw
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"sync"
 
@@ -379,6 +382,9 @@ func (d *Display) flushBuffer() error {
 		return nil
 	}
 	_, err := d.conn.WriteDraw(d.buf)
+	if errors.Is(err, fs.ErrClosed) {
+		return nil
+	}
 	d.buf = d.buf[:0]
 	if err != nil {
 		if d.flushErr++; d.flushErr > 100 {
@@ -387,7 +393,7 @@ func (d *Display) flushBuffer() error {
 		if d.flushErr > 110 {
 			log.Fatal("draw flush: error loop: " + err.Error())
 		}
-		fmt.Fprintf(os.Stderr, "draw flush: %v\n", err)
+		fmt.Fprintf(os.Stderr, "draw flush: %v\n%s", err, debug.Stack())
 		return err
 	}
 	d.flushErr = 0

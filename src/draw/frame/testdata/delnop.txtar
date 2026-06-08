@@ -1,0 +1,10 @@
+Differential frame test delnop (Go port vs C libframe).
+-- script --
+init 200 100
+insert 0 "abcdef"
+delete 3 3
+dump
+-- output --
+frame nbox=1 nchars=6 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=6 p1=6
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=47 nrune=6 "abcdef"

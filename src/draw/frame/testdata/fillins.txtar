@@ -1,0 +1,12 @@
+Differential frame test fillins (Go port vs C libframe).
+-- script --
+init 120 70
+insert 0 "alpha beta gamma delta epsilon"
+insert 6 "ZZZZ "
+dump
+-- output --
+frame nbox=3 nchars=35 nlines=3 maxlines=4 lastlinefull=0 modified=1 p0=35 p1=35
+  r=(0 0)(120 60) entire=(0 0)(120 70) maxtab=72 fh=15
+box[0] run wid=116 nrune=16 "alpha ZZZZ beta "
+box[1] run wid=119 nrune=15 "gamma delta eps"
+box[2] run wid=26 nrune=4 "ilon"

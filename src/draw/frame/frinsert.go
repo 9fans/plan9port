@@ -1,8 +1,14 @@
 package frame
 
 import (
-	"9fans.net/go/draw"
+	"unicode/utf8"
+
+	"9fans.net/plan9port/draw"
 )
+
+// tmpSize mirrors C bxscan's TMPSIZE: the fixed byte buffer it packs a box's
+// runes into before starting a new box.
+const tmpSize = 256
 
 // bxscan splits text into boxes inside tmpf starting at *ppt,
 // and reports the position at its end.
@@ -35,14 +41,29 @@ func (f *Frame) bxscan(tmpf *Frame, text []rune, ppt *draw.Point) draw.Point {
 			tmpf.NumChars++
 			text = text[1:]
 		} else {
+			// C bxscan accumulates runes into a fixed tmp[TMPSIZE] byte
+			// buffer and starts a new box once the next rune's UTF-8
+			// encoding would not fit (s+rw >= tmp+TMPSIZE). The cutoff is
+			// by encoded byte length, not rune count, so this must track
+			// bytes to split boxes at the same place (multibyte runes fill
+			// a box sooner).
 			nr := 0
 			w := 0
+			nbyte := 0
 			for nr < len(text) {
 				c := text[nr]
-				if c == '\t' || c == '\n' || nr > 256 { // 256 is arbitrary cutoff to keep boxes small
+				if c == '\t' || c == '\n' {
+					break
+				}
+				rw := utf8.RuneLen(c)
+				if rw < 0 {
+					rw = 3 // runetochar encodes an invalid rune as the 3-byte Runeerror
+				}
+				if nbyte+rw >= tmpSize {
 					break
 				}
 				w += tmpf.Font.RunesWidth(text[nr : nr+1])
+				nbyte += rw
 				nr++
 			}
 			b.bytes, text = []byte(string(text[:nr])), text[nr:]
@@ -68,6 +89,7 @@ func (f *Frame) bxscan(tmpf *Frame, text []rune, ppt *draw.Point) draw.Point {
 func (f *Frame) chop(pt draw.Point, p, bn int) {
 	for ; ; bn++ {
 		if bn >= len(f.box) {
+			// unreachable
 			drawerror(f.Display, "endofframe")
 		}
 		b := &f.box[bn]
@@ -142,6 +164,7 @@ func (f *Frame) Insert(text []rune, p int) {
 		if b.nrune > 0 {
 			n := f.canfit(pt1, b)
 			if n == 0 {
+				// unreachable
 				drawerror(f.Display, "canfit==0")
 			}
 			if n != b.nrune {
@@ -160,6 +183,7 @@ func (f *Frame) Insert(text []rune, p int) {
 		n0++
 	}
 	if pt1.Y > f.R.Max.Y {
+		// unreachable
 		drawerror(f.Display, "frinsert pt1 too far")
 	}
 	if pt1.Y == f.R.Max.Y && n0 < len(f.box) {

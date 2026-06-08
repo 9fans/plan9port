@@ -1,7 +1,7 @@
 package frame
 
 import (
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 func region(a, b int) int {
@@ -116,6 +116,7 @@ func (f *Frame) SelectPaint(p0, p1 draw.Point, col *draw.Image) {
 	q1.Y += f.Font.Height
 	n := (p1.Y - p0.Y) / f.Font.Height
 	if f.B == nil {
+		// unreachable
 		drawerror(f.Display, "frselectpaint b==0")
 	}
 	if p0.Y == f.R.Max.Y {

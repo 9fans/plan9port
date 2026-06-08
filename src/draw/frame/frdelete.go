@@ -1,6 +1,6 @@
 package frame
 
-import "9fans.net/go/draw"
+import "9fans.net/plan9port/draw"
 
 // Delete deletes from f the text between p0 and p1;
 // p1 points at the first rune beyond the deletion.
@@ -13,6 +13,7 @@ func (f *Frame) Delete(p0, p1 int) int {
 	}
 	n0 := f.findbox(0, 0, p0)
 	if n0 >= len(f.box) {
+		// unreachable
 		drawerror(f.Display, "off end in frdelete")
 	}
 	n1 := f.findbox(n0, p0, p1)
@@ -38,6 +39,7 @@ func (f *Frame) Delete(p0, p1 int) int {
 		f.cklinewrap(&pt1, b)
 		n := f.canfit(pt0, b)
 		if n == 0 {
+			// unreachable
 			drawerror(f.Display, "_frcanfit==0")
 		}
 		r := draw.Rectangle{pt0, pt0}
@@ -83,6 +85,7 @@ func (f *Frame) Delete(p0, p1 int) int {
 	if pt1.Y != pt0.Y {
 		pt2 := f.ptofcharptb(32767, pt1, n1) // TODO 32767
 		if pt2.Y > f.R.Max.Y {
+			// unreachable
 			drawerror(f.Display, "frptofchar in frdelete")
 		}
 		if n1 < len(f.box) {

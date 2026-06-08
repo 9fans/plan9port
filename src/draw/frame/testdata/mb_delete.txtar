@@ -1,0 +1,11 @@
+Delete inside a multibyte run so the surviving tail box is chopped at a
+multibyte boundary (chopbox/runeindex, frbox.c:96).
+-- script --
+init 200 100
+insert 0 "αβγδεζηθ"
+delete 2 5
+dump
+-- output --
+frame nbox=1 nchars=5 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=5 p1=5
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=45 nrune=5 "αβζηθ"

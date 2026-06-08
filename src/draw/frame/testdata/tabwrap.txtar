@@ -1,0 +1,13 @@
+Differential frame test tabwrap (Go port vs C libframe).
+-- script --
+init 64 100
+insert 0 "aaaaaa\tb\tc"
+dump
+-- output --
+frame nbox=5 nchars=10 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=10 p1=10
+  r=(0 0)(64 90) entire=(0 0)(64 100) maxtab=72 fh=15
+box[0] run wid=48 nrune=6 "aaaaaa"
+box[1] brk wid=4 minwid=4 bc=9
+box[2] run wid=9 nrune=1 "b"
+box[3] brk wid=4 minwid=4 bc=9
+box[4] run wid=8 nrune=1 "c"

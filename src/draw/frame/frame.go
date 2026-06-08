@@ -3,7 +3,7 @@
 package frame
 
 import (
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 // A Frame is a frame of editable text in a single font on a raster display.
@@ -90,6 +90,9 @@ func (b *box) NRUNE() int {
 	return b.nrune
 }
 
+//FIX: delete
 func (b *box) NBYTE() int {
+	// untested: the slice-based port reads len(b.bytes) where C used the
+	// NBYTE macro (frbox.c, frstr.c), so this mirror method is never called.
 	return len(b.bytes)
 }

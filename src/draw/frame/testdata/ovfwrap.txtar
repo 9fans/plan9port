@@ -1,0 +1,10 @@
+Differential frame test ovfwrap (Go port vs C libframe).
+-- script --
+init 40 100
+insert 0 "ii"
+insert 1 "W"
+dump
+-- output --
+frame nbox=1 nchars=3 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=3 p1=3
+  r=(0 0)(40 90) entire=(0 0)(40 100) maxtab=72 fh=15
+box[0] run wid=21 nrune=3 "iWi"

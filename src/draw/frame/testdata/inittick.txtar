@@ -1,0 +1,11 @@
+Re-run InitTick after the frame already has a tick, so it frees and
+reallocates the tick images. Invisible in the dump, so differential.
+-- script --
+init 200 100
+insert 0 "hello"
+inittick
+dump
+-- output --
+frame nbox=1 nchars=5 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=5 p1=5
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=34 nrune=5 "hello"

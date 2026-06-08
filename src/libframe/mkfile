@@ -19,3 +19,17 @@ HFILES=\
 
 <$PLAN9/src/mksyslib
 
+COVCFLAGS=-fprofile-instr-generate -fcoverage-mapping
+COVLDFLAGS=-fprofile-instr-generate
+COVOFILES=frametest.cover.$O ${OFILES:%.$O=%.cover.$O}
+
+frametest.cover: $COVOFILES
+	$LD -o frametest.cover $COVLDFLAGS $COVOFILES $LDFLAGS
+
+frametest.cover.$O:	frametest.c
+	$CC $CFLAGS $COVCFLAGS -o frametest.cover.$O frametest.c
+
+%.cover.$O:	%.c
+	$CC $CFLAGS $COVCFLAGS -o $stem.cover.$O $stem.c
+
+CLEANFILES=$CLEANFILES frametest.cover $COVOFILES

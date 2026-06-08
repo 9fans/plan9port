@@ -1,0 +1,16 @@
+charofpt at a y a box reaches only after a line wrap, so CharOf's first
+loop breaks on qt.Y>=pt.Y.
+-- script --
+init 110 100
+insert 0 "the quick brown fox jumps over"
+charofpt 0 20
+charofpt 0 35
+dump
+-- output --
+charofpt 0 20 = 14
+charofpt 0 35 = 28
+frame nbox=3 nchars=30 nlines=3 maxlines=6 lastlinefull=0 modified=1 p0=30 p1=30
+  r=(0 0)(110 90) entire=(0 0)(110 100) maxtab=72 fh=15
+box[0] run wid=104 nrune=14 "the quick brow"
+box[1] run wid=105 nrune=14 "n fox jumps ov"
+box[2] run wid=14 nrune=2 "er"

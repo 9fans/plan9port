@@ -1,0 +1,18 @@
+Differential frame test insshift (Go port vs C libframe).
+-- script --
+init 250 100
+insert 0 "a\tb\tc\td\te"
+insert 0 "XYZ"
+dump
+-- output --
+frame nbox=9 nchars=12 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=12 p1=12
+  r=(0 0)(250 90) entire=(0 0)(250 100) maxtab=72 fh=15
+box[0] run wid=35 nrune=4 "XYZa"
+box[1] brk wid=37 minwid=4 bc=9
+box[2] run wid=9 nrune=1 "b"
+box[3] brk wid=63 minwid=4 bc=9
+box[4] run wid=8 nrune=1 "c"
+box[5] brk wid=64 minwid=4 bc=9
+box[6] run wid=9 nrune=1 "d"
+box[7] brk wid=4 minwid=4 bc=9
+box[8] run wid=8 nrune=1 "e"

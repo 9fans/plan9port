@@ -1,0 +1,9 @@
+Differential frame test clearfont (Go port vs C libframe).
+-- script --
+init 200 100
+insert 0 "hello"
+clearfont
+dump
+-- output --
+frame nbox=0 nchars=5 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=5 p1=5
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15

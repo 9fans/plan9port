@@ -39,10 +39,12 @@ func Frames(t *testing.T, name string) []image.Image {
 	}
 	if len(nums) == 0 {
 		t.Errorf("no output image files found")
+		return nil
 	}
 	sort.Ints(nums)
 	if nums[len(nums)-1] != len(nums)-1 {
 		t.Errorf("sparse output numbering: %v", nums)
+		return nil
 	}
 	var frames []image.Image
 	for _, num := range nums {
@@ -88,10 +90,12 @@ func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 	t.Helper()
 	if update {
 		if err := os.MkdirAll(filepath.Dir(golden), 0777); err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		if err := os.WriteFile(golden, encodeGIF(t, frames), 0666); err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		return
 	}
@@ -102,7 +106,8 @@ func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 	want := decodeGIF(t, data)
 	for i, frame := range frames {
 		if i >= len(want) {
-			t.Fatalf("extra frames: have %d, want %d", len(frames), len(want))
+			t.Errorf("extra frames: have %d, want %d", len(frames), len(want))
+			return
 		}
 		if diff := imageDiff(frame, want[i]); diff.Dx() > 0 {
 			t.Errorf("frame %d differs from %v in bounding box %v", i, golden, diff)
@@ -110,11 +115,12 @@ func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 			if err := os.WriteFile(have, encodeGIF(t, frames), 0666); err != nil {
 				t.Fatal(err)
 			}
-			t.Fatalf("new frames in %v", have)
+			t.Errorf("new frames in %v", have)
+			return
 		}
 	}
 	if len(want) > len(frames) {
-		t.Fatalf("missing frames: have %d, want %d", len(frames), len(want))
+		t.Errorf("missing frames: have %d, want %d", len(frames), len(want))
 	}
 }
 

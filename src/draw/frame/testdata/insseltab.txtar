@@ -1,0 +1,19 @@
+Differential frame test insseltab (Go port vs C libframe).
+-- script --
+init 200 100
+insert 0 "a\tb\tc\td\te"
+select 5,10,1 150,10,1 150,10,0
+insert 1 "ZZ"
+dump
+-- output --
+frame nbox=9 nchars=11 nlines=1 maxlines=6 lastlinefull=0 modified=1 p0=0 p1=6
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=26 nrune=3 "aZZ"
+box[1] brk wid=46 minwid=4 bc=9
+box[2] run wid=9 nrune=1 "b"
+box[3] brk wid=63 minwid=4 bc=9
+box[4] run wid=8 nrune=1 "c"
+box[5] brk wid=4 minwid=4 bc=9
+box[6] run wid=9 nrune=1 "d"
+box[7] brk wid=4 minwid=4 bc=9
+box[8] run wid=8 nrune=1 "e"

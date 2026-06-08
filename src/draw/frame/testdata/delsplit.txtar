@@ -1,0 +1,12 @@
+Delete a run crossing a line wrap so the surviving tail box is split
+and the blank-remainder/right-edge clamps fire.
+-- script --
+init 80 100
+insert 0 "aaaaa bbbbb ccccc ddddd"
+delete 3 9
+dump
+-- output --
+frame nbox=2 nchars=17 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=17 p1=17
+  r=(0 0)(80 90) entire=(0 0)(80 100) maxtab=72 fh=15
+box[0] run wid=78 nrune=10 "aaabb cccc"
+box[1] run wid=57 nrune=7 "c ddddd"

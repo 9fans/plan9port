@@ -1,0 +1,17 @@
+The "ugly special case" in frinsert: a wide inserted glyph wraps a
+single following glyph while it is inside the selection. Inherently a
+proportional-font path, so this one uses euro.8.
+-- script --
+font /lib/font/bit/lucsans/euro.8.font
+init 36 100
+insert 0 "lli\tee"
+select 0,3,1 300,40,1 300,40,0
+insert 2 "WW"
+dump
+-- output --
+frame nbox=4 nchars=8 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=0 p1=8
+  r=(0 0)(36 90) entire=(0 0)(36 100) maxtab=72 fh=15
+box[0] run wid=34 nrune=4 "llWW"
+box[1] run wid=4 nrune=1 "i"
+box[2] brk wid=4 minwid=4 bc=9
+box[3] run wid=16 nrune=2 "ee"

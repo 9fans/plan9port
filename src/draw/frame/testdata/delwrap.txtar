@@ -1,0 +1,11 @@
+Delete across a wrap in a narrow frame.
+-- script --
+init 90 100
+insert 0 "the quick brown fox jumps"
+delete 4 14
+dump
+-- output --
+frame nbox=2 nchars=15 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=15 p1=15
+  r=(0 0)(90 90) entire=(0 0)(90 100) maxtab=72 fh=15
+box[0] run wid=80 nrune=12 "the n fox ju"
+box[1] run wid=30 nrune=3 "mps"

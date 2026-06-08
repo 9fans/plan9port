@@ -1,0 +1,17 @@
+A completely full 3-line frame (30 glyphs). Inserting in the middle
+pushes a text box onto the bottom line during frinsert's line-up loop.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 60 39
+insert 0 "012345678901234567890123456789"
+insert 5 "XXXXX"
+dump
+-- output --
+frame nbox=6 nchars=30 nlines=3 maxlines=3 lastlinefull=0 modified=1 p0=30 p1=30
+  r=(0 0)(60 39) entire=(0 0)(60 39) maxtab=48 fh=13
+box[0] run wid=30 nrune=5 "01234"
+box[1] run wid=30 nrune=5 "XXXXX"
+box[2] run wid=30 nrune=5 "56789"
+box[3] run wid=30 nrune=5 "01234"
+box[4] run wid=30 nrune=5 "56789"
+box[5] run wid=30 nrune=5 "01234"

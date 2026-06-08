@@ -1,7 +1,7 @@
 package frame
 
 import (
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 // Init prepares the frame f so characters drawn in it
@@ -40,11 +40,13 @@ func (f *Frame) Init(r draw.Rectangle, ft *draw.Font, b *draw.Image, cols []*dra
 // each time the frame's font changes.
 func (f *Frame) InitTick() {
 	if f.Cols[BACK] == nil || f.Display == nil {
+		// untested: callers (Init, Tick) only reach here with both set.
 		return
 	}
 	f.tickscale = f.Display.ScaleSize(1)
 	b := f.Display.ScreenImage
 	if b == nil {
+		// unreachable
 		drawerror(f.Display, "missing screenimage")
 	}
 	ft := f.Font
@@ -53,6 +55,7 @@ func (f *Frame) InitTick() {
 	}
 	f.tick, _ = f.Display.AllocImage(draw.Rect(0, 0, f.tickscale*_FRTICKW, ft.Height), b.Pix, false, draw.White)
 	if f.tick == nil {
+		// untested: AllocImage does not fail under the test display.
 		return
 	}
 	if f.tickback != nil {
@@ -60,6 +63,7 @@ func (f *Frame) InitTick() {
 	}
 	f.tickback, _ = f.Display.AllocImage(f.tick.R, b.Pix, false, draw.White)
 	if f.tickback == nil {
+		// untested: AllocImage does not fail under the test display.
 		f.tick.Free()
 		f.tick = nil
 		return

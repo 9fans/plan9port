@@ -3,7 +3,7 @@ package frame
 import (
 	"unicode/utf8"
 
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 type box struct {
@@ -15,12 +15,14 @@ type box struct {
 }
 
 func drawerror(d *draw.Display, err string) {
+	// unreachable
 	panic(err)
 }
 
 // addbox adds new boxes f.box[bn+1:bn+1+n].
 func (f *Frame) addbox(bn, n int) {
 	if bn > len(f.box) {
+		// unreachable
 		drawerror(f.Display, "addbox")
 	}
 	olen := len(f.box)
@@ -37,6 +39,7 @@ func (f *Frame) addbox(bn, n int) {
 // delbox deletes boxes f.box[n0:n1+1].
 func (f *Frame) delbox(n0, n1 int) {
 	if n0 >= len(f.box) || n1 >= len(f.box) || n1 < n0 {
+		// unreachable
 		drawerror(f.Display, "delbox")
 	}
 	n1++
@@ -50,6 +53,7 @@ func (f *Frame) delbox(n0, n1 int) {
 // dupbox duplicates f.box[bn], creating f.box[bn+1].
 func (f *Frame) dupbox(bn int) {
 	if f.box[bn].nrune < 0 {
+		// unreachable
 		drawerror(f.Display, "dupbox")
 	}
 	f.addbox(bn+1, 1)
@@ -73,6 +77,7 @@ func runeindex(p []byte, n int) int {
 // truncatebox drops the last n characters from b.
 func (f *Frame) truncatebox(b *box, n int) {
 	if b.nrune < 0 || b.nrune < n {
+		// unreachable
 		drawerror(f.Display, "chopbox")
 	}
 	b.nrune -= n
@@ -83,6 +88,7 @@ func (f *Frame) truncatebox(b *box, n int) {
 // chopbox chops the first n characters from b.
 func (f *Frame) chopbox(b *box, n int) {
 	if b.nrune < 0 || b.nrune < n {
+		// unreachable
 		drawerror(f.Display, "chopbox")
 	}
 	i := runeindex(b.bytes, n)

@@ -1,0 +1,15 @@
+Redraw with a selection ending exactly on a line-wrap boundary whose
+last box is plain text and untrimmed: fills the wrapped-line tail in
+Drawsel0. 60px frame wraps after 10 monospace glyphs.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 60 100
+insert 0 "0123456789abcde"
+select 0,3,1 300,3,1 300,3,0
+redraw
+dump
+-- output --
+frame nbox=2 nchars=15 nlines=2 maxlines=7 lastlinefull=0 modified=0 p0=0 p1=10
+  r=(0 0)(60 91) entire=(0 0)(60 100) maxtab=48 fh=13
+box[0] run wid=60 nrune=10 "0123456789"
+box[1] run wid=30 nrune=5 "abcde"

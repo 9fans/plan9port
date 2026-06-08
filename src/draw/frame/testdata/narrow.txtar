@@ -1,0 +1,9 @@
+Differential frame test narrow (Go port vs C libframe).
+-- script --
+init 8 100
+insert 0 "WWW"
+dump
+-- output --
+frame nbox=1 nchars=3 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=3 p1=3
+  r=(0 0)(8 90) entire=(0 0)(8 100) maxtab=72 fh=15
+box[0] run wid=39 nrune=3 "WWW"

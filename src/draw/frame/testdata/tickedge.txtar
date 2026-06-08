@@ -1,0 +1,13 @@
+Leave the cursor (empty selection) one glyph short of the right edge of a
+non-full line, so the typing tick — drawn 1px left and 3px wide — overhangs
+R.Max.X and is clamped to it (frdraw.c:154 / _frtick; frdraw.go drawTick). The
+frame is 61px wide so 10 6px glyphs end at x=60, one px inside the edge.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 61 100
+insert 0 "0123456789"
+dump
+-- output --
+frame nbox=1 nchars=10 nlines=1 maxlines=7 lastlinefull=0 modified=1 p0=10 p1=10
+  r=(0 0)(61 91) entire=(0 0)(61 100) maxtab=48 fh=13
+box[0] run wid=60 nrune=10 "0123456789"

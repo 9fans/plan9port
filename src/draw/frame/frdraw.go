@@ -3,7 +3,7 @@ package frame
 import (
 	"fmt"
 
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 func (f *Frame) drawtext(pt draw.Point, text, back *draw.Image) {
@@ -47,6 +47,7 @@ func (f *Frame) Drawsel(pt0 draw.Point, p0, p1 int, highlighted bool) {
 // required) by its caller.
 func (f *Frame) Drawsel0(pt draw.Point, p0, p1 int, back, text *draw.Image) draw.Point {
 	if p0 > p1 {
+		// unreachable
 		panic(fmt.Sprintf("libframe: frDrawsel0 p0=%d > p1=%d", p0, p1))
 	}
 
@@ -137,17 +138,22 @@ func (f *Frame) Redraw() {
 // removes (if ticked is false) the tick at the screen position
 // indicated by pt.
 func (f *Frame) Tick(pt draw.Point, ticked bool) {
+	//FIX: test with the retina change by doing a resize including dpi change on the test display
 	if f.tickscale != f.Display.ScaleSize(1) {
+		// untested: only fires when the display is rescaled mid-session
+		// (e.g. moved to a retina screen); the test display has a fixed dpi.
 		if f.Ticked {
+			// untested
 			f.drawTick(pt, false)
 		}
+		// untested
 		f.InitTick()
 	}
 	f.drawTick(pt, ticked)
 }
 
 func (f *Frame) drawTick(pt draw.Point, ticked bool) {
-	if f.Ticked == ticked || f.tick == nil && !pt.In(f.R) {
+	if f.Ticked == ticked || f.tick == nil || !pt.In(f.R) {
 		return
 	}
 	pt.X -= f.tickscale // looks best just left of where requested

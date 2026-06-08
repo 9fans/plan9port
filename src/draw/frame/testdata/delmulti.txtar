@@ -1,0 +1,10 @@
+Differential frame test delmulti (Go port vs C libframe).
+-- script --
+init 120 120
+insert 0 "one two three four five six seven"
+delete 4 20
+dump
+-- output --
+frame nbox=1 nchars=17 nlines=1 maxlines=8 lastlinefull=0 modified=1 p0=17 p1=17
+  r=(0 0)(120 120) entire=(0 0)(120 120) maxtab=72 fh=15
+box[0] run wid=118 nrune=17 "one ive six seven"

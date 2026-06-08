@@ -1,0 +1,17 @@
+A run of multibyte (2-byte) runes with no break, narrow enough to wrap mid-box.
+This forces a box split at a multibyte boundary (runeindex's chartorune branch,
+frbox.c:96) and canfit's per-rune slow path on a multibyte rune (frutil.c:23) —
+paths the C oracle's ASCII fast-path skips for plain text.
+-- script --
+init 30 100
+insert 0 "©©©©©©©©©©©©"
+dump
+-- output --
+frame nbox=6 nchars=12 nlines=6 maxlines=6 lastlinefull=0 modified=1 p0=12 p1=12
+  r=(0 0)(30 90) entire=(0 0)(30 100) maxtab=72 fh=15
+box[0] run wid=24 nrune=2 "©©"
+box[1] run wid=24 nrune=2 "©©"
+box[2] run wid=24 nrune=2 "©©"
+box[3] run wid=24 nrune=2 "©©"
+box[4] run wid=24 nrune=2 "©©"
+box[5] run wid=24 nrune=2 "©©"

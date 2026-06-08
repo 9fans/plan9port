@@ -3,7 +3,7 @@ package frame
 import (
 	"unicode/utf8"
 
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 // canfit returns the number of runes from b that
@@ -28,6 +28,7 @@ func (f *Frame) canfit(pt draw.Point, b *box) int {
 			return nr
 		}
 	}
+	// unreachable
 	drawerror(f.Display, "_frcanfit can't")
 	return 0
 }
@@ -76,6 +77,8 @@ func (f *Frame) newwid0(pt draw.Point, b *box) int {
 		return b.wid
 	}
 	if x+b.minwid > c {
+		// unreachable: every caller first runs cklinewrap/cklinewrap0 on pt,
+		// which guarantees b.minwid <= c-x, so this wrap never re-triggers.
 		pt.X = f.R.Min.X
 		x = pt.X
 	}

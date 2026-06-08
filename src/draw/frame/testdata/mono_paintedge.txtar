@@ -1,0 +1,15 @@
+Insert a newline at the right edge of a completely full line, so the
+insertion paint spans lines starting past the right edge: SelectPaint's
+p0.X clamp.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 60 100
+insert 0 "0123456789"
+insert 10 "\nX"
+dump
+-- output --
+frame nbox=3 nchars=12 nlines=2 maxlines=7 lastlinefull=0 modified=1 p0=12 p1=12
+  r=(0 0)(60 91) entire=(0 0)(60 100) maxtab=48 fh=13
+box[0] run wid=60 nrune=10 "0123456789"
+box[1] brk wid=5000 minwid=0 bc=10
+box[2] run wid=6 nrune=1 "X"

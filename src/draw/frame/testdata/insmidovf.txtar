@@ -1,0 +1,13 @@
+Differential frame test insmidovf (Go port vs C libframe).
+-- script --
+init 120 80
+insert 0 "alpha beta gamma delta epsilon zeta eta"
+insert 6 "INSERTED "
+dump
+-- output --
+frame nbox=4 nchars=48 nlines=3 maxlines=5 lastlinefull=0 modified=1 p0=48 p1=48
+  r=(0 0)(120 75) entire=(0 0)(120 80) maxtab=72 fh=15
+box[0] run wid=115 nrune=15 "alpha INSERTED "
+box[1] run wid=117 nrune=15 "beta gamma delt"
+box[2] run wid=66 nrune=10 "a epsilon "
+box[3] run wid=54 nrune=8 "zeta eta"

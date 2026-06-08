@@ -1,0 +1,12 @@
+Differential frame test redrawwrap (Go port vs C libframe).
+-- script --
+init 110 100
+insert 0 "the quick brown fox jumped"
+select 10,10,1 100,40,1 100,40,0
+redraw
+dump
+-- output --
+frame nbox=2 nchars=26 nlines=2 maxlines=6 lastlinefull=0 modified=0 p0=1 p1=26
+  r=(0 0)(110 90) entire=(0 0)(110 100) maxtab=72 fh=15
+box[0] run wid=104 nrune=14 "the quick brow"
+box[1] run wid=94 nrune=12 "n fox jumped"

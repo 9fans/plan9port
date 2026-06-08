@@ -1,0 +1,17 @@
+Same shape as mono_tabmargin but with the displaced text selected, so
+the move-down loop paints a box displaced to a higher line in the
+highlight color.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 60 100
+insert 0 "012345678\t9"
+select 0,3,1 300,40,1 300,40,0
+insert 0 "X"
+dump
+-- output --
+frame nbox=4 nchars=12 nlines=2 maxlines=7 lastlinefull=0 modified=1 p0=1 p1=12
+  r=(0 0)(60 91) entire=(0 0)(60 100) maxtab=48 fh=13
+box[0] run wid=6 nrune=1 "X"
+box[1] run wid=54 nrune=9 "012345678"
+box[2] brk wid=48 minwid=6 bc=9
+box[3] run wid=6 nrune=1 "9"

@@ -3,7 +3,7 @@ package frame
 import (
 	"unicode/utf8"
 
-	"9fans.net/go/draw"
+	"9fans.net/plan9port/draw"
 )
 
 func (f *Frame) ptofcharptb(p int, pt draw.Point, bn int) draw.Point {
@@ -16,12 +16,14 @@ func (f *Frame) ptofcharptb(p int, pt draw.Point, bn int) draw.Point {
 				s := b.bytes
 				for ; p > 0; p-- {
 					if len(s) == 0 {
+						// unreachable
 						drawerror(f.Display, "frptofchar")
 					}
 					_, size := utf8.DecodeRune(s)
 					pt.X += f.Font.BytesWidth(s[:size])
 					s = s[size:]
 					if pt.X > f.R.Max.X {
+						// unreachable
 						drawerror(f.Display, "frptofchar")
 					}
 				}
@@ -92,6 +94,7 @@ func (f *Frame) CharOf(pt draw.Point) int {
 				s := b.bytes
 				for {
 					if len(s) == 0 {
+						// unreachable
 						drawerror(f.Display, "end of string in frcharofpt")
 					}
 					_, size := utf8.DecodeRune(s)

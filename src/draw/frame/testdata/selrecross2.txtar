@@ -1,0 +1,10 @@
+Differential frame test selrecross2 (Go port vs C libframe).
+-- script --
+init 200 100
+insert 0 "hello world bye"
+select 70,10,1 10,10,1 150,10,1 150,10,0
+dump
+-- output --
+frame nbox=1 nchars=15 nlines=1 maxlines=6 lastlinefull=0 modified=0 p0=10 p1=15
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=107 nrune=15 "hello world bye"

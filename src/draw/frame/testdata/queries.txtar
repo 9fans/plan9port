@@ -1,0 +1,27 @@
+Differential frame test queries (Go port vs C libframe).
+-- script --
+init 200 100
+insert 0 "ab\tcd\nef"
+ptofchar 0
+ptofchar 3
+ptofchar 6
+charofpt 0 0
+charofpt 195 10
+charofpt 10 40
+charofpt 5 95
+dump
+-- output --
+ptofchar 0 = (0 0)
+ptofchar 3 = (72 0)
+ptofchar 6 = (0 15)
+charofpt 0 0 = 0
+charofpt 195 10 = 5
+charofpt 10 40 = 8
+charofpt 5 95 = 8
+frame nbox=5 nchars=8 nlines=2 maxlines=6 lastlinefull=0 modified=1 p0=8 p1=8
+  r=(0 0)(200 90) entire=(0 0)(200 100) maxtab=72 fh=15
+box[0] run wid=17 nrune=2 "ab"
+box[1] brk wid=55 minwid=4 bc=9
+box[2] run wid=17 nrune=2 "cd"
+box[3] brk wid=5000 minwid=0 bc=10
+box[4] run wid=13 nrune=2 "ef"

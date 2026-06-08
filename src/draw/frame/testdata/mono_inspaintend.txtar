@@ -1,0 +1,15 @@
+Insert at the very end of a completely full frame, so the insertion
+paints from the bottom edge and hits SelectPaint's p0.Y==R.Max.Y early
+return.
+-- script --
+font /usr/local/plan9/font/misc/unicode.6x13.font
+init 60 39
+insert 0 "012345678901234567890123456789"
+insert 30 "X"
+dump
+-- output --
+frame nbox=3 nchars=30 nlines=3 maxlines=3 lastlinefull=1 modified=1 p0=30 p1=30
+  r=(0 0)(60 39) entire=(0 0)(60 39) maxtab=48 fh=13
+box[0] run wid=60 nrune=10 "0123456789"
+box[1] run wid=60 nrune=10 "0123456789"
+box[2] run wid=60 nrune=10 "0123456789"
