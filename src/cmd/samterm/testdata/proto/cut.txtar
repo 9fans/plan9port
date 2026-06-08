@@ -1,0 +1,5 @@
+Delete a span with Hcut (remove "hello ", leaving "world").
+
+-- input --
+growdata 0 0 hello world\n
+cut 0 0 6

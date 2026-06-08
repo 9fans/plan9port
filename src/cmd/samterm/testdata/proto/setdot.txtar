@@ -1,0 +1,5 @@
+Highlight a selection with Hsetdot ("these").
+
+-- input --
+growdata 0 0 select these words\n
+setdot 0 7 12

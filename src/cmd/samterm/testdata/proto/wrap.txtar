@@ -1,0 +1,4 @@
+A long line that wraps.
+
+-- input --
+growdata 0 0 the quick brown fox jumps over the lazy dog and then keeps going to wrap\n

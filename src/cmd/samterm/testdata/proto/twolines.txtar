@@ -1,0 +1,5 @@
+Two lines inserted in separate growdata messages.
+
+-- input --
+growdata 0 0 first line\n
+growdata 0 11 second line\n

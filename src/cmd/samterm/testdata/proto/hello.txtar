@@ -1,0 +1,4 @@
+A line of text inserted by the host.
+
+-- input --
+growdata 0 0 hello from the host\n

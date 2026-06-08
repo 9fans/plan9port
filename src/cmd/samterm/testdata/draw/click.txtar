@@ -1,0 +1,5 @@
+Button-1 click to set the cursor in the typed command text.
+
+-- input --
+type hello there
+click 40 10 1

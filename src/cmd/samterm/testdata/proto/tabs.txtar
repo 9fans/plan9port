@@ -1,0 +1,4 @@
+Text with tabs.
+
+-- input --
+growdata 0 0 a\tbb\tccc\tdddd\n

@@ -1,0 +1,8 @@
+Cursor movement (arrow keys) and insertion in the middle of typed text.
+
+-- input --
+type abcdef
+key left
+key left
+key left
+type X
