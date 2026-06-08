@@ -63,8 +63,10 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 	uint p;
 	char *ptr;
 
-	if(p0 > p1)
+	if(p0 > p1){
+		// unreachable
 		sysfatal("libframe: frdrawsel0 p0=%lud > p1=%lud", p0, p1);
+	}
 
 	p = 0;
 	b = f->box;
@@ -164,6 +166,7 @@ void
 frtick(Frame *f, Point pt, int ticked)
 {
 	if(f->tickscale != scalesize(f->display, 1)) {
+		// untested
 		if(f->ticked)
 			_frtick(f, pt, 0);
 		frinittick(f);

@@ -113,8 +113,10 @@ frselectpaint(Frame *f, Point p0, Point p1, Image *col)
 	q0.y += f->font->height;
 	q1.y += f->font->height;
 	n = (p1.y-p0.y)/f->font->height;
-	if(f->b == nil)
+	if(f->b == nil){
+		// unreachable
 		drawerror(f->display, "frselectpaint b==0");
+	}
 	if(p0.y == f->r.max.y)
 		return;
 	if(n == 0)

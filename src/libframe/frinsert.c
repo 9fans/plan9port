@@ -80,8 +80,10 @@ chopframe(Frame *f, Point pt, ulong p, int bn)
 	Frbox *b;
 
 	for(b = &f->box[bn]; ; b++){
-		if(b >= &f->box[f->nbox])
+		if(b >= &f->box[f->nbox]){
+			// unreachable
 			drawerror(f->display, "endofframe");
+		}
 		_frcklinewrap(f, &pt, b);
 		if(pt.y >= f->r.max.y)
 			break;
@@ -145,8 +147,10 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 		_frcklinewrap0(f, &pt1, b);
 		if(b->nrune > 0){
 			n = _frcanfit(f, pt1, b);
-			if(n == 0)
+			if(n == 0){
+				// unreachable
 				drawerror(f->display, "_frcanfit==0");
+			}
 			if(n != b->nrune){
 				_frsplitbox(f, n0, n);
 				b = &f->box[n0];
@@ -166,8 +170,10 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 		pt1.x += _frnewwid(f, pt1, b);
 		cn0 += NRUNE(b);
 	}
-	if(pt1.y > f->r.max.y)
+	if(pt1.y > f->r.max.y){
+		// unreachable
 		drawerror(f->display, "frinsert pt1 too far");
+	}
 	if(pt1.y==f->r.max.y && n0<f->nbox){
 		f->nchars -= _frstrlen(f, n0);
 		_frdelbox(f, n0, f->nbox-1);

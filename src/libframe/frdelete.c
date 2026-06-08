@@ -20,8 +20,10 @@ frdelete(Frame *f, ulong p0, ulong p1)
 	if(p1 > f->nchars)
 		p1 = f->nchars;
 	n0 = _frfindbox(f, 0, 0, p0);
-	if(n0 == f->nbox)
+	if(n0 == f->nbox){
+		// unreachable
 		drawerror(f->display, "off end in frdelete");
+	}
 	n1 = _frfindbox(f, n0, p0, p1);
 	pt0 = _frptofcharnb(f, p0, n0);
 	pt1 = frptofchar(f, p1);
@@ -46,8 +48,10 @@ frdelete(Frame *f, ulong p0, ulong p1)
 		_frcklinewrap0(f, &pt0, b);
 		_frcklinewrap(f, &pt1, b);
 		n = _frcanfit(f, pt0, b);
-		if(n==0)
+		if(n==0){
+			// unreachable
 			drawerror(f->display, "_frcanfit==0");
+		}
 		r.min = pt0;
 		r.max = pt0;
 		r.max.y += f->font->height;
@@ -88,8 +92,10 @@ frdelete(Frame *f, ulong p0, ulong p1)
 		Point pt2;
 
 		pt2 = _frptofcharptb(f, 32767, pt1, n1);
-		if(pt2.y > f->r.max.y)
+		if(pt2.y > f->r.max.y){
+			// unreachable
 			drawerror(f->display, "frptofchar in frdelete");
+		}
 		if(n1 < f->nbox){
 			int q0, q1, q2;
 

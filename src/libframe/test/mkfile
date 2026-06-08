@@ -1,0 +1,36 @@
+<$PLAN9/src/mkhdr
+
+# frametest is the C oracle for the Go frame port's differential tests
+# (go test ./frame in $PLAN9/src). It links frametest.c against libframe.
+#
+#	mk			build $PLAN9/src/libframe/frametest
+#	mk frametest.cover	build the coverage-instrumented oracle used by
+#				`go test -uncoverc=...` (see go frame tests)
+#	mk clean		remove build products
+
+# libframe sources, instrumented and linked directly into frametest.cover so
+# uncover -x can report per-line coverage of libframe itself.
+FRSRC=frbox frdelete frdraw frinit frinsert frptofchar frselect frstr frutil
+
+COVCFLAGS=-fprofile-instr-generate -fcoverage-mapping
+COVLDFLAGS=-fprofile-instr-generate
+COVOFILES=frametest.cover.$O ${FRSRC:%=%.cover.$O}
+
+all:V:	$PLAN9/src/libframe/frametest
+
+$PLAN9/src/libframe/frametest:	frametest.$O
+	$LD -o $PLAN9/src/libframe/frametest frametest.$O
+
+frametest.cover:V:	$PLAN9/src/libframe/frametest.cover
+
+$PLAN9/src/libframe/frametest.cover:	$COVOFILES
+	$LD -o $PLAN9/src/libframe/frametest.cover $COVLDFLAGS $COVOFILES $LDFLAGS
+
+frametest.cover.$O:	frametest.c
+	$CC $CFLAGS $COVCFLAGS -o frametest.cover.$O frametest.c
+
+%.cover.$O:	../%.c
+	$CC $CFLAGS $COVCFLAGS -o $stem.cover.$O ../$stem.c
+
+clean:V:
+	rm -f *.$O $COVOFILES $PLAN9/src/libframe/frametest $PLAN9/src/libframe/frametest.cover

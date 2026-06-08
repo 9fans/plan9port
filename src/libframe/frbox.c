@@ -12,8 +12,10 @@ _fraddbox(Frame *f, int bn, int n)	/* add n boxes after bn, shift the rest up,
 {
 	int i;
 
-	if(bn > f->nbox)
+	if(bn > f->nbox){
+		// unreachable
 		drawerror(f->display, "_fraddbox");
+	}
 	if(f->nbox+n > f->nalloc)
 		_frgrowbox(f, n+SLOP);
 	for(i=f->nbox; --i>=bn; )
@@ -26,8 +28,10 @@ _frclosebox(Frame *f, int n0, int n1)	/* inclusive */
 {
 	int i;
 
-	if(n0>=f->nbox || n1>=f->nbox || n1<n0)
+	if(n0>=f->nbox || n1>=f->nbox || n1<n0){
+		// unreachable
 		drawerror(f->display, "_frclosebox");
+	}
 	n1++;
 	for(i=n1; i<f->nbox; i++)
 		f->box[i-(n1-n0)] = f->box[i];
@@ -37,8 +41,10 @@ _frclosebox(Frame *f, int n0, int n1)	/* inclusive */
 void
 _frdelbox(Frame *f, int n0, int n1)	/* inclusive */
 {
-	if(n0>=f->nbox || n1>=f->nbox || n1<n0)
+	if(n0>=f->nbox || n1>=f->nbox || n1<n0){
+		// unreachable
 		drawerror(f->display, "_frdelbox");
+	}
 	_frfreebox(f, n0, n1);
 	_frclosebox(f, n0, n1);
 }
@@ -48,10 +54,14 @@ _frfreebox(Frame *f, int n0, int n1)	/* inclusive */
 {
 	int i;
 
-	if(n1<n0)
+	if(n1<n0){
+		// unreachable
 		return;
-	if(n0>=f->nbox || n1>=f->nbox)
+	}
+	if(n0>=f->nbox || n1>=f->nbox){
+		// unreachable
 		drawerror(f->display, "_frfreebox");
+	}
 	n1++;
 	for(i=n0; i<n1; i++)
 		if(f->box[i].nrune >= 0)
@@ -63,8 +73,10 @@ _frgrowbox(Frame *f, int delta)
 {
 	f->nalloc += delta;
 	f->box = realloc(f->box, f->nalloc*sizeof(Frbox));
-	if(f->box == 0)
+	if(f->box == 0){
+		// unreachable
 		drawerror(f->display, "_frgrowbox");
+	}
 }
 
 static
@@ -73,8 +85,10 @@ dupbox(Frame *f, int bn)
 {
 	uchar *p;
 
-	if(f->box[bn].nrune < 0)
+	if(f->box[bn].nrune < 0){
+		// unreachable
 		drawerror(f->display, "dupbox");
+	}
 	_fraddbox(f, bn, 1);
 	if(f->box[bn].nrune >= 0){
 		p = _frallocstr(f, NBYTE(&f->box[bn])+1);
@@ -104,8 +118,10 @@ static
 void
 truncatebox(Frame *f, Frbox *b, int n)	/* drop last n chars; no allocation done */
 {
-	if(b->nrune<0 || b->nrune<n)
+	if(b->nrune<0 || b->nrune<n){
+		// unreachable
 		drawerror(f->display, "truncatebox");
+	}
 	b->nrune -= n;
 	runeindex(b->ptr, b->nrune)[0] = 0;
 	b->wid = stringwidth(f->font, (char *)b->ptr);
@@ -117,8 +133,10 @@ chopbox(Frame *f, Frbox *b, int n)	/* drop first n chars; no allocation done */
 {
 	char *p;
 
-	if(b->nrune<0 || b->nrune<n)
+	if(b->nrune<0 || b->nrune<n){
+		// unreachable
 		drawerror(f->display, "chopbox");
+	}
 	p = (char*)runeindex(b->ptr, n);
 	memmove((char*)b->ptr, p, strlen(p)+1);
 	b->nrune -= n;

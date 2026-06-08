@@ -26,6 +26,7 @@ _frcanfit(Frame *f, Point pt, Frbox *b)
 		if(left < 0)
 			return nr;
 	}
+	// unreachable
 	drawerror(f->display, "_frcanfit can't");
 	return 0;
 }
@@ -74,8 +75,10 @@ _frnewwid0(Frame *f, Point pt, Frbox *b)
 	x = pt.x;
 	if(b->nrune>=0 || b->bc!='\t')
 		return b->wid;
-	if(x+b->minwid > c)
+	if(x+b->minwid > c){
+		// unreachable
 		x = pt.x = f->r.min.x;
+	}
 	x += f->maxtab;
 	x -= (x-f->r.min.x)%f->maxtab;
 	if(x-pt.x<b->minwid || x>c)

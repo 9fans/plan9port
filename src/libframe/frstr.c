@@ -13,8 +13,10 @@ _frallocstr(Frame *f, unsigned n)
 	uchar *p;
 
 	p = malloc(ROUNDUP(n));
-	if(p == 0)
+	if(p == 0){
+		// untested
 		drawerror(f->display, "out of memory");
+	}
 	return p;
 }
 
@@ -25,8 +27,10 @@ _frinsure(Frame *f, int bn, unsigned n)
 	uchar *p;
 
 	b = &f->box[bn];
-	if(b->nrune < 0)
+	if(b->nrune < 0){
+		// unreachable
 		drawerror(f->display, "_frinsure");
+	}
 	if(ROUNDUP(b->nrune) > n)	/* > guarantees room for terminal NUL */
 		return;
 	p = _frallocstr(f, n);

@@ -31,20 +31,25 @@ frinittick(Frame *f)
 	Image *b;
 	Font *ft;
 
-	if(f->cols[BACK] == nil || f->display == nil)
+	if(f->cols[BACK] == nil || f->display == nil){
+		// untested
 		return;
+	}
 	f->tickscale = scalesize(f->display, 1);
 	b = f->display->screenimage;
 	ft = f->font;
 	if(f->tick)
 		freeimage(f->tick);
 	f->tick = allocimage(f->display, Rect(0, 0, f->tickscale*FRTICKW, ft->height), b->chan, 0, DWhite);
-	if(f->tick == nil)
+	if(f->tick == nil){
+		// untested
 		return;
+	}
 	if(f->tickback)
 		freeimage(f->tickback);
 	f->tickback = allocimage(f->display, f->tick->r, b->chan, 0, DWhite);
 	if(f->tickback == 0){
+		// untested
 		freeimage(f->tick);
 		f->tick = 0;
 		return;
