@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 
-TARG=samterm
+TARG=osamterm
 OFILES=\
 	main.$O\
 	icons.$O\
