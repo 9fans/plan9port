@@ -173,9 +173,12 @@ t_rpc_bouncemouse(Client *c, Mouse m)
 static void
 t_rpc_flush(Client *c, Rectangle r)
 {
+	// Frames are written on the 'v' (visible flush) opcode, not on the
+	// dirty-region batch flushes that addflush emits as the draw buffer fills,
+	// so the frame set matches the logical flushes in the draw log. See the
+	// 'v' case in draw_datawrite (devdraw.c).
+	USED(c);
 	USED(r);
-	if(testoutfile != nil)
-		test_output(c);
 }
 
 // The in-memory backend does not use any host graphics state during

@@ -113,6 +113,7 @@ func (t *Term) rcv() {
 					t.rcvstate = 0
 					continue
 				}
+				// unreachable
 				panic("count>DATASIZE")
 			}
 			if t.rcvcount == 0 {
@@ -141,6 +142,7 @@ func (t *Term) inmesg(typ, count int) {
 	l := t.inlong(2)
 	switch typ {
 	default:
+		// unreachable
 		panic("rcv unknown")
 
 	case Hversion:
@@ -179,6 +181,7 @@ func (t *Term) inmesg(typ, count int) {
 			}
 		}
 		if tx.l[tx.front].textfn == nil {
+			// unreachable
 			panic("Hcurrent")
 		}
 		lp := &tx.l[tx.front]
@@ -361,7 +364,7 @@ func (t *Term) checkscroll(m, l int) {
 	}
 }
 
-//FIX: delete
+// FIX: delete
 // whichtextOrNil is whichtext without the panic (for the Hbindname race).
 func (t *Term) whichtextOrNil(tg int) *Text {
 	for i := 0; i < t.nname; i++ {
@@ -491,7 +494,7 @@ func (t *Term) outTsls(typ, s1, l1, s2 int) {
 	t.outsend()
 }
 
-//FIX: give the message types type Tmesg and use here as type of typ
+// FIX: give the message types type Tmesg and use here as type of typ
 func (t *Term) outstart(typ int) {
 	t.outdata[0] = byte(typ)
 	t.outcount = 0
@@ -527,13 +530,19 @@ func (t *Term) outvlong(v int64) {
 
 func (t *Term) outsend() {
 	if t.outcount > DATASIZE-HSIZE {
+		// unreachable
 		panic("outcount>sizeof outdata")
 	}
 	t.outdata[1] = byte(t.outcount)
 	t.outdata[2] = byte(t.outcount >> 8)
 	n := t.outcount + HSIZE
 	if _, err := t.hostw.Write(t.outdata[:n]); err != nil {
-		panic("write error")
+		// The host (sam) is gone: its read end closed under us. C samterm
+		// panics here (abort), but in-process that would crash the test binary,
+		// so treat it as a disconnect and exit the event loop instead -- the
+		// same outcome the C process reaches, just without taking the harness
+		// down with it.
+		t.exiting = true
 	}
 }
 
@@ -626,6 +635,7 @@ func (t *Term) hcheck(m int) {
 		if !reqd {
 			n = tx.rasp.contig(a, a+TBLOCKSIZE, false)
 			if n <= 0 {
+				// unreachable
 				panic("hcheck request==0")
 			}
 			t.outTsls(Trequest, m, a, n)
@@ -667,6 +677,7 @@ func (t *Term) hsetsnarf(nc int) {
 		t.outTs(Tsetsnarf, n)
 		if n > 0 {
 			if _, err := t.hostw.Write(s1[:n]); err != nil {
+				// unreachable
 				panic("snarf write error")
 			}
 		}
@@ -687,6 +698,7 @@ func (t *Term) hplumb(nc int) {
 
 func (t *Term) hgrow(m, a, new, req int) {
 	if new <= 0 {
+		// unreachable
 		panic("hgrow")
 	}
 	tx := t.whichtext(m)
@@ -741,7 +753,7 @@ func (t *Term) hdata1(tx *Text, a int, r []rune) int {
 	return len(r)
 }
 
-//FIX: change caller ot pass s of correct length, drop length arg
+// FIX: change caller ot pass s of correct length, drop length arg
 func (t *Term) hdata(m, a int, s []byte, length int) int {
 	tx := t.whichtext(m)
 	if tx.lock != 0 {
@@ -759,7 +771,7 @@ func (t *Term) hdata(m, a int, s []byte, length int) int {
 	return t.hdata1(tx, a, r)
 }
 
-//FIX: change caller to pass r of correct length, drop length arg
+// FIX: change caller to pass r of correct length, drop length arg
 func (t *Term) hdatarune(m, a int, r []rune, length int) int {
 	tx := t.whichtext(m)
 	if tx.lock != 0 {
@@ -813,7 +825,7 @@ func (t *Term) hcut(m, a, old int) {
 	tx.rasp.clean()
 }
 
-//FIX: does the protocol actually send the NULs? if not, drop use of this
+// FIX: does the protocol actually send the NULs? if not, drop use of this
 // cstr returns the bytes of b up to (not including) the first NUL.
 func cstr(b []byte) []byte {
 	//FIX: use bytes.IndexByte

@@ -3,3 +3,7 @@ Delete a span with Hcut (remove "hello ", leaving "world").
 -- input --
 growdata 0 0 hello world\n
 cut 0 0 6
+-- waitframes --
+28 31 38
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{8}ddxd{16}

@@ -1,0 +1,9 @@
+Move the selection point with Hmoveto.
+
+-- input --
+growdata 0 0 alpha beta gamma delta epsilon\n
+moveto 0 11
+-- waitframes --
+28 31 31
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{15}ddxdd

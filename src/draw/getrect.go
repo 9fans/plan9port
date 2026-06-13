@@ -102,6 +102,14 @@ func drawgetrect(display *Display, rc Rectangle, up bool) {
 	 * is unallocated and we ask to restore the screen, it would be nice
 	 * to complain, but we silently make a mess.
 	 */
+	if grTmp[0] != nil && grTmp[0].Display != display {
+		// The cached temporaries belong to a different display (e.g. several
+		// in-process clients in one test process); they cannot be drawn with
+		// this display. Abandon them without freeing -- freeing would send RPCs
+		// to the other (possibly defunct) display -- and reallocate below.
+		grTmp = [4]*Image{}
+		grRed = nil
+	}
 	if up && grTmp[0] != nil {
 		if grTmp[0].R.Dx() < rc.Dx() || grTmp[2].R.Dy() < rc.Dy() {
 			freegrtmp()

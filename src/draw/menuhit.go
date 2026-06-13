@@ -34,17 +34,8 @@ func (me *Menu) gen(k int) ([]byte, bool) {
 	return buf, ok
 }
 
-// TODO hide in display
-var menu struct {
-	txt   *Image
-	back  *Image
-	high  *Image
-	bord  *Image
-	text  *Image
-	htext *Image
-}
-
 func menucolors(display *Display) {
+	menu := &display.menu
 	/* Main tone is greenish, with negative selection */
 	menu.back = display.AllocImageMix(PaleGreen, White)
 	menu.high, _ = display.AllocImage(Rect(0, 0, 1, 1), display.ScreenImage.Pix, true, DarkGreen) /* dark green */
@@ -97,6 +88,7 @@ func paintitem(m *Image, me *Menu, textr Rectangle, off, i int, highlight bool, 
 		return
 	}
 	display := m.Display
+	menu := &display.menu
 	font := display.Font
 	r := menurect(display, textr, i)
 	if restore != nil {
@@ -155,6 +147,7 @@ func menuscan(m *Image, me *Menu, but int, mc *Mousectl, textr Rectangle, off, l
 }
 
 func menupaint(m *Image, me *Menu, textr Rectangle, off, nitemdrawn int) {
+	menu := &m.Display.menu
 	m.Draw(textr.Inset(menuBorder-menuMargin), menu.back, nil, ZP)
 	for i := 0; i < nitemdrawn; i++ {
 		paintitem(m, me, textr, off, i, false, nil, nil)
@@ -162,6 +155,7 @@ func menupaint(m *Image, me *Menu, textr Rectangle, off, nitemdrawn int) {
 }
 
 func menuscrollpaint(m *Image, scrollr Rectangle, off, nitem, nitemdrawn int) {
+	menu := &m.Display.menu
 	m.Draw(scrollr, menu.back, nil, ZP)
 	r := scrollr
 	r.Min.Y = scrollr.Min.Y + (scrollr.Dy()*off)/nitem
@@ -190,6 +184,7 @@ func MenuHit(but int, mc *Mousectl, me *Menu, scr *Screen) int {
 	*/
 
 	display := mc.Display
+	menu := &display.menu
 	screen := display.ScreenImage
 	font := display.Font
 

@@ -9,8 +9,10 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"9fans.net/plan9port/draw/drawfcall"
 )
@@ -47,7 +49,6 @@ import (
 // Various routines flush automatically, notably Mousectl.Read.
 // Programs that receive directly from Mousectl.C should typically
 // Flush the display explicitly before the receive.
-//
 type Display struct {
 	Image       *Image
 	Screen      *Screen
@@ -70,10 +71,26 @@ type Display struct {
 	imageid  uint32
 	qmask    *Image
 	locking  bool
+	dirty    bool // a draw to ScreenImage occurred since the last visible flush
 	flushErr int
 
 	firstfont *Font
 	lastfont  *Font
+
+	menu menuImages // per-display cache of the menu's colored images
+}
+
+// menuImages holds a display's cached images for drawing menus (see MenuHit).
+// It lives in the Display, not in a global, so that several displays open in one
+// process (e.g. multiple in-process terminals in a test) do not share images:
+// an image allocated on one display has an id meaningless to another's devdraw.
+type menuImages struct {
+	txt   *Image
+	back  *Image
+	high  *Image
+	bord  *Image
+	text  *Image
+	htext *Image
 }
 
 // An Image represents an image on the server, possibly visible on the display.
@@ -325,7 +342,6 @@ func (d *Display) getimage0(i *Image) (*Image, error) {
 // response to a DPI change, meaning the caller should expect that
 // a Font's Height may be different after calling Attach as well.
 // The Font pointers themselves do not change.
-//
 func (d *Display) Attach(ref int) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
@@ -407,8 +423,46 @@ func (d *Display) Flush() error {
 	return d.flush(true)
 }
 
+// FlushImage flushes pending I/O to the server. If visible, any drawing changes
+// are made visible (a 'v' is sent when the screen is dirty); otherwise only the
+// accumulated draw buffer is sent, with no 'v'. samterm flushes non-visibly
+// while the host holds the terminal locked, so that a host update split across
+// several event-loop wakeups produces a single visible flush at unlock rather
+// than a nondeterministic number (matching C libdraw's flushimage(d, visible)).
+func (d *Display) FlushImage(visible bool) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.flush(visible)
+}
+
+// noteDraw records that a draw operation targeted dst. If dst is the screen
+// image, the display is dirty and the next visible flush will actually send a
+// 'v'; flushes with no intervening screen draw send nothing, so the flush
+// stream does not depend on how the event loop happened to wake (which varies
+// with protocol pipe chunking). C libdraw does the same (see flushimage).
+func (d *Display) noteDraw(dst *Image) {
+	if dst == d.ScreenImage {
+		d.dirty = true
+	}
+}
+
 func (d *Display) flush(visible bool) error {
 	if visible {
+		if !d.dirty {
+			// Nothing drawn to the screen since the last visible flush; the
+			// flush would be a no-op, so don't send 'v'.
+			return d.flushBuffer()
+		}
+		d.dirty = false
+	}
+	return d.flushInner(visible)
+}
+
+func (d *Display) flushInner(visible bool) error {
+	if visible {
+		if os.Getenv(d.env, "DRAWOP_VSTACK") != "" {
+			fmt.Fprintf(os.Stderr, "VFLUSH %d:\n%s\n", drawOpCount.Load()+1, debug.Stack())
+		}
 		d.bufsize++
 		a := d.bufimage(1)
 		d.bufsize--
@@ -418,9 +472,41 @@ func (d *Display) flush(visible bool) error {
 	return d.flushBuffer()
 }
 
+// drawOpCount counts calls to bufimage (one per draw opcode emitted). When
+// $DRAWOP_STACK is set to an op number, that op's stack trace is dumped to
+// stderr; when $DRAWOP_LOG is set, every op's "number opcode" is logged (the
+// opcode is read on the next call, once the caller has written it). Used
+// against a devdraw drawlog to locate exactly which Go call emitted a given
+// opcode while making the Go port match the C original.
+var (
+	drawOpCount  atomic.Int64 // incremented from finalizer goroutines too, so atomic
+	drawOpTarget = -2
+	drawOpLog    = -2
+	drawOpPrev   []byte
+	drawOpPrevN  int
+)
+
 func (d *Display) bufimage(n int) []byte {
 	if d == nil || n < 0 || n > d.bufsize {
 		panic("bad count in bufimage")
+	}
+	if drawOpTarget == -2 {
+		drawOpTarget = -1
+		if s := os.Getenv("DRAWOP_STACK"); s != "" {
+			drawOpTarget, _ = strconv.Atoi(s)
+		}
+		drawOpLog = -1
+		if os.Getenv("DRAWOP_LOG") != "" {
+			drawOpLog = 1
+		}
+	}
+	if drawOpPrev != nil { // report previous op's opcode, now written
+		fmt.Fprintf(os.Stderr, "OP %d %c\n", drawOpPrevN, drawOpPrev[0])
+		drawOpPrev = nil
+	}
+	count := int(drawOpCount.Add(1))
+	if count == drawOpTarget {
+		fmt.Fprintf(os.Stderr, "DRAWOP %d:\n%s\n", count, debug.Stack())
 	}
 	if len(d.buf)+n > d.bufsize {
 		if err := d.flushBuffer(); err != nil {
@@ -429,7 +515,11 @@ func (d *Display) bufimage(n int) []byte {
 	}
 	i := len(d.buf)
 	d.buf = d.buf[:i+n]
-	return d.buf[i:]
+	r := d.buf[i:]
+	if drawOpLog == 1 {
+		drawOpPrev, drawOpPrevN = r, count
+	}
+	return r
 }
 
 // DefaultDPI is the DPI assumed when the actual display DPI is unknown.

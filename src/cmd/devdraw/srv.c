@@ -42,6 +42,7 @@ static Gfx hostgfx = {
 Gfx *gfx = &hostgfx;
 char *testoutfile;
 char *testinfile;
+int testnocoalesce;
 
 static void
 usage(void)
@@ -79,6 +80,9 @@ threadmain(int argc, char **argv)
 	//	DEVDRAW_TEST_MEMORY=1	use the in-memory backend, no host display
 	//	DEVDRAW_TEST_OUTPUT=file	dump each flushed frame to file.0, file.1, ...
 	//	DEVDRAW_TEST_INPUT=file	read a script of keyboard/mouse/resize commands
+	//	DEVDRAW_TEST_NOCOALESCE=1 queue every mouse move (no coalescing), so the
+	//				frame stream is one-per-event regardless of how fast the
+	//				client reads -- makes scripted mouse runs reproducible
 	if((p = getenv("DEVDRAW_TEST_MEMORY")) != nil && strcmp(p, "1") == 0)
 		gfx = &testgfx;
 	testoutfile = getenv("DEVDRAW_TEST_OUTPUT");
@@ -87,6 +91,8 @@ threadmain(int argc, char **argv)
 	testinfile = getenv("DEVDRAW_TEST_INPUT");
 	if(testinfile != nil && testinfile[0] == '\0')
 		testinfile = nil;
+	if((p = getenv("DEVDRAW_TEST_NOCOALESCE")) != nil && strcmp(p, "1") == 0)
+		testnocoalesce = 1;
 
 	if(srvname == nil) {
 		client0 = mallocz(sizeof(Client), 1);
@@ -487,9 +493,11 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 
 	// If reader has stopped reading, don't bother.
 	// If reader is completely caught up, definitely queue.
-	// Otherwise, queue only button change events.
+	// Otherwise, queue only button change events -- unless testnocoalesce, which
+	// queues every event so a scripted mouse run produces a reproducible
+	// one-frame-per-event stream instead of dropping moves the reader is behind on.
 	if(!c->mouse.stall)
-	if(c->mouse.wi == c->mouse.ri || c->mouse.last.buttons != b){
+	if(testnocoalesce || c->mouse.wi == c->mouse.ri || c->mouse.last.buttons != b){
 		m = &c->mouse.last;
 		m->xy.x = x;
 		m->xy.y = y;

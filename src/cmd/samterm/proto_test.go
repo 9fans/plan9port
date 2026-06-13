@@ -26,15 +26,18 @@ var update = flag.Bool("update", false, "update committed goldens in testdata")
 // (sam), reading and writing wire-protocol messages directly over a pipe. This
 // is the "connected to the test binary" mode: it needs no sam. Each scenario is
 // a testdata/proto/<name>.txtar (comment = description, "input" section = host
-// operations, one per line); every rendered frame is checked against a committed
-// golden GIF (testdata/proto/<name>.gif) and, when bin/samterm is present, frame
-// for frame against the C samterm driven by the identical script.
+// operations, one per line). Every frame the terminal renders is checked
+// against a committed golden GIF (testdata/proto/<name>.gif) and, when
+// bin/osamterm is present, against the C samterm driven by the identical script.
 //
-// Determinism: the host paces operations one at a time, waiting for each
-// operation's frame before sending the next (protoHost.waitframe), so samterm
-// never batches redraws -- the same per-event pacing the end-to-end test gets
-// from devdraw's waitframe. With a fixed 600x400 window, fixed dpi and the
-// built-in default font, the captured frame sequence is reproducible.
+// Determinism: devdraw writes one image frame per drawing operation (see
+// testframe in devdraw.c), so the whole frame sequence is deterministic and
+// identical for the Go and C terminals -- there is no jittery, flush-count-
+// dependent capture to settle on. The host paces purely on that frame count: a
+// normal run replays the per-step counts recorded in the "waitframes" golden
+// (waitFrame), which -update discovers by settling (waitIdle). With a fixed
+// 600x400 window, fixed dpi and the built-in default font, the frame sequences
+// are reproducible and identical between the Go and C samterm.
 
 // protoHost speaks the wire protocol to a samterm over r/w.
 type protoHost struct {
@@ -49,26 +52,44 @@ func (h *protoHost) nframe() int {
 	return len(files)
 }
 
-// waitframe blocks until samterm has emitted at least n frames. Like devdraw's
-// waitframe, it lets the host pace each operation against the output stream
-// (rather than racing samterm's flush-per-wakeup), so the captured frame
-// sequence is deterministic.
-func (h *protoHost) waitframe(t *testing.T, n int) {
+// drain consumes and discards everything the terminal sends after the
+// handshake. The host drives the terminal and never reads its replies (frames,
+// not messages, are what we synchronize on), so without a drainer a reply the
+// terminal happened to send would eventually fill the pipe and block it.
+func (h *protoHost) drain() {
+	io.Copy(io.Discard, h.r)
+}
+
+// frametimeout bounds how long waitFrame waits for the terminal to reach an
+// expected frame count; a count that never arrives means a real divergence or a
+// stale waitframes golden, not something to wait out.
+const frametimeout = 10 * time.Second
+
+// waitFrame blocks until the terminal has written at least n image frames, the
+// count recorded in the waitframes golden for this step. Because devdraw writes
+// one frame per drawing operation, this is an exact, timing-independent
+// synchronization: once the count is reached, every frame the step produced is
+// on disk. A step that drew nothing leaves the count unchanged, so waitFrame
+// returns at once.
+func (h *protoHost) waitFrame(t *testing.T, n int) {
 	t.Helper()
-	deadline := time.Now().Add(5 * time.Second)
+	deadline := time.Now().Add(frametimeout)
 	for h.nframe() < n {
 		if time.Now().After(deadline) {
-			t.Fatalf("proto: timed out waiting for frame %d (have %d)", n, h.nframe())
+			t.Fatalf("proto: waitframe %d timed out (have %d)", n, h.nframe())
 		}
 		time.Sleep(time.Millisecond)
 	}
 }
 
-// settle waits for the frame count to stop growing (startup has quiesced) and
-// returns it, establishing the baseline the scripted operations pace from.
-func (h *protoHost) settle() int {
-	last, stable := -1, 0
-	for stable < 200 {
+// waitIdle blocks until the terminal has emitted no new frame for ms
+// milliseconds and returns the resulting frame count. It is used only to
+// discover the waitframes counts during -update; normal runs replay them with
+// waitFrame. A step that changes nothing on screen emits no frame, so the count
+// simply stays where the previous step left it.
+func (h *protoHost) waitIdle(ms int) int {
+	last, stable := h.nframe(), 0
+	for stable < ms {
 		time.Sleep(time.Millisecond)
 		if n := h.nframe(); n != last {
 			last, stable = n, 0
@@ -166,31 +187,65 @@ func TestProto(t *testing.T) {
 			input := ar.ReadFile("input")
 			golden := strings.TrimSuffix(file, ".txtar") + ".gif"
 
-			frames := runGoProto(t, name, input)
+			// waitframes golden: the cumulative frame count after startup and
+			// after each operation. The Go run discovers it under -update by
+			// settling (waitIdle); a normal run and the C run replay it with
+			// waitFrame, so all stay on the same deterministic frame boundaries.
+			var counts []int
+			if !*update {
+				counts = parseInts(ar.ReadFile("waitframes"))
+			}
+
+			frames, goCounts, goOps := runGoProto(t, input, counts)
 			drawtest.Check(t, frames, golden, *update)
+			if *update {
+				counts = goCounts
+				ar.WriteFile("waitframes", formatInts(goCounts))
+				ar.WriteFile("drawops", []byte(goOps+"\n"))
+				ar.Save(t)
+			}
+			// The "drawops" golden is the sequence of devdraw opcodes the run
+			// produced (see readDrawops). Comparing it -- not just the rendered
+			// frames -- catches a divergence in the draw protocol even when it
+			// leaves the visible pixels unchanged (e.g. an extra invisible draw).
+			wantOps := strings.TrimSpace(string(ar.ReadFile("drawops")))
+			if goOps != wantOps {
+				t.Errorf("Go drawops differ from golden:\n  have %s\n  want %s", goOps, wantOps)
+			}
 
 			if haveOld() {
 				t.Run("old", func(t *testing.T) {
-					frames := runOldProto(t, name, input)
+					frames, _, cOps := runOldProto(t, input, counts)
 					drawtest.Check(t, frames, golden, false)
+					if cOps != wantOps {
+						t.Errorf("C drawops differ from golden:\n  have %s\n  want %s", cOps, wantOps)
+					}
 				})
 			}
 		})
 	}
 }
 
-// runGoProto runs sam in-process against a samterm protocol script,
-// returning the rendered frames.
-func runGoProto(t *testing.T, name string, script []byte) []image.Image {
+// runGoProto runs the Go samterm in-process against a host protocol script and
+// returns the rendered frames and the per-step frame counts (see
+// runProtoScript). With counts == nil it discovers them by settling, for
+// -update; otherwise it replays them.
+func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
+	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
 	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
+	t.Setenv("DEVDRAW_DRAWLOG", drawlog)
 
 	disp, err := draw.Init(nil, "", "sam", "600x400")
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
+	// Clear the screen to white, matching getscreen (plan9.go), which the real
+	// samterm runs at startup but NewTerm does not -- so the Go draw stream (and
+	// hence the frame sequence) matches the C samterm's, which does run getscreen.
+	disp.ScreenImage.Draw(disp.ScreenImage.Clipr, disp.White, nil, draw.ZP)
 
 	// Note: we intentionally do not disp.Close() or otherwise shut the terminal
 	// down. The draw package's mouse/keyboard reader goroutines log.Fatal on a
@@ -206,15 +261,17 @@ func runGoProto(t *testing.T, name string, script []byte) []image.Image {
 
 	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img}
 	h.handshake(t)
-	runProtoScript(t, h, img, script)
+	go h.drain()
+	got := runProtoScript(t, h, script, counts)
 
-	return drawtest.Frames(t, img)
+	return drawtest.Frames(t, img), got, readDrawops(drawlog)
 }
 
 // runOldProto runs the C samterm subprocess against the identical host script.
-func runOldProto(t *testing.T, name string, script []byte) []image.Image {
+func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
+	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
 
 	h2tR, h2tW, _ := os.Pipe()
@@ -228,6 +285,8 @@ func runOldProto(t *testing.T, name string, script []byte) []image.Image {
 	cmd.Env = append(os.Environ(),
 		"DEVDRAW_TEST_MEMORY=1",
 		"DEVDRAW_TEST_OUTPUT="+img,
+		"DEVDRAW_DRAWLOG="+drawlog,
+		cov.Env(t), // per-run LLVM_PROFILE_FILE when -uncoverc is set
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
@@ -238,12 +297,23 @@ func runOldProto(t *testing.T, name string, script []byte) []image.Image {
 
 	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img}
 	h.handshake(t)
-	runProtoScript(t, h, img, script)
+	go h.drain() // consume the C terminal's replies so it never blocks on a full pipe
+	got := runProtoScript(t, h, script, counts)
 
+	// Shut down cleanly: closing the host write end gives the C samterm an EOF
+	// on its host fd, so it exits (and devdraw finishes writing the last frame
+	// before exiting). Only SIGKILL the process group as a timeout fallback,
+	// since killing mid-write would leave a truncated final image file.
 	h2tW.Close()
-
-	syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-	return drawtest.Frames(t, img)
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	select {
+	case <-done:
+	case <-time.After(3 * time.Second):
+		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		<-done
+	}
+	return drawtest.Frames(t, img), got, readDrawops(drawlog)
 }
 
 // runProtoScript executes a scenario's host operations (the txtar "input" section,
@@ -253,19 +323,42 @@ func runOldProto(t *testing.T, name string, script []byte) []image.Image {
 //	setdot TAG P0 P1        Hsetdot: highlight runes [P0,P1) in tag TAG
 //	cut TAG A OLD           Hcut: delete OLD runes at A in tag TAG
 //
-// Each operation redraws once. The host paces them one at a time, waiting for
-// each operation's frame before sending the next, so samterm never batches two
-// operations' redraws into a single (or differently split) flush and the
-// captured frame sequence is deterministic.
-func runProtoScript(t *testing.T, h *protoHost, img string, script []byte) {
+// Operations are delivered over a single ordered pipe and the terminal
+// processes them in order, writing one frame per drawing operation (see
+// testframe in devdraw.c), so the whole frame sequence is deterministic and
+// identical for the Go and C terminals. Between steps it synchronizes on that
+// frame count: with counts != nil it replays the recorded waitframes counts
+// (waitFrame); with counts == nil it discovers them under -update by settling
+// (waitIdle). It returns the per-step counts: one after startup and one after
+// each operation.
+func runProtoScript(t *testing.T, h *protoHost, script []byte, counts []int) []int {
 	t.Helper()
-	n := h.settle() // baseline: startup has fully drawn
+	step := 0
+	sync := func() int {
+		var n int
+		if counts != nil {
+			if step >= len(counts) {
+				t.Fatalf("waitframes golden has %d counts, too few (regenerate with -update)", len(counts))
+			}
+			n = counts[step]
+			h.waitFrame(t, n)
+		} else {
+			n = h.waitIdle(updateSettleMS)
+		}
+		step++
+		return n
+	}
+	out := []int{sync()} // baseline: startup has fully drawn
 	for line := range strings.Lines(string(script)) {
 		line = strings.TrimSpace(line)
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
 		f := strings.Fields(line)
+		// tagPos builds the common {short tag, long pos} payload.
+		tagPos := func() []byte {
+			return append(pShort(mustAtoi(t, f[1])), pLong(mustAtoi(t, f[2]))...)
+		}
 		switch f[0] {
 		case "growdata":
 			rest := strings.SplitN(line, " ", 4)
@@ -273,16 +366,66 @@ func runProtoScript(t *testing.T, h *protoHost, img string, script []byte) {
 				t.Fatalf("bad growdata: %q", line)
 			}
 			h.growdata(mustAtoi(t, rest[1]), mustAtoi(t, rest[2]), unescape(rest[3]))
-		case "setdot":
-			h.send(Hsetdot, append(append(pShort(mustAtoi(t, f[1])), pLong(mustAtoi(t, f[2]))...), pLong(mustAtoi(t, f[3]))...))
-		case "cut":
-			h.send(Hcut, append(append(pShort(mustAtoi(t, f[1])), pLong(mustAtoi(t, f[2]))...), pLong(mustAtoi(t, f[3]))...))
+		case "data": // data TAG POS TEXT: Hdata, fill a hole opened by grow
+			rest := strings.SplitN(line, " ", 4)
+			if len(rest) < 4 {
+				t.Fatalf("bad data: %q", line)
+			}
+			h.send(Hdata, append(append(pShort(mustAtoi(t, rest[1])), pLong(mustAtoi(t, rest[2]))...), []byte(unescape(rest[3]))...))
+		case "grow": // grow TAG POS N: Hgrow, open a hole of N runes at POS
+			h.send(Hgrow, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+		case "setdot": // setdot TAG P0 P1
+			h.send(Hsetdot, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+		case "cut": // cut TAG A OLD
+			h.send(Hcut, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+		case "moveto": // moveto TAG POS
+			h.send(Hmoveto, tagPos())
+		case "origin": // origin TAG POS
+			h.send(Horigin, tagPos())
+		case "clean": // clean TAG
+			h.send(Hclean, pShort(mustAtoi(t, f[1])))
+		case "dirty": // dirty TAG
+			h.send(Hdirty, pShort(mustAtoi(t, f[1])))
+		case "current": // current TAG
+			h.send(Hcurrent, pShort(mustAtoi(t, f[1])))
+		case "check0": // check0 TAG
+			h.send(Hcheck0, pShort(mustAtoi(t, f[1])))
+		case "check": // check TAG
+			h.send(Hcheck, pShort(mustAtoi(t, f[1])))
+		case "unlockfile": // unlockfile TAG
+			h.send(Hunlockfile, pShort(mustAtoi(t, f[1])))
+		case "snarflen": // snarflen N
+			h.send(Hsnarflen, pLong(mustAtoi(t, f[1])))
+		case "setpat": // setpat PATTERN
+			rest := strings.SplitN(line, " ", 2)
+			h.send(Hsetpat, append([]byte(rest[1]), 0))
+		case "movname": // movname TAG NAME
+			rest := strings.SplitN(line, " ", 3)
+			h.send(Hmovname, append(pShort(mustAtoi(t, rest[1])), append([]byte(rest[2]), 0)...))
+		case "delname": // delname TAG
+			h.send(Hdelname, pShort(mustAtoi(t, f[1])))
+		case "setsnarf": // setsnarf TEXT: Hsetsnarf (short count, then count raw bytes)
+			rest := strings.SplitN(line, " ", 2)
+			data := []byte(unescape(rest[1]))
+			h.send(Hsetsnarf, pShort(len(data)))
+			h.w.Write(data) // the snarf bytes follow the message in the stream
+		case "plumb": // plumb TEXT: Hplumb (short count, then count raw bytes, dropped)
+			rest := strings.SplitN(line, " ", 2)
+			data := []byte(unescape(rest[1]))
+			h.send(Hplumb, pShort(len(data)))
+			h.w.Write(data)
+		case "exit": // exit: Hexit -- the terminal stops responding (run returns)
+			// and draws nothing more, so there is no frame to sync on; just send
+			// it and finish. The handler still runs (coverage), and the C samterm
+			// exits cleanly here too.
+			h.send(Hexit, nil)
+			return out
 		default:
 			t.Fatalf("unknown proto op %q", line)
 		}
-		n++
-		h.waitframe(t, n)
+		out = append(out, sync())
 	}
+	return out
 }
 
 func mustAtoi(t *testing.T, s string) int {

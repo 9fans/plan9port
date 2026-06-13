@@ -36,6 +36,7 @@ func setdrawop(d *Display, op Op) {
 }
 
 func draw(dst *Image, r Rectangle, src *Image, p0 Point, mask *Image, p1 Point, op Op) {
+	dst.Display.noteDraw(dst)
 	setdrawop(dst.Display, op)
 
 	a := dst.Display.bufimage(1 + 4 + 4 + 4 + 4*4 + 2*4 + 2*4)

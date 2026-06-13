@@ -2,3 +2,7 @@ Text with tabs.
 
 -- input --
 growdata 0 0 a\tbb\tccc\tdddd\n
+-- waitframes --
+28 34
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{5}ddxxxxdd

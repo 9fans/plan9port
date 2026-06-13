@@ -205,7 +205,8 @@ struct Display
 	struct Mux	*mux;
 	int		srvfd;
 	int		dpi;
-	
+	int		dirty;	/* a draw to screenimage since the last visible flush */
+
 	Font	*firstfont;
 	Font	*lastfont;
 };

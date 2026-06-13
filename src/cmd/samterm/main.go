@@ -231,6 +231,7 @@ func (t *Term) closeup(l *Flayer) {
 				return
 			}
 		}
+		// unreachable
 		panic("close")
 	}
 }
@@ -322,6 +323,7 @@ func (t *Term) cut(tx *Text, w, save, check int) {
 		return
 	}
 	if p0 < 0 {
+		// unreachable
 		panic("cut")
 	}
 	if save != 0 {

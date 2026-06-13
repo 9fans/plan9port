@@ -82,7 +82,9 @@ func (d *Display) MoveCursor(pt Point) error {
 		fmt.Fprintf(os.Stderr, "MoveTo: %v\n", err)
 		return err
 	}
-	return nil
+	// Match C libdraw's _displaymoveto, which ends with flushimage(d, 1): the
+	// cursor warp is made visible immediately, flushing any pending draws.
+	return d.flush(true)
 }
 
 // SwitchCursor sets the mouse cursor to the specified cursor image.

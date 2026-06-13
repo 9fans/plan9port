@@ -1,0 +1,61 @@
+Scroll a long file with the middle and right buttons, dragging the bar.
+
+-- file --
+this is line number 1 of the file
+this is line number 2 of the file
+this is line number 3 of the file
+this is line number 4 of the file
+this is line number 5 of the file
+this is line number 6 of the file
+this is line number 7 of the file
+this is line number 8 of the file
+this is line number 9 of the file
+this is line number 10 of the file
+this is line number 11 of the file
+this is line number 12 of the file
+this is line number 13 of the file
+this is line number 14 of the file
+this is line number 15 of the file
+this is line number 16 of the file
+this is line number 17 of the file
+this is line number 18 of the file
+this is line number 19 of the file
+this is line number 20 of the file
+this is line number 21 of the file
+this is line number 22 of the file
+this is line number 23 of the file
+this is line number 24 of the file
+this is line number 25 of the file
+this is line number 26 of the file
+this is line number 27 of the file
+this is line number 28 of the file
+this is line number 29 of the file
+this is line number 30 of the file
+-- input --
+move 300 200
+button 4
+move 300 216
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+move 250 250
+button 1
+button 0
+move 205 250
+button 4
+button 0
+move 205 250
+button 2
+move 205 400
+move 205 100
+move 350 250
+button 0
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{12}dddx{11}d{12}lldddxd{37}x{6}d{39}
+-- waitframes --
+29 29 51 54 55 55 57 63 121 121 123 123 123 127 149 149 153 157 161 162 162 162 178 178

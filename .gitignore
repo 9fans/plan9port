@@ -138,6 +138,8 @@ bin/netfileput
 bin/netfilestat
 bin/netkey
 bin/news
+bin/osam
+bin/osamterm
 bin/p
 bin/page
 bin/paint
@@ -296,3 +298,4 @@ state.journal
 state.old
 unix/*.tgz
 y.tab.[ch]
+default.profraw

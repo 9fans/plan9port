@@ -206,6 +206,7 @@ func (t *Term) whichtext(tg int) *Text {
 			return t.text[i]
 		}
 	}
+	// unreachable
 	panic("whichtext")
 }
 
@@ -232,6 +233,7 @@ func (t *Term) menuins(n int, s []byte, tx *Text, m, tg int) {
 
 func (t *Term) menudel(n int) {
 	if t.nname == 0 || n >= t.nname || t.text[n] != nil {
+		// unreachable
 		panic("menudel")
 	}
 	//FIX: use slices.Delete

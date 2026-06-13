@@ -36,7 +36,21 @@ func (t *Term) waitforio() int {
 		if t.got&^t.block != 0 {
 			return t.got &^ t.block
 		}
-		t.disp.Flush()
+		// Make drawing visible only when the terminal is idle -- waiting for a
+		// fresh top-level event (block == 0), with the host not holding it
+		// locked (hostlock == 0). Both conditions defer the 'v', and a frame,
+		// past points that depend only on how the OS chunked the protocol
+		// stream:
+		//   - block != 0 means this is getch's mid-message wait for more host
+		//     bytes (block = ^(1<<RHost)); the update is not finished, so a
+		//     visible flush here would split one burst into a chunking-dependent
+		//     number of frames.
+		//   - hostlock != 0 means the host is mid-update between a lock and its
+		//     Hunlock (e.g. a pending server round-trip), even while idle.
+		// Deferring to idle-and-unlocked collapses each logical update into a
+		// single frame. C samterm's waitforio does the same. The draw buffer is
+		// still sent (visible=false) so devdraw sees the ops promptly.
+		t.disp.FlushImage(t.hostlock == 0 && t.block == 0)
 
 		//FIX: use cond
 		var hostCh chan int
@@ -57,7 +71,16 @@ func (t *Term) waitforio() int {
 		}
 
 		select {
-		case i := <-hostCh:
+		case i, ok := <-hostCh:
+			if !ok {
+				// The host closed the connection (hostproc closed hostc on
+				// EOF). Like C samterm's hostproc, which threadexitsall on an
+				// unexpected EOF, exit the event loop so the terminal does not
+				// linger and later write to the dead host (a panic). Run checks
+				// t.exiting on every iteration.
+				t.exiting = true
+				return t.got
+			}
 			t.hostp = t.hostbuf[i].data[:t.hostbuf[i].n]
 			t.block = 0
 			t.got |= 1 << RHost
@@ -131,6 +154,7 @@ func (t *Term) ekbd() int {
 	r, ok := <-t.keyboardctl.C
 	if !ok {
 		//FIX: add error print from C
+		// unreachable
 		panic("kbd")
 	}
 	return int(r)
@@ -158,6 +182,7 @@ func (t *Term) qpeekc() int {
 func (t *Term) RESIZED() bool {
 	if t.resized {
 		if err := t.disp.Attach(draw.RefNone); err != nil {
+			// unreachable
 			panic("can't reattach to window")
 		}
 		t.resized = false
@@ -180,8 +205,11 @@ func (t *Term) hostproc() {
 		i = 1 - i // toggle
 		n, err := t.hostr.Read(t.hostbuf[i].data[:])
 		if n <= 0 || err != nil {
-			// EOF or error: stop feeding the loop. In tests this happens
-			// when the host side closes the connection.
+			// EOF or error: the host is gone. Close hostc so waitforio wakes
+			// and exits the event loop (see its !ok case), mirroring C
+			// samterm's hostproc exiting on an unexpected host EOF. In tests
+			// this is how a finished run's terminal shuts down.
+			close(t.hostc)
 			return
 		}
 		t.hostbuf[i].n = n

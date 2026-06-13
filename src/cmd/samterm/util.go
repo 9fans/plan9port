@@ -15,5 +15,6 @@ func (t *Term) windex(tx *Text, l *Flayer) int {
 			return i
 		}
 	}
+	// unreachable
 	panic("windex")
 }

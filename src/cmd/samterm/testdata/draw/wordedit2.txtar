@@ -1,0 +1,11 @@
+Word-delete across punctuation and a newline in the command window.
+
+-- input --
+type foo.bar baz
+key ctrl-w
+key ctrl-w
+key ctrl-w
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddddxddlddxddlddxddlddxddlddxddlddxddddxddddxddlddxd{26}
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85

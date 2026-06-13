@@ -1,0 +1,12 @@
+Resize the window; the command window re-lays-out.
+
+-- input --
+type hello world
+resize 500 350
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddJIqFAbd{7}xd{12}
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 85 85 87 87

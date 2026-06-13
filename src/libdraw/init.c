@@ -406,6 +406,13 @@ flushimage(Display *d, int visible)
 	}
 
 	if(visible){
+		// Nothing drawn to the screen since the last visible flush: the flush
+		// would be a no-op, so don't send 'v'. This keeps the flush stream from
+		// depending on how the event loop happened to wake (protocol pipe
+		// chunking). The Go draw package does the same (see noteDraw).
+		if(!d->dirty)
+			return doflush(d);
+		d->dirty = 0;
 		*d->bufp++ = 'v';	/* five bytes always reserved for this */
 		if(d->_isnewdisplay){
 			BPLONG(d->bufp, d->screenimage->id);

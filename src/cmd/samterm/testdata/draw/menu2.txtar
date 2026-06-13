@@ -1,0 +1,14 @@
+Open the button-2 menu over the command window and pick the first item (cut).
+
+-- input --
+type hello world
+move 100 40
+button 2
+button 0
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddbbdbbcl{16}bd{6}bddsdsdsdsdsdsdsddsdcddd
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 73 95 96 96 98 98

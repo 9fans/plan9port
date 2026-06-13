@@ -1,0 +1,9 @@
+A large insert into the command window forces a scroll (center/thirds).
+
+-- input --
+growdata 0 0 line 1\nline 2\nline 3\nline 4\nline 5\nline 6\nline 7\nline 8\nline 9\nline 10\nline 11\nline 12\nline 13\nline 14\nline 15\nline 16\nline 17\nline 18\nline 19\nline 20\n
+moveto 0 0
+-- waitframes --
+28 35 35
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{10}dddxxxxdddd

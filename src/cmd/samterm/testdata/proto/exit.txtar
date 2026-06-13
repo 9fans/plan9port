@@ -1,0 +1,9 @@
+Host asks the terminal to exit with Hexit.
+
+-- input --
+growdata 0 0 goodbye\n
+exit
+-- waitframes --
+28 31
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{6}ddxdd

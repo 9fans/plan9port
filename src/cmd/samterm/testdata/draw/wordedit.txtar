@@ -1,0 +1,11 @@
+Type text in the command window, then delete by word (ctrl-w) and line (ctrl-u).
+
+-- input --
+type hello world foo bar
+key ctrl-w
+key ctrl-w
+key ctrl-u
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddlddxddddxddddxddddxddlddxddlddxddddxd{26}
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 109 113 117

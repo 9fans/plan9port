@@ -226,7 +226,7 @@ func (r *runner) clean() {
 func (r *runner) flush() {
 	screen := r.disp.ScreenImage
 	screen.Draw(screen.R, r.disp.White, nil, draw.ZP)
-	screen.Draw(r.f.B.R.Add(screen.R.Min), r.f.B, nil, r.f.B.R.Min)
+	screen.Draw(r.f.R.Add(screen.R.Min), r.f.B, nil, r.f.R.Min)
 	r.disp.Flush()
 }
 

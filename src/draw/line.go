@@ -59,6 +59,7 @@ func (dst *Image) LineOp(p0, p1 Point, end0, end1 End, radius int, src *Image, s
 }
 
 func (dst *Image) lineOp(p0, p1 Point, end0, end1 End, radius int, src *Image, sp Point, op Op) {
+	dst.Display.noteDraw(dst)
 	setdrawop(dst.Display, op)
 	a := dst.Display.bufimage(1 + 4 + 2*4 + 2*4 + 4 + 4 + 4 + 4 + 2*4)
 	a[0] = 'L'

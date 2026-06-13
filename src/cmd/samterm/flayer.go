@@ -213,6 +213,7 @@ func (t *Term) lldelete(l *Flayer) {
 			return
 		}
 	}
+	// unreachable
 	panic("lldelete")
 }
 
@@ -367,6 +368,7 @@ func (t *Term) flresize(dr draw.Rectangle) {
 			f.Clear(false)
 		}
 		if !draw.RectClip(&r, dr) {
+			// unreachable
 			panic("flresize")
 		}
 		if r.Max.X-r.Min.X < 100 {

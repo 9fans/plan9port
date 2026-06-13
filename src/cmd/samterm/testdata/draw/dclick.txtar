@@ -1,0 +1,13 @@
+Double-click a word in the command window (Tdclick -> host selects the word).
+
+-- input --
+type hello world example
+click 50 10 1
+click 50 10 1
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{10}xdxdd
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 107 112 112 115 115

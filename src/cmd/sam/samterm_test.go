@@ -42,13 +42,25 @@ func TestStartSamterm(t *testing.T) {
 		t.Fatal(err)
 	}
 	const golden = "testdata/startsamterm.gif"
+	// Only the frames through the last waitframe (12) are deterministic. After
+	// the q/Enter that quits sam, the frames depend on the order real sam (not
+	// sam -R) happens to send its shutdown messages -- e.g. whether the "q" is
+	// erased before or after a window closes -- so we compare just the stable
+	// startup prefix.
+	const nstable = 12
+	stable := func(f []image.Image) []image.Image {
+		if len(f) < nstable {
+			t.Fatalf("got %d frames, want at least %d", len(f), nstable)
+		}
+		return f[:nstable]
+	}
 	frames := runSam(t, samExe, file, scriptFile)
-	drawtest.Check(t, frames, golden, *update)
+	drawtest.Check(t, stable(frames), golden, *update)
 
 	if oldExe() != "" {
 		t.Run("old", func(t *testing.T) {
 			frames := runSam(t, oldExe(), file, scriptFile)
-			drawtest.Check(t, frames, golden, false)
+			drawtest.Check(t, stable(frames), golden, false)
 		})
 	}
 }

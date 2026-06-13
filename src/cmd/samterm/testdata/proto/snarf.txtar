@@ -1,0 +1,10 @@
+Host sets the snarf buffer (Hsetsnarf) and sends a plumb message (dropped).
+
+-- input --
+growdata 0 0 some text\n
+setsnarf hello snarf buffer
+plumb plumbed text here
+-- waitframes --
+28 31 31 31
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{7}ddxdd

@@ -7,6 +7,19 @@ import (
 	"strings"
 )
 
+// noFinalizer, set by $DRAW_TEST_NOFINALIZER, disables the GC finalizer that
+// frees images automatically. C libdraw has no such automatic free, so for a
+// faithful draw-stream comparison against the C original the test sets this and
+// images are freed only by explicit Free/free calls.
+var noFinalizer = os.Getenv("DRAW_TEST_NOFINALIZER") != ""
+
+// setImageFinalizer sets i's GC finalizer to free it, unless suppressed.
+func setImageFinalizer(i *Image) {
+	if !noFinalizer {
+		runtime.SetFinalizer(i, (*Image).Free)
+	}
+}
+
 // AllocImage allocates a new Image on display d.
 // It will have the rectangle, pixel format (RGBA32 etc),
 // and replication flag given by its arguments.
@@ -101,7 +114,7 @@ func allocImage(d *Display, ai *Image, r Rectangle, pix Pix, repl bool, val Colo
 		Clipr:   clipr,
 		Repl:    repl,
 	}
-	runtime.SetFinalizer(i, (*Image).Free)
+	setImageFinalizer(i)
 	return i, nil
 }
 
@@ -162,7 +175,7 @@ func namedImage(d *Display, ai *Image, name string) (i *Image, err error) {
 		Screen:  nil,
 		next:    nil,
 	}
-	runtime.SetFinalizer(i, (*Image).Free)
+	setImageFinalizer(i)
 	return i, nil
 }
 

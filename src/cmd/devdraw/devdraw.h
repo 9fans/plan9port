@@ -264,5 +264,7 @@ extern Gfx testgfx;	// in-memory backend (test-screen.c)
 // $DEVDRAW_TEST_INPUT, or nil; they are read once in threadmain.
 extern char *testoutfile;
 extern char *testinfile;
-void test_output(Client*);	// write the current window image to testoutfile.N
+extern int testnocoalesce;	// $DEVDRAW_TEST_NOCOALESCE: queue every mouse move
+void test_output(Client*, Rectangle);	// write window subimage r to testoutfile.N
+int drawlogfd(void);		// fd of the $DEVDRAW_DRAWLOG opcode trace, or -1
 void test_input_start(Client*);	// start the scripted-input reader proc

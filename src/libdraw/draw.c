@@ -21,6 +21,8 @@ draw1(Image *dst, Rectangle *r, Image *src, Point *p0, Image *mask, Point *p1, D
 {
 	uchar *a;
 
+	if(dst == dst->display->screenimage)
+		dst->display->dirty = 1;
 	_setdrawop(dst->display, op);
 
 	a = bufimage(dst->display, 1+4+4+4+4*4+2*4+2*4);

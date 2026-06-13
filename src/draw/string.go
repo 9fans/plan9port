@@ -101,6 +101,7 @@ func _string(dst *Image, p Point, src *Image, sp Point, f *Font, s string, b []b
 		max := Max
 		n, wid, subfontname := cachechars(f, &in, cbuf, max)
 		if n > 0 {
+			dst.Display.noteDraw(dst)
 			setdrawop(dst.Display, op)
 			m := 47 + 2*n
 			if bg != nil {

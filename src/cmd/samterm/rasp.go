@@ -38,6 +38,7 @@ func (r *Rasp) sinsert(s *Section) *Section {
 	}
 	u := r.sect
 	if u == nil {
+		// unreachable
 		panic("rsinsert 1")
 	}
 	for u != nil {
@@ -48,6 +49,7 @@ func (r *Rasp) sinsert(s *Section) *Section {
 		}
 		u = u.next
 	}
+	// unreachable
 	panic("rsinsert 2")
 }
 
@@ -55,6 +57,7 @@ func (r *Rasp) sinsert(s *Section) *Section {
 // sdelete unlinks the section s from the rasp.
 func (r *Rasp) sdelete(s *Section) {
 	if s == nil {
+		// unreachable
 		panic("rsdelete")
 	}
 	if r.sect == s {
@@ -67,6 +70,7 @@ func (r *Rasp) sdelete(s *Section) {
 			return
 		}
 	}
+	// unreachable
 	panic("rsdelete 2")
 }
 
@@ -74,6 +78,7 @@ func (r *Rasp) sdelete(s *Section) {
 // splitsect splits section s into two at offset n0.
 func (r *Rasp) splitsect(s *Section, n0 int) {
 	if s == nil {
+		// unreachable
 		panic("splitsect")
 	}
 	r.sinsert(s.next) // new section lands between s and s.next
@@ -92,6 +97,7 @@ func (r *Rasp) splitsect(s *Section, n0 int) {
 // The search begins at section s, assumed to start at offset p.
 func (r *Rasp) findsect(s *Section, p, q int) *Section {
 	if s == nil && p != q {
+		// unreachable
 		panic("findsect")
 	}
 	for ; s != nil && p+s.nrunes <= q; s = s.next {
@@ -132,6 +138,7 @@ func (r *Rasp) data(p0, p1 int, cp []rune) {
 	for s != t {
 		ns := s.next
 		if s.text != nil {
+			// unreachable
 			panic("rdata")
 		}
 		r.sdelete(s)

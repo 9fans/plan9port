@@ -1,0 +1,19 @@
+Select text in the command window and pick plumb (item 3) from the button-2 menu.
+
+-- input --
+type hello world example
+move 30 10
+button 1
+move 95 10
+button 0
+move 300 200
+button 2
+move 300 251
+button 0
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}xbbdbbcl{13}bd{6}bddsdsdsdsdsdsdsddsdddsdcdxdd
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 105 107 110 110 110 132 135 136 136 139 139

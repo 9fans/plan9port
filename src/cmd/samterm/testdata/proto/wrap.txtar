@@ -2,3 +2,7 @@ A long line that wraps.
 
 -- input --
 growdata 0 0 the quick brown fox jumps over the lazy dog and then keeps going to wrap\n
+-- waitframes --
+28 33
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{27}dddxxdd

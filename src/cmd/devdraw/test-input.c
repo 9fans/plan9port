@@ -179,12 +179,35 @@ waitframe(Client *c, int n)
 	}
 }
 
+// recordsettle appends the current frame count to $DEVDRAW_TEST_SETTLE (if set)
+// each time waitidle settles. The test harness uses these counts, captured
+// during a -update run that paces with waitidle, to rewrite the script's
+// waitframe N commands: each settle point becomes the absolute frame count a
+// later (non-update) run must wait for, so the script synchronizes with the
+// output stream deterministically instead of racing it.
+static void
+recordsettle(Client *c)
+{
+	static int fd = -2;
+	char *p;
+	char buf[16];
+
+	if(fd == -2){
+		fd = -1;
+		if((p = getenv("DEVDRAW_TEST_SETTLE")) != nil && p[0] != 0)
+			fd = create(p, OWRITE, 0666);
+	}
+	if(fd >= 0){
+		snprint(buf, sizeof buf, "%d\n", c->testoutn);
+		write(fd, buf, strlen(buf));
+	}
+}
+
 // waitidle blocks until the client has emitted no new image frame for ms
 // milliseconds -- i.e. the rendering triggered by the preceding input has
-// settled. Unlike waitframe it needs no absolute frame count, so the same
-// script works in programs that emit different numbers of frames per
-// operation (except for the flakiness inherent in time-based tests like this).
-// In general we do not use waitidle.
+// settled. Unlike waitframe it needs no absolute frame count, so it is used
+// during -update to discover the settle points (see recordsettle), which then
+// become the waitframe counts a normal run synchronizes with.
 static void
 waitidle(Client *c, int ms)
 {
@@ -238,6 +261,7 @@ docmd(Client *c, char *line)
 		waitframe(c, atoi(p));
 	}else if(strcmp(cmd, "waitidle") == 0){
 		waitidle(c, atoi(p));
+		recordsettle(c); // record this settle point for the waitframes golden
 	}else if(strcmp(cmd, "move") == 0){
 		n = tokenize(p, args, nelem(args));
 		if(n >= 2){
@@ -312,7 +336,7 @@ static void
 inputproc(void *v)
 {
 	Client *c;
-	char *buf, *p, *nl;
+	char *buf, *p, *nl, *donefile;
 
 	c = v;
 
@@ -333,6 +357,21 @@ inputproc(void *v)
 		docmd(c, p);
 	}
 	free(buf);
+
+	// Signal the harness that the whole script has been delivered and the
+	// client has settled. This lets the harness stop waiting on an explicit
+	// end-of-script marker instead of guessing from a frame-quiet timeout,
+	// which a long frameless stretch mid-script -- e.g. a window sweep reading
+	// several mouse events that draw nothing -- would otherwise trip
+	// prematurely, truncating the captured frames at a script-dependent point.
+	donefile = getenv("DEVDRAW_TEST_DONE");
+	if(donefile != nil && donefile[0] != 0){
+		int fd;
+
+		waitidle(c, 200);
+		if((fd = create(donefile, OWRITE, 0666)) >= 0)
+			close(fd);
+	}
 }
 
 void

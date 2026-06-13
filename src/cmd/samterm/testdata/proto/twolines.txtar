@@ -3,3 +3,7 @@ Two lines inserted in separate growdata messages.
 -- input --
 growdata 0 0 first line\n
 growdata 0 11 second line\n
+-- waitframes --
+28 31 35
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxddllldddxdd

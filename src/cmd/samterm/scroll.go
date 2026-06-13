@@ -14,6 +14,7 @@ func (t *Term) scrtemps() {
 	t.scrtmp, _ = t.disp.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
 	t.scrback, _ = t.disp.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
 	if t.scrtmp == nil || t.scrback == nil {
+		// unreachable
 		panic("scrtemps")
 	}
 }
@@ -25,6 +26,7 @@ func scrpos(r draw.Rectangle, p0, p1, tot int) draw.Rectangle {
 		return q
 	}
 	if tot > 1024*1024 {
+		// untested: scaled arithmetic only for files larger than 1MB
 		tot >>= 10
 		p0 >>= 10
 		p1 >>= 10
@@ -61,6 +63,7 @@ func (t *Term) scrunmark(l *Flayer, r draw.Rectangle) {
 func (t *Term) scrdraw(l *Flayer, tot int) {
 	t.scrtemps()
 	if l.f.B == nil {
+		// unreachable
 		panic("scrdraw")
 	}
 	r := l.scroll
@@ -150,6 +153,7 @@ func (t *Term) scroll(l *Flayer, but int) {
 			p0 = (my-s.Min.Y)/l.f.Font.Height + 1
 		case 2:
 			if tot > 1024*1024 {
+				// untested: scaled arithmetic only for files larger than 1MB
 				p0 = ((tot >> 10) * (y - s.Min.Y) / h) << 10
 			} else {
 				p0 = tot * (y - s.Min.Y) / h

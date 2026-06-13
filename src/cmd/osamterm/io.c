@@ -145,7 +145,21 @@ again:
 
 	if(got & ~block)
 		return got & ~block;
-	flushimage(display, 1);
+	/*
+	 * Make drawing visible only when the terminal is idle -- waiting for a
+	 * fresh top-level event (block == 0), with the host not holding it locked
+	 * (hostlock == 0).  Both conditions defer the 'v', and a frame, past points
+	 * that depend only on how the OS chunked the protocol stream:
+	 *   - block != 0 means this is getch's mid-message wait for more host bytes
+	 *     (block = ~(1<<RHost)); the update is not finished, so a visible flush
+	 *     here would split one burst into a chunking-dependent number of frames.
+	 *   - hostlock != 0 means the host is mid-update between a lock and its
+	 *     Hunlock (e.g. a pending server round-trip), even while idle.
+	 * Deferring to idle-and-unlocked collapses each logical update into a single
+	 * frame.  Go samterm's waitforio does the same.  The draw buffer is still
+	 * sent (visible 0) so devdraw sees the ops promptly.
+	 */
+	flushimage(display, hostlock == 0 && block == 0);
 	type = alt(alts);
 	switch(type){
 	case RHost:

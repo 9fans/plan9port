@@ -1,0 +1,45 @@
+Zerox a window then close one of the two copies (local closeup, nwin>1).
+
+-- file --
+file line 1
+file line 2
+file line 3
+file line 4
+file line 5
+file line 6
+file line 7
+file line 8
+-- input --
+move 300 8
+button 4
+move 300 114
+button 0
+move 200 150
+button 4
+move 460 300
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 220
+button 4
+button 0
+move 200 320
+button 4
+move 450 385
+button 0
+move 300 8
+button 4
+move 300 63
+button 0
+move 300 350
+button 4
+button 0
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{8}dddx{8}d{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{20}xxxd{22}clbd{6}bddsdsdsdsdsdsdsddsdddsdcd{25}
+-- waitframes --
+29 29 51 54 55 55 57 63 115 115 137 140 141 141 141 141 141 143 149 186 186 208 211 212 212 221 221 221 237 237

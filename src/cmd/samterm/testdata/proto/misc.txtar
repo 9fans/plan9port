@@ -1,0 +1,11 @@
+Snarf length, search pattern and rename of the command window.
+
+-- input --
+growdata 0 0 some words here\n
+snarflen 4
+setpat hello
+current 0
+-- waitframes --
+28 31 31 31 47
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxd{18}

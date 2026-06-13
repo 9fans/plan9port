@@ -1,0 +1,17 @@
+Open a new window by selecting "new" then single-clicking (placement, not sweep).
+
+-- input --
+move 300 8
+button 4
+move 300 11
+button 0
+move 300 250
+button 4
+button 0
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{20}bbd{27}lldddxd{28}
+-- waitframes --
+29 29 51 54 55 55 57 95 95 111 111

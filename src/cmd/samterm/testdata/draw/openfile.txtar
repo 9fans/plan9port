@@ -1,0 +1,28 @@
+Open a window on the existing file via the button-3 file menu entry and a sweep.
+
+-- file --
+line one
+line two
+line three
+line four
+line five
+line six
+line seven
+line eight
+-- input --
+move 300 200
+button 4
+move 300 216
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+
+move 100 10
+button 1
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}lllldddx{8}d{5}lldddxd{28}
+-- waitframes --
+29 29 51 54 55 55 57 63 115 115 131 131

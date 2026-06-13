@@ -1,0 +1,13 @@
+Toggle the dirty/clean markers and exercise the check protocol.
+
+-- input --
+growdata 0 0 marked text\n
+dirty 0
+clean 0
+check0 0
+check 0
+unlockfile 0
+-- waitframes --
+28 31 31 31 31 33 33
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxd{5}

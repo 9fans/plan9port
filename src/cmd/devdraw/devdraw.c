@@ -151,6 +151,29 @@ addflush(Client *c, Rectangle r)
 	}
 }
 
+// testframe writes one test-output frame (see test_output) per screen-affecting
+// drawing operation, capturing just the rectangle r that the operation changed.
+// We frame on actual drawing rather than on the 'v' (visible flush) opcode: 'v'
+// arrives at points that depend on how the client batched its draw buffer and on
+// protocol pipe chunking, so it is nondeterministic, whereas the drawing-op
+// sequence is exactly the same for two clients that drew the same thing. Called
+// from dstflush, so it fires only for draws that actually reach the screen image
+// (off-screen draws -- backing stores, the font cache -- return from dstflush
+// before reaching here). Called with drawlk and the gfx lock held; it drops them
+// around test_output, which takes them itself, exactly as the rpc_flush path
+// above does.
+static void
+testframe(Client *c, Rectangle r)
+{
+	if(testoutfile == nil)
+		return;
+	gfx->drawunlock();
+	qunlock(&drawlk);
+	test_output(c, r);
+	qlock(&drawlk);
+	gfx->drawlock();
+}
+
 static void
 dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 {
@@ -158,6 +181,7 @@ dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 
 	if(dstid == 0){
 		combinerect(&c->flushrect, r);
+		testframe(c, r);
 		return;
 	}
 	/* how can this happen? -rsc, dec 12 2002 */
@@ -175,6 +199,7 @@ dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 		l = l->screen->image->layer;
 	}while(l);
 	addflush(c, r);
+	testframe(c, r);
 }
 
 static void
@@ -642,7 +667,7 @@ err:
 // the client (libdraw or src/draw) sends, so two clients driven identically can
 // be diffed to find where a draw library deviates. Opcodes only -- image ids and
 // coordinates are elided, since they legitimately differ by allocation order.
-static int
+int
 drawlogfd(void)
 {
 	static int fd = -2;
@@ -1430,6 +1455,12 @@ draw_datawrite(Client *client, void *v, int n)
 		case 'v':
 			m = 1;
 			drawflush(client);
+			// Test frames are written per drawing operation (see testframe /
+			// dstflush), not here: 'v' arrives at nondeterministic points that
+			// depend on the client's draw-buffer batching and protocol chunking,
+			// so framing on it produced different frame counts for clients that
+			// drew identically. drawflush above still performs the real visible
+			// flush for host backends.
 			continue;
 
 		/* write: 'y' id[4] R[4*4] data[x*1] */

@@ -1,0 +1,12 @@
+Select text in the command window with a button-1 drag.
+
+-- input --
+type hello world example
+move 30 10
+button 1
+move 95 10
+button 0
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}x
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 105 107 110 110

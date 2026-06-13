@@ -91,6 +91,8 @@ _string(Image *dst, Point pt, Image *src, Point sp, Font *f, char *s, Rune *r, i
 			max = len;
 		n = cachechars(f, sptr, rptr, cbuf, max, &wid, &subfontname);
 		if(n > 0){
+			if(dst == dst->display->screenimage)
+				dst->display->dirty = 1;
 			_setdrawop(dst->display, op);
 
 			m = 47+2*n;
