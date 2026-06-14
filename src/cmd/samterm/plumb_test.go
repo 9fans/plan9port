@@ -12,6 +12,7 @@ import (
 
 	"9fans.net/go/plan9"
 	"9fans.net/plan9port/draw"
+	"9fans.net/plan9port/internal/sam"
 	"9fans.net/plan9port/plumb"
 )
 
@@ -272,7 +273,7 @@ func TestPlumbSend(t *testing.T) {
 	sendPlumb := func(data string) {
 		var buf bytes.Buffer
 		(&plumb.Message{Src: "sam", Dst: "samtermtest", Type: "text", Data: []byte(data)}).Send(&buf)
-		h.send(Hplumb, pShort(buf.Len()))
+		h.send(sam.Hplumb, pShort(buf.Len()))
 		h.w.Write(buf.Bytes())
 	}
 	// recvPlumb reads the next message routed back to our port (one persistent
@@ -307,7 +308,7 @@ func TestPlumbSend(t *testing.T) {
 	// (hplumb's unpack-error path), not forwarded. Send a good message after it
 	// and confirm only the good one arrives -- proving the bad one was consumed
 	// without desyncing the stream.
-	h.send(Hplumb, pShort(len("garbage\n")))
+	h.send(sam.Hplumb, pShort(len("garbage\n")))
 	h.w.Write([]byte("garbage\n"))
 	sendPlumb("after bad")
 	if got := recvPlumb(); got != "after bad" {

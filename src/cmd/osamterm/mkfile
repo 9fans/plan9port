@@ -36,3 +36,9 @@ $O.$TARG.cover:	$COVOFILES
 	$CC $CFLAGS $COVCFLAGS -o $stem.cover.$O $stem.c
 
 CLEANFILES=$CLEANFILES $COVOFILES $O.osamterm.cover
+
+# rasp oracle for the Go port's rasp script tests (../samterm/rasp_test.go).
+rasptest: rasptest.$O rasp.$O
+	$LD -o rasptest rasptest.$O rasp.$O $LDFLAGS
+
+CLEANFILES=$CLEANFILES rasptest rasptest.$O

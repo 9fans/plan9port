@@ -20,6 +20,7 @@ import (
 	"9fans.net/plan9port/draw"
 	"9fans.net/plan9port/internal/drawtest"
 	"9fans.net/plan9port/internal/llvmcover"
+	"9fans.net/plan9port/internal/sam"
 	"9fans.net/plan9port/internal/testar"
 )
 
@@ -158,30 +159,15 @@ func parseSteps(input []byte) []string {
 	return cmds
 }
 
-// FIX: change to Go quoted string syntax and use strconv.Unquote
-// unescape resolves the \t \n \\ escapes used in scenario text: the txtar files
-// hold one command per line, so tabs and newlines inside typed text are escaped.
+// unescape resolves the escapes used in scenario text, which is Go
+// quoted-string syntax: the txtar files hold one command per line, so tabs and
+// newlines inside typed text are escaped.
 func unescape(s string) string {
-	var b strings.Builder
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\\' && i+1 < len(s) {
-			i++
-			switch s[i] {
-			case 't':
-				b.WriteByte('\t')
-			case 'n':
-				b.WriteByte('\n')
-			case '\\':
-				b.WriteByte('\\')
-			default:
-				b.WriteByte('\\')
-				b.WriteByte(s[i])
-			}
-		} else {
-			b.WriteByte(s[i])
-		}
+	t, err := strconv.Unquote(`"` + s + `"`)
+	if err != nil {
+		panic("bad scenario text: " + s)
 	}
-	return b.String()
+	return t
 }
 
 // pacedScript turns a command list into a DEVDRAW_TEST_INPUT script. Between
@@ -467,13 +453,13 @@ func normProto(b []byte, kind byte) []byte {
 		data := i + 3
 		off, ok := 0, false
 		switch {
-		case kind == 'H' && typ == Hbindname:
+		case kind == 'H' && typ == byte(sam.Hbindname):
 			off, ok = 2, true
-		case kind == 'T' && typ == Tstartcmdfile:
+		case kind == 'T' && typ == byte(sam.Tstartcmdfile):
 			off, ok = 0, true
-		case kind == 'T' && typ == Tstartfile:
+		case kind == 'T' && typ == byte(sam.Tstartfile):
 			off, ok = 2, true
-		case kind == 'T' && typ == Tstartnewfile:
+		case kind == 'T' && typ == byte(sam.Tstartnewfile):
 			off, ok = 0, true
 		}
 		if ok && data+off+8 <= len(out) {
@@ -739,13 +725,13 @@ func TestGetscreen(t *testing.T) {
 	if err := term.getscreen([]string{"-a", "-W", "600x400"}); err != nil {
 		t.Skipf("no display: %v", err)
 	}
-	if term.autoindent != 1 {
-		t.Errorf("autoindent = %d, want 1 (from -a)", term.autoindent)
+	if !term.autoindent {
+		t.Errorf("autoindent = %v, want true (from -a)", term.autoindent)
 	}
 	if term.maxtab != 4 {
 		t.Errorf("maxtab = %d, want 4 (from tabstop)", term.maxtab)
 	}
-	if term.disp == nil {
+	if term.display == nil {
 		t.Error("disp not set")
 	}
 }

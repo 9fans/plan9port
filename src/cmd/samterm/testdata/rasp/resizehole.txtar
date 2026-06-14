@@ -1,0 +1,26 @@
+Open a hole in the middle of loaded text (splitting a present section),
+query around it, then fill and re-coalesce.
+-- script --
+resize 0 0 10
+data 0 10 helloworld
+clean
+resize 5 0 3
+nrunes
+sects
+missing 0 13
+load 0 13
+contig 0 13 1
+contig 5 13 0
+data 5 8 BIG
+clean
+sects
+load 0 13
+-- output --
+nrunes = 13
+sects = +5 -3 +5 (nrunes 13)
+missing 0 13 = 3
+load 0 13 = "helloworld"
+contig 0 13 1 = 5
+contig 5 13 0 = 3
+sects = +13 (nrunes 13)
+load 0 13 = "helloBIGworld"

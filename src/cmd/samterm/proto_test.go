@@ -17,6 +17,7 @@ import (
 
 	"9fans.net/plan9port/draw"
 	"9fans.net/plan9port/internal/drawtest"
+	"9fans.net/plan9port/internal/sam"
 	"9fans.net/plan9port/internal/testar"
 )
 
@@ -100,7 +101,7 @@ func (h *protoHost) waitIdle(ms int) int {
 	return last
 }
 
-func (h *protoHost) send(typ int, payload []byte) error {
+func (h *protoHost) send(typ sam.Hmesg, payload []byte) error {
 	hdr := []byte{byte(typ), byte(len(payload)), byte(len(payload) >> 8)}
 	if _, err := h.w.Write(hdr); err != nil {
 		return err
@@ -114,7 +115,7 @@ func (h *protoHost) send(typ int, payload []byte) error {
 }
 
 // recv reads one message: type + 16-bit count + count bytes.
-func (h *protoHost) recv() (typ int, payload []byte, err error) {
+func (h *protoHost) recv() (typ sam.Tmesg, payload []byte, err error) {
 	var hdr [3]byte
 	if _, err = io.ReadFull(h.r, hdr[:]); err != nil {
 		return
@@ -124,7 +125,7 @@ func (h *protoHost) recv() (typ int, payload []byte, err error) {
 	if _, err = io.ReadFull(h.r, payload); err != nil {
 		return
 	}
-	return int(hdr[0]), payload, nil
+	return sam.Tmesg(hdr[0]), payload, nil
 }
 
 func pShort(v int) []byte {
@@ -147,11 +148,11 @@ func (h *protoHost) handshake(t *testing.T) {
 	t.Helper()
 	// samterm announces itself.
 	typ, _, err := h.recv()
-	if err != nil || typ != Tversion {
+	if err != nil || typ != sam.Tversion {
 		t.Fatalf("expected Tversion, got %d (%v)", typ, err)
 	}
 	typ, payload, err := h.recv()
-	if err != nil || typ != Tstartcmdfile {
+	if err != nil || typ != sam.Tstartcmdfile {
 		t.Fatalf("expected Tstartcmdfile, got %d (%v)", typ, err)
 	}
 	token := int64(binary.LittleEndian.Uint64(payload[0:8]))
@@ -159,10 +160,10 @@ func (h *protoHost) handshake(t *testing.T) {
 	// Bind the command file to menu tag 0, make it current, and unlock,
 	// mirroring sam's Tstartcmdfile handler (newfile->Hnewname, then
 	// Hbindname/Hcurrent/Hunlock).
-	h.send(Hnewname, pShort(0))
-	h.send(Hbindname, append(pShort(0), pVlong(token)...))
-	h.send(Hcurrent, pShort(0))
-	h.send(Hunlock, nil)
+	h.send(sam.Hnewname, pShort(0))
+	h.send(sam.Hbindname, append(pShort(0), pVlong(token)...))
+	h.send(sam.Hcurrent, pShort(0))
+	h.send(sam.Hunlock, nil)
 }
 
 // growdata inserts runes at pos in the file with the given tag (Hgrowdata =
@@ -172,7 +173,7 @@ func (h *protoHost) growdata(tag, pos int, s string) {
 	p := append(pShort(tag), pLong(pos)...)
 	p = append(p, pLong(len(r))...)
 	p = append(p, []byte(s)...)
-	h.send(Hgrowdata, p)
+	h.send(sam.Hgrowdata, p)
 }
 
 func TestProto(t *testing.T) {
@@ -376,64 +377,64 @@ func runProtoScript(t *testing.T, h *protoHost, script []byte, counts []int) []i
 			if len(rest) == 4 {
 				text = unescape(rest[3])
 			}
-			h.send(Hdata, append(append(pShort(mustAtoi(t, rest[1])), pLong(mustAtoi(t, rest[2]))...), []byte(text)...))
+			h.send(sam.Hdata, append(append(pShort(mustAtoi(t, rest[1])), pLong(mustAtoi(t, rest[2]))...), []byte(text)...))
 		case "grow": // grow TAG POS N: Hgrow, open a hole of N runes at POS
-			h.send(Hgrow, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+			h.send(sam.Hgrow, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
 		case "setdot": // setdot TAG P0 P1
-			h.send(Hsetdot, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+			h.send(sam.Hsetdot, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
 		case "cut": // cut TAG A OLD
-			h.send(Hcut, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+			h.send(sam.Hcut, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
 		case "badmsg": // badmsg: a header claiming a count > DATASIZE (no payload),
 			// to drive rcv's malformed-message path (rcverrs/dumperrmsg). The
 			// stream stays in sync because no payload bytes follow.
-			h.w.Write([]byte{byte(Hclean), 0xff, 0xff})
+			h.w.Write([]byte{byte(sam.Hclean), 0xff, 0xff})
 		case "moveto": // moveto TAG POS
-			h.send(Hmoveto, tagPos())
+			h.send(sam.Hmoveto, tagPos())
 		case "origin": // origin TAG POS
-			h.send(Horigin, tagPos())
+			h.send(sam.Horigin, tagPos())
 		case "clean": // clean TAG
-			h.send(Hclean, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hclean, pShort(mustAtoi(t, f[1])))
 		case "dirty": // dirty TAG
-			h.send(Hdirty, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hdirty, pShort(mustAtoi(t, f[1])))
 		case "current": // current TAG
-			h.send(Hcurrent, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hcurrent, pShort(mustAtoi(t, f[1])))
 		case "check0": // check0 TAG
-			h.send(Hcheck0, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hcheck0, pShort(mustAtoi(t, f[1])))
 		case "check": // check TAG
-			h.send(Hcheck, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hcheck, pShort(mustAtoi(t, f[1])))
 		case "unlockfile": // unlockfile TAG
-			h.send(Hunlockfile, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hunlockfile, pShort(mustAtoi(t, f[1])))
 		case "snarflen": // snarflen N
-			h.send(Hsnarflen, pLong(mustAtoi(t, f[1])))
+			h.send(sam.Hsnarflen, pLong(mustAtoi(t, f[1])))
 		case "setpat": // setpat PATTERN
 			rest := strings.SplitN(line, " ", 2)
-			h.send(Hsetpat, append([]byte(rest[1]), 0))
+			h.send(sam.Hsetpat, []byte(rest[1]))
 		case "movname": // movname TAG NAME
 			rest := strings.SplitN(line, " ", 3)
-			h.send(Hmovname, append(pShort(mustAtoi(t, rest[1])), append([]byte(rest[2]), 0)...))
+			h.send(sam.Hmovname, append(pShort(mustAtoi(t, rest[1])), rest[2]...))
 		case "delname": // delname TAG
-			h.send(Hdelname, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hdelname, pShort(mustAtoi(t, f[1])))
 		case "newname": // newname TAG: Hnewname, create an (empty) menu entry
-			h.send(Hnewname, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hnewname, pShort(mustAtoi(t, f[1])))
 		case "bindname": // bindname TAG TOKEN: Hbindname, bind a text token to tag
-			h.send(Hbindname, append(pShort(mustAtoi(t, f[1])), pVlong(int64(mustAtoi(t, f[2])))...))
+			h.send(sam.Hbindname, append(pShort(mustAtoi(t, f[1])), pVlong(int64(mustAtoi(t, f[2])))...))
 		case "close": // close TAG: Hclose, close all windows of the tag's text
-			h.send(Hclose, pShort(mustAtoi(t, f[1])))
+			h.send(sam.Hclose, pShort(mustAtoi(t, f[1])))
 		case "setsnarf": // setsnarf TEXT: Hsetsnarf (short count, then count raw bytes)
 			rest := strings.SplitN(line, " ", 2)
 			data := []byte(unescape(rest[1]))
-			h.send(Hsetsnarf, pShort(len(data)))
+			h.send(sam.Hsetsnarf, pShort(len(data)))
 			h.w.Write(data) // the snarf bytes follow the message in the stream
 		case "plumb": // plumb TEXT: Hplumb (short count, then count raw bytes, dropped)
 			rest := strings.SplitN(line, " ", 2)
 			data := []byte(unescape(rest[1]))
-			h.send(Hplumb, pShort(len(data)))
+			h.send(sam.Hplumb, pShort(len(data)))
 			h.w.Write(data)
 		case "exit": // exit: Hexit -- the terminal stops responding (run returns)
 			// and draws nothing more, so there is no frame to sync on; just send
 			// it and finish. The handler still runs (coverage), and the C samterm
 			// exits cleanly here too.
-			h.send(Hexit, nil)
+			h.send(sam.Hexit, nil)
 			return out
 		default:
 			t.Fatalf("unknown proto op %q", line)

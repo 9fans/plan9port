@@ -1,178 +1,156 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"testing"
 
-//FIX: change to script tests for comparison against C
+	"9fans.net/plan9port/internal/testar"
+)
 
-// loadStr returns the present runes of [p0,p1) as a string.
-func (t *Term) loadStr(r *Rasp, p0, p1 int) string {
-	return string(t.rload(r, p0, p1))
+// TestRaspScript runs each testdata/rasp/*.txtar script against the Go Rasp
+// and compares the queries' output to the committed "output" golden
+// (regenerate with -update). The "old" subtest feeds the identical script to
+// the C oracle (src/cmd/osamterm/rasptest, built by mk) and requires
+// byte-identical output.
+//
+// Script commands (one per line; see rasptest.c for the C side):
+//
+//	resize A OLD NEW	replace OLD runes at A with a hole of NEW
+//	data P0 P1 TEXT		fill [P0,P1) with TEXT (rune length P1-P0)
+//	fill P0 P1 C		fill [P0,P1) with repeated character C
+//	clean			coalesce adjacent sections
+//	clear			drop the sections, keep nrunes
+//	init			reset to empty
+//	nrunes			print "nrunes = N"
+//	load P0 P1		print load's present text (holes skipped)
+//	missing P0 P1		print missing
+//	contig P0 P1 T		print contig (T=1 present, T=0 absent)
+//	sects			print the section list: +N present, -N hole
+//	#...			comment (ignored)
+func TestRaspScript(t *testing.T) {
+	files, err := filepath.Glob("testdata/rasp/*.txtar")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) == 0 {
+		t.Fatal("no testdata/rasp/*.txtar cases")
+	}
+	for _, file := range files {
+		name := strings.TrimSuffix(filepath.Base(file), ".txtar")
+		t.Run(name, func(t *testing.T) {
+			ar := testar.Open(t, file)
+			script := string(ar.ReadFile("script"))
+			if script == "" {
+				t.Fatal("missing script")
+			}
+			out := runRaspScript(t, script)
+			if *update {
+				ar.WriteFile("output", []byte(out))
+				ar.Save(t)
+			}
+			want := string(ar.ReadFile("output"))
+			if out != want {
+				t.Errorf("wrong output\nhave:\n\t%s\nwant:\n\t%s",
+					strings.ReplaceAll(out, "\n", "\n\t"),
+					strings.ReplaceAll(want, "\n", "\n\t"))
+			}
+			t.Run("old", func(t *testing.T) {
+				cout := runRaspScriptC(t, script)
+				if cout != want {
+					t.Errorf("C output differs from golden\nhave:\n\t%s\nwant:\n\t%s",
+						strings.ReplaceAll(cout, "\n", "\n\t"),
+						strings.ReplaceAll(want, "\n", "\n\t"))
+				}
+			})
+		})
+	}
 }
 
-// sects returns a compact description of the rasp's sections for assertions:
-// present sections show their text in quotes, holes show "-N".
-func sects(r *Rasp) string {
-	s := ""
-	for sec := r.sect; sec != nil; sec = sec.next {
-		if s != "" {
-			s += " "
+// runRaspScript executes one rasp script against an in-process Rasp and
+// returns the queries' output, mirroring the C oracle's rasptest.c.
+func runRaspScript(t *testing.T, script string) string {
+	t.Helper()
+	tm := &Term{}
+	r := new(Rasp)
+	r.init()
+	var out strings.Builder
+	for line := range strings.Lines(script) {
+		line = strings.TrimSuffix(line, "\n")
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
 		}
-		if sec.text == nil {
-			s += "-" + itoa(sec.nrunes)
-		} else {
-			s += "\"" + string(sec.text) + "\""
+		f := strings.Fields(line)
+		switch f[0] {
+		case "resize":
+			r.resize(mustAtoi(t, f[1]), mustAtoi(t, f[2]), mustAtoi(t, f[3]))
+		case "data":
+			rest := strings.SplitN(line, " ", 4)
+			if len(rest) < 4 {
+				t.Fatalf("bad data: %q", line)
+			}
+			p0, p1 := mustAtoi(t, rest[1]), mustAtoi(t, rest[2])
+			text := []rune(rest[3])
+			if len(text) != p1-p0 {
+				t.Fatalf("data: TEXT has %d runes, want %d", len(text), p1-p0)
+			}
+			r.data(p0, p1, text)
+		case "fill":
+			p0, p1 := mustAtoi(t, f[1]), mustAtoi(t, f[2])
+			text := make([]rune, p1-p0)
+			for i := range text {
+				text[i] = rune(f[3][0])
+			}
+			r.data(p0, p1, text)
+		case "clean":
+			r.clean()
+		case "clear":
+			r.clear()
+		case "init":
+			r.init()
+		case "nrunes":
+			fmt.Fprintf(&out, "nrunes = %d\n", r.nrunes)
+		case "load":
+			p0, p1 := mustAtoi(t, f[1]), mustAtoi(t, f[2])
+			fmt.Fprintf(&out, "load %d %d = \"%s\"\n", p0, p1, string(tm.load(r, p0, p1)))
+		case "missing":
+			p0, p1 := mustAtoi(t, f[1]), mustAtoi(t, f[2])
+			fmt.Fprintf(&out, "missing %d %d = %d\n", p0, p1, r.missing(p0, p1))
+		case "contig":
+			p0, p1, tf := mustAtoi(t, f[1]), mustAtoi(t, f[2]), mustAtoi(t, f[3])
+			fmt.Fprintf(&out, "contig %d %d %d = %d\n", p0, p1, tf, r.contig(p0, p1, tf != 0))
+		case "sects":
+			fmt.Fprintf(&out, "sects =")
+			for s := r.sect; s != nil; s = s.next {
+				if s.text != nil {
+					fmt.Fprintf(&out, " +%d", s.nrunes)
+				} else {
+					fmt.Fprintf(&out, " -%d", s.nrunes)
+				}
+			}
+			fmt.Fprintf(&out, " (nrunes %d)\n", r.nrunes)
+		default:
+			t.Fatalf("unknown command %q", line)
 		}
 	}
-	return s
+	return out.String()
 }
 
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
+// runRaspScriptC runs the script through the C reference implementation.
+func runRaspScriptC(t *testing.T, script string) string {
+	t.Helper()
+	exe := filepath.Join(plan9root, "src/cmd/osamterm/rasptest")
+	if _, err := os.Stat(exe); err != nil {
+		t.Fatalf("%v\nhint: cd %s/src/cmd/osamterm && mk rasptest", err, plan9root)
 	}
-	neg := n < 0
-	if neg {
-		n = -n
+	cmd := exec.Command(exe)
+	cmd.Stdin = strings.NewReader(script)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("rasptest: %v\n%s", err, out)
 	}
-	var b []byte
-	for n > 0 {
-		b = append([]byte{byte('0' + n%10)}, b...)
-		n /= 10
-	}
-	if neg {
-		b = append([]byte{'-'}, b...)
-	}
-	return string(b)
-}
-
-func TestRaspBasic(t *testing.T) {
-	tm := &Term{}
-	r := new(Rasp)
-	r.init()
-
-	// Open a 10-rune hole.
-	r.resize(0, 0, 10)
-	if r.nrunes != 10 {
-		t.Fatalf("nrunes = %d, want 10", r.nrunes)
-	}
-	if got := r.missing(0, 10); got != 10 {
-		t.Fatalf("missing = %d, want 10", got)
-	}
-	if got := r.contig(0, 10, false); got != 10 {
-		t.Fatalf("contig(absent) = %d, want 10", got)
-	}
-	if got := r.contig(0, 10, true); got != 0 {
-		t.Fatalf("contig(present) = %d, want 0", got)
-	}
-
-	// Fill the first half.
-	r.data(0, 5, []rune("hello"))
-	if got := sects(r); got != `"hello" -5` {
-		t.Fatalf("sects = %q, want %q", got, `"hello" -5`)
-	}
-	if got := r.missing(0, 10); got != 5 {
-		t.Fatalf("missing = %d, want 5", got)
-	}
-	if got := r.contig(0, 10, true); got != 5 {
-		t.Fatalf("contig(present) = %d, want 5", got)
-	}
-	if got := tm.loadStr(r, 0, 10); got != "hello" {
-		t.Fatalf("load = %q, want %q (hole skipped)", got, "hello")
-	}
-
-	// Fill the second half, then coalesce.
-	r.data(5, 10, []rune("world"))
-	r.clean()
-	if got := sects(r); got != `"helloworld"` {
-		t.Fatalf("after clean sects = %q, want %q", got, `"helloworld"`)
-	}
-	if got := r.missing(0, 10); got != 0 {
-		t.Fatalf("missing = %d, want 0", got)
-	}
-	if got := tm.loadStr(r, 0, 10); got != "helloworld" {
-		t.Fatalf("load = %q, want %q", got, "helloworld")
-	}
-	if got := tm.loadStr(r, 3, 8); got != "lowor" {
-		t.Fatalf("load(3,8) = %q, want %q", got, "lowor")
-	}
-}
-
-func TestRaspResizeHole(t *testing.T) {
-	tm := &Term{}
-	r := new(Rasp)
-	r.init()
-	r.resize(0, 0, 10)
-	r.data(0, 10, []rune("helloworld"))
-	r.clean()
-
-	// Open a 3-rune hole in the middle: "hello" | -3 | "world".
-	r.resize(5, 0, 3)
-	if r.nrunes != 13 {
-		t.Fatalf("nrunes = %d, want 13", r.nrunes)
-	}
-	if got := sects(r); got != `"hello" -3 "world"` {
-		t.Fatalf("sects = %q, want %q", got, `"hello" -3 "world"`)
-	}
-	if got := r.missing(0, 13); got != 3 {
-		t.Fatalf("missing = %d, want 3", got)
-	}
-	// load skips the hole, returning the 10 present runes.
-	if got := tm.loadStr(r, 0, 13); got != "helloworld" {
-		t.Fatalf("load = %q, want %q", got, "helloworld")
-	}
-	if got := r.contig(0, 13, true); got != 5 {
-		t.Fatalf("contig(present) from 0 = %d, want 5", got)
-	}
-	if got := r.contig(5, 13, false); got != 3 {
-		t.Fatalf("contig(absent) from 5 = %d, want 3", got)
-	}
-
-	// Fill the hole and re-coalesce.
-	r.data(5, 8, []rune("BIG"))
-	r.clean()
-	if got := sects(r); got != `"helloBIGworld"` {
-		t.Fatalf("sects = %q, want %q", got, `"helloBIGworld"`)
-	}
-	if got := tm.loadStr(r, 0, 13); got != "helloBIGworld" {
-		t.Fatalf("load = %q, want %q", got, "helloBIGworld")
-	}
-}
-
-func TestRaspDelete(t *testing.T) {
-	r := new(Rasp)
-	r.init()
-	r.resize(0, 0, 10)
-	r.data(0, 10, []rune("0123456789"))
-	r.clean()
-
-	// Delete the middle 4 runes (offsets 3..7).
-	r.resize(3, 4, 0)
-	r.clean()
-	if r.nrunes != 6 {
-		t.Fatalf("nrunes = %d, want 6", r.nrunes)
-	}
-	tm := &Term{}
-	if got := tm.loadStr(r, 0, 6); got != "012789" {
-		t.Fatalf("load = %q, want %q", got, "012789")
-	}
-}
-
-// TestRaspCleanCap checks clean does not coalesce present sections past
-// TBLOCKSIZE.
-func TestRaspCleanCap(t *testing.T) {
-	r := new(Rasp)
-	r.init()
-	big := TBLOCKSIZE - 100
-	r.resize(0, 0, big+200)
-	r.data(0, big, make([]rune, big))
-	r.data(big, big+200, make([]rune, 200))
-	r.clean()
-	// big + 200 > TBLOCKSIZE, so the two present sections stay separate.
-	n := 0
-	for s := r.sect; s != nil; s = s.next {
-		n++
-	}
-	if n != 2 {
-		t.Fatalf("section count = %d, want 2 (no coalesce past TBLOCKSIZE)", n)
-	}
+	return string(out)
 }

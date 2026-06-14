@@ -1,0 +1,26 @@
+Delete runes from the middle, then clear (drop sections, keep length)
+and init (reset to empty).
+-- script --
+resize 0 0 10
+data 0 10 0123456789
+clean
+resize 3 4 0
+nrunes
+load 0 6
+sects
+clear
+sects
+nrunes
+load 0 6
+init
+nrunes
+sects
+-- output --
+nrunes = 6
+load 0 6 = "012789"
+sects = +3 +3 (nrunes 6)
+sects = (nrunes 6)
+nrunes = 6
+load 0 6 = ""
+nrunes = 0
+sects = (nrunes 0)

@@ -1,22 +1,26 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"unicode/utf8"
 
 	"9fans.net/plan9port/draw"
 )
 
 func (t *Term) initio() {
-	//FIX: check mousectl, keyboardctl nil like C?
-	t.mousectl = t.disp.InitMouse()
-	t.keyboardctl = t.disp.InitKeyboard()
+	// TODO: Not checking for nil because InitMouse and InitKeyboard
+	// crash on failure, although perhaps they should not.
+	t.mouse = t.display.InitMouse()
+	t.keyboardctl = t.display.InitKeyboard()
 	t.hoststart()
 	t.plumbstart()
 }
 
 func (t *Term) getmouse() {
-	//FIX: check failure like C
-	t.mousectl.Read()
+	// TODO: Not checking for error because Read errors are fatal,
+	// although perhaps they should not be.
+	t.mouse.Read()
 }
 
 func (t *Term) mouseunblock() {
@@ -30,7 +34,7 @@ func (t *Term) kbdblock() {
 
 func (t *Term) button(but int) int {
 	t.getmouse()
-	return t.mousep().Buttons & (1 << (but - 1))
+	return t.mouse.Buttons & (1 << (but - 1))
 }
 
 // externload copies the formatted plumb text in plumbbuf[i] into the extern
@@ -42,6 +46,13 @@ func (t *Term) externload(i int) {
 	t.extern = append(t.extern[:0], t.plumbbuf[i].data[:t.plumbbuf[i].n]...)
 	t.externi = 0
 	t.got |= 1 << RPlumb
+}
+
+func chanCond[T any](ch <-chan T, cond bool) <-chan T {
+	if cond {
+		return ch
+	}
+	return nil
 }
 
 func (t *Term) waitforio() int {
@@ -63,57 +74,33 @@ func (t *Term) waitforio() int {
 		// Deferring to idle-and-unlocked collapses each logical update into a
 		// single frame. C samterm's waitforio does the same. The draw buffer is
 		// still sent (visible=false) so devdraw sees the ops promptly.
-		t.disp.FlushImage(t.hostlock == 0 && t.block == 0)
-
-		//FIX: use cond
-		var hostCh chan int
-		if t.block&(1<<RHost) == 0 {
-			hostCh = t.hostc
-		}
-		var kbdCh <-chan rune
-		if t.block&(1<<RKeyboard) == 0 {
-			kbdCh = t.keyboardctl.C
-		}
-		var mouseCh <-chan draw.Mouse
-		if t.block&(1<<RMouse) == 0 {
-			mouseCh = t.mousectl.C
-		}
-		var resizeCh <-chan bool
-		if t.block&(1<<RResize) == 0 {
-			resizeCh = t.mousectl.Resize
-		}
-		var plumbCh chan int // nil when no plumber (plumbc==nil) -> dead case
-		if t.block&(1<<RPlumb) == 0 {
-			plumbCh = t.plumbc
-		}
+		t.display.FlushImage(t.hostlock == 0 && t.block == 0)
 
 		select {
-		case i, ok := <-hostCh:
+		case i, ok := <-chanCond(t.hostc, t.block&(1<<RHost) == 0):
 			if !ok {
-				// The host closed the connection (hostproc closed hostc on
-				// EOF). Like C samterm's hostproc, which threadexitsall on an
-				// unexpected EOF, exit the event loop so the terminal does not
-				// linger and later write to the dead host (a panic). Run checks
-				// t.exiting on every iteration.
-				t.exiting = true
-				return t.got
+				// The host closed the connection (hostproc closed hostc after
+				// recording hosterr). C's hostproc prints the read error and
+				// exits the whole process here (threadexitsall); raise a
+				// hostError instead, unwinding to run's recover.
+				panic(hostError{fmt.Sprintf("host read error: %v", t.hosterr)})
 			}
 			t.hostp = t.hostbuf[i].data[:t.hostbuf[i].n]
 			t.block = 0
 			t.got |= 1 << RHost
 			return t.got
-		case i := <-plumbCh:
+		case i := <-chanCond(t.plumbc, t.block&(1<<RPlumb) == 0):
 			t.externload(i)
 			return t.got
-		case r := <-kbdCh:
+		case r := <-chanCond(t.keyboardctl.C, t.block&(1<<RKeyboard) == 0):
 			t.kbdc = int(r)
 			t.got |= 1 << RKeyboard
 			return t.got
-		case m := <-mouseCh:
-			t.mousectl.Mouse = m
+		case m := <-chanCond(t.mouse.C, t.block&(1<<RMouse) == 0):
+			t.mouse.Mouse = m
 			t.got |= 1 << RMouse
 			return t.got
-		case <-resizeCh:
+		case <-chanCond(t.mouse.Resize, t.block&(1<<RResize) == 0):
 			t.resized = true
 			// do the resize in line if we've finished initializing
 			// and we're not in a blocking state
@@ -137,7 +124,12 @@ func (t *Term) rcvchar() int {
 	return c
 }
 
-//FIX: add rcvstring
+// rcvstring returns the unread host bytes for dumperrmsg's diagnostic,
+// consuming them (the rest of the malformed message's buffer is dropped).
+func (t *Term) rcvstring() string {
+	t.got &^= 1 << RHost
+	return string(t.hostp)
+}
 
 func (t *Term) getch() int {
 	c := t.rcvchar()
@@ -206,8 +198,8 @@ func (t *Term) ekbd() int {
 	// untested: see top of ekbd
 	r, ok := <-t.keyboardctl.C
 	if !ok {
-		//FIX: add error print from C
 		// unreachable
+		fmt.Fprintf(os.Stderr, "samterm: keybard recv error\n") // sic, as in C
 		panic("kbd")
 	}
 	// untested: see top of ekbd
@@ -260,38 +252,13 @@ func (t *Term) qpeekc() int {
 
 func (t *Term) RESIZED() bool {
 	if t.resized {
-		if err := t.disp.Attach(draw.RefNone); err != nil {
+		if err := t.display.Attach(draw.RefNone); err != nil {
 			// unreachable
 			panic("can't reattach to window")
 		}
+		t.screen = t.display.ScreenImage
 		t.resized = false
 		return true
 	}
 	return false
-}
-
-//FIX: move to term.go
-
-// hoststart launches the goroutine that reads protocol bytes from the host.
-func (t *Term) hoststart() {
-	t.hostc = make(chan int)
-	go t.hostproc()
-}
-
-func (t *Term) hostproc() {
-	i := 0
-	for {
-		i = 1 - i // toggle
-		n, err := t.hostr.Read(t.hostbuf[i].data[:])
-		if n <= 0 || err != nil {
-			// EOF or error: the host is gone. Close hostc so waitforio wakes
-			// and exits the event loop (see its !ok case), mirroring C
-			// samterm's hostproc exiting on an unexpected host EOF. In tests
-			// this is how a finished run's terminal shuts down.
-			close(t.hostc)
-			return
-		}
-		t.hostbuf[i].n = n
-		t.hostc <- i
-	}
 }

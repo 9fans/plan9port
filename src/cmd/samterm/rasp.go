@@ -1,5 +1,7 @@
 package main
 
+import "slices"
+
 // A Rasp models a file's text as a list of present/absent sections, the
 // terminal's lazy mirror of the text held by the sam command engine.
 type Rasp struct {
@@ -27,9 +29,8 @@ func (r *Rasp) clear() {
 	r.sect = nil
 }
 
-//FIX: rename to insert
-// sinsert inserts and returns a new empty section before s.
-func (r *Rasp) sinsert(s *Section) *Section {
+// insert inserts and returns a new empty section before s.
+func (r *Rasp) insert(s *Section) *Section {
 	t := &Section{}
 	if r.sect == s { // includes empty list case: r.sect==s==nil
 		r.sect = t
@@ -53,9 +54,8 @@ func (r *Rasp) sinsert(s *Section) *Section {
 	panic("rsinsert 2")
 }
 
-//FIX: rename to delete
-// sdelete unlinks the section s from the rasp.
-func (r *Rasp) sdelete(s *Section) {
+// delete unlinks the section s from the rasp.
+func (r *Rasp) delete(s *Section) {
 	if s == nil {
 		// unreachable
 		panic("rsdelete")
@@ -74,56 +74,52 @@ func (r *Rasp) sdelete(s *Section) {
 	panic("rsdelete 2")
 }
 
-//FIX: rename to split
-// splitsect splits section s into two at offset n0.
-func (r *Rasp) splitsect(s *Section, n0 int) {
+// split splits section s into two at offset n0.
+func (r *Rasp) split(s *Section, n0 int) {
 	if s == nil {
 		// unreachable
-		panic("splitsect")
+		panic("split")
 	}
-	r.sinsert(s.next) // new section lands between s and s.next
+	r.insert(s.next) // new section lands between s and s.next
 	if s.text != nil {
-		//FIX: use slices.Clone
-		s.next.text = append([]rune(nil), s.text[n0:]...)
+		s.next.text = slices.Clone(s.text[n0:])
 		s.text = s.text[:n0:n0]
 	}
 	s.next.nrunes = s.nrunes - n0
 	s.nrunes = n0
 }
 
-//FIX: rename to find
-// findsect returns a section starting at offset q,
+// find returns a section starting at offset q,
 // splitting an existing section if necessary.
 // The search begins at section s, assumed to start at offset p.
-func (r *Rasp) findsect(s *Section, p, q int) *Section {
+func (r *Rasp) find(s *Section, p, q int) *Section {
 	if s == nil && p != q {
 		// unreachable
-		panic("findsect")
+		panic("find")
 	}
 	for ; s != nil && p+s.nrunes <= q; s = s.next {
 		p += s.nrunes
 	}
 	if p != q {
-		r.splitsect(s, q-p)
+		r.split(s, q-p)
 		s = s.next
 	}
 	return s
 }
 
-//FIX: rename a to q.
-// resize replaces the old runes at offset a with a hole of new runes.
+// resize replaces the old runes at offset q with a hole of new runes.
 // The new span is expected to be filled in by [Rasp.data].
-func (r *Rasp) resize(a, old, new int) {
-	s := r.findsect(r.sect, 0, a)
-	t := r.findsect(s, a, a+old)
+func (r *Rasp) resize(q, old, new int) {
+	s := r.find(r.sect, 0, q)
+	t := r.find(s, q, q+old)
 	for s != t {
 		ns := s.next
-		r.sdelete(s)
+		r.delete(s)
 		s = ns
 	}
 	// now insert the new piece before t
 	if new > 0 {
-		ns := r.sinsert(t)
+		ns := r.insert(t)
 		ns.nrunes = new
 		ns.text = nil
 	}
@@ -133,21 +129,20 @@ func (r *Rasp) resize(a, old, new int) {
 // data fills [p0, p1) with the runes in cp.
 // The replaced sections must all be holes.
 func (r *Rasp) data(p0, p1 int, cp []rune) {
-	s := r.findsect(r.sect, 0, p0)
-	t := r.findsect(s, p0, p1)
+	s := r.find(r.sect, 0, p0)
+	t := r.find(s, p0, p1)
 	for s != t {
 		ns := s.next
 		if s.text != nil {
 			// unreachable
 			panic("rdata")
 		}
-		r.sdelete(s)
+		r.delete(s)
 		s = ns
 	}
 	p1 -= p0
-	s = r.sinsert(t)
-	//FIX: use slices.Clone
-	s.text = append([]rune(nil), cp[:p1]...)
+	s = r.insert(t)
+	s.text = slices.Clone(cp[:p1])
 	s.nrunes = p1
 }
 
@@ -163,17 +158,15 @@ func (r *Rasp) clean() {
 				s.text = append(s.text, s.next.text...)
 			}
 			s.nrunes += s.next.nrunes
-			r.sdelete(s.next)
+			r.delete(s.next)
 		}
 	}
 }
 
-//FIX: rename to load
-// rload returns the present runes in [p0,p1), skipping holes.
+// load returns the present runes in [p0,p1), skipping holes.
 // The result aliases the Term's scratch buffer, valid until the next load.
-func (t *Term) rload(r *Rasp, p0, p1 int) []rune {
-	nb := 0
-	t.strgrow(p1 - p0 + 1)
+func (t *Term) load(r *Rasp, p0, p1 int) []rune {
+	t.scratch = slices.Grow(t.scratch[:0], p1-p0+1)
 	p := 0
 	s := r.sect
 	for ; s != nil && p+s.nrunes <= p0; s = s.next {
@@ -189,14 +182,13 @@ func (t *Term) rload(r *Rasp, p0, p1 int) []rune {
 			if n > p1-p0 { // all in this section
 				n = p1 - p0
 			}
-			copy(t.scratch[nb:], s.text[p0-p:p0-p+n])
-			nb += n
+			t.scratch = append(t.scratch, s.text[p0-p:p0-p+n]...)
 		}
 		p += s.nrunes
 		p0 = p
 		s = s.next
 	}
-	return t.scratch[:nb]
+	return t.scratch
 }
 
 // missing returns the number of not-yet-loaded runes in [p0, p1).
@@ -242,12 +234,4 @@ func (r *Rasp) contig(p0, p1 int, text bool) int {
 		s = s.next
 	}
 	return np
-}
-
-//FIX: delete in favor of slices.Grow
-// strgrow ensures the scratch buffer holds at least want runes.
-func (t *Term) strgrow(want int) {
-	if len(t.scratch) < want {
-		t.scratch = make([]rune, want)
-	}
 }

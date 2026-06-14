@@ -4,68 +4,56 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"strings"
 
 	"9fans.net/plan9port/draw"
+	"9fans.net/plan9port/internal/sam"
 )
 
-//FIX: add const chording = false and port C chording code so we can fix it later
-
-// keyboard constants (../../../include/keyboard.h).
-//FIX: use draw constants instead of defining these (draw.KeyFn, etc)
-const (
-	KF      = 0xF000
-	Khome   = KF | 0x0D
-	Kup     = KF | 0x0E
-	Kpgup   = KF | 0x0F
-	Kleft   = KF | 0x11
-	Kright  = KF | 0x12
-	Kdown   = 0x80
-	Kpgdown = KF | 0x13
-	Kend    = KF | 0x18
-	Kcmd    = 0xF100
-)
-
-//FIX: lost notifyf handling interrupts
+const chording = false // code here for reference but it causes deadlocks
 
 func main() {
 	// untested: the production entry point. The tests construct the terminal via
 	// NewTerm (so they can run it in-process for coverage and wire the host to a
 	// pipe), so this fd-and-os.Args wrapper is exercised only by the real binary.
-	//FIX: refactor to avoid duplication with NewTerm
-	t := &Term{
-		maxtab:    8,
-		hostlock:  1,
-		typestart: -1,
-		typeend:   -1,
-		typeesc:   -1,
-		kpeekc:    -1,
-		plumbfd:   -1,
-	}
+	t := newTerm()
 	// untested: see top of main
 	if err := t.getscreen(os.Args[1:]); err != nil {
 		// untested: see top of main
 		fmt.Fprintf(os.Stderr, "samterm: initdraw: %v\n", err)
 		os.Exit(1)
 	}
-	// sam talks to us on stdin/stdout.
-	//FIX: reopen /dev/null onto os.Stdin
-	// and /dev/tty or else /dev/null onto os.Stdout,
-	// reassigning the globals
+	// sam talks to us on stdin/stdout. Move these elsewhere so that if we
+	// accidentally use them in other code, nothing bad happens.
 	// untested: see top of main
 	t.hostr = os.Stdin
 	t.hostw = os.Stdout
-	t.menuinit()
+	if f, err := os.Open(os.DevNull); err == nil {
+		// untested: see top of main
+		os.Stdin = f
+	}
+	f, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
+	if err != nil {
+		// untested: see top of main
+		f, err = os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+	}
+	if err == nil {
+		// untested: see top of main
+		os.Stdout = f
+	}
+	// C samterm's notifyf ignores the interrupt note and takes the default
+	// action for any other. Installed here, not in NewTerm, so the tests'
+	// in-process terminals don't swallow the test binary's interrupts.
+	// untested: see top of main
+	signal.Ignore(os.Interrupt)
 	t.startup()
 	t.run()
 }
 
-// NewTerm builds a terminal on display disp, talking the sam protocol over
-// hostr/hostw (fds 3/4 in the real program, a pipe in tests).
-func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer) *Term {
+// newTerm builds a Term with the field defaults shared by main and NewTerm.
+func newTerm() *Term {
 	t := &Term{
-		disp:      disp,
-		font:      disp.Font,
 		maxtab:    8,
 		hostlock:  1,
 		typestart: -1,
@@ -73,10 +61,21 @@ func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer) *Term {
 		typeesc:   -1,
 		kpeekc:    -1,
 		plumbfd:   -1,
-		hostr:     hostr,
-		hostw:     hostw,
+		indata:    make([]byte, 0, DATASIZE),
 	}
 	t.menuinit()
+	return t
+}
+
+// NewTerm builds a terminal on display disp, talking the sam protocol over
+// hostr/hostw (fds 3/4 in the real program, a pipe in tests).
+func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer) *Term {
+	t := newTerm()
+	t.display = disp
+	t.screen = disp.ScreenImage
+	t.font = disp.Font
+	t.hostr = hostr
+	t.hostw = hostw
 	return t
 }
 
@@ -85,26 +84,36 @@ func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer) *Term {
 // startup mirrors the second half of threadmain: create the command window,
 // announce our version, and register the command file with the host.
 func (t *Term) startup() {
-	//TODO: ignore interrupts?
 	t.iconinit()
 	t.initio()
 	t.scratch = make([]rune, 100)
-	r := t.disp.ScreenImage.R
+	r := t.screen.R
 	r.Max.Y = r.Min.Y + r.Dy()/5
-	t.flstart(t.disp.ScreenImage.Clipr)
+	t.flstart(t.screen.Clipr)
 	t.cmd.rasp.init()
 	t.flnew(&t.cmd.l[0], t.gettext, 1, &t.cmd)
 	t.flinit(&t.cmd.l[0], r, t.font, t.cmdcols[:])
 	t.cmd.nwin = 1
 	t.which = &t.cmd.l[0]
 	t.cmd.tag = Untagged
-	t.outTs(Tversion, VERSION)
-	t.startnewfile(Tstartcmdfile, &t.cmd)
+	t.outTs(sam.Tversion, VERSION)
+	t.startnewfile(sam.Tstartcmdfile, &t.cmd)
 }
 
 // run is the event loop (threadmain's for(;;)). It returns when the host
-// sends Hexit (the C version calls threadexitsall).
+// sends Hexit (the C version calls threadexitsall) or, via the recover below,
+// when the host connection fails (see hostError).
 func (t *Term) run() {
+	defer func() {
+		switch e := recover().(type) {
+		case nil:
+		case hostError:
+			fmt.Fprintf(os.Stderr, "samterm: %s\n", e.msg)
+		default:
+			// untested: a non-hostError panic is a real bug; pass it on.
+			panic(e)
+		}
+	}()
 	for got := 0; ; got = t.waitforio() {
 		if t.hasunlocked != 0 && t.RESIZED() {
 			// untested: waitforio already handles a resize inline (and clears the
@@ -115,7 +124,7 @@ func (t *Term) run() {
 		if got&(1<<RHost) != 0 {
 			t.rcv()
 		}
-		//FIX: where did this t.exiting come from?
+		// Note: t.exiting is set in inmesg (called from rcv).
 		if t.exiting {
 			return
 		}
@@ -143,27 +152,48 @@ func (t *Term) run() {
 			}
 		}
 		if got&(1<<RMouse) != 0 {
-			//FIX: inline handlemouse here
 			t.handlemouse()
 		}
-		//FIX: add chording code
+		if chording && t.chord != 0 {
+			// untested: dead code -- chording is flagged off (see const chording).
+			tx := t.which.user1
+			// untested: see above
+			if tx.lock == 0 && t.hostlock == 0 {
+				// untested: see above
+				w := t.windex(tx, t.which)
+				if t.chord&2 != 0 {
+					// untested: see above
+					t.cut(tx, w, true, true)
+					t.chord &^= 2
+				} else if t.chord&4 != 0 {
+					// untested: see above
+					t.paste(tx, w)
+					t.chord &^= 4
+				}
+			}
+		}
 	}
 }
 
 func (t *Term) handlemouse() {
-	//FIX: why is t.mousep a function and not a pointer?
-	if t.hostlock == 2 || !t.mousep().Point.In(t.disp.ScreenImage.R) {
+	if t.hostlock == 2 || !t.mouse.In(t.screen.R) {
 		t.mouseunblock()
 		return
 	}
-	nwhich := t.flwhich(t.mousep().Point)
-	scr := t.which != nil && t.mousep().Point.In(t.which.scroll)
-	if t.mousep().Buttons != 0 {
-		t.flushtyping(1)
+	nwhich := t.flwhich(t.mouse.Point)
+	scr := t.which != nil && t.mouse.In(t.which.scroll)
+	if t.mouse.Buttons != 0 {
+		t.flushtyping(true)
 	}
-	//FIX: add chording
+	if chording && t.chord == 1 && t.mouse.Buttons == 0 {
+		// untested: dead code -- chording is flagged off (see const chording).
+		t.chord = 0
+	}
 	switch {
-	case t.mousep().Buttons&1 != 0:
+	case chording && t.chord != 0:
+		// untested: dead code -- chording is flagged off (see const chording).
+		t.chord |= t.mouse.Buttons
+	case t.mouse.Buttons&1 != 0:
 		if nwhich != nil {
 			if nwhich != t.which {
 				t.current(nwhich)
@@ -171,23 +201,27 @@ func (t *Term) handlemouse() {
 				t.scroll(t.which, 1)
 			} else {
 				tx := t.which.user1
-				//FIX: change flselect to return bool?
-				if t.flselect(t.which) != 0 {
-					t.outTsl(Tdclick, tx.tag, t.which.p0)
+				if t.flselect(t.which) {
+					t.outTsl(sam.Tdclick, tx.tag, t.which.p0)
 					tx.lock++
 				} else if tx != &t.cmd {
 					t.outcmd()
 				}
-				//FIX: chord
+				if t.mouse.Buttons&1 != 0 {
+					// untested: flselect's frame Select returns once button 1 is
+					// released or another button joins it, so this runs only for a
+					// chord press, which the deterministic scripts never send.
+					t.chord = t.mouse.Buttons
+				}
 			}
 		}
-	case t.mousep().Buttons&2 != 0 && t.which != nil:
+	case t.mouse.Buttons&2 != 0 && t.which != nil:
 		if scr {
 			t.scroll(t.which, 2)
 		} else {
 			t.menu2hit()
 		}
-	case t.mousep().Buttons&4 != 0:
+	case t.mouse.Buttons&4 != 0:
 		if scr {
 			t.scroll(t.which, 3)
 		} else {
@@ -198,24 +232,22 @@ func (t *Term) handlemouse() {
 }
 
 func (t *Term) resize() {
-	t.flresize(t.disp.ScreenImage.Clipr)
-	//FIX: is nname always len(t.text) ?
-	//FIX: at least use for _, tx := range t.text[:t.nname]
-	for i := 0; i < t.nname; i++ {
-		if t.text[i] != nil {
-			t.hcheck(t.text[i].tag)
+	t.flresize(t.screen.Clipr)
+	for _, tx := range t.text {
+		if tx != nil {
+			t.hcheck(tx.tag)
 		}
 	}
 }
 
 func (t *Term) current(nw *Flayer) {
 	if t.which != nil {
-		t.flborder(t.which, 0)
+		t.flborder(t.which, false)
 	}
 	if nw != nil {
-		t.flushtyping(1)
+		t.flushtyping(true)
 		t.flupfront(nw)
-		t.flborder(nw, 1)
+		t.flborder(nw, true)
 		t.buttons(Up)
 		tx := nw.user1
 		tx.front = t.windex(tx, nw)
@@ -226,7 +258,7 @@ func (t *Term) current(nw *Flayer) {
 	t.which = nw
 }
 
-func (t *Term) closeup(l *Flayer) {
+func (t *Term) close(l *Flayer) {
 	tx := l.user1
 	m := t.whichmenu(tx.tag)
 	if m < 0 {
@@ -252,8 +284,7 @@ func (t *Term) closeup(l *Flayer) {
 		// untested: closing the exact front layer of a multi-window (zerox) file
 		// so another must be promoted; which layer is front depends on focus
 		// history that the blind mouse script cannot pin down.
-		//FIX: use range
-		for i := 0; i < NL; i++ { // find one; any one will do
+		for i := range tx.l { // find one; any one will do
 			// untested: see above
 			if tx.l[i].textfn != nil {
 				// untested: see above
@@ -267,8 +298,7 @@ func (t *Term) closeup(l *Flayer) {
 }
 
 func (t *Term) findl(tx *Text) *Flayer {
-	//FIX: use range
-	for i := 0; i < NL; i++ {
+	for i := range tx.l {
 		if tx.l[i].textfn == nil {
 			return &tx.l[i]
 		}
@@ -302,26 +332,18 @@ func (t *Term) duplicate(l *Flayer, r draw.Rectangle, f *draw.Font, closeit int)
 	t.setcursor(t.cursor)
 }
 
-//FIX: rename t.mousectl to t.mouse and then don't need t.mousep (t.mouse.Buttons etc).
-
-// mousep returns the current mouse state.
-func (t *Term) mousep() *draw.Mouse {
-	return &t.mousectl.Mouse
-}
-
 func (t *Term) buttons(updown int) {
-	//FIX: compare against updown == Up instead of using boolToInt.
-	for boolToInt(t.mousep().Buttons&7 != 0) != updown {
+	for (t.mouse.Buttons&7 != 0) == (updown == Up) {
 		t.getmouse()
 	}
 }
 
-func (t *Term) getr(rp *draw.Rectangle) bool {
-	*rp = draw.SweepRect(3, t.mousectl)
+func (t *Term) getr() (rp draw.Rectangle, ok bool) {
+	rp = draw.SweepRect(3, t.mouse)
 	if rp.Max.X != 0 && rp.Dx() <= 5 && rp.Dy() <= 5 {
 		p := rp.Min
 		r := t.cmd.l[t.cmd.front].entire
-		*rp = t.disp.ScreenImage.R
+		rp = t.screen.R
 		if t.cmd.nwin == 1 {
 			if p.Y <= r.Min.Y {
 				rp.Max.Y = r.Min.Y
@@ -339,19 +361,18 @@ func (t *Term) getr(rp *draw.Rectangle) bool {
 			}
 		}
 	}
-	return draw.RectClip(rp, t.disp.ScreenImage.R) && rp.Dx() > 100 && rp.Dy() > 40
+	return rp, draw.RectClip(&rp, t.screen.R) && rp.Dx() > 100 && rp.Dy() > 40
 }
 
 func (t *Term) snarf(tx *Text, w int) {
 	l := &tx.l[w]
 	if l.p1 > l.p0 {
 		t.snarflen = l.p1 - l.p0
-		t.outTsll(Tsnarf, tx.tag, l.p0, l.p1)
+		t.outTsll(sam.Tsnarf, tx.tag, l.p0, l.p1)
 	}
 }
 
-//FIX: make save and check bools
-func (t *Term) cut(tx *Text, w, save, check int) {
+func (t *Term) cut(tx *Text, w int, save, check bool) {
 	l := &tx.l[w]
 	p0 := l.p0
 	p1 := l.p1
@@ -362,23 +383,23 @@ func (t *Term) cut(tx *Text, w, save, check int) {
 		// unreachable
 		panic("cut")
 	}
-	if save != 0 {
+	if save {
 		t.snarf(tx, w)
 	}
-	t.outTsll(Tcut, tx.tag, p0, p1)
+	t.outTsll(sam.Tcut, tx.tag, p0, p1)
 	t.flsetselect(l, p0, p0)
 	tx.lock++
 	t.hcut(tx.tag, p0, p1-p0)
-	if check != 0 {
+	if check {
 		t.hcheck(tx.tag)
 	}
 }
 
 func (t *Term) paste(tx *Text, w int) {
 	if t.snarflen != 0 {
-		t.cut(tx, w, 0, 0)
+		t.cut(tx, w, false, false)
 		tx.lock++
-		t.outTsl(Tpaste, tx.tag, tx.l[w].p0)
+		t.outTsl(sam.Tpaste, tx.tag, tx.l[w].p0)
 	}
 }
 
@@ -386,9 +407,9 @@ func (t *Term) scrorigin(l *Flayer, but, p0 int) {
 	tx := l.user1
 	switch but {
 	case 1:
-		t.outTsll(Torigin, tx.tag, l.origin, p0)
+		t.outTsll(sam.Torigin, tx.tag, l.origin, p0)
 	case 2:
-		t.outTsll(Torigin, tx.tag, p0, 1)
+		t.outTsll(sam.Torigin, tx.tag, p0, 1)
 	case 3:
 		t.horigin(tx.tag, p0)
 	}
@@ -416,11 +437,11 @@ func alnum(c int) bool {
 }
 
 func (t *Term) raspc(r *Rasp, p int) int {
-	s := t.rload(r, p, p+1)
+	s := t.load(r, p, p+1)
 	if len(s) > 0 {
 		return int(s[0])
 	}
-	// untested: rload returns empty only for a position past the rasp's filled
+	// untested: load returns empty only for a position past the rasp's filled
 	// region; ctlw/ctlu only read positions they just stepped over, so this
 	// past-end read does not occur through them.
 	return 0
@@ -470,11 +491,10 @@ func (t *Term) ctlu(r *Rasp, o, p int) int {
 	for p-1 >= o && t.raspc(r, p-1) != '\n' {
 		p--
 	}
-	//FIX: can p < 0 happen?
 	if p >= o {
 		return p
 	}
-	// untested: see ctlw doc
+	// unreachable: p < o cannot reach here in logic above.
 	return o
 }
 
@@ -484,7 +504,7 @@ func (t *Term) center(l *Flayer, a int) int {
 		if a > tx.rasp.nrunes {
 			a = tx.rasp.nrunes
 		}
-		t.outTsll(Torigin, tx.tag, a, 2)
+		t.outTsll(sam.Torigin, tx.tag, a, 2)
 		return 1
 	}
 	return 0
@@ -509,7 +529,7 @@ func (t *Term) thirds(l *Flayer, a, n int) int {
 			lines = 2
 		}
 		// untested: see above
-		t.outTsll(Torigin, tx.tag, a, lines)
+		t.outTsll(sam.Torigin, tx.tag, a, lines)
 		return 1
 	}
 	return 0
@@ -526,51 +546,60 @@ func (t *Term) twothirds(l *Flayer, a int) int {
 	return t.thirds(l, a, 2)
 }
 
-//FIX: make clearesc bool
-func (t *Term) flushtyping(clearesc int) {
-	if clearesc != 0 {
+func (t *Term) flushtyping(clearesc bool) {
+	if clearesc {
 		t.typeesc = -1
 	}
 	if t.typestart == t.typeend {
-		t.modified = 0
+		t.modified = false
 		return
 	}
 	tx := t.which.user1
 	if tx != &t.cmd {
-		t.modified = 1
+		t.modified = true
 	}
-	s := t.rload(&tx.rasp, t.typestart, t.typeend)
+	s := t.load(&tx.rasp, t.typestart, t.typeend)
 	if tx == &t.cmd && t.typeend == tx.rasp.nrunes && len(s) > 0 && s[len(s)-1] == '\n' {
 		t.setlock()
 		t.outcmd()
 	}
-	t.outTslS(Ttype, tx.tag, t.typestart, s)
+	t.outTslS(sam.Ttype, tx.tag, t.typestart, s)
 	t.typestart = -1
 	t.typeend = -1
 }
 
 const (
-	BACKSCROLLKEY = Kup
-	ENDKEY        = Kend
+	BACKSCROLLKEY = draw.KeyUp
+	ENDKEY        = draw.KeyEnd
 	ESC           = 0x1B
-	HOMEKEY       = Khome
-	LEFTARROW     = Kleft
+	HOMEKEY       = draw.KeyHome
+	LEFTARROW     = draw.KeyLeft
 	LINEEND       = 0x05
 	LINESTART     = 0x01
-	PAGEDOWN      = Kpgdown
-	PAGEUP        = Kpgup
-	RIGHTARROW    = Kright
-	SCROLLKEY     = Kdown
-	CUT           = Kcmd + 'x'
-	COPY          = Kcmd + 'c'
-	PASTE         = Kcmd + 'v'
+	PAGEDOWN      = draw.KeyPageDown
+	PAGEUP        = draw.KeyPageUp
+	RIGHTARROW    = draw.KeyRight
+	SCROLLKEY     = draw.KeyDown
+	CUT           = draw.KeyCmd + 'x'
+	COPY          = draw.KeyCmd + 'c'
+	PASTE         = draw.KeyCmd + 'v'
 )
 
 func nontypingkey(c int) bool {
 	switch c {
-	//FIX: one per line
-	case BACKSCROLLKEY, ENDKEY, HOMEKEY, LEFTARROW, LINEEND, LINESTART,
-		PAGEDOWN, PAGEUP, RIGHTARROW, SCROLLKEY, CUT, COPY, PASTE:
+	case BACKSCROLLKEY,
+		ENDKEY,
+		HOMEKEY,
+		LEFTARROW,
+		LINEEND,
+		LINESTART,
+		PAGEDOWN,
+		PAGEUP,
+		RIGHTARROW,
+		SCROLLKEY,
+		CUT,
+		COPY,
+		PASTE:
 		return true
 	}
 	return false
@@ -578,9 +607,7 @@ func nontypingkey(c int) bool {
 
 func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 	tx := l.user1
-	//FIX: use buf := make([]rune, 0, 100) and then np is len(buf) and len(buf) below is cap(buf)
-	var buf [100]rune
-	np := 0
+	buf := make([]rune, 0, 100)
 	scrollkey := false
 	if res == RKeyboard {
 		scrollkey = nontypingkey(t.qpeekc()) // ICK
@@ -592,8 +619,8 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 	}
 	a := l.p0
 	if a != l.p1 && !scrollkey {
-		t.flushtyping(1)
-		t.cut(tx, tx.front, 1, 1)
+		t.flushtyping(true)
+		t.cut(tx, tx.front, true, true)
 		return // it may now be locked
 	}
 	backspacing := false
@@ -609,88 +636,73 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 				break
 			}
 		}
-		buf[np] = rune(c)
-		np++
-		//FIX: make t.autoindent bool
-		if t.autoindent != 0 && c == '\n' {
+		buf = append(buf, rune(c))
+		if t.autoindent && c == '\n' {
 			// untested: autoindent is enabled only by the -a launch flag, which
 			// the test harness does not pass to samterm.
-			cursor := t.ctlu(&tx.rasp, 0, a+np-1)
-			for np < len(buf) {
+			cursor := t.ctlu(&tx.rasp, 0, a+len(buf)-1)
+			for len(buf) < cap(buf) {
 				// untested: see above
 				ch := t.raspc(&tx.rasp, cursor)
 				cursor++
 				if ch == ' ' || ch == '\t' {
 					// untested: see above
-					buf[np] = rune(ch)
-					np++
+					buf = append(buf, rune(ch))
 				} else {
 					// untested: see above
 					break
 				}
 			}
 		}
-		if c == '\n' || np >= len(buf) {
+		if c == '\n' || len(buf) >= cap(buf) {
 			break
 		}
 	}
-	if np > 0 {
+	if len(buf) > 0 {
 		if t.typestart < 0 {
 			t.typestart = a
 		}
 		if t.typeesc < 0 {
 			t.typeesc = a
 		}
-		t.hgrow(tx.tag, a, np, 0)
+		t.hgrow(tx.tag, a, len(buf), 0)
 		tx.lock++ // pretend we Trequest'ed for hdatarune
-		t.hdatarune(tx.tag, a, buf[:np], np)
-		a += np
+		t.hdatarune(tx.tag, a, buf)
+		a += len(buf)
 		l.p0 = a
 		l.p1 = a
 		t.typeend = a
 		if c == '\n' || t.typeend-t.typestart > 100 {
-			t.flushtyping(0)
+			t.flushtyping(false)
 		}
 		t.onethird(l, a)
 	}
 	switch {
 	case c == SCROLLKEY || c == PAGEDOWN:
-		t.flushtyping(0)
+		t.flushtyping(false)
 		t.center(l, l.origin+l.f.NumChars+1)
 	case c == BACKSCROLLKEY || c == PAGEUP:
-		t.flushtyping(0)
-		//FIX: use max
-		a0 := l.origin - l.f.NumChars
-		if a0 < 0 {
-			a0 = 0
-		}
+		t.flushtyping(false)
+		a0 := max(l.origin-l.f.NumChars, 0)
 		t.center(l, a0)
 	case c == RIGHTARROW:
-		t.flushtyping(0)
-		//FIX: use min
-		a0 := l.p0
-		if a0 < tx.rasp.nrunes {
-			a0++
-		}
+		t.flushtyping(false)
+		a0 := min(l.p0+1, tx.rasp.nrunes)
 		t.flsetselect(l, a0, a0)
 		t.center(l, a0)
 	case c == LEFTARROW:
-		t.flushtyping(0)
-		//FIX: use max
-		a0 := l.p0
-		if a0 > 0 {
-			a0--
-		}
+		t.flushtyping(false)
+		a0 := max(l.p0-1, 0)
 		t.flsetselect(l, a0, a0)
 		t.center(l, a0)
 	case c == HOMEKEY:
-		t.flushtyping(0)
+		t.flushtyping(false)
 		t.center(l, 0)
 	case c == ENDKEY:
-		t.flushtyping(0)
+		t.flushtyping(false)
 		t.center(l, tx.rasp.nrunes)
 	case c == LINESTART || c == LINEEND:
-		t.flushtyping(1)
+		t.flushtyping(true)
 		if c == LINESTART {
 			for a > 0 && t.raspc(&tx.rasp, a-1) != '\n' {
 				a--
@@ -727,8 +739,8 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 					// hcheck is local because we know rasp is contiguous
 					t.hcheck(tx.tag)
 				} else {
-					t.flushtyping(0)
-					t.cut(tx, tx.front, 0, 1)
+					t.flushtyping(false)
+					t.cut(tx, tx.front, false, true)
 				}
 			}
 			if t.typeesc >= l.p0 {
@@ -742,8 +754,7 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 				if t.typestart == t.typeend {
 					t.typestart = -1
 					t.typeend = -1
-					//FIX: can t.modified be bool?
-					t.modified = 0
+					t.modified = false
 				}
 			}
 		}
@@ -751,23 +762,22 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 		if c == ESC && t.typeesc >= 0 {
 			l.p0 = t.typeesc
 			l.p1 = a
-			t.flushtyping(1)
+			t.flushtyping(true)
 		}
-		//FIX: use range
-		for i := 0; i < NL; i++ {
+		for i := range tx.l {
 			if tx.l[i].textfn != nil {
 				t.flsetselect(&tx.l[i], tx.l[i].p0, tx.l[i].p1)
 			}
 		}
 		switch c {
 		case CUT:
-			t.flushtyping(0)
-			t.cut(tx, tx.front, 1, 1)
+			t.flushtyping(false)
+			t.cut(tx, tx.front, true, true)
 		case COPY:
-			t.flushtyping(0)
+			t.flushtyping(false)
 			t.snarf(tx, tx.front)
 		case PASTE:
-			t.flushtyping(0)
+			t.flushtyping(false)
 			t.paste(tx, tx.front)
 		}
 	}
@@ -775,21 +785,22 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 
 func (t *Term) outcmd() {
 	if t.work != nil {
-		t.outTsll(Tworkfile, t.work.user1.tag, t.work.p0, t.work.p1)
+		t.outTsll(sam.Tworkfile, t.work.user1.tag, t.work.p0, t.work.p1)
 	}
 }
 
-//FIX: C defines panic here. okay to keep using go panic, but recover and turn into error print and exit for panics that are expected as normal, like the write error in outsend
+// A hostError is panicked when the connection to the host (sam) fails: an
+// unexpected EOF or read error from hostproc (raised in waitforio) or a write
+// error in outsend. run's recover turns it into an error print and a clean
+// return -- where C samterm exits the whole process (hostproc's threadexitsall,
+// outsend's panic/abort), the in-process Go terminal must shut down only its
+// own event loop, not the test binary hosting it.
+type hostError struct{ msg string }
 
 func (t *Term) gettext(l *Flayer, n int) []rune {
-	return t.rload(&l.user1.rasp, l.origin, l.origin+n)
+	return t.load(&l.user1.rasp, l.origin, l.origin+n)
 }
 
 func (t *Term) scrtotal(l *Flayer) int {
 	return l.user1.rasp.nrunes
-}
-
-func (t *Term) exit() {
-	//FIX: doesn't the caller already set exit? what does this do?
-	t.exiting = true
 }

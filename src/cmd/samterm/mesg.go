@@ -14,72 +14,13 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"os"
 	"unicode/utf8"
 
+	"9fans.net/plan9port/internal/sam"
 	"9fans.net/plan9port/plumb"
-)
-
-//FIX: import internal/sam instead
-
-// Tmesg: messages originating at the terminal.
-const (
-	Tversion = iota
-	Tstartcmdfile
-	Tcheck
-	Trequest
-	Torigin
-	Tstartfile
-	Tworkfile
-	Ttype
-	Tcut
-	Tpaste
-	Tsnarf
-	Tstartnewfile
-	Twrite
-	Tclose
-	Tlook
-	Tsearch
-	Tsend
-	Tdclick
-	Tstartsnarf
-	Tsetsnarf
-	Tack
-	Texit
-	Tplumb
-	TMAX
-)
-
-// Hmesg: messages originating at the host.
-const (
-	Hversion = iota
-	Hbindname
-	Hcurrent
-	Hnewname
-	Hmovname
-	Hgrow
-	Hcheck0
-	Hcheck
-	Hunlock
-	Hdata
-	Horigin
-	Hunlockfile
-	Hsetdot
-	Hgrowdata
-	Hmoveto
-	Hclean
-	Hdirty
-	Hcut
-	Hsetpat
-	Hdelname
-	Hclose
-	Hsetsnarf
-	Hsnarflen
-	Hack
-	Hexit
-	Hplumb
-	HMAX
 )
 
 const HSIZE = 3 // type + short count
@@ -101,7 +42,7 @@ func (t *Term) rcv() {
 	for c := t.rcvchar(); c >= 0; c = t.rcvchar() {
 		switch t.rcvstate {
 		case 0:
-			t.h.htype = c
+			t.h.htype = sam.Hmesg(c)
 			t.rcvstate++
 
 		case 1:
@@ -115,13 +56,14 @@ func (t *Term) rcv() {
 			if t.rcvcount > DATASIZE {
 				t.rcverrs++
 				if t.rcverrs < 5 {
-					t.dumperrmsg(t.rcvcount, t.h.htype, t.h.count0, c)
+					t.dumperrmsg(t.rcvcount, int(t.h.htype), t.h.count0, c)
 					t.rcvstate = 0
 					continue
 				}
 				// unreachable
 				panic("count>DATASIZE")
 			}
+			t.indata = t.indata[:t.rcvcount]
 			if t.rcvcount == 0 {
 				goto Complete
 			}
@@ -136,14 +78,13 @@ func (t *Term) rcv() {
 		continue
 
 	Complete:
-		t.indata[t.rcvcount] = 0
-		t.inmesg(t.h.htype, t.rcvcount)
+		t.inmesg(t.h.htype)
 		t.rcvstate = 0
 		t.rcvcount = 0
 	}
 }
 
-func (t *Term) inmesg(typ, count int) {
+func (t *Term) inmesg(typ sam.Hmesg) {
 	m := t.inshort(0)
 	l := t.inlong(2)
 	switch typ {
@@ -151,18 +92,17 @@ func (t *Term) inmesg(typ, count int) {
 		// unreachable
 		panic("rcv unknown")
 
-	case Hversion:
+	case sam.Hversion:
 		t.hversion = m
 
-	case Hbindname:
+	case sam.Hbindname:
 		l := t.invlong(2) // for 64-bit pointers / our token
 		i := t.whichmenu(m)
 		if i < 0 {
 			break
 		}
-		// in case of a race, a bindname may already have occurred
-		//FIX: delete whichtextOrNil and use whichmenu to identify whether m is okay
-		tx := t.whichtextOrNil(m)
+		// in case of a race, a bindname may already have occurred.
+		tx := t.text[i]
 		if tx == nil {
 			tx = t.texttoken[l]
 		} else {
@@ -173,13 +113,13 @@ func (t *Term) inmesg(typ, count int) {
 			// untested: see above
 			for nw != nil && nw.nwin > 0 {
 				// untested: see above
-				t.closeup(&nw.l[nw.front])
+				t.close(&nw.l[nw.front])
 			}
 		}
 		t.text[i] = tx
 		t.text[i].tag = m
 
-	case Hcurrent:
+	case sam.Hcurrent:
 		if t.whichmenu(m) < 0 {
 			break
 		}
@@ -189,7 +129,7 @@ func (t *Term) inmesg(typ, count int) {
 			// untested: sam only sends a file Hcurrent right after the terminal
 			// opens it (Tstartfile/Tstartnewfile), so the menu entry always has a
 			// text by now; an Hcurrent for a windowless file does not occur.
-			tx = t.sweeptext(0, m)
+			tx = t.sweeptext(false, m)
 			if tx == nil {
 				// untested: see above
 				break
@@ -205,60 +145,53 @@ func (t *Term) inmesg(typ, count int) {
 			// Hcurrent arrives, but sam sends a file Hcurrent only at open time,
 			// when sweeptext has just reset `which` to nil -- so i is never true.
 			t.flupfront(lp)
-			t.flborder(lp, 0)
+			t.flborder(lp, false)
 			t.work = lp
 		} else {
 			t.current(lp)
 		}
 
-	case Hmovname:
-		//FIX: rename mm to m, ll to tag, ii to mod, pos to m
-		mm := t.whichmenu(m)
-		if mm < 0 {
+	case sam.Hmovname:
+		m := t.whichmenu(m)
+		if m < 0 {
 			break
 		}
-		tx := t.text[mm]
-		ll := t.tag[mm]
-		ii := t.name[mm][0]
-		t.text[mm] = nil // suppress panic in menudel
-		t.menudel(mm)
-		var pos int
+		tx := t.text[m]
+		tag := t.tag[m]
+		mod := t.name[m][0]
+		t.text[m] = nil // suppress panic in menudel
+		t.menudel(m)
 		if tx == &t.cmd {
-			pos = 0
+			m = 0
 		} else {
-			//FIX: use cond
-			pos = 0
-			if t.nname > 0 && t.text[0] == &t.cmd {
-				pos = 1
-			}
-			for ; pos < t.nname; pos++ {
-				//FIX: use cstr and bytes.Compare
-				if strcmpz(t.indata[2:], t.name[pos][1:]) < 0 {
+			m = cond(len(t.text) > 0 && t.text[0] == &t.cmd, 1, 0)
+			for ; m < len(t.text); m++ {
+				if bytes.Compare(t.indata[2:], t.name[m][1:]) < 0 {
 					break
 				}
 			}
 		}
-		t.menuins(pos, cstr(t.indata[2:]), tx, int(ii), ll)
+		t.menuins(m, t.indata[2:], tx, mod, tag)
 
-	case Hgrow:
+	case sam.Hgrow:
 		if t.whichmenu(m) >= 0 {
 			t.hgrow(m, l, t.inlong(6), 1)
 		}
 
-	case Hnewname:
+	case sam.Hnewname:
 		t.menuins(0, []byte(""), nil, ' ', m)
 
-	case Hcheck0:
+	case sam.Hcheck0:
 		i := t.whichmenu(m)
 		if i >= 0 {
 			tx := t.text[i]
 			if tx != nil {
 				tx.lock++
 			}
-			t.outTs(Tcheck, m)
+			t.outTs(sam.Tcheck, m)
 		}
 
-	case Hcheck:
+	case sam.Hcheck:
 		i := t.whichmenu(m)
 		if i >= 0 {
 			tx := t.text[i]
@@ -268,21 +201,21 @@ func (t *Term) inmesg(typ, count int) {
 			t.hcheck(m)
 		}
 
-	case Hunlock:
+	case sam.Hunlock:
 		t.clrlock()
 
-	case Hdata:
+	case sam.Hdata:
 		if t.whichmenu(m) >= 0 {
-			l += t.hdata(m, l, t.indata[6:count], count-6)
+			l += t.hdata(m, l, t.indata[6:])
 		}
 		t.checkscroll(m, l)
 
-	case Horigin:
+	case sam.Horigin:
 		if t.whichmenu(m) >= 0 {
 			t.horigin(m, l)
 		}
 
-	case Hunlockfile:
+	case sam.Hunlockfile:
 		if t.whichmenu(m) >= 0 {
 			if tx := t.whichtext(m); tx.lock != 0 {
 				tx.lock--
@@ -290,46 +223,46 @@ func (t *Term) inmesg(typ, count int) {
 			}
 		}
 
-	case Hsetdot:
+	case sam.Hsetdot:
 		if t.whichmenu(m) >= 0 {
 			t.hsetdot(m, l, t.inlong(6))
 		}
 
-	case Hgrowdata:
+	case sam.Hgrowdata:
 		if t.whichmenu(m) < 0 {
 			break
 		}
 		t.hgrow(m, l, t.inlong(6), 0)
 		t.whichtext(m).lock++ // fake the request
-		l += t.hdata(m, l, t.indata[10:count], count-10)
+		l += t.hdata(m, l, t.indata[10:])
 		t.checkscroll(m, l)
 
-	case Hmoveto:
+	case sam.Hmoveto:
 		if t.whichmenu(m) >= 0 {
 			t.hmoveto(m, l)
 		}
 
-	case Hclean:
+	case sam.Hclean:
 		if mm := t.whichmenu(m); mm >= 0 {
 			t.name[mm][0] = ' '
 		}
 
-	case Hdirty:
+	case sam.Hdirty:
 		if mm := t.whichmenu(m); mm >= 0 {
 			t.name[mm][0] = '\''
 		}
 
-	case Hdelname:
+	case sam.Hdelname:
 		if mm := t.whichmenu(m); mm >= 0 {
 			t.menudel(mm)
 		}
 
-	case Hcut:
+	case sam.Hcut:
 		if t.whichmenu(m) >= 0 {
 			t.hcut(m, l, t.inlong(6))
 		}
 
-	case Hclose:
+	case sam.Hclose:
 		if t.whichmenu(m) < 0 {
 			break
 		}
@@ -337,67 +270,46 @@ func (t *Term) inmesg(typ, count int) {
 		nw := tx.nwin
 		for i := 0; nw > 0 && i < NL; i++ {
 			if tx.l[i].textfn != nil {
-				//FIX: rename closeup to close
-				t.closeup(&tx.l[i])
+				t.close(&tx.l[i])
 				nw--
 			}
 		}
 
-	case Hsetpat:
-		t.setpat(string(cstr(t.indata[:])))
+	case sam.Hsetpat:
+		t.setpat(string(t.indata))
 
-	case Hsetsnarf:
+	case sam.Hsetsnarf:
 		t.hsetsnarf(m)
 
-	case Hsnarflen:
+	case sam.Hsnarflen:
 		t.snarflen = t.inlong(0)
 
-	case Hack:
-		t.outT0(Tack)
+	case sam.Hack:
+		t.outT0(sam.Tack)
 
-	case Hexit:
+	case sam.Hexit:
 		t.exiting = true
-		t.outT0(Texit)
-		t.exit()
+		t.outT0(sam.Texit)
 
-	case Hplumb:
+	case sam.Hplumb:
 		t.hplumb(m)
 	}
 }
 
 func (t *Term) checkscroll(m, l int) {
 	if m == t.cmd.tag {
-		//FIX: use range
-		for i := 0; i < NL; i++ {
+		for i := range t.cmd.l {
 			lp := &t.cmd.l[i]
 			if lp.textfn != nil {
-				//FIX: use cond(l >= 0, ...)
-				a := l
-				if l < 0 {
-					a = lp.p1
-				}
-				t.center(lp, a)
+				t.center(lp, cond(l >= 0, l, lp.p1))
 			}
 		}
 	}
 }
 
-// FIX: delete
-// whichtextOrNil is whichtext without the panic (for the Hbindname race).
-func (t *Term) whichtextOrNil(tg int) *Text {
-	for i := 0; i < t.nname; i++ {
-		if t.tag[i] == tg {
-			return t.text[i]
-		}
-	}
-	// untested: the only caller (Hbindname) first checks whichmenu(tg) >= 0, so
-	// tg is always present and the loop above always returns.
-	return nil
-}
-
 func (t *Term) setlock() {
 	t.hostlock++
-	t.cursor = &t.lockarrow
+	t.cursor = &lockarrow
 	t.setcursor(t.cursor)
 }
 
@@ -413,49 +325,45 @@ func (t *Term) clrlock() {
 }
 
 func (t *Term) startfile(tx *Text) {
-	t.outTsv(Tstartfile, tx.tag, t.token(tx))
+	t.outTsv(sam.Tstartfile, tx.tag, t.token(tx))
 	t.setlock()
 }
 
-func (t *Term) startnewfile(typ int, tx *Text) {
+func (t *Term) startnewfile(typ sam.Tmesg, tx *Text) {
 	tx.tag = Untagged
 	t.outTv(typ, t.token(tx))
 }
 
+// The explicit high bounds reach past len(indata) into its capacity: like C,
+// inmesg reads the m and l header fields before switching on the type, even
+// for messages too short to carry them (the values, stale bytes, go unused).
 func (t *Term) inshort(n int) int {
-	//FIX: use binary.LittleEndian
-	return int(t.indata[n]) | int(t.indata[n+1])<<8
+	return int(binary.LittleEndian.Uint16(t.indata[n : n+2]))
 }
 
 func (t *Term) inlong(n int) int {
-	//FIX: use binary.LittleEndian
-	return int(t.indata[n]) | int(t.indata[n+1])<<8 |
-		int(t.indata[n+2])<<16 | int(t.indata[n+3])<<24
+	return int(binary.LittleEndian.Uint32(t.indata[n : n+4]))
 }
 
 func (t *Term) invlong(n int) int64 {
-	//FIX: use binary.LittleEndian
-	v := int64(t.indata[n+7])<<24 | int64(t.indata[n+6])<<16 | int64(t.indata[n+5])<<8 | int64(t.indata[n+4])
-	v = v<<16 | int64(t.indata[n+3])<<8 | int64(t.indata[n+2])
-	v = v<<16 | int64(t.indata[n+1])<<8 | int64(t.indata[n])
-	return v
+	return int64(binary.LittleEndian.Uint64(t.indata[n : n+8]))
 }
 
-func (t *Term) outT0(typ int) {
+func (t *Term) outT0(typ sam.Tmesg) {
 	t.outstart(typ)
 	t.outsend()
 }
 
 // outTl is unused -- no T message carries a lone long -- but is kept for parity
 // with C samterm's mesg.c, which also defines it and never calls it.
-func (t *Term) outTl(typ int, l int) {
+func (t *Term) outTl(typ sam.Tmesg, l int) {
 	// untested: see outTl doc (dead in C too)
 	t.outstart(typ)
 	t.outlong(l)
 	t.outsend()
 }
 
-func (t *Term) outTs(typ, s int) {
+func (t *Term) outTs(typ sam.Tmesg, s int) {
 	t.outstart(typ)
 	t.outshort(s)
 	t.outsend()
@@ -463,7 +371,7 @@ func (t *Term) outTs(typ, s int) {
 
 // outTss is unused -- no T message carries two shorts -- but is kept for parity
 // with C samterm's mesg.c, which also defines it and never calls it.
-func (t *Term) outTss(typ, s1, s2 int) {
+func (t *Term) outTss(typ sam.Tmesg, s1, s2 int) {
 	// untested: see outTss doc (dead in C too)
 	t.outstart(typ)
 	t.outshort(s1)
@@ -471,7 +379,7 @@ func (t *Term) outTss(typ, s1, s2 int) {
 	t.outsend()
 }
 
-func (t *Term) outTsll(typ, s1, l1, l2 int) {
+func (t *Term) outTsll(typ sam.Tmesg, s1, l1, l2 int) {
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outlong(l1)
@@ -479,27 +387,27 @@ func (t *Term) outTsll(typ, s1, l1, l2 int) {
 	t.outsend()
 }
 
-func (t *Term) outTsl(typ, s1, l1 int) {
+func (t *Term) outTsl(typ sam.Tmesg, s1, l1 int) {
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outlong(l1)
 	t.outsend()
 }
 
-func (t *Term) outTsv(typ, s1 int, v1 int64) {
+func (t *Term) outTsv(typ sam.Tmesg, s1 int, v1 int64) {
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outvlong(v1)
 	t.outsend()
 }
 
-func (t *Term) outTv(typ int, v1 int64) {
+func (t *Term) outTv(typ sam.Tmesg, v1 int64) {
 	t.outstart(typ)
 	t.outvlong(v1)
 	t.outsend()
 }
 
-func (t *Term) outTslS(typ, s1, l1 int, s []rune) {
+func (t *Term) outTslS(typ sam.Tmesg, s1, l1 int, s []rune) {
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outlong(l1)
@@ -512,7 +420,7 @@ func (t *Term) outTslS(typ, s1, l1 int, s []rune) {
 	t.outsend()
 }
 
-func (t *Term) outTsls(typ, s1, l1, s2 int) {
+func (t *Term) outTsls(typ sam.Tmesg, s1, l1, s2 int) {
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outlong(l1)
@@ -520,64 +428,45 @@ func (t *Term) outTsls(typ, s1, l1, s2 int) {
 	t.outsend()
 }
 
-// FIX: give the message types type Tmesg and use here as type of typ
-func (t *Term) outstart(typ int) {
-	t.outdata[0] = byte(typ)
-	t.outcount = 0
+func (t *Term) outstart(typ sam.Tmesg) {
+	t.outdata = append(t.outdata[:0], byte(typ), 0, 0)
 }
 
 func (t *Term) outcopy(data []byte) {
-	//FIX: make outdata []byte and make outcount len(outdata)
-	for _, b := range data {
-		t.outdata[HSIZE+t.outcount] = b
-		t.outcount++
-	}
+	t.outdata = append(t.outdata, data...)
 }
 
 func (t *Term) outshort(s int) {
-	//FIX: use binary.LittleEndian.Append
-	t.outcopy([]byte{byte(s), byte(s >> 8)})
+	t.outcopy(binary.LittleEndian.AppendUint16(nil, uint16(s)))
 }
 
 func (t *Term) outlong(l int) {
-	//FIX: use binary.LittleEndian.Append
-	t.outcopy([]byte{byte(l), byte(l >> 8), byte(l >> 16), byte(l >> 24)})
+	t.outcopy(binary.LittleEndian.AppendUint32(nil, uint32(l)))
 }
 
 func (t *Term) outvlong(v int64) {
-	//FIX: use binary.LittleEndian.Append
-	var buf [8]byte
-	for i := 0; i < 8; i++ {
-		buf[i] = byte(v)
-		v >>= 8
-	}
-	t.outcopy(buf[:])
+	t.outcopy(binary.LittleEndian.AppendUint64(nil, uint64(v)))
 }
 
 func (t *Term) outsend() {
-	if t.outcount > DATASIZE-HSIZE {
+	outcount := len(t.outdata) - HSIZE
+	if outcount > DATASIZE-HSIZE {
 		// unreachable
 		panic("outcount>sizeof outdata")
 	}
-	t.outdata[1] = byte(t.outcount)
-	t.outdata[2] = byte(t.outcount >> 8)
-	n := t.outcount + HSIZE
-	if _, err := t.hostw.Write(t.outdata[:n]); err != nil {
-		// The host (sam) is gone: its read end closed under us. C samterm
-		// panics here (abort), but in-process that would crash the test binary,
-		// so treat it as a disconnect and exit the event loop instead -- the
-		// same outcome the C process reaches, just without taking the harness
-		// down with it.
+	t.outdata[1] = byte(outcount)
+	t.outdata[2] = byte(outcount >> 8)
+	if _, err := t.hostw.Write(t.outdata); err != nil {
 		// untested: requires sam's read end to close while samterm is mid-write;
 		// the harness shuts sam down only after settlement.
-		t.exiting = true
+		panic(hostError{fmt.Sprintf("write error: %v", err)})
 	}
 }
 
 func (t *Term) hsetdot(m, p0, p1 int) {
 	tx := t.whichtext(m)
 	l := &tx.l[tx.front]
-	t.flushtyping(1)
+	t.flushtyping(true)
 	t.flsetselect(l, p0, p1)
 }
 
@@ -595,7 +484,7 @@ func (t *Term) horigin(m, p0 int) {
 	if a >= 0 && a < l.f.NumChars {
 		l.f.Delete(0, a)
 	} else if a < 0 && -a < l.f.NumChars {
-		r := t.rload(&tx.rasp, p0, l.origin)
+		r := t.load(&tx.rasp, p0, l.origin)
 		l.f.Insert(r, 0)
 	} else {
 		l.f.Delete(0, l.f.NumChars)
@@ -614,7 +503,7 @@ func (t *Term) hmoveto(m, p0 int) {
 	tx := t.whichtext(m)
 	l := &tx.l[tx.front]
 	if p0 < l.origin || p0-l.origin > l.f.NumChars*9/10 {
-		t.outTsll(Torigin, m, p0, 2)
+		t.outTsll(sam.Torigin, m, p0, 2)
 	}
 }
 
@@ -631,8 +520,7 @@ func (t *Term) hcheck(m int) {
 		return
 	}
 	reqd := false
-	//FIX: use range
-	for i := 0; i < NL; i++ {
+	for i := range tx.l {
 		l := &tx.l[i]
 		if l.textfn == nil || !t.flprepare(l) {
 			continue
@@ -661,10 +549,9 @@ func (t *Term) hcheck(m int) {
 			}
 			n = tx.rasp.contig(a, a+n, true)
 			if n > 0 {
-				t.rload(&tx.rasp, a, a+n)
+				t.load(&tx.rasp, a, a+n)
 				nl := l.f.NumChars
 				r := t.scratch[:n]
-				//FIX: lost r+n arg to flinsert
 				t.flinsert(l, r, l.origin+nl)
 				if nl == l.f.NumChars { // made no progress
 					goto Checksel
@@ -678,8 +565,8 @@ func (t *Term) hcheck(m int) {
 				// unreachable
 				panic("hcheck request==0")
 			}
-			t.outTsls(Trequest, m, a, n)
-			t.outTs(Tcheck, m)
+			t.outTsls(sam.Trequest, m, a, n)
+			t.outTs(sam.Tcheck, m)
 			tx.lock++ // for the Trequest
 			tx.lock++ // for the Tcheck
 			reqd = true
@@ -694,40 +581,25 @@ func (t *Term) flnewlyvisible(l *Flayer) {
 }
 
 func (t *Term) hsetsnarf(nc int) {
-	t.setcursor(&t.deadmouse)
+	t.setcursor(&deadmouse)
 	s2 := make([]byte, nc)
 	for i := 0; i < nc; i++ {
 		s2[i] = byte(t.getch())
 	}
-	// FIX: make snarfswap return a slice of length n instead of returning n
-	s1, n := t.snarfswap(s2, nc)
-	if n >= 0 {
-		if s1 == nil {
-			n = 0
+	s1 := t.snarfswap(s2)
+	if len(s1) > SNARFSIZE {
+		// untested: Go's snarfswap returns at most SNARFSIZE bytes (it reads into a
+		// SNARFSIZE buffer), so this never fires -- the guard mirrors C, whose plan9
+		// read could in principle return more.
+		s1 = []byte("<snarf too long>")
+	}
+	t.snarflen = len(s1)
+	t.outTs(sam.Tsetsnarf, len(s1))
+	if len(s1) > 0 {
+		if _, err := t.hostw.Write(s1); err != nil {
+			// unreachable
+			panic("snarf write error")
 		}
-		if n > SNARFSIZE {
-			// untested: Go's snarfswap returns n = len(s1) <= SNARFSIZE (it reads
-			// into a SNARFSIZE buffer), so n never exceeds it -- the guard mirrors
-			// C, whose plan9 read could in principle return more.
-			s1 = []byte("<snarf too long>")
-			n = len(s1)
-		} else {
-			if len(s1) > n {
-				// untested: snarfswap returns n == len(s1), so this never trims.
-				s1 = s1[:n]
-			}
-		}
-		t.snarflen = n
-		t.outTs(Tsetsnarf, n)
-		if n > 0 {
-			if _, err := t.hostw.Write(s1[:n]); err != nil {
-				// unreachable
-				panic("snarf write error")
-			}
-		}
-	} else {
-		// untested: snarfswap returns n = len(...) >= 0, never negative.
-		t.outTs(Tsetsnarf, 0)
 	}
 	t.setcursor(t.cursor)
 }
@@ -765,8 +637,7 @@ func (t *Term) hgrow(m, a, new, req int) {
 	}
 	tx := t.whichtext(m)
 	tx.rasp.resize(a, 0, new)
-	//FIX: use range
-	for i := 0; i < NL; i++ {
+	for i := range tx.l {
 		l := &tx.l[i]
 		if l.textfn == nil {
 			continue
@@ -790,15 +661,14 @@ func (t *Term) hgrow(m, a, new, req int) {
 		if new > TBLOCKSIZE {
 			new = TBLOCKSIZE
 		}
-		t.outTsls(Trequest, m, a, new)
+		t.outTsls(sam.Trequest, m, a, new)
 		tx.lock++
 		req = 0
 	}
 }
 
 func (t *Term) hdata1(tx *Text, a int, r []rune) int {
-	//FIX: use range
-	for i := 0; i < NL; i++ {
+	for i := range tx.l {
 		l := &tx.l[i]
 		if l.textfn == nil {
 			continue
@@ -815,17 +685,16 @@ func (t *Term) hdata1(tx *Text, a int, r []rune) int {
 	return len(r)
 }
 
-// FIX: change caller ot pass s of correct length, drop length arg
-func (t *Term) hdata(m, a int, s []byte, length int) int {
+func (t *Term) hdata(m, a int, s []byte) int {
 	tx := t.whichtext(m)
 	if tx.lock != 0 {
 		tx.lock--
 	}
-	if length == 0 {
+	if len(s) == 0 {
 		return 0
 	}
-	r := make([]rune, 0, length)
-	for i := 0; i < length; {
+	r := make([]rune, 0, len(s))
+	for i := 0; i < len(s); {
 		ru, w := utf8.DecodeRune(s[i:])
 		r = append(r, ru)
 		i += w
@@ -833,17 +702,16 @@ func (t *Term) hdata(m, a int, s []byte, length int) int {
 	return t.hdata1(tx, a, r)
 }
 
-// FIX: change caller to pass r of correct length, drop length arg
-func (t *Term) hdatarune(m, a int, r []rune, length int) int {
+func (t *Term) hdatarune(m, a int, r []rune) int {
 	tx := t.whichtext(m)
 	if tx.lock != 0 {
 		tx.lock--
 	}
-	if length == 0 {
+	if len(r) == 0 {
 		// untested: hdatarune's only caller (typing) inserts at least one rune
 		return 0
 	}
-	return t.hdata1(tx, a, r[:length])
+	return t.hdata1(tx, a, r)
 }
 
 func (t *Term) hcut(m, a, old int) {
@@ -851,8 +719,7 @@ func (t *Term) hcut(m, a, old int) {
 	if tx.lock != 0 {
 		tx.lock--
 	}
-	//FIX: use range
-	for i := 0; i < NL; i++ {
+	for i := range tx.l {
 		l := &tx.l[i]
 		if l.textfn == nil {
 			continue
@@ -861,12 +728,7 @@ func (t *Term) hcut(m, a, old int) {
 		b := a - o - tx.rasp.missing(o, a)
 		// must prevent b temporarily becoming unsigned
 		if (b < 0 || b < l.f.NumChars) && a+old >= o {
-			//FIX: use cond
-			lo := o + b
-			if b < 0 {
-				lo = o
-			}
-			t.fldelete(l, lo, a+old-tx.rasp.missing(o, a+old))
+			t.fldelete(l, cond(b < 0, o, o+b), a+old-tx.rasp.missing(o, a+old))
 		}
 		if a+old < o {
 			l.origin -= old
@@ -886,37 +748,4 @@ func (t *Term) hcut(m, a, old int) {
 	}
 	tx.rasp.resize(a, old, 0)
 	tx.rasp.clean()
-}
-
-// FIX: does the protocol actually send the NULs? if not, drop use of this
-// cstr returns the bytes of b up to (not including) the first NUL.
-func cstr(b []byte) []byte {
-	//FIX: use bytes.IndexByte
-	for i, c := range b {
-		if c == 0 {
-			return b[:i]
-		}
-	}
-	return b
-}
-
-// strcmpz compares two byte slices as C strings (each up to its first NUL).
-func strcmpz(a, b []byte) int {
-	a = cstr(a)
-	b = cstr(b)
-	for i := 0; i < len(a) && i < len(b); i++ {
-		if a[i] != b[i] {
-			if a[i] < b[i] {
-				return -1
-			}
-			return 1
-		}
-	}
-	switch {
-	case len(a) < len(b):
-		return -1
-	case len(a) > len(b):
-		return 1
-	}
-	return 0
 }

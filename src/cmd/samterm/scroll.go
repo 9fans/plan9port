@@ -1,6 +1,9 @@
 package main
 
-import "9fans.net/plan9port/draw"
+import (
+	"9fans.net/plan9port/draw"
+	"9fans.net/plan9port/draw/frame"
+)
 
 func (t *Term) scrtemps() {
 	if t.scrtmp != nil {
@@ -10,9 +13,9 @@ func (t *Term) scrtemps() {
 	if !ok {
 		h = 2048
 	}
-	pix := t.disp.ScreenImage.Pix
-	t.scrtmp, _ = t.disp.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
-	t.scrback, _ = t.disp.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
+	pix := t.screen.Pix
+	t.scrtmp, _ = t.display.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
+	t.scrback, _ = t.display.AllocImage(draw.Rect(0, 0, 32, h), pix, false, 0)
 	if t.scrtmp == nil || t.scrback == nil {
 		// unreachable
 		panic("scrtemps")
@@ -50,7 +53,7 @@ func scrpos(r draw.Rectangle, p0, p1, tot int) draw.Rectangle {
 func (t *Term) scrmark(l *Flayer, r draw.Rectangle) {
 	r.Max.X--
 	if draw.RectClip(&r, l.scroll) {
-		l.f.B.Draw(r, l.f.Cols[HIGH], nil, draw.ZP)
+		l.f.B.Draw(r, l.f.Cols[frame.HIGH], nil, draw.ZP)
 	}
 }
 
@@ -79,11 +82,11 @@ func (t *Term) scrdraw(l *Flayer, tot int) {
 	r2 := scrpos(r1, l.origin, l.origin+l.f.NumChars, tot)
 	if !r2.Eq(l.lastsr) {
 		l.lastsr = r2
-		b.Draw(r1, l.f.Cols[BORD], nil, draw.ZP)
-		b.Draw(r2, l.f.Cols[BACK], nil, r2.Min)
+		b.Draw(r1, l.f.Cols[frame.BORD], nil, draw.ZP)
+		b.Draw(r2, l.f.Cols[frame.BACK], nil, r2.Min)
 		r2 = r1
 		r2.Min.X = r2.Max.X - 1
-		b.Draw(r2, l.f.Cols[BORD], nil, draw.ZP)
+		b.Draw(r2, l.f.Cols[frame.BORD], nil, draw.ZP)
 		if b != l.f.B {
 			l.f.B.Draw(r, b, nil, r1.Min)
 		}
@@ -98,26 +101,26 @@ func (t *Term) scroll(l *Flayer, but int) {
 	scr := scrpos(l.scroll, l.origin, l.origin+l.f.NumChars, tot)
 	r := scr
 	y := scr.Min.Y
-	my := t.mousep().Y
+	my := t.mouse.Y
 	t.scrback.Draw(draw.Rect(0, 0, l.scroll.Dx(), l.scroll.Dy()), l.f.B, nil, l.scroll.Min)
 	for {
 		oin := in
-		in = abs(x-t.mousep().X) <= flscrollwid(l)/2
+		in = abs(x-t.mouse.X) <= flscrollwid(l)/2
 		if oin && !in {
 			t.scrunmark(l, r)
 		}
 		if in {
 			t.scrmark(l, r)
 			oy := y
-			my = t.mousep().Y
+			my = t.mouse.Y
 			if my < s.Min.Y {
 				my = s.Min.Y
 			}
 			if my >= s.Max.Y {
 				my = s.Max.Y
 			}
-			if !t.mousep().Eq(draw.Pt(x, my)) {
-				t.disp.MoveCursor(draw.Pt(x, my))
+			if !t.mouse.Eq(draw.Pt(x, my)) {
+				t.display.MoveCursor(draw.Pt(x, my))
 			}
 			switch but {
 			case 1:

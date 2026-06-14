@@ -7,6 +7,8 @@ import (
 
 	"9fans.net/go/plan9/client"
 	"9fans.net/plan9port/draw"
+	"9fans.net/plan9port/draw/frame"
+	"9fans.net/plan9port/internal/sam"
 	"9fans.net/plan9port/plumb"
 )
 
@@ -22,17 +24,6 @@ const (
 	VERSION     = 2
 
 	Untagged = 65535 // ushort
-)
-
-//FIX: use frame.BACK etc instead of these; delete these
-// frame color indices (frame.NCOL == 5).
-const (
-	BACK = iota
-	HIGH
-	BORD
-	TEXT
-	HTEXT
-	NCOL
 )
 
 // Up/Down for buttons().
@@ -71,8 +62,9 @@ const (
 
 // Term holds all of samterm's state (the C globals).
 type Term struct {
-	disp *draw.Display
-	font *draw.Font // default UI font (display.Font)
+	display *draw.Display
+	screen  *draw.Image
+	font    *draw.Font // default UI font (display.Font)
 
 	// main.c
 	cmd         Text
@@ -84,18 +76,17 @@ type Term struct {
 	typestart   int
 	typeend     int
 	typeesc     int
-	modified    int // strange lookahead for menus
+	modified    bool // strange lookahead for menus
 	hostlock    int
 	hasunlocked int
 	maxtab      int
 	chord       int
-	autoindent  int
+	autoindent  bool
 
 	// menu.c
 	name     [][]byte // first byte is ' ' or '\'': modified state
 	text     []*Text
 	tag      []int // ushort
-	nname    int
 	mw       int
 	menu2    draw.Menu
 	menu2c   draw.Menu
@@ -106,27 +97,23 @@ type Term struct {
 	// flayer.c
 	llist     []*Flayer // front to back
 	lDrect    draw.Rectangle
-	maincols  [NCOL]*draw.Image
-	cmdcols   [NCOL]*draw.Image
-	somevis   int
-	someinvis int
-	justvis   int
+	maincols  [frame.NCOL]*draw.Image
+	cmdcols   [frame.NCOL]*draw.Image
+	somevis   bool
+	someinvis bool
+	justvis   bool
 
 	// scroll.c
 	scrtmp  *draw.Image
 	scrback *draw.Image
 
 	// icons.c
-	bullseye  draw.Cursor
-	deadmouse draw.Cursor
-	lockarrow draw.Cursor
-	darkgrey  *draw.Image
+	darkgrey *draw.Image
 
 	// mesg.c
 	h        Header
-	indata   [DATASIZE + 1]byte
-	outdata  [DATASIZE]byte
-	outcount int
+	indata   []byte // current message payload (cap DATASIZE)
+	outdata  []byte
 	hversion int
 	exiting  bool
 
@@ -138,10 +125,11 @@ type Term struct {
 	kbdc        int
 	resized     bool
 	hostp       []byte // unread host bytes (current buffer slice)
-	mousectl    *draw.Mousectl
+	mouse       *draw.Mousectl
 	keyboardctl *draw.Keyboardctl
 	hostc       chan int
 	hostbuf     [2]Readbuf
+	hosterr     error // why hostproc closed hostc (see hostError)
 	winsize     string
 
 	// plumbing (plan9.c plumbstart/plumbproc/plumbformat, io.c externload/
@@ -175,7 +163,7 @@ type Term struct {
 
 // Header mirrors the C Header: type + 16-bit count + data.
 type Header struct {
-	htype  int
+	htype  sam.Hmesg
 	count0 int
 	count1 int
 }

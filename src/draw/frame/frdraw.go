@@ -139,6 +139,9 @@ func (f *Frame) Redraw() {
 // indicated by pt.
 func (f *Frame) Tick(pt draw.Point, ticked bool) {
 	//FIX: test with the retina change by doing a resize including dpi change on the test display
+	//CLAUDE: a coverage suggestion for this dpi-rescale branch. The headless test
+	//CLAUDE: backend runs at a fixed dpi, so a dpi-changing resize isn't scriptable
+	//CLAUDE: today; left as an untested branch. (See the retina note in samterm-port.)
 	if f.tickscale != f.Display.ScaleSize(1) {
 		// untested: only fires when the display is rescaled mid-session
 		// (e.g. moved to a retina screen); the test display has a fixed dpi.

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"slices"
+	"time"
+
 	"9fans.net/plan9port/draw"
 	"9fans.net/plan9port/draw/frame"
 )
@@ -14,10 +17,7 @@ const (
 	All
 )
 
-//FIX: rename Term.disp to Term.display
-
-//FIX: make a time.Duration
-const Clicktime = 1000 // one second, in ms
+const Clicktime = 1000 * time.Millisecond // one second
 
 type Flayer struct {
 	f       frame.Frame
@@ -35,24 +35,24 @@ type Flayer struct {
 
 func (t *Term) flstart(r draw.Rectangle) {
 	t.lDrect = r
-	display := t.disp
-	screen := display.ScreenImage
+	display := t.display
+	screen := t.screen
 
-	// TODO: Why is BORD 2x2?
+	// TODO: Why is frame.BORD 2x2?
 
 	// Main text is yellowish.
-	t.maincols[BACK] = display.AllocImageMix(draw.PaleYellow, draw.White)
-	t.maincols[HIGH], _ = display.AllocImage(draw.Rect(0, 0, 1, 1), screen.Pix, true, draw.DarkYellow)
-	t.maincols[BORD], _ = display.AllocImage(draw.Rect(0, 0, 2, 2), screen.Pix, true, draw.YellowGreen)
-	t.maincols[TEXT] = display.Black
-	t.maincols[HTEXT] = display.Black
+	t.maincols[frame.BACK] = display.AllocImageMix(draw.PaleYellow, draw.White)
+	t.maincols[frame.HIGH], _ = display.AllocImage(draw.Rect(0, 0, 1, 1), screen.Pix, true, draw.DarkYellow)
+	t.maincols[frame.BORD], _ = display.AllocImage(draw.Rect(0, 0, 2, 2), screen.Pix, true, draw.YellowGreen)
+	t.maincols[frame.TEXT] = display.Black
+	t.maincols[frame.HTEXT] = display.Black
 
 	// Command text is blueish.
-	t.cmdcols[BACK] = display.AllocImageMix(draw.PaleBlueGreen, draw.White)
-	t.cmdcols[HIGH], _ = display.AllocImage(draw.Rect(0, 0, 1, 1), screen.Pix, true, draw.PaleGreyGreen)
-	t.cmdcols[BORD], _ = display.AllocImage(draw.Rect(0, 0, 2, 2), screen.Pix, true, draw.PurpleBlue)
-	t.cmdcols[TEXT] = display.Black
-	t.cmdcols[HTEXT] = display.Black
+	t.cmdcols[frame.BACK] = display.AllocImageMix(draw.PaleBlueGreen, draw.White)
+	t.cmdcols[frame.HIGH], _ = display.AllocImage(draw.Rect(0, 0, 1, 1), screen.Pix, true, draw.PaleGreyGreen)
+	t.cmdcols[frame.BORD], _ = display.AllocImage(draw.Rect(0, 0, 2, 2), screen.Pix, true, draw.PurpleBlue)
+	t.cmdcols[frame.TEXT] = display.Black
+	t.cmdcols[frame.HTEXT] = display.Black
 }
 
 func (t *Term) flnew(l *Flayer, fn func(*Flayer, int) []rune, u0 int, u1 *Text) {
@@ -79,24 +79,24 @@ func (t *Term) flinit(l *Flayer, r draw.Rectangle, ft *draw.Font, cols []*draw.I
 	l.origin = 0
 	l.p0 = 0
 	l.p1 = 0
-	l.f.Display = t.disp // for flmargin
-	l.f.Init(t.flrect(l, r).Inset(flmargin(l)), ft, t.disp.ScreenImage, cols)
+	l.f.Display = t.display // for flmargin
+	l.f.Init(t.flrect(l, r).Inset(flmargin(l)), ft, t.screen, cols)
 	l.f.MaxTab = t.maxtab * ft.StringWidth("0")
 	t.newvisibilities(true)
-	t.disp.ScreenImage.Draw(l.entire, l.f.Cols[BACK], nil, draw.ZP)
+	t.screen.Draw(l.entire, l.f.Cols[frame.BACK], nil, draw.ZP)
 	t.scrdraw(l, 0)
-	t.flborder(l, 0)
+	t.flborder(l, false)
 }
 
 func (t *Term) flclose(l *Flayer) {
 	if l.visible == All {
-		t.disp.ScreenImage.Draw(l.entire, t.disp.White, nil, draw.ZP)
+		t.screen.Draw(l.entire, t.display.White, nil, draw.ZP)
 	} else if l.visible == Some {
 		if l.f.B == nil {
-			l.f.B, _ = t.disp.AllocImage(l.entire, t.disp.ScreenImage.Pix, false, draw.NoFill)
+			l.f.B, _ = t.display.AllocImage(l.entire, t.screen.Pix, false, draw.NoFill)
 		}
 		if l.f.B != nil {
-			l.f.B.Draw(l.entire, t.disp.White, nil, draw.ZP)
+			l.f.B.Draw(l.entire, t.display.White, nil, draw.ZP)
 			t.flrefresh(l, l.entire, 0)
 		}
 	}
@@ -110,16 +110,10 @@ func (t *Term) flclose(l *Flayer) {
 	t.newvisibilities(true)
 }
 
-// FIX: change wide to bool
-func (t *Term) flborder(l *Flayer, wide int) {
+func (t *Term) flborder(l *Flayer, wide bool) {
 	if t.flprepare(l) {
-		l.f.B.Border(l.entire, flmargin(l), l.f.Cols[BACK], draw.ZP)
-		//FIX: use cond
-		w := 1
-		if wide != 0 {
-			w = flmargin(l)
-		}
-		l.f.B.Border(l.entire, w, l.f.Cols[BORD], draw.ZP)
+		l.f.B.Border(l.entire, flmargin(l), l.f.Cols[frame.BACK], draw.ZP)
+		l.f.B.Border(l.entire, cond(wide, flmargin(l), 1), l.f.Cols[frame.BORD], draw.ZP)
 		if l.visible == Some {
 			t.flrefresh(l, l.entire, 0)
 		}
@@ -188,9 +182,9 @@ func (t *Term) newvisibilities(redraw bool) {
 
 		case V(Some, All):
 			if l.f.B != nil {
-				t.disp.ScreenImage.Draw(l.entire, l.f.B, nil, l.entire.Min)
+				t.screen.Draw(l.entire, l.f.B, nil, l.entire.Min)
 				l.f.B.Free()
-				l.f.B = t.disp.ScreenImage
+				l.f.B = t.screen
 				break
 			}
 			fallthrough
@@ -204,22 +198,16 @@ func (t *Term) newvisibilities(redraw bool) {
 }
 
 func (t *Term) llinsert(l *Flayer) {
-	//FIX: use slices.Insert
-	t.llist = append(t.llist, nil)
-	copy(t.llist[1:], t.llist)
-	t.llist[0] = l
+	t.llist = slices.Insert(t.llist, 0, l)
 }
 
 func (t *Term) lldelete(l *Flayer) {
-	//FIX: use slices.Index and slices.Delete
-	for i := range t.llist {
-		if t.llist[i] == l {
-			t.llist = append(t.llist[:i], t.llist[i+1:]...)
-			return
-		}
+	i := slices.Index(t.llist, l)
+	if i < 0 {
+		// unreachable
+		panic("lldelete")
 	}
-	// unreachable
-	panic("lldelete")
+	t.llist = slices.Delete(t.llist, i, i+1)
 }
 
 func (t *Term) flinsert(l *Flayer, sp []rune, p0 int) {
@@ -234,19 +222,8 @@ func (t *Term) flinsert(l *Flayer, sp []rune, p0 int) {
 
 func (t *Term) fldelete(l *Flayer, p0, p1 int) {
 	if t.flprepare(l) {
-		//FIX: use max
 		p0 -= l.origin
-		if p0 < 0 {
-			// untested: fldelete's only caller (hcut) clamps its lo argument to the
-			// origin, so the frame-relative p0 is never < 0.
-			p0 = 0
-		}
 		p1 -= l.origin
-		if p1 < 0 {
-			// untested: hcut passes p1 = a+old-missing with a+old >= origin, so the
-			// frame-relative p1 is never < 0 either.
-			p1 = 0
-		}
 		l.f.Delete(p0, p1)
 		t.scrdraw(l, t.scrtotal(l))
 		if l.visible == Some {
@@ -256,7 +233,7 @@ func (t *Term) fldelete(l *Flayer, p0, p1 int) {
 	}
 }
 
-func (t *Term) flselect(l *Flayer) int {
+func (t *Term) flselect(l *Flayer) bool {
 	if l.visible != All {
 		// untested: flselect runs only on the current window (which==l), and `which`
 		// is always llist[0], which visibility() always reports All; the only way to
@@ -264,15 +241,15 @@ func (t *Term) flselect(l *Flayer) int {
 		// branch (mesg.go), itself proven not to occur, so flselect's l is always All.
 		t.flupfront(l)
 	}
-	l.f.Select(t.mousectl)
-	ret := 0
+	l.f.Select(t.mouse)
+	ret := false
 	if l.f.P0 == l.f.P1 {
 		//TODO: Rethink Msec type.
-		if int(t.mousectl.Msec)-l.click < Clicktime && l.f.P0+l.origin == l.p0 {
-			ret = 1
+		if time.Duration(int(t.mouse.Msec)-l.click)*time.Millisecond < Clicktime && l.f.P0+l.origin == l.p0 {
+			ret = true
 			l.click = 0
 		} else {
-			l.click = int(t.mousectl.Msec)
+			l.click = int(t.mouse.Msec)
 		}
 	} else {
 		l.click = 0
@@ -367,8 +344,7 @@ func (t *Term) flresize(dr draw.Rectangle) {
 	olDrect := t.lDrect
 	t.lDrect = dr
 	// no moving on rio; always repaint
-	//FIX: t.disp.ScreenImage -> t.screen
-	t.disp.ScreenImage.Draw(t.lDrect, t.disp.White, nil, draw.ZP)
+	t.screen.Draw(t.lDrect, t.display.White, nil, draw.ZP)
 	for _, l := range t.llist {
 		l.lastsr = draw.ZR
 		f := &l.f
@@ -419,24 +395,18 @@ func (t *Term) flprepare(l *Flayer) bool {
 	f := &l.f
 	if f.B == nil {
 		if l.visible == All {
-			f.B = t.disp.ScreenImage
-		} else if f.B, _ = t.disp.AllocImage(l.entire, t.disp.ScreenImage.Pix, false, 0); f.B == nil {
+			f.B = t.screen
+		} else if f.B, _ = t.display.AllocImage(l.entire, t.screen.Pix, false, 0); f.B == nil {
 			// untested: defensive -- AllocImage for the backing store fails only
 			// under image-memory exhaustion, which the test backend never induces.
 			return false
 		}
-		f.B.Draw(l.entire, f.Cols[BACK], nil, draw.ZP)
-		//FIX: use cond
-		w := 1
-		if l == t.llist[0] {
-			w = flmargin(l)
-		}
-		f.B.Border(l.entire, w, f.Cols[BORD], draw.ZP)
+		f.B.Draw(l.entire, f.Cols[frame.BACK], nil, draw.ZP)
+		f.B.Border(l.entire, cond(l == t.llist[0], flmargin(l), 1), f.Cols[frame.BORD], draw.ZP)
 		n := f.NumChars
 		f.Init(f.Entire, f.Font, f.B, nil)
 		f.MaxTab = t.maxtab * f.Font.StringWidth("0")
 		r := l.textfn(l, n)
-		//FIX: why is r+n not passed to Insert?
 		f.Insert(r, 0)
 		f.Drawsel(f.PointOf(f.P0), f.P0, f.P1, false)
 		var ticked bool
@@ -451,17 +421,16 @@ func (t *Term) flprepare(l *Flayer) bool {
 }
 
 func (t *Term) visibility(l *Flayer) Vis {
-	//FIX: make somvis, someinvis, justvis bool
-	t.somevis = 0
-	t.someinvis = 0
-	t.justvis = 1
+	t.somevis = false
+	t.someinvis = false
+	t.justvis = true
 	t.flrefresh(l, l.entire, 0)
-	t.justvis = 0
-	if t.somevis == 0 {
+	t.justvis = false
+	if !t.somevis {
 		// mouse script does not place one window exactly over another.
 		return None
 	}
-	if t.someinvis == 0 {
+	if !t.someinvis {
 		return All
 	}
 	return Some
@@ -470,44 +439,43 @@ func (t *Term) visibility(l *Flayer) Vis {
 func (t *Term) flrefresh(l *Flayer, r draw.Rectangle, i int) {
 	//TODO: rewrite as loop and check for running off end
 Top:
-	//FIX: rename tl top
-	tl := t.llist[i]
+	top := t.llist[i]
 	i++
-	if tl == l {
-		if t.justvis == 0 {
-			t.disp.ScreenImage.Draw(r, l.f.B, nil, r.Min)
+	if top == l {
+		if !t.justvis {
+			t.screen.Draw(r, l.f.B, nil, r.Min)
 		}
-		t.somevis = 1
+		t.somevis = true
 	} else {
-		if !draw.RectXRect(tl.entire, r) {
+		if !draw.RectXRect(top.entire, r) {
 			goto Top // avoid stacking unnecessarily
 		}
-		if tl.entire.Min.X > r.Min.X {
+		if top.entire.Min.X > r.Min.X {
 			s := r
-			s.Max.X = tl.entire.Min.X
+			s.Max.X = top.entire.Min.X
 			t.flrefresh(l, s, i)
-			r.Min.X = tl.entire.Min.X
+			r.Min.X = top.entire.Min.X
 		}
-		if tl.entire.Min.Y > r.Min.Y {
+		if top.entire.Min.Y > r.Min.Y {
 			s := r
-			s.Max.Y = tl.entire.Min.Y
+			s.Max.Y = top.entire.Min.Y
 			t.flrefresh(l, s, i)
-			r.Min.Y = tl.entire.Min.Y
+			r.Min.Y = top.entire.Min.Y
 		}
-		if tl.entire.Max.X < r.Max.X {
+		if top.entire.Max.X < r.Max.X {
 			s := r
-			s.Min.X = tl.entire.Max.X
+			s.Min.X = top.entire.Max.X
 			t.flrefresh(l, s, i)
-			r.Max.X = tl.entire.Max.X
+			r.Max.X = top.entire.Max.X
 		}
-		if tl.entire.Max.Y < r.Max.Y {
+		if top.entire.Max.Y < r.Max.Y {
 			s := r
-			s.Min.Y = tl.entire.Max.Y
+			s.Min.Y = top.entire.Max.Y
 			t.flrefresh(l, s, i)
-			r.Max.Y = tl.entire.Max.Y
+			r.Max.Y = top.entire.Max.Y
 		}
-		// remaining piece of r is blocked by tl; forget about it
-		t.someinvis = 1
+		// remaining piece of r is blocked by top; forget about it
+		t.someinvis = true
 	}
 }
 

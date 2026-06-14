@@ -1,0 +1,19 @@
+clean coalesces adjacent present sections only up to TBLOCKSIZE (512):
+412+200 runes stay two sections, 100+100 merge into one.
+-- script --
+resize 0 0 612
+fill 0 412 a
+fill 412 612 b
+clean
+sects
+init
+resize 0 0 200
+fill 0 100 x
+fill 100 200 x
+clean
+sects
+load 90 110
+-- output --
+sects = +412 +200 (nrunes 612)
+sects = +200 (nrunes 200)
+load 90 110 = "xxxxxxxxxxxxxxxxxxxx"

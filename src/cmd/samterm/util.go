@@ -1,5 +1,7 @@
 package main
 
+import "unsafe"
+
 func boolToInt(b bool) int {
 	if b {
 		return 1
@@ -7,14 +9,17 @@ func boolToInt(b bool) int {
 	return 0
 }
 
-// windex returns the index of layer l within t.l.
-func (t *Term) windex(tx *Text, l *Flayer) int {
-	//FIX: use unsafe to make O(1)
-	for i := range tx.l {
-		if &tx.l[i] == l {
-			return i
-		}
+// cond returns a if t is true, else b. A small ternary helper; both a and b
+// are always evaluated.
+func cond[T any](t bool, a, b T) T {
+	if t {
+		return a
 	}
-	// unreachable
-	panic("windex")
+	return b
+}
+
+// windex returns the index of layer l within tx.l. l must point into tx.l
+// (mirroring C's l - &t->l[0]).
+func (t *Term) windex(tx *Text, l *Flayer) int {
+	return int((uintptr(unsafe.Pointer(l)) - uintptr(unsafe.Pointer(&tx.l[0]))) / unsafe.Sizeof(tx.l[0]))
 }

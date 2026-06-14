@@ -49,7 +49,10 @@ func TestMain(m *testing.M) {
 // read their text as UTF-8, which never yields such a rune, so this calls
 // Insert directly. RuneLen reports -1 for it and bxscan charges 3 bytes (the
 // width of the replacement encoding), covering frinsert.go:60.
-//FIX: use \uD800x\uDC00 in a script.
+// FIX: use \uD800x\uDC00 in a script.
+// CLAUDE: suggestion to drive the invalid-rune (surrogate) case through a script
+// CLAUDE: input rather than calling Insert directly. Kept the direct call since the
+// CLAUDE: script reader decodes UTF-8 and can't carry a lone surrogate.
 func TestInsertInvalidRune(t *testing.T) {
 	disp, err := draw.Init(nil, "", "frametest", "400x400")
 	if err != nil {

@@ -1,0 +1,31 @@
+Basic rasp operations: open a hole, fill each half, coalesce, read back.
+-- script --
+resize 0 0 10
+nrunes
+missing 0 10
+contig 0 10 0
+contig 0 10 1
+data 0 5 hello
+sects
+missing 0 10
+contig 0 10 1
+load 0 10
+data 5 10 world
+clean
+sects
+missing 0 10
+load 0 10
+load 3 8
+-- output --
+nrunes = 10
+missing 0 10 = 10
+contig 0 10 0 = 10
+contig 0 10 1 = 0
+sects = +5 -5 (nrunes 10)
+missing 0 10 = 5
+contig 0 10 1 = 5
+load 0 10 = "hello"
+sects = +10 (nrunes 10)
+missing 0 10 = 0
+load 0 10 = "helloworld"
+load 3 8 = "lowor"
