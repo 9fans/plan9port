@@ -1,0 +1,10 @@
+Cut a range that spans a scrolled window's origin (hcut's b<0 / lo=origin path).
+
+-- input --
+growdata 0 0 0123456789abcdefghijklmnopqrstuvwxyz\n
+origin 0 10
+cut 0 5 10
+-- waitframes --
+56 62 78 90
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{35}ddxd{30}

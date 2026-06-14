@@ -4,6 +4,6 @@ Highlight a selection with Hsetdot ("these").
 growdata 0 0 select these words\n
 setdot 0 7 12
 -- waitframes --
-28 31 34
+56 62 68
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{11}ddxddddx

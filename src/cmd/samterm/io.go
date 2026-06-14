@@ -1,13 +1,17 @@
 package main
 
-import "9fans.net/plan9port/draw"
+import (
+	"unicode/utf8"
+
+	"9fans.net/plan9port/draw"
+)
 
 func (t *Term) initio() {
 	//FIX: check mousectl, keyboardctl nil like C?
 	t.mousectl = t.disp.InitMouse()
 	t.keyboardctl = t.disp.InitKeyboard()
 	t.hoststart()
-	//FIX: add plumbstart
+	t.plumbstart()
 }
 
 func (t *Term) getmouse() {
@@ -29,7 +33,16 @@ func (t *Term) button(but int) int {
 	return t.mousep().Buttons & (1 << (but - 1))
 }
 
-//FIX: add externload
+// externload copies the formatted plumb text in plumbbuf[i] into the extern
+// buffer and raises the RPlumb bit, so externchar will feed it as keyboard-like
+// input. (C also calls drawtopwindow to raise the host window; that is a no-op
+// for the headless test backend and not needed for the protocol, so it is
+// omitted.)
+func (t *Term) externload(i int) {
+	t.extern = append(t.extern[:0], t.plumbbuf[i].data[:t.plumbbuf[i].n]...)
+	t.externi = 0
+	t.got |= 1 << RPlumb
+}
 
 func (t *Term) waitforio() int {
 	for {
@@ -69,6 +82,10 @@ func (t *Term) waitforio() int {
 		if t.block&(1<<RResize) == 0 {
 			resizeCh = t.mousectl.Resize
 		}
+		var plumbCh chan int // nil when no plumber (plumbc==nil) -> dead case
+		if t.block&(1<<RPlumb) == 0 {
+			plumbCh = t.plumbc
+		}
 
 		select {
 		case i, ok := <-hostCh:
@@ -85,7 +102,9 @@ func (t *Term) waitforio() int {
 			t.block = 0
 			t.got |= 1 << RHost
 			return t.got
-		//FIX: add plumb case
+		case i := <-plumbCh:
+			t.externload(i)
+			return t.got
 		case r := <-kbdCh:
 			t.kbdc = int(r)
 			t.got |= 1 << RKeyboard
@@ -123,6 +142,10 @@ func (t *Term) rcvchar() int {
 func (t *Term) getch() int {
 	c := t.rcvchar()
 	for ; c == -1; c = t.rcvchar() {
+		// untested: getch blocks only when a handler reads bytes (Hsetsnarf/Hplumb
+		// data) that arrive in a later host read than the message header. Whether
+		// the pipe splits them that way is timing-dependent, so the harness cannot
+		// force it deterministically.
 		t.block = ^(1 << RHost)
 		t.waitforio()
 		t.block = 0
@@ -130,14 +153,39 @@ func (t *Term) getch() int {
 	return c
 }
 
-//FIX: add externchar
+// externchar returns the next rune of the loaded plumb text, or -1 when none is
+// pending. The RPlumb bit stays set until the buffer is drained; NUL runes are
+// skipped (as in C's externchar).
+func (t *Term) externchar() int {
+	for t.got&((1<<RPlumb)&^t.block) != 0 {
+		r, size := utf8.DecodeRune(t.extern[t.externi:])
+		t.externi += size
+		if t.externi >= len(t.extern) {
+			t.got &^= 1 << RPlumb
+			t.extern = t.extern[:0]
+		}
+		if r == 0 {
+			continue
+		}
+		return int(r)
+	}
+	return -1
+}
 
+// ecankbd/ekbd peek the keyboard channel for a SECOND character already queued
+// behind the one kbdchar is consuming. The deterministic test harness delivers
+// exactly one input event per event-loop iteration (DEVDRAW_TEST_NOCOALESCE), so
+// a second char is never buffered: only ecankbd's "channel empty" path is
+// reached. The buffered-char branches below are therefore untested -- and so are
+// their C equivalents in the -uncoverc residual.
 func (t *Term) ecankbd() bool {
 	if t.kpeekc >= 0 {
+		// untested: a peeked char already cached (kbdchar peeks at most once)
 		return true
 	}
 	select {
 	case r := <-t.keyboardctl.C:
+		// untested: a second keyboard char already queued (see ecankbd doc)
 		t.kpeekc = int(r)
 		return true
 	default:
@@ -146,32 +194,63 @@ func (t *Term) ecankbd() bool {
 }
 
 func (t *Term) ekbd() int {
+	// untested: ekbd runs only after ecankbd saw a SECOND buffered keyboard char,
+	// which the deterministic one-event-per-loop harness never produces (these
+	// lines are likewise uncovered in the C -uncoverc residual).
 	if t.kpeekc >= 0 {
+		// untested: see top of ekbd
 		c := t.kpeekc
 		t.kpeekc = -1
 		return c
 	}
+	// untested: see top of ekbd
 	r, ok := <-t.keyboardctl.C
 	if !ok {
 		//FIX: add error print from C
 		// unreachable
 		panic("kbd")
 	}
+	// untested: see top of ekbd
 	return int(r)
 }
 
 func (t *Term) kbdchar() int {
-	//FIX: use externchar
+	if c := t.externchar(); c > 0 {
+		return c
+	}
 	if t.got&(1<<RKeyboard) != 0 {
 		c := t.kbdc
 		t.kbdc = -1
 		t.got &^= 1 << RKeyboard
 		return c
 	}
-	//FIX: plumbc code from C
+	// Drain any plumb notifications that arrived without going through
+	// waitforio (C uses a non-blocking nbrecv loop on plumbc). untested: a plumb
+	// message arriving mid-type, between waitforio dispatches; TestPlumbRecv
+	// delivers plumbs through waitforio's RPlumb case, not this drain.
+Drain:
+	for t.plumbc != nil {
+		// untested: a plumb message arriving mid-type, between waitforio
+		// dispatches; TestPlumbRecv delivers plumbs through waitforio's RPlumb
+		// case, not this non-blocking drain.
+		select {
+		case i := <-t.plumbc:
+			// untested: see the loop comment above
+			t.externload(i)
+			if c := t.externchar(); c > 0 {
+				// untested: see the loop comment above
+				return c
+			}
+			// untested: see the loop comment above (loop again to drain more)
+		default:
+			// untested: see the loop comment above (no message pending)
+			break Drain
+		}
+	}
 	if !t.ecankbd() {
 		return -1
 	}
+	// untested: reached only when ecankbd found a second buffered char (see ekbd)
 	return t.ekbd()
 }
 

@@ -1,0 +1,17 @@
+In the command window, jump to line start/end and erase words across punctuation,
+covering the line-end forward scan and ctlw's non-alphanumeric check.
+
+-- input --
+type ab, cd ef
+key ctrl-a
+key ctrl-e
+key ctrl-w
+key ctrl-w
+key ctrl-w
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 67 69 75 81 87 87 89 89
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddlddxddlddxddlddxddddxddlddxddlddxd{44}

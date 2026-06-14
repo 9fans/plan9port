@@ -1,0 +1,10 @@
+A malformed host message (count > DATASIZE) is logged and ignored (rcv error path).
+
+-- input --
+growdata 0 0 hi there\n
+badmsg
+badmsg
+-- waitframes --
+56 62 62 62
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{6}ddxdd

@@ -1,0 +1,19 @@
+Type over a selection (flushtyping+cut), then move right and press escape,
+covering the right-arrow and escape branches of the typing handler.
+
+-- input --
+type hello world
+move 30 10
+button 1
+move 70 10
+button 0
+type X
+key right
+key esc
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 73 75 78 78 92 94 97 97 100 100
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxd{7}xdxd{12}ldddxd{11}xdxdd

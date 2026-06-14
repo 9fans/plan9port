@@ -366,18 +366,27 @@ func runProtoScript(t *testing.T, h *protoHost, script []byte, counts []int) []i
 				t.Fatalf("bad growdata: %q", line)
 			}
 			h.growdata(mustAtoi(t, rest[1]), mustAtoi(t, rest[2]), unescape(rest[3]))
-		case "data": // data TAG POS TEXT: Hdata, fill a hole opened by grow
+		case "data": // data TAG POS [TEXT]: Hdata, fill a hole opened by grow.
+			// TEXT may be omitted to send an empty Hdata (length 0).
 			rest := strings.SplitN(line, " ", 4)
-			if len(rest) < 4 {
+			if len(rest) < 3 {
 				t.Fatalf("bad data: %q", line)
 			}
-			h.send(Hdata, append(append(pShort(mustAtoi(t, rest[1])), pLong(mustAtoi(t, rest[2]))...), []byte(unescape(rest[3]))...))
+			var text string
+			if len(rest) == 4 {
+				text = unescape(rest[3])
+			}
+			h.send(Hdata, append(append(pShort(mustAtoi(t, rest[1])), pLong(mustAtoi(t, rest[2]))...), []byte(text)...))
 		case "grow": // grow TAG POS N: Hgrow, open a hole of N runes at POS
 			h.send(Hgrow, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
 		case "setdot": // setdot TAG P0 P1
 			h.send(Hsetdot, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
 		case "cut": // cut TAG A OLD
 			h.send(Hcut, append(tagPos(), pLong(mustAtoi(t, f[3]))...))
+		case "badmsg": // badmsg: a header claiming a count > DATASIZE (no payload),
+			// to drive rcv's malformed-message path (rcverrs/dumperrmsg). The
+			// stream stays in sync because no payload bytes follow.
+			h.w.Write([]byte{byte(Hclean), 0xff, 0xff})
 		case "moveto": // moveto TAG POS
 			h.send(Hmoveto, tagPos())
 		case "origin": // origin TAG POS
@@ -404,6 +413,12 @@ func runProtoScript(t *testing.T, h *protoHost, script []byte, counts []int) []i
 			h.send(Hmovname, append(pShort(mustAtoi(t, rest[1])), append([]byte(rest[2]), 0)...))
 		case "delname": // delname TAG
 			h.send(Hdelname, pShort(mustAtoi(t, f[1])))
+		case "newname": // newname TAG: Hnewname, create an (empty) menu entry
+			h.send(Hnewname, pShort(mustAtoi(t, f[1])))
+		case "bindname": // bindname TAG TOKEN: Hbindname, bind a text token to tag
+			h.send(Hbindname, append(pShort(mustAtoi(t, f[1])), pVlong(int64(mustAtoi(t, f[2])))...))
+		case "close": // close TAG: Hclose, close all windows of the tag's text
+			h.send(Hclose, pShort(mustAtoi(t, f[1])))
 		case "setsnarf": // setsnarf TEXT: Hsetsnarf (short count, then count raw bytes)
 			rest := strings.SplitN(line, " ", 2)
 			data := []byte(unescape(rest[1]))

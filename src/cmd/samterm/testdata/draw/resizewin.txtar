@@ -1,0 +1,30 @@
+Open a file window and resize it via the button-3 "resize" menu, which duplicates
+the layer into the new rectangle and closes the old one.
+
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 470 320
+button 0
+move 300 8
+button 4
+move 300 46
+button 0
+move 250 250
+button 4
+button 0
+move 200 345
+button 4
+move 450 395
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 169 169 185 185
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{30}

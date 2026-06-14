@@ -5,7 +5,9 @@ package main
 import (
 	"io"
 
+	"9fans.net/go/plan9/client"
 	"9fans.net/plan9port/draw"
+	"9fans.net/plan9port/plumb"
 )
 
 // Constants from samterm.h and ../sam/mesg.h.
@@ -141,6 +143,18 @@ type Term struct {
 	hostc       chan int
 	hostbuf     [2]Readbuf
 	winsize     string
+
+	// plumbing (plan9.c plumbstart/plumbproc/plumbformat, io.c externload/
+	// externchar). plumbc is nil when no plumber is reachable, leaving the
+	// RPlumb select case dead. plumbsendfid is the "send" port (nil if not
+	// open); plumbbuf is the receive double-buffer; extern/externi hold the
+	// runes of the plumbed text currently being fed in as keyboard input.
+	plumbc       chan int
+	plumbbuf     [2]Readbuf
+	plumbfsys    *plumb.Fsys
+	plumbsendfid *client.Fid
+	extern       []byte
+	externi      int
 
 	// host connection (fds 3/4 normally; a pipe in tests).
 	hostr  io.Reader

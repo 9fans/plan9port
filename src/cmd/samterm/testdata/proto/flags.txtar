@@ -8,6 +8,6 @@ check0 0
 check 0
 unlockfile 0
 -- waitframes --
-28 31 31 31 31 33 33
+56 62 62 62 62 66 66
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxd{5}

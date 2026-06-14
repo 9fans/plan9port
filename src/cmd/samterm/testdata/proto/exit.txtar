@@ -4,6 +4,6 @@ Host asks the terminal to exit with Hexit.
 growdata 0 0 goodbye\n
 exit
 -- waitframes --
-28 31
+56 62
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{6}ddxdd

@@ -3,8 +3,9 @@ Host sets the snarf buffer (Hsetsnarf) and sends a plumb message (dropped).
 -- input --
 growdata 0 0 some text\n
 setsnarf hello snarf buffer
+setsnarf second buffer contents
 plumb plumbed text here
 -- waitframes --
-28 31 31 31
+56 62 62 62 62
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{7}ddxdd

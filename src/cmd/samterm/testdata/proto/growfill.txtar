@@ -4,6 +4,6 @@ Open a hole with Hgrow then fill it with Hdata.
 grow 0 0 5
 data 0 0 fresh
 -- waitframes --
-28 28 31
+56 56 62
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{5}dxdd

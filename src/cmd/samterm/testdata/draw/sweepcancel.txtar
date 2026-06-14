@@ -1,0 +1,19 @@
+Choose button-3 "new" but sweep a rectangle too small to accept, cancelling the
+new window (sweeptext's getr-false return).
+
+-- input --
+move 300 8
+button 4
+move 300 11
+button 0
+move 200 200
+button 4
+move 250 230
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 67 67 69 69
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{27}

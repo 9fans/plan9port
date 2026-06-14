@@ -29,6 +29,9 @@ const (
 //FIX: lost notifyf handling interrupts
 
 func main() {
+	// untested: the production entry point. The tests construct the terminal via
+	// NewTerm (so they can run it in-process for coverage and wire the host to a
+	// pipe), so this fd-and-os.Args wrapper is exercised only by the real binary.
 	//FIX: refactor to avoid duplication with NewTerm
 	t := &Term{
 		maxtab:    8,
@@ -39,7 +42,9 @@ func main() {
 		kpeekc:    -1,
 		plumbfd:   -1,
 	}
+	// untested: see top of main
 	if err := t.getscreen(os.Args[1:]); err != nil {
+		// untested: see top of main
 		fmt.Fprintf(os.Stderr, "samterm: initdraw: %v\n", err)
 		os.Exit(1)
 	}
@@ -47,6 +52,7 @@ func main() {
 	//FIX: reopen /dev/null onto os.Stdin
 	// and /dev/tty or else /dev/null onto os.Stdout,
 	// reassigning the globals
+	// untested: see top of main
 	t.hostr = os.Stdin
 	t.hostw = os.Stdout
 	t.menuinit()
@@ -101,6 +107,9 @@ func (t *Term) startup() {
 func (t *Term) run() {
 	for got := 0; ; got = t.waitforio() {
 		if t.hasunlocked != 0 && t.RESIZED() {
+			// untested: waitforio already handles a resize inline (and clears the
+			// flag), so this top-of-loop re-check only fires for a resize that
+			// arrived while blocked mid-update -- not reproducible deterministically.
 			t.resize()
 		}
 		if got&(1<<RHost) != 0 {
@@ -110,12 +119,26 @@ func (t *Term) run() {
 		if t.exiting {
 			return
 		}
-		//FIX: do plumbing
-		// RPlumb is not handled (plumbing not yet ported).
+		if got&(1<<RPlumb) != 0 {
+			// A plumbed file arrived: make the command window current, put the
+			// cursor at the end, and type the formatted "B file\naddr\n" so sam
+			// opens it (mirrors C main.c's RPlumb block).
+			i := 0
+			for t.cmd.l[i].textfn == nil {
+				// untested: cmd.l[0] always holds the command window, so the
+				// search never advances past it.
+				i++
+			}
+			t.current(&t.cmd.l[i])
+			t.flsetselect(t.which, t.cmd.rasp.nrunes, t.cmd.rasp.nrunes)
+			t.typing(t.which, RPlumb)
+		}
 		if got&(1<<RKeyboard) != 0 {
 			if t.which != nil {
 				t.typing(t.which, RKeyboard)
 			} else {
+				// untested: a keystroke with no current window -- which is only
+				// nil transiently while a window is being created/destroyed.
 				t.kbdblock()
 			}
 		}
@@ -207,6 +230,8 @@ func (t *Term) closeup(l *Flayer) {
 	tx := l.user1
 	m := t.whichmenu(tx.tag)
 	if m < 0 {
+		// untested: closing a window whose menu entry is already gone -- a
+		// transient that the frame-synced harness does not reproduce.
 		return
 	}
 	t.flclose(l)
@@ -224,9 +249,14 @@ func (t *Term) closeup(l *Flayer) {
 		}
 		t.text[m] = nil
 	} else if l == &tx.l[tx.front] {
+		// untested: closing the exact front layer of a multi-window (zerox) file
+		// so another must be promoted; which layer is front depends on focus
+		// history that the blind mouse script cannot pin down.
 		//FIX: use range
 		for i := 0; i < NL; i++ { // find one; any one will do
+			// untested: see above
 			if tx.l[i].textfn != nil {
+				// untested: see above
 				tx.front = i
 				return
 			}
@@ -243,6 +273,8 @@ func (t *Term) findl(tx *Text) *Flayer {
 			return &tx.l[i]
 		}
 	}
+	// untested: all NL layers of one file occupied (5 zerox/duplicate of the same
+	// file) so no free slot remains.
 	return nil
 }
 
@@ -297,8 +329,12 @@ func (t *Term) getr(rp *draw.Rectangle) bool {
 				rp.Min.Y = r.Max.Y
 			}
 			if p.X <= r.Min.X {
+				// untested: the command window spans the full screen width, so no
+				// on-screen tiny-sweep click is left or right of it (unlike the
+				// vertical case, where it occupies only the top band).
 				rp.Max.X = r.Min.X
 			} else if p.X >= r.Max.X {
+				// untested: see above
 				rp.Min.X = r.Max.X
 			}
 		}
@@ -366,9 +402,14 @@ func alnum(c int) bool {
 		return false
 	}
 	if 0x7F <= c && c <= 0xA0 {
+		// untested: classifying a DEL/high-control rune; the test content is plain
+		// ASCII, so word-scanning never lands on one.
 		return false
 	}
 	if strings.ContainsRune("!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", rune(c)) {
+		// untested: classifying an ASCII punctuation rune happens only while
+		// word-scanning (ctlw / word double-click) lands exactly on such a rune,
+		// which the test content does not arrange at a scan boundary.
 		return false
 	}
 	return true
@@ -379,14 +420,24 @@ func (t *Term) raspc(r *Rasp, p int) int {
 	if len(s) > 0 {
 		return int(s[0])
 	}
+	// untested: rload returns empty only for a position past the rasp's filled
+	// region; ctlw/ctlu only read positions they just stepped over, so this
+	// past-end read does not occur through them.
 	return 0
 }
 
+// ctlw/ctlu compute the word/line-erase target. Their boundary returns -- cursor
+// exactly at the (scrolled) origin, or just past a newline with only whitespace
+// before it -- depend on the precise rune at the cursor and the window's origin.
+// Those rasp/cursor states are not reachable through the deterministic mouse+key
+// script without visual cursor feedback, so the boundary returns are untested.
 func (t *Term) ctlw(r *Rasp, o, p int) int {
 	if p--; p < o {
+		// untested: see ctlw doc
 		return o
 	}
 	if t.raspc(r, p) == '\n' {
+		// untested: see ctlw doc
 		return p
 	}
 	for ; p >= o; p-- {
@@ -395,6 +446,7 @@ func (t *Term) ctlw(r *Rasp, o, p int) int {
 			break
 		}
 		if c == '\n' {
+			// untested: see ctlw doc
 			return p + 1
 		}
 	}
@@ -403,11 +455,13 @@ func (t *Term) ctlw(r *Rasp, o, p int) int {
 	if p >= o {
 		return p
 	}
+	// untested: see ctlw doc
 	return o
 }
 
 func (t *Term) ctlu(r *Rasp, o, p int) int {
 	if p--; p < o {
+		// untested: see ctlw doc
 		return o
 	}
 	if t.raspc(r, p) == '\n' {
@@ -420,6 +474,7 @@ func (t *Term) ctlu(r *Rasp, o, p int) int {
 	if p >= o {
 		return p
 	}
+	// untested: see ctlw doc
 	return o
 }
 
@@ -438,14 +493,22 @@ func (t *Term) center(l *Flayer, a int) int {
 func (t *Term) thirds(l *Flayer, a, n int) int {
 	tx := l.user1
 	if tx.lock == 0 && (a < l.origin || l.origin+l.f.NumChars < a) {
+		// untested: onethird is called after each typed insert with a = the new
+		// cursor, but flinsert keeps that cursor on screen, so by here it is never
+		// off-screen; the scroll body therefore does not run from typing. (center,
+		// reached by the navigation keys, covers the equivalent off-screen scroll.)
 		if a > tx.rasp.nrunes {
+			// untested: see above
 			a = tx.rasp.nrunes
 		}
+		// untested: see above
 		s := l.scroll.Inset(1)
 		lines := (n*(s.Max.Y-s.Min.Y)/l.f.Font.Height + 1) / 3
 		if lines < 2 {
+			// untested: see above
 			lines = 2
 		}
+		// untested: see above
 		t.outTsll(Torigin, tx.tag, a, lines)
 		return 1
 	}
@@ -456,7 +519,10 @@ func (t *Term) onethird(l *Flayer, a int) int {
 	return t.thirds(l, a, 1)
 }
 
+// twothirds is unused -- only onethird is wired into typing -- but is kept for
+// parity with C samterm, which also defines but never calls it.
 func (t *Term) twothirds(l *Flayer, a int) int {
+	// untested: see twothirds doc
 	return t.thirds(l, a, 2)
 }
 
@@ -547,14 +613,19 @@ func (t *Term) typing(l *Flayer, res int) { // what a bloody mess this is
 		np++
 		//FIX: make t.autoindent bool
 		if t.autoindent != 0 && c == '\n' {
+			// untested: autoindent is enabled only by the -a launch flag, which
+			// the test harness does not pass to samterm.
 			cursor := t.ctlu(&tx.rasp, 0, a+np-1)
 			for np < len(buf) {
+				// untested: see above
 				ch := t.raspc(&tx.rasp, cursor)
 				cursor++
 				if ch == ' ' || ch == '\t' {
+					// untested: see above
 					buf[np] = rune(ch)
 					np++
 				} else {
+					// untested: see above
 					break
 				}
 			}

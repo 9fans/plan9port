@@ -1,0 +1,142 @@
+Open a large file and jump to its end, forcing the terminal to request
+screen data it has not yet been sent (hcheck's Trequest path).
+
+-- file --
+this is line number 1 of a fairly long test file for scrolling
+this is line number 2 of a fairly long test file for scrolling
+this is line number 3 of a fairly long test file for scrolling
+this is line number 4 of a fairly long test file for scrolling
+this is line number 5 of a fairly long test file for scrolling
+this is line number 6 of a fairly long test file for scrolling
+this is line number 7 of a fairly long test file for scrolling
+this is line number 8 of a fairly long test file for scrolling
+this is line number 9 of a fairly long test file for scrolling
+this is line number 10 of a fairly long test file for scrolling
+this is line number 11 of a fairly long test file for scrolling
+this is line number 12 of a fairly long test file for scrolling
+this is line number 13 of a fairly long test file for scrolling
+this is line number 14 of a fairly long test file for scrolling
+this is line number 15 of a fairly long test file for scrolling
+this is line number 16 of a fairly long test file for scrolling
+this is line number 17 of a fairly long test file for scrolling
+this is line number 18 of a fairly long test file for scrolling
+this is line number 19 of a fairly long test file for scrolling
+this is line number 20 of a fairly long test file for scrolling
+this is line number 21 of a fairly long test file for scrolling
+this is line number 22 of a fairly long test file for scrolling
+this is line number 23 of a fairly long test file for scrolling
+this is line number 24 of a fairly long test file for scrolling
+this is line number 25 of a fairly long test file for scrolling
+this is line number 26 of a fairly long test file for scrolling
+this is line number 27 of a fairly long test file for scrolling
+this is line number 28 of a fairly long test file for scrolling
+this is line number 29 of a fairly long test file for scrolling
+this is line number 30 of a fairly long test file for scrolling
+this is line number 31 of a fairly long test file for scrolling
+this is line number 32 of a fairly long test file for scrolling
+this is line number 33 of a fairly long test file for scrolling
+this is line number 34 of a fairly long test file for scrolling
+this is line number 35 of a fairly long test file for scrolling
+this is line number 36 of a fairly long test file for scrolling
+this is line number 37 of a fairly long test file for scrolling
+this is line number 38 of a fairly long test file for scrolling
+this is line number 39 of a fairly long test file for scrolling
+this is line number 40 of a fairly long test file for scrolling
+this is line number 41 of a fairly long test file for scrolling
+this is line number 42 of a fairly long test file for scrolling
+this is line number 43 of a fairly long test file for scrolling
+this is line number 44 of a fairly long test file for scrolling
+this is line number 45 of a fairly long test file for scrolling
+this is line number 46 of a fairly long test file for scrolling
+this is line number 47 of a fairly long test file for scrolling
+this is line number 48 of a fairly long test file for scrolling
+this is line number 49 of a fairly long test file for scrolling
+this is line number 50 of a fairly long test file for scrolling
+this is line number 51 of a fairly long test file for scrolling
+this is line number 52 of a fairly long test file for scrolling
+this is line number 53 of a fairly long test file for scrolling
+this is line number 54 of a fairly long test file for scrolling
+this is line number 55 of a fairly long test file for scrolling
+this is line number 56 of a fairly long test file for scrolling
+this is line number 57 of a fairly long test file for scrolling
+this is line number 58 of a fairly long test file for scrolling
+this is line number 59 of a fairly long test file for scrolling
+this is line number 60 of a fairly long test file for scrolling
+this is line number 61 of a fairly long test file for scrolling
+this is line number 62 of a fairly long test file for scrolling
+this is line number 63 of a fairly long test file for scrolling
+this is line number 64 of a fairly long test file for scrolling
+this is line number 65 of a fairly long test file for scrolling
+this is line number 66 of a fairly long test file for scrolling
+this is line number 67 of a fairly long test file for scrolling
+this is line number 68 of a fairly long test file for scrolling
+this is line number 69 of a fairly long test file for scrolling
+this is line number 70 of a fairly long test file for scrolling
+this is line number 71 of a fairly long test file for scrolling
+this is line number 72 of a fairly long test file for scrolling
+this is line number 73 of a fairly long test file for scrolling
+this is line number 74 of a fairly long test file for scrolling
+this is line number 75 of a fairly long test file for scrolling
+this is line number 76 of a fairly long test file for scrolling
+this is line number 77 of a fairly long test file for scrolling
+this is line number 78 of a fairly long test file for scrolling
+this is line number 79 of a fairly long test file for scrolling
+this is line number 80 of a fairly long test file for scrolling
+this is line number 81 of a fairly long test file for scrolling
+this is line number 82 of a fairly long test file for scrolling
+this is line number 83 of a fairly long test file for scrolling
+this is line number 84 of a fairly long test file for scrolling
+this is line number 85 of a fairly long test file for scrolling
+this is line number 86 of a fairly long test file for scrolling
+this is line number 87 of a fairly long test file for scrolling
+this is line number 88 of a fairly long test file for scrolling
+this is line number 89 of a fairly long test file for scrolling
+this is line number 90 of a fairly long test file for scrolling
+this is line number 91 of a fairly long test file for scrolling
+this is line number 92 of a fairly long test file for scrolling
+this is line number 93 of a fairly long test file for scrolling
+this is line number 94 of a fairly long test file for scrolling
+this is line number 95 of a fairly long test file for scrolling
+this is line number 96 of a fairly long test file for scrolling
+this is line number 97 of a fairly long test file for scrolling
+this is line number 98 of a fairly long test file for scrolling
+this is line number 99 of a fairly long test file for scrolling
+this is line number 100 of a fairly long test file for scrolling
+this is line number 101 of a fairly long test file for scrolling
+this is line number 102 of a fairly long test file for scrolling
+this is line number 103 of a fairly long test file for scrolling
+this is line number 104 of a fairly long test file for scrolling
+this is line number 105 of a fairly long test file for scrolling
+this is line number 106 of a fairly long test file for scrolling
+this is line number 107 of a fairly long test file for scrolling
+this is line number 108 of a fairly long test file for scrolling
+this is line number 109 of a fairly long test file for scrolling
+this is line number 110 of a fairly long test file for scrolling
+this is line number 111 of a fairly long test file for scrolling
+this is line number 112 of a fairly long test file for scrolling
+this is line number 113 of a fairly long test file for scrolling
+this is line number 114 of a fairly long test file for scrolling
+this is line number 115 of a fairly long test file for scrolling
+this is line number 116 of a fairly long test file for scrolling
+this is line number 117 of a fairly long test file for scrolling
+this is line number 118 of a fairly long test file for scrolling
+this is line number 119 of a fairly long test file for scrolling
+this is line number 120 of a fairly long test file for scrolling
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+move 300 240
+button 1
+button 0
+key end
+key end
+-- waitframes --
+29 29 51 54 55 55 57 63 121 121 123 123 140 140
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{13}dddx{11}d{12}lldddxd{32}xxxddd

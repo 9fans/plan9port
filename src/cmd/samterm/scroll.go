@@ -161,6 +161,9 @@ func (t *Term) scroll(l *Flayer, but int) {
 		case 3:
 			p0 = l.origin + l.f.CharOf(draw.Pt(s.Max.X, my))
 			if p0 > tot {
+				// untested: CharOf returns at most NumChars and origin is at most
+				// tot-NumChars, so origin+CharOf never exceeds tot -- a defensive
+				// clamp mirroring C.
 				p0 = tot
 			}
 		}

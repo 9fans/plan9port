@@ -3,6 +3,6 @@ A line of text inserted by the host.
 -- input --
 growdata 0 0 hello from the host\n
 -- waitframes --
-28 31
+56 62
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{10}ddxdd

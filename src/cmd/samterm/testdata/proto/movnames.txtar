@@ -1,0 +1,17 @@
+Create menu entries and rename them so the insertion ordering compares names
+every way (Hmovname's strcmpz: char less/greater and length greater).
+
+-- input --
+growdata 0 0 hi\n
+newname 1
+movname 1 zoo
+newname 2
+movname 2 abc
+newname 3
+movname 3 zzz
+newname 4
+movname 4 abcd
+-- waitframes --
+56 62 62 62 62 62 62 62 62 62
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

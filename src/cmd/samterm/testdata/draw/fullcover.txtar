@@ -1,0 +1,37 @@
+Zerox a file and place the new window so it entirely covers the first (driving it
+to None visibility), then edit the file; operations on the hidden window take the
+visibility==None / flprepare-false paths.
+
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 400 250
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 300 200
+button 4
+button 0
+move 180 130
+button 4
+move 430 280
+button 0
+move 250 160
+button 1
+move 350 160
+button 0
+type Q
+key bs
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 168 168 170 170 170 174 178 178 194 194
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{16}lddxd{26}

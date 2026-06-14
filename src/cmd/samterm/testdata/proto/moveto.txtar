@@ -3,7 +3,10 @@ Move the selection point with Hmoveto.
 -- input --
 growdata 0 0 alpha beta gamma delta epsilon\n
 moveto 0 11
+origin 0 15
+moveto 0 2
+moveto 0 40
 -- waitframes --
-28 31 31
+56 62 62 78 78 78
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{15}ddxdd
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{15}ddxd{17}

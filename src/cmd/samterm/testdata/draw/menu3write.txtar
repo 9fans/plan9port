@@ -1,0 +1,25 @@
+Open a file window, then write it via the button-3 "write" menu item.
+
+-- input --
+move 300 8
+button 4
+move 300 114
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+move 300 8
+button 4
+move 300 80
+button 0
+move 300 250
+button 4
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 141 141 157 157
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdclllldddxd{24}

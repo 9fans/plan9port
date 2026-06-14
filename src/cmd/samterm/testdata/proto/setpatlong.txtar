@@ -1,0 +1,9 @@
+A search pattern longer than 15 chars is truncated for the menu (setpat).
+
+-- input --
+growdata 0 0 hi\n
+setpat abcdefghijklmnopqrstuvwxyz
+-- waitframes --
+56 62 62
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

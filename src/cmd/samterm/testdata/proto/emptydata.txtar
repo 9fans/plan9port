@@ -1,0 +1,9 @@
+An Hdata message with no payload (length 0) is a no-op.
+
+-- input --
+growdata 0 0 hi\n
+data 0 0
+-- waitframes --
+56 62 62
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

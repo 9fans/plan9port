@@ -1,0 +1,11 @@
+Type a command line, then erase by word (^W) and to line start (^U), exercising
+ctlw/ctlu and the local-cut backspacing path.
+
+-- input --
+type hello world foo bar
+key ctrl-w
+key ctrl-u
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 109 113
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddlddxddddxddddxddddxddlddxddlddxddddxd{18}

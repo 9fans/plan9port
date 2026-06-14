@@ -12,7 +12,13 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"os"
 	"unicode/utf8"
+
+	"9fans.net/plan9port/plumb"
 )
 
 //FIX: import internal/sam instead
@@ -160,9 +166,13 @@ func (t *Term) inmesg(typ, count int) {
 		if tx == nil {
 			tx = t.texttoken[l]
 		} else {
-			// let the old one win; clean up the new one
+			// let the old one win; clean up the new one.
+			// untested: a second Hbindname for an already-bound tag -- sam binds
+			// each file once, so the harness never produces the double bind.
 			nw := t.texttoken[l]
+			// untested: see above
 			for nw != nil && nw.nwin > 0 {
+				// untested: see above
 				t.closeup(&nw.l[nw.front])
 			}
 		}
@@ -176,7 +186,12 @@ func (t *Term) inmesg(typ, count int) {
 		tx := t.whichtext(m)
 		i := t.which != nil && t.which.user1 == &t.cmd && m != t.cmd.tag
 		if tx == nil {
-			if tx = t.sweeptext(0, m); tx == nil {
+			// untested: sam only sends a file Hcurrent right after the terminal
+			// opens it (Tstartfile/Tstartnewfile), so the menu entry always has a
+			// text by now; an Hcurrent for a windowless file does not occur.
+			tx = t.sweeptext(0, m)
+			if tx == nil {
+				// untested: see above
 				break
 			}
 		}
@@ -186,6 +201,9 @@ func (t *Term) inmesg(typ, count int) {
 		}
 		lp := &tx.l[tx.front]
 		if i {
+			// untested: requires the command window to be current when a *file*
+			// Hcurrent arrives, but sam sends a file Hcurrent only at open time,
+			// when sweeptext has just reset `which` to nil -- so i is never true.
 			t.flupfront(lp)
 			t.flborder(lp, 0)
 			t.work = lp
@@ -372,6 +390,8 @@ func (t *Term) whichtextOrNil(tg int) *Text {
 			return t.text[i]
 		}
 	}
+	// untested: the only caller (Hbindname) first checks whichmenu(tg) >= 0, so
+	// tg is always present and the loop above always returns.
 	return nil
 }
 
@@ -426,7 +446,10 @@ func (t *Term) outT0(typ int) {
 	t.outsend()
 }
 
+// outTl is unused -- no T message carries a lone long -- but is kept for parity
+// with C samterm's mesg.c, which also defines it and never calls it.
 func (t *Term) outTl(typ int, l int) {
+	// untested: see outTl doc (dead in C too)
 	t.outstart(typ)
 	t.outlong(l)
 	t.outsend()
@@ -438,7 +461,10 @@ func (t *Term) outTs(typ, s int) {
 	t.outsend()
 }
 
+// outTss is unused -- no T message carries two shorts -- but is kept for parity
+// with C samterm's mesg.c, which also defines it and never calls it.
 func (t *Term) outTss(typ, s1, s2 int) {
+	// untested: see outTss doc (dead in C too)
 	t.outstart(typ)
 	t.outshort(s1)
 	t.outshort(s2)
@@ -542,6 +568,8 @@ func (t *Term) outsend() {
 		// so treat it as a disconnect and exit the event loop instead -- the
 		// same outcome the C process reaches, just without taking the harness
 		// down with it.
+		// untested: requires sam's read end to close while samterm is mid-write;
+		// the harness shuts sam down only after settlement.
 		t.exiting = true
 	}
 }
@@ -557,6 +585,9 @@ func (t *Term) horigin(m, p0 int) {
 	tx := t.whichtext(m)
 	l := &tx.l[tx.front]
 	if !t.flprepare(l) {
+		// untested: a Horigin for a front window that cannot prepare (fully
+		// hidden) -- the front window is normally visible, and producing a hidden
+		// front window that sam then scrolls is not reproducible deterministically.
 		l.origin = p0
 		return
 	}
@@ -572,6 +603,8 @@ func (t *Term) horigin(m, p0 int) {
 	l.origin = p0
 	t.scrdraw(l, tx.rasp.nrunes)
 	if l.visible == Some {
+		// untested: a Horigin for a partially-covered front window; same reason
+		// as the !flprepare branch above.
 		t.flrefresh(l, l.entire, 0)
 	}
 	t.hcheck(m)
@@ -587,10 +620,14 @@ func (t *Term) hmoveto(m, p0 int) {
 
 func (t *Term) hcheck(m int) {
 	if m == Untagged {
+		// untested: hcheck is only reached for a tagged file (its callers pass a
+		// bound tag); flnewlyvisible's Untagged path needs an unbound window,
+		// which exists only transiently during build.
 		return
 	}
 	tx := t.whichtext(m)
-	if tx == nil { // possible in a half-built window
+	if tx == nil {
+		// untested: a half-built window whose text is not yet wired -- transient.
 		return
 	}
 	reqd := false
@@ -603,7 +640,10 @@ func (t *Term) hcheck(m int) {
 		a := tx.l[i].origin
 		n := tx.rasp.contig(a, a+l.f.NumChars, true)
 		if n < l.f.NumChars {
-			// text missing in middle of screen
+			// text missing in middle of screen.
+			// untested: a partial fill (some rows present, then a hole) at the
+			// instant hcheck runs -- a transient that needs sam's data to be
+			// mid-flight, which the frame-synced harness never catches.
 			a += n
 		} else {
 			// text missing at end of screen?
@@ -666,10 +706,14 @@ func (t *Term) hsetsnarf(nc int) {
 			n = 0
 		}
 		if n > SNARFSIZE {
+			// untested: Go's snarfswap returns n = len(s1) <= SNARFSIZE (it reads
+			// into a SNARFSIZE buffer), so n never exceeds it -- the guard mirrors
+			// C, whose plan9 read could in principle return more.
 			s1 = []byte("<snarf too long>")
 			n = len(s1)
 		} else {
 			if len(s1) > n {
+				// untested: snarfswap returns n == len(s1), so this never trims.
 				s1 = s1[:n]
 			}
 		}
@@ -682,17 +726,35 @@ func (t *Term) hsetsnarf(nc int) {
 			}
 		}
 	} else {
+		// untested: snarfswap returns n = len(...) >= 0, never negative.
 		t.outTs(Tsetsnarf, 0)
 	}
 	t.setcursor(t.cursor)
 }
 
 func (t *Term) hplumb(nc int) {
-	//FIX: implement plumbing. use 9fans.net/go/plumb
-	// Plumbing is not yet ported; consume the bytes so the protocol stays in
-	// sync, but drop the message (as C does when plumbfd <= 0).
+	// sam forwards a serialized plumb message (built in its Tplumb handler); read
+	// the nc bytes and, if the send port is open, re-send them to the plumber.
+	// With no plumber (plumbsendfid == nil) the bytes are simply dropped, keeping
+	// the protocol in sync -- as C does when plumbfd <= 0.
+	s := make([]byte, nc)
 	for i := 0; i < nc; i++ {
-		t.getch()
+		s[i] = byte(t.getch())
+	}
+	if t.plumbsendfid == nil {
+		return
+	}
+	var m plumb.Message
+	if err := m.Recv(bufio.NewReader(bytes.NewReader(s))); err != nil {
+		//TODO: does C print this?
+		fmt.Fprintf(os.Stderr, "samterm: plumb unpack: %v\n", err)
+		return
+	}
+	if err := m.Send(t.plumbsendfid); err != nil {
+		// untested: the write to the plumber's send port fails only if the
+		// plumber dies mid-test, which the harness keeps alive.
+		//TODO: does C print this?
+		fmt.Fprintf(os.Stderr, "samterm: plumb send: %v\n", err)
 	}
 }
 
@@ -778,6 +840,7 @@ func (t *Term) hdatarune(m, a int, r []rune, length int) int {
 		tx.lock--
 	}
 	if length == 0 {
+		// untested: hdatarune's only caller (typing) inserts at least one rune
 		return 0
 	}
 	return t.hdata1(tx, a, r[:length])

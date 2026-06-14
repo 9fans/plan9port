@@ -27,7 +27,7 @@ import (
 // -uncoverc flag. When -uncoverc=FILE is given, the oracle (old) runs use the
 // instrumented binary and their profiles are merged into a C-coverage report.
 var (
-	osamtermcover = filepath.Join(plan9, "src/cmd/osamterm/o.osamterm.cover")
+	osamtermcover = filepath.Join(plan9root, "src/cmd/osamterm/o.osamterm.cover")
 	cov           = llvmcover.New(osamtermcover, "")
 )
 
@@ -63,13 +63,54 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-const plan9 = "/usr/local/plan9"
+const plan9root = "/usr/local/plan9"
 
 func init() {
 	if os.Getenv("TESTSAMTERM") == "1" {
 		main()
 		os.Exit(0)
 	}
+}
+
+// quietStderr returns a writer to use as a subprocess's Stderr (sam, the C
+// samterm). Their diagnostics -- e.g. the C terminal's "host read error:
+// unexpected eof" on teardown -- are buffered and written to the test log only
+// if the test fails, instead of cluttering a passing `go test`. (The in-process
+// Go samterm writes nothing to os.Stderr on teardown, so it needs no capture.)
+func quietStderr(t *testing.T, who string) io.Writer {
+	t.Helper()
+	buf := new(safeBuffer)
+	t.Cleanup(func() {
+		if t.Failed() && buf.Len() > 0 {
+			t.Logf("%s stderr:\n%s", who, buf.Bytes())
+		}
+	})
+	return buf
+}
+
+// safeBuffer is a bytes.Buffer safe for the concurrent writes os/exec's stderr
+// copier goroutine makes.
+type safeBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *safeBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *safeBuffer) Len() int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Len()
+}
+
+func (b *safeBuffer) Bytes() []byte {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Bytes()
 }
 
 // updateSettleMS is how long rendering must be quiet (no new frame) for a
@@ -209,7 +250,7 @@ func TestDraw(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	const samExe = plan9 + "/bin/sam"
+	const samExe = plan9root + "/bin/sam"
 	if _, err := os.Stat(samExe); err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +277,14 @@ func TestDraw(t *testing.T) {
 			if i, _ := ar.Find("file"); i >= 0 {
 				content = ar.ReadFile("file")
 			}
-			file := filepath.Join(dir, "f")
+			// The basename sam loads, normally the stable "f". A scenario may
+			// supply its own "filename" section (e.g. a very long name to exercise
+			// the menu's width/truncation rendering).
+			fname := "f"
+			if i, _ := ar.Find("filename"); i >= 0 {
+				fname = strings.TrimSpace(string(ar.ReadFile("filename")))
+			}
+			file := filepath.Join(dir, fname)
 			if err := os.WriteFile(file, content, 0666); err != nil {
 				t.Fatal(err)
 			}
@@ -486,9 +534,11 @@ func checkStream(t *testing.T, label string, go_, c []byte) {
 func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte, string, []int) {
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
-	if d:=os.Getenv("GOIMG");d!=""{img=d}
+	if d := os.Getenv("GOIMG"); d != "" {
+		img = d
+	}
 	os.Unsetenv("font")
-	t.Setenv("DEVDRAW", filepath.Join(plan9, "bin/devdraw"))
+	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
 	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
 	t.Setenv("DEVDRAW_TEST_INPUT", script)
 	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
@@ -519,11 +569,11 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	samInR, samInW, _ := os.Pipe()   // samterm host-out -> sam stdin
 	// Run sam in the file's directory with a relative filename, so the path it
 	// echoes into the window is the stable "f", not the temp dir's random name.
-	cmd := exec.Command(plan9+"/bin/sam", "-R", filepath.Base(file))
+	cmd := exec.Command(plan9root+"/bin/sam", "-R", filepath.Base(file))
 	cmd.Dir = filepath.Dir(file)
 	cmd.Stdin = samInR
 	cmd.Stdout = samOutW
-	cmd.Stderr = os.Stderr
+	cmd.Stderr = quietStderr(t, "sam")
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
 		t.Fatal(err)
@@ -600,11 +650,11 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 	otTR, otTW, _ := os.Pipe()   // osamterm stdout (T) -> us
 
 	// Run sam in the file's directory with a relative filename (see runLocal).
-	sam := exec.Command(plan9+"/bin/sam", "-R", filepath.Base(file))
+	sam := exec.Command(plan9root+"/bin/sam", "-R", filepath.Base(file))
 	sam.Dir = filepath.Dir(file)
 	sam.Stdin = samTR
 	sam.Stdout = samHW
-	sam.Stderr = os.Stderr
+	sam.Stderr = quietStderr(t, "sam")
 	sam.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := sam.Start(); err != nil {
 		t.Fatal(err)
@@ -615,9 +665,9 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 	ot := exec.Command(samtermExe, "-W", "600x400")
 	ot.Stdin = otHR
 	ot.Stdout = otTW
-	ot.Stderr = os.Stderr
+	ot.Stderr = quietStderr(t, "samterm")
 	ot.Env = append(os.Environ(),
-		"DEVDRAW="+filepath.Join(plan9, "bin/devdraw"),
+		"DEVDRAW="+filepath.Join(plan9root, "bin/devdraw"),
 		"DEVDRAW_TEST_MEMORY=1",
 		"DEVDRAW_TEST_INPUT="+script,
 		"DEVDRAW_TEST_OUTPUT="+img,
@@ -674,7 +724,7 @@ func oldExe() string {
 	if cov.Enabled() {
 		return osamtermcover
 	}
-	return filepath.Join(plan9, "bin/osamterm")
+	return filepath.Join(plan9root, "bin/osamterm")
 }
 
 // TestGetscreen exercises the option parsing and display setup in getscreen
@@ -682,7 +732,7 @@ func oldExe() string {
 func TestGetscreen(t *testing.T) {
 	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
 	t.Setenv("DEVDRAW_TEST_OUTPUT", filepath.Join(t.TempDir(), "img"))
-	t.Setenv("DEVDRAW", filepath.Join(plan9, "bin/devdraw"))
+	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
 	t.Setenv("tabstop", "4")
 	os.Unsetenv("font")
 	term := &Term{maxtab: 8, hostlock: 1, typestart: -1, typeend: -1, typeesc: -1, kpeekc: -1, plumbfd: -1}

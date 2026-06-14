@@ -1,0 +1,17 @@
+Type a command line, then exercise the cursor/scroll navigation keys (home, end,
+line-start ^A, line-end ^E, page up/down, scroll up/down) in the typing handler.
+
+-- input --
+type hello world navigation test
+key home
+key ctrl-e
+key ctrl-a
+key end
+key pgup
+key pgdown
+key up
+key down
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 109 113 117 121 125 129 133 137 137 137 139 139 139 139 139 139
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddlddxddlddxddlddxddlddxddlddxddddxddlddxddddxddddxddddxddddxddddxddddxddlddxddddxd{5}

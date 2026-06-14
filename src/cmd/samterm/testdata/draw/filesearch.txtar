@@ -1,0 +1,32 @@
+Run a /search in the command window (sam sends Hsetpat), then open a file
+window's button-2 menu -- now showing the search item -- and select it (Tsearch;
+genmenu2's extra search entry).
+
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+move 100 10
+button 1
+button 0
+type /hello
+key \n
+move 250 200
+button 1
+button 0
+move 250 200
+button 2
+move 250 302
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 107 107 123 123 127 131 135 139 143 147 153 153 169 169 169 191 194 195 195 211 211
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{28}lddxddddxddddxddddxddddxddddxd{9}xd{16}cl{8}bd{6}bddsdsdsdsdsdsdsddsdddsdcd{16}

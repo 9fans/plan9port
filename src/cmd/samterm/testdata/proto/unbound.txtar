@@ -1,0 +1,14 @@
+Host messages addressed to a tag with no menu entry are ignored (whichmenu<0
+break paths in Hcurrent/Hmovname/Hgrowdata/Hclose/Hbindname).
+
+-- input --
+growdata 0 0 hi\n
+current 99
+movname 99 other
+growdata 99 0 nope\n
+close 99
+bindname 99 12345
+-- waitframes --
+56 62 62 62 62 62 62
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

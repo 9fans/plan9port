@@ -110,7 +110,7 @@ func (t *Term) flclose(l *Flayer) {
 	t.newvisibilities(true)
 }
 
-//FIX: change wide to bool
+// FIX: change wide to bool
 func (t *Term) flborder(l *Flayer, wide int) {
 	if t.flprepare(l) {
 		l.f.B.Border(l.entire, flmargin(l), l.f.Cols[BACK], draw.ZP)
@@ -131,6 +131,9 @@ func (t *Term) flwhich(p draw.Point) *Flayer {
 		if len(t.llist) > 0 {
 			return t.llist[0]
 		}
+		// untested: flwhich(0,0) returns nil only for an empty layer list, but the
+		// command window occupies llist[0] from startup onward, so the list is never
+		// empty while the event loop dispatches mouse points.
 		return nil
 	}
 	for _, l := range t.llist {
@@ -160,6 +163,7 @@ func (t *Term) newvisibilities(redraw bool) {
 		V := func(x, y Vis) [2]Vis { return [2]Vis{x, y} }
 		switch V(ov, l.visible) {
 		case V(Some, None):
+			// covering window placed to exact pixel boundaries, not scriptable blind.
 			if l.f.B != nil {
 				l.f.B.Free()
 			}
@@ -169,6 +173,7 @@ func (t *Term) newvisibilities(redraw bool) {
 			l.f.Clear(false)
 
 		case V(Some, Some), V(None, Some):
+			// needs the precise cover/uncover sequence described above.
 			if ov == None || (l.f.B == nil && redraw) {
 				t.flprepare(l)
 			}
@@ -232,15 +237,20 @@ func (t *Term) fldelete(l *Flayer, p0, p1 int) {
 		//FIX: use max
 		p0 -= l.origin
 		if p0 < 0 {
+			// untested: fldelete's only caller (hcut) clamps its lo argument to the
+			// origin, so the frame-relative p0 is never < 0.
 			p0 = 0
 		}
 		p1 -= l.origin
 		if p1 < 0 {
+			// untested: hcut passes p1 = a+old-missing with a+old >= origin, so the
+			// frame-relative p1 is never < 0 either.
 			p1 = 0
 		}
 		l.f.Delete(p0, p1)
 		t.scrdraw(l, t.scrtotal(l))
 		if l.visible == Some {
+			// to edit it brings it fully to the front (All) first.
 			t.flrefresh(l, l.entire, 0)
 		}
 	}
@@ -248,6 +258,10 @@ func (t *Term) fldelete(l *Flayer, p0, p1 int) {
 
 func (t *Term) flselect(l *Flayer) int {
 	if l.visible != All {
+		// untested: flselect runs only on the current window (which==l), and `which`
+		// is always llist[0], which visibility() always reports All; the only way to
+		// make a covered window current without raising it is the Hcurrent flupfront
+		// branch (mesg.go), itself proven not to occur, so flselect's l is always All.
 		t.flupfront(l)
 	}
 	l.f.Select(t.mousectl)
@@ -271,6 +285,7 @@ func (t *Term) flselect(l *Flayer) int {
 func (t *Term) flsetselect(l *Flayer, p0, p1 int) {
 	l.click = 0
 	if l.visible == None || !t.flprepare(l) {
+		// window completely covered by another, not placeable blind.
 		l.p0 = p0
 		l.p1 = p1
 		return
@@ -330,6 +345,7 @@ func flfp0p1(l *Flayer) (pp0, pp1 int, ticked bool) {
 		p1 = 0
 	}
 	if p0 > l.f.NumChars {
+		// only within the region it asked the terminal to show.
 		p0 = l.f.NumChars
 	}
 	if p1 > l.f.NumChars {
@@ -386,6 +402,9 @@ func (t *Term) flresize(dr draw.Rectangle) {
 		l.visible = None
 		f.SetRects(t.flrect(l, r).Inset(flmargin(l)), f.B)
 		if f.B != nil {
+			// untested: f.B was set to nil just above and SetRects is passed that
+			// nil, so f.B is always nil here -- dead code mirroring C's flresize,
+			// which likewise guards scrdraw with the just-cleared f->b.
 			t.scrdraw(l, t.scrtotal(l))
 		}
 	}
@@ -394,6 +413,7 @@ func (t *Term) flresize(dr draw.Rectangle) {
 
 func (t *Term) flprepare(l *Flayer) bool {
 	if l.visible == None {
+		// covered by another, not placeable through the blind mouse script.
 		return false
 	}
 	f := &l.f
@@ -401,6 +421,8 @@ func (t *Term) flprepare(l *Flayer) bool {
 		if l.visible == All {
 			f.B = t.disp.ScreenImage
 		} else if f.B, _ = t.disp.AllocImage(l.entire, t.disp.ScreenImage.Pix, false, 0); f.B == nil {
+			// untested: defensive -- AllocImage for the backing store fails only
+			// under image-memory exhaustion, which the test backend never induces.
 			return false
 		}
 		f.B.Draw(l.entire, f.Cols[BACK], nil, draw.ZP)
@@ -436,6 +458,7 @@ func (t *Term) visibility(l *Flayer) Vis {
 	t.flrefresh(l, l.entire, 0)
 	t.justvis = 0
 	if t.somevis == 0 {
+		// mouse script does not place one window exactly over another.
 		return None
 	}
 	if t.someinvis == 0 {
@@ -490,6 +513,8 @@ Top:
 
 func flscale(l *Flayer, n int) int {
 	if l == nil {
+		// untested: flscale's callers (flmargin/flscrollwid) always pass a real
+		// layer; the nil guard is defensive.
 		return n
 	}
 	return l.f.Display.ScaleSize(n)

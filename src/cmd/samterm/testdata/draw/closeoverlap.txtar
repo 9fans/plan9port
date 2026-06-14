@@ -1,0 +1,34 @@
+Create two overlapping file windows, then close the partially-covered (Some) back
+window, exercising flclose's partial-visibility path.
+
+-- input --
+move 300 8
+button 4
+move 300 11
+button 0
+move 150 150
+button 4
+move 400 300
+button 0
+move 300 8
+button 4
+move 300 11
+button 0
+move 280 240
+button 4
+move 530 380
+button 0
+move 300 8
+button 4
+move 300 63
+button 0
+move 200 180
+button 4
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 103 103 127 130 131 131 133 139 181 181 207 210 211 211 211 213 213 229 229
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsdsddsdddsdcd{32}bbd{27}l{8}ddddxxd{12}cbd{6}bddsdsdsdsdsdsdsdsdsddsdddsdcbd{19}

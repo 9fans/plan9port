@@ -1,0 +1,28 @@
+In a file window, type a line then erase by word (^W) and line (^U), exercising
+ctlw/ctlu and the local-cut backspacing across word boundaries.
+
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 480 330
+button 0
+move 250 170
+button 1
+button 0
+type aa bb cc
+key ctrl-w
+key ctrl-w
+key ctrl-u
+key ctrl-u
+key ctrl-w
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 107 107 109 109 113 117 121 125 129 133 137 141 145 149 153 160 166 166 182 182
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{17}xddddxddddxddlddxddddxddddxddddxddddxd{67}

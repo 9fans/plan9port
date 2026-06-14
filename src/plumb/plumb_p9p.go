@@ -6,6 +6,6 @@ import (
 	"9fans.net/go/plan9/client"
 )
 
-func mountPlumb() {
-	fsys, fsysErr = client.MountService("plumb")
+func mountPlumb() (*client.Fsys, error) {
+	return client.MountService("plumb")
 }

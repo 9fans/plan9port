@@ -1,0 +1,19 @@
+Choose the "<rio>" (snarf-exchange) item from the command window's button-2 menu.
+
+-- input --
+type hello world
+move 30 10
+button 1
+move 95 10
+button 0
+move 300 200
+button 2
+move 300 285
+button 0
+move 100 10
+button 1
+button 0
+-- waitframes --
+29 33 37 41 45 49 53 57 61 65 69 73 73 75 78 78 78 100 103 104 104 107 107
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxd{7}xbbdbbcl{16}bd{6}bddsdsdsdsdsdsdsddsdddsdcdxdd

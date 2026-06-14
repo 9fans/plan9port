@@ -8,7 +8,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-	"sync"
 
 	"9fans.net/go/plan9/client"
 )
@@ -35,21 +34,27 @@ var (
 	ErrQuote     = errors.New("bad attribute quoting")
 )
 
-var fsys *client.Fsys
-var fsysErr error
-var fsysOnce sync.Once
+// A Fsys is a connection to the plumber, mounted from the name space in effect
+// when Mount was called. It holds no package-global state, so each Mount yields
+// an independent connection -- in particular, two plumbers in two name spaces
+// (e.g. an in-process test pointing $NAMESPACE at its own plumber) do not share
+// a cached mount.
+type Fsys struct {
+	fsys *client.Fsys
+}
 
-// Open opens the plumbing file with the given name and open mode.
-func Open(name string, mode int) (*client.Fid, error) {
-	fsysOnce.Do(mountPlumb)
-	if fsysErr != nil {
-		return nil, fsysErr
-	}
-	fid, err := fsys.Open(name, uint8(mode))
+// Mount connects to the plumber in the current name space.
+func Mount() (*Fsys, error) {
+	fsys, err := mountPlumb()
 	if err != nil {
 		return nil, err
 	}
-	return fid, nil
+	return &Fsys{fsys}, nil
+}
+
+// Open opens the named plumbing file (e.g. "send", "edit") with the given open mode.
+func (f *Fsys) Open(name string, mode int) (*client.Fid, error) {
+	return f.fsys.Open(name, uint8(mode))
 }
 
 // Send writes the message to the writer. The message will be sent with

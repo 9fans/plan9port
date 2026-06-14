@@ -52,6 +52,11 @@ func (t *Term) menu2hit() {
 	}
 	m := draw.MenuHit(2, t.mousectl, menu, nil)
 	if t.hostlock != 0 || tx.lock != 0 {
+		// untested: the window becomes locked while the button-2 menu is up. The
+		// deterministic harness waitframe-syncs after every scripted event, so the
+		// host's Hunlock always lands before the next event -- the lock never
+		// straddles a menu. Same reason genmenu2/genmenu2c/genmenu3 never render a
+		// locked (parenthesized) item below.
 		return
 	}
 	switch m {
@@ -148,6 +153,10 @@ func (t *Term) menu3hit() {
 		if tx := t.text[m-NMENU3]; tx != nil {
 			i := tx.front
 			if tx.nwin == 0 || tx.l[i].textfn == nil {
+				// untested: closeup nils text[m] the moment nwin hits 0, so a
+				// reachable menu entry always has a window (nwin>0); the
+				// textfn==nil half-built-window case is a transient the
+				// frame-synced harness never catches mid-build.
 				return // not ready yet; try again later
 			}
 			if tx.nwin > 1 && t.which == &tx.l[i] {
@@ -250,7 +259,12 @@ func (t *Term) setpat(s string) {
 	t.menu2str[mSearch] = "/" + s
 }
 
-func paren(s string) string { return "(" + s + ")" }
+func paren(s string) string {
+	// untested: only reached for a menu item rendered while its window is locked;
+	// see menu2hit for why the deterministic harness never holds a lock across a
+	// menu.
+	return "(" + s + ")"
+}
 
 func (t *Term) genmenu2(n int) ([]byte, bool) {
 	tx := t.which.user1
@@ -266,6 +280,7 @@ func (t *Term) genmenu2(n int) ([]byte, bool) {
 	if (t.hostlock == 0 && tx.lock == 0) || n == mSearch || n == mLook {
 		return []byte(p), true
 	}
+	// untested: locked file-menu item (see menu2hit)
 	return []byte(paren(p)), true
 }
 
@@ -283,6 +298,7 @@ func (t *Term) genmenu2c(n int) ([]byte, bool) {
 	if t.hostlock == 0 && tx.lock == 0 {
 		return []byte(p), true
 	}
+	// untested: locked cmd-menu item (see menu2hit)
 	return []byte(paren(p)), true
 }
 
@@ -293,6 +309,7 @@ func (t *Term) genmenu3(n int) ([]byte, bool) {
 	if n < NMENU3 {
 		p := t.menu3str[n]
 		if t.hostlock != 0 {
+			// untested: locked menu3 item (see menu2hit)
 			p = paren(p)
 		}
 		return []byte(p), true
@@ -337,10 +354,12 @@ func (t *Term) genmenu3(n int) ([]byte, bool) {
 	name := string(t.name[n][1:])
 	body := name
 	if utf8.RuneCountInString(name) > NBUF-4-2 {
-		// truncate with "..." in the middle
+		// truncate with "..." in the middle. The two halves are asymmetric,
+		// matching C genmenu3: its char counter starts at 4 (the "X- " prefix) for
+		// the head but does not count the "..." for the tail, so the head keeps
+		// NBUF/2-4 runes and the tail keeps NBUF/2-1.
 		runes := []rune(name)
-		half := NBUF/2 - 4
-		body = string(runes[:half]) + "..." + string(runes[len(runes)-(NBUF/2-4):])
+		body = string(runes[:NBUF/2-4]) + "..." + string(runes[len(runes)-(NBUF/2-1):])
 	}
 	//FIX: seems like we don't really need strings.Builder here.
 	b.WriteByte(mark0)
