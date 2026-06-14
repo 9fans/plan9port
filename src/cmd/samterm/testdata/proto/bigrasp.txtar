@@ -1,0 +1,11 @@
+Grow the command window's rasp past 1<<20 runes, then scroll, so the scrollbar's
+position arithmetic takes its large-file scaled path (scrpos: tot/p0/p1 >>= 10).
+
+-- input --
+growdata 0 0 hi\n
+grow 0 0 1100000
+origin 0 10
+-- waitframes --
+28 31 31 36
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxd{12}

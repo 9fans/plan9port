@@ -311,8 +311,6 @@ func (t *Term) findl(tx *Text) *Flayer {
 			return &tx.l[i]
 		}
 	}
-	// untested: all NL layers of one file occupied (5 zerox/duplicate of the same
-	// file) so no free slot remains.
 	return nil
 }
 
@@ -431,14 +429,9 @@ func alnum(c int) bool {
 		return false
 	}
 	if 0x7F <= c && c <= 0xA0 {
-		// untested: classifying a DEL/high-control rune; the test content is plain
-		// ASCII, so word-scanning never lands on one.
 		return false
 	}
 	if strings.ContainsRune("!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~", rune(c)) {
-		// untested: classifying an ASCII punctuation rune happens only while
-		// word-scanning (ctlw / word double-click) lands exactly on such a rune,
-		// which the test content does not arrange at a scan boundary.
 		return false
 	}
 	return true
@@ -521,22 +514,16 @@ func (t *Term) center(l *Flayer, a int) int {
 func (t *Term) thirds(l *Flayer, a, n int) int {
 	tx := l.user1
 	if tx.lock == 0 && (a < l.origin || l.origin+l.f.NumChars < a) {
-		// untested: onethird is called after each typed insert with a = the new
-		// cursor, but flinsert keeps that cursor on screen, so by here it is never
-		// off-screen; the scroll body therefore does not run from typing. (center,
-		// reached by the navigation keys, covers the equivalent off-screen scroll.)
 		if a > tx.rasp.nrunes {
-			// untested: see above
+			// untested: a is the post-insert cursor, always <= nrunes, so this
+			// clamp is defensive and not reached.
 			a = tx.rasp.nrunes
 		}
-		// untested: see above
 		s := l.scroll.Inset(1)
 		lines := (n*(s.Max.Y-s.Min.Y)/l.f.Font.Height + 1) / 3
 		if lines < 2 {
-			// untested: see above
 			lines = 2
 		}
-		// untested: see above
 		t.outTsll(sam.Torigin, tx.tag, a, lines)
 		return 1
 	}

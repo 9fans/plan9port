@@ -1,0 +1,11 @@
+Send a second Hbindname for the already-bound command tag. whichtextOrNil finds
+the existing text, so the handler takes its "let the old one win, clean up the
+new" path instead of binding a fresh text.
+
+-- input --
+growdata 0 0 hi\n
+bindname 0 0
+-- waitframes --
+28 31 31
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

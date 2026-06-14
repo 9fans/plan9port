@@ -1,0 +1,10 @@
+Type a word containing punctuation, then erase by word (^W). The word scan in
+ctlw lands on the '.' rune, exercising the ASCII-punctuation branch of alnum.
+
+-- input --
+type foo.bar
+key ctrl-w
+-- waitframes --
+29 33 37 41 45 49 53 57 61
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddddxddlddxddlddxddlddxddlddxd{10}

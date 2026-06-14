@@ -1,0 +1,11 @@
+Type a word containing a non-breaking space (U+00A0), then erase by word (^W).
+The word scan in ctlw lands on the 0xA0 rune, exercising the high-control branch
+of alnum (0x7F<=c<=0xA0).
+
+-- input --
+type a b
+key ctrl-w
+-- waitframes --
+29 33 37 41 45
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxd{10}

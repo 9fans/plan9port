@@ -1,0 +1,78 @@
+Open a file, then zerox it until all NL=5 layers are occupied and attempt one
+more. The sixth duplicate finds no free layer slot, exercising findl's "no free
+slot" return. Each zerox selects "zerox" from the button-3 menu, presses button 3
+over the topmost (file) window to pick the source, then sweeps the new window's
+rectangle, so every duplicate is of the same file and stacks another layer.
+
+-- file --
+hello world
+second line
+third line
+-- input --
+move 300 8
+button 4
+move 300 114
+button 0
+move 200 150
+button 4
+move 450 290
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 200
+button 4
+button 0
+move 210 160
+button 4
+move 380 280
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 200
+button 4
+button 0
+move 210 160
+button 4
+move 380 280
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 200
+button 4
+button 0
+move 210 160
+button 4
+move 380 280
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 200
+button 4
+button 0
+move 210 160
+button 4
+move 380 280
+button 0
+move 300 8
+button 4
+move 300 29
+button 0
+move 250 200
+button 4
+button 0
+move 210 160
+button 4
+move 380 280
+button 0
+-- waitframes --
+29 29 51 54 55 55 57 63 110 110 132 135 136 136 136 136 136 138 144 178 178 200 200 201 201 201 201 201 203 209 243 243 265 265 266 266 266 266 266 268 274 308 308 330 330 331 331 331 331 331 333 339 373 373 395 395 396 396 396 396 396 398 404 408
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}lldddxxxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{20}xxxd{5}bd{8}xxxd{28}clbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}

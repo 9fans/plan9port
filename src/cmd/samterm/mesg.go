@@ -107,12 +107,13 @@ func (t *Term) inmesg(typ sam.Hmesg) {
 			tx = t.texttoken[l]
 		} else {
 			// let the old one win; clean up the new one.
-			// untested: a second Hbindname for an already-bound tag -- sam binds
-			// each file once, so the harness never produces the double bind.
 			nw := t.texttoken[l]
-			// untested: see above
 			for nw != nil && nw.nwin > 0 {
-				// untested: see above
+				// untested: the duplicate text whose token is re-bound has live
+				// windows to close. The bindtwice proto script reaches this branch
+				// with an empty token (no duplicate windows); a duplicate that
+				// actually has windows needs a second windowed text, which the
+				// cmd-only proto host cannot create.
 				t.close(&nw.l[nw.front])
 			}
 		}

@@ -1,0 +1,56 @@
+Open a multi-line file in a very short window (only a few lines tall), put the
+cursor near the top, scroll it off-screen with the mouse, then type. onethird's
+line count comes out below 2 for such a short window, exercising the lines<2
+clamp inside the off-screen scroll body.
+
+-- file --
+this is line number 1
+this is line number 2
+this is line number 3
+this is line number 4
+this is line number 5
+this is line number 6
+this is line number 7
+this is line number 8
+this is line number 9
+this is line number 10
+this is line number 11
+this is line number 12
+this is line number 13
+this is line number 14
+this is line number 15
+this is line number 16
+this is line number 17
+this is line number 18
+this is line number 19
+this is line number 20
+this is line number 21
+this is line number 22
+this is line number 23
+this is line number 24
+this is line number 25
+this is line number 26
+this is line number 27
+this is line number 28
+this is line number 29
+this is line number 30
+-- input --
+move 300 8
+button 4
+move 300 116
+button 0
+move 200 150
+button 4
+move 450 205
+button 0
+move 300 160
+button 1
+button 0
+move 208 198
+button 2
+button 0
+type x
+-- waitframes --
+29 29 51 54 55 55 57 63 109 109 111 111 111 115 129 141
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{7}dddxxxd{6}lldddxd{32}ldddxxd{20}xxxd{6}
