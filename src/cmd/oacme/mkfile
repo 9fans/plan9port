@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 
-TARG=acme
+TARG=oacme
 DIRS=mail
 
 OFILES=\

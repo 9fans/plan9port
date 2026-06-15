@@ -138,6 +138,7 @@ bin/netfileput
 bin/netfilestat
 bin/netkey
 bin/news
+bin/oacme
 bin/osam
 bin/osamterm
 bin/p
