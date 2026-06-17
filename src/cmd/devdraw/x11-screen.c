@@ -1168,7 +1168,7 @@ rpc_resizewindow(Client *client, Rectangle r)
 
 	xlock();
 	memset(&e, 0, sizeof e);
-	value_mask = CWX|CWY|CWWidth|CWHeight;
+	value_mask = CWWidth|CWHeight;
 	e.width = Dx(r);
 	e.height = Dy(r);
 	XConfigureWindow(_x.display, w->drawable, value_mask, &e);
