@@ -7,5 +7,5 @@ indices:V:
 	done
 
 lookman.index:V:
-	./mkindex
+	9 rc ./mkindex
 
