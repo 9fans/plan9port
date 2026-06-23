@@ -176,8 +176,10 @@ outcode(tree *t, int eflag)
 		outcode(c0, eflag);
 		break;
 	case BANG:
-		outcode(c0, eflag);
+		outcode(c0, 0);
 		emitf(Xbang);
+		if(eflag)
+			emitf(Xeflag);
 		break;
 	case PCMD:
 	case BRACE:
