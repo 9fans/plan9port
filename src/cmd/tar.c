@@ -871,6 +871,11 @@ cantcreate(char *s, int mode)
 		/* save */
 		free(last);
 		last = strdup(s);
+		if(last == nil){
+			fprint(2, "Memory allocation failed.\n");
+			return;
+		}
+			
 	}
 	fprint(2, "%s: can't create %s: %r\n", argv0, s);
 }

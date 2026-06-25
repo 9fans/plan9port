@@ -218,21 +218,32 @@ remoteIP(char *ldir)
 {
 	int fd, n;
 	char rp[100], ap[500];
+	char *ret;
 
 	snprint(rp, sizeof rp, "%s/remote", ldir);
 	fd = open(rp, OREAD);
-	if(fd < 0)
-		return strdup("?!?");
+	if(fd < 0){
+		ret = strdup("?!?");
+		if(ret == nil)
+			sysfatal("no memory");
+		return ret;
+	}
 	n = read(fd, ap, sizeof ap);
 	if(n <= 0 || n == sizeof ap){
 		fprint(2, "error %d reading %s: %r\n", n, rp);
-		return strdup("?!?");
+		ret = strdup("?!?");
+		if(ret == nil)
+			sysfatal("no memory");
+		return ret;
 	}
 	close(fd);
 	ap[n--] = 0;
 	if(ap[n] == '\n')
 		ap[n] = 0;
-	return strdup(ap);
+	ret = strdup(ap);
+	if(ret == nil)
+		sysfatal("no memory");
+	return ret;
 }
 
 static int
