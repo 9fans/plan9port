@@ -24,12 +24,12 @@ secdial(void)
 	char *p;
 
 	p = secstore;
-	if(p == nil)	  /* else use the authserver */
+	if(p == nil)
 		p = getenv("secstore");
-	if(p == nil)
-		p = getenv("auth");
-	if(p == nil)
-		p = "secstore";
+	if(p == nil){
+		werrstr("no secstore");
+		return -1;
+	}
 
 	return dial(netmkaddr(p, "net", "secstore"), 0, 0, 0);
 }
