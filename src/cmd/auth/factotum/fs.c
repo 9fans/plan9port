@@ -330,6 +330,16 @@ fsread(Req *r)
 	case Qrpc:
 		c = r->fid->aux;
 		if(c->rpc.op == RpcUnknown){
+			/*
+			 * The conv may have produced its reply and reset the op
+			 * (rpcrespond) before this read arrived: deliver the
+			 * buffered reply instead of failing with "no rpc pending".
+			 */
+			if(c->nreply && c->req == nil){
+				c->req = r;
+				(*c->kickreply)(c);
+				break;
+			}
 			respond(r, "no rpc pending");
 			break;
 		}
