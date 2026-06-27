@@ -345,8 +345,13 @@ xcreate(int argc, char **argv)
 	CFsys *fs;
 	CFid *fid;
 	char *p;
+	ulong mode;
 
+	mode = 0666;
 	ARGBEGIN{
+	case 'd':
+		mode |= DMDIR;
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -356,7 +361,7 @@ xcreate(int argc, char **argv)
 
 	for(i=0; i<argc; i++){
 		fs = xparse(argv[i], &p);
-		if((fid=fscreate(fs, p, OREAD, 0666)) == nil)
+		if((fid=fscreate(fs, p, OREAD, mode)) == nil)
 			fprint(2, "create %s: %r\n", argv[i]);
 		else
 			fsclose(fid);
