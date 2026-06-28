@@ -67,6 +67,7 @@ DragonFly|*BSD)
 	echo "CFLAGS='-pthread'" >> $PLAN9/config
 	;;
 *Linux*)
+	export NPROC="$(nproc)"
 	egrep='grep -E'
 	;;
 esac
