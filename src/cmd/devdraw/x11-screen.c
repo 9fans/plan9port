@@ -385,15 +385,15 @@ runxevent(XEvent *xev)
 	case MapNotify:
 	case FocusIn:    
 	case Expose:     /* Handle standard Expose here too for consistency */
-			/* * Force a copy from backing store (screenpm) to the window.
-			 * We removed the (screenpm == nextscreenpm) check because 
-			 * a slightly "tearing" frame is better than a blank one.
+			/*
+			 * Force a copy from backing store (screenpm) to the window.
 			 */
 			if(w->screenpm){
 				XCopyArea(_x.display, w->screenpm, w->drawable, _x.gccopy,
 					0, 0, Dx(w->screenr), Dy(w->screenr), 0, 0);
 			}
-			/* * If this was a real Expose event, we still let standard handling
+			/*
+			 * If this was a real Expose event, we still let standard handling
 			 * run just in case, though the CopyArea above likely did the job.
 			 */
 			if(xev->type == Expose)
