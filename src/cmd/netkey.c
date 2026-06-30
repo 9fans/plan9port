@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 	pass = readcons("password", nil, 1);
 	if(pass == nil)
 		sysfatal("reading password: %r");
-	passtokey(key, pass);
+	passtodeskey(key, pass);
 
 	for(;;){
 		chal = readcons("challenge", nil, 0);

@@ -38,3 +38,10 @@ HFILES=dat.h
 $O.test: test.$O
 	$LD -o $target $prereq
 
+$O.livetest: livetest.$O
+	$LD -o $target $prereq
+
+dp9iklive: install $O.livetest
+	PLAN9=$PLAN9 ./dp9iklive.sh
+
+p9authlive: dp9iklive

@@ -1,0 +1,63 @@
+void spake2ee_h2P(mpint *p, mpint *a, mpint *d, mpint *h, mpint *PX, mpint *PY, mpint *PZ, mpint *PT){
+	mpint *n = mpnew(0);
+	mpassign(mptwo, n);
+	for(;;){
+		mpint *tmp1 = mpnew(0);
+		legendresymbol(n, p, tmp1);
+		mpint *tmp2 = mpnew(0);
+		mpassign(mpone, tmp2);
+		tmp2->sign = -1;
+		if(mpcmp(tmp1, tmp2) != 0){
+			mpadd(n, mpone, n);
+			}else{
+			mpfree(tmp2);
+			mpfree(tmp1);
+			break;
+			}
+		mpfree(tmp1);
+		mpfree(tmp2);
+		}
+	mpint *tmp3 = mpnew(0);
+	mpmod(h, p, tmp3);
+	elligator2(p, a, d, n, tmp3, PX, PY, PZ, PT);
+	mpfree(tmp3);
+	mpfree(n);
+	}
+void spake2ee_1(mpint *p, mpint *a, mpint *d, mpint *x, mpint *GX, mpint *GY, mpint *PX, mpint *PY, mpint *PZ, mpint *PT, mpint *y){
+	mpint *T = mpnew(0);
+	mpint *Z = mpnew(0);
+	mpint *Y = mpnew(0);
+	mpint *X = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	mpmodmul(GX, GY, p, tmp1);
+	edwards_scale(p, a, d, x, GX, GY, mpone, tmp1, X, Y, Z, T);
+	mpfree(tmp1);
+	edwards_add(p, a, d, X, Y, Z, T, PX, PY, PZ, PT, X, Y, Z, T);
+	decaf_encode(p, a, d, X, Y, Z, T, y);
+	mpfree(T);
+	mpfree(Z);
+	mpfree(Y);
+	mpfree(X);
+	}
+void spake2ee_2(mpint *p, mpint *a, mpint *d, mpint *PX, mpint *PY, mpint *PZ, mpint *PT, mpint *x, mpint *y, mpint *ok, mpint *z){
+	mpint *T = mpnew(0);
+	mpint *Z = mpnew(0);
+	mpint *Y = mpnew(0);
+	mpint *X = mpnew(0);
+	decaf_decode(p, a, d, y, ok, X, Y, Z, T);
+	if(mpcmp(ok, mpzero) != 0){
+		mpint *tmp1 = mpnew(0);
+		mpmodsub(mpzero, PX, p, tmp1);
+		mpint *tmp2 = mpnew(0);
+		mpmodsub(mpzero, PT, p, tmp2);
+		edwards_add(p, a, d, X, Y, Z, T, tmp1, PY, PZ, tmp2, X, Y, Z, T);
+		mpfree(tmp1);
+		mpfree(tmp2);
+		edwards_scale(p, a, d, x, X, Y, Z, T, X, Y, Z, T);
+		decaf_encode(p, a, d, X, Y, Z, T, z);
+		}
+	mpfree(T);
+	mpfree(Z);
+	mpfree(Y);
+	mpfree(X);
+	}

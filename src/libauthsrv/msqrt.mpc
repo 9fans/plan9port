@@ -1,0 +1,149 @@
+void legendresymbol(mpint *a, mpint *p, mpint *r){
+	mpint *pm1 = mpnew(0);
+	mpsub(p, mpone, pm1);
+	mpright(pm1, 1, r);
+	mpexp(a, r, p, r);
+	if(mpcmp(r, pm1) == 0){
+		mpassign(mpone, r);
+		r->sign = -1;
+		}
+	mpfree(pm1);
+	}
+void msqrt(mpint *a, mpint *p, mpint *r){
+	mpint *gs = mpnew(0);
+	mpint *m = mpnew(0);
+	mpint *t = mpnew(0);
+	mpint *g = mpnew(0);
+	mpint *b = mpnew(0);
+	mpint *x = mpnew(0);
+	mpint *n = mpnew(0);
+	mpint *s = mpnew(0);
+	mpint *e = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	legendresymbol(a, p, tmp1);
+	if(mpcmp(tmp1, mpone) != 0){
+		mpassign(mpzero, r);
+		}else{
+		if(mpcmp(a, mpzero) == 0){
+			mpassign(mpzero, r);
+			}else{
+			if(mpcmp(p, mptwo) == 0){
+				mpassign(a, r);
+				}else{
+				mpint *tmp2 = mpnew(0);
+				uitomp(4UL, tmp2);
+				mpmod(p, tmp2, tmp2);
+				mpint *tmp3 = mpnew(0);
+				uitomp(3UL, tmp3);
+				if(mpcmp(tmp2, tmp3) == 0){
+					mpadd(p, mpone, e);
+					mpright(e, 2, e);
+					mpexp(a, e, p, r);
+					}else{
+					mpsub(p, mpone, s);
+					mpassign(mpzero, e);
+					for(;;){
+						mpint *tmp4 = mpnew(0);
+						mpmod(s, mptwo, tmp4);
+						if(mpcmp(tmp4, mpzero) == 0){
+							mpright(s, 1, s);
+							mpadd(e, mpone, e);
+							}else{
+							mpfree(tmp4);
+							break;
+							}
+						mpfree(tmp4);
+						}
+					mpassign(mptwo, n);
+					for(;;){
+						mpint *tmp5 = mpnew(0);
+						legendresymbol(n, p, tmp5);
+						mpint *tmp6 = mpnew(0);
+						mpassign(mpone, tmp6);
+						tmp6->sign = -1;
+						if(mpcmp(tmp5, tmp6) != 0){
+							mpadd(n, mpone, n);
+							}else{
+							mpfree(tmp6);
+							mpfree(tmp5);
+							break;
+							}
+						mpfree(tmp5);
+						mpfree(tmp6);
+						}
+					mpmodadd(s, mpone, p, x);
+					mpright(x, 1, x);
+					mpexp(a, x, p, x);
+					mpexp(a, s, p, b);
+					mpexp(n, s, p, g);
+					for(;;){
+						if(0 == 0){
+							mpassign(b, t);
+							mpassign(mpzero, m);
+							for(;;){
+								if(mpcmp(m, e) < 0){
+									if(mpcmp(t, mpone) == 0){
+										break;
+										}
+									mpmul(t, t, t);
+									mpmod(t, p, t);
+									mpadd(m, mpone, m);
+									}else{
+									break;
+									}
+								}
+							if(mpcmp(m, mpzero) == 0){
+								mpassign(x, r);
+								break;
+								}
+							mpsub(e, m, t);
+							mpsub(t, mpone, t);
+							mpexp(mptwo, t, nil, t);
+							mpexp(g, t, p, gs);
+							mpmodmul(gs, gs, p, g);
+							mpmodmul(x, gs, p, x);
+							mpmodmul(b, g, p, b);
+							mpassign(m, e);
+							}else{
+							break;
+							}
+						}
+					}
+				mpfree(tmp2);
+				mpfree(tmp3);
+				}
+			}
+		}
+	mpfree(tmp1);
+	mpfree(gs);
+	mpfree(m);
+	mpfree(t);
+	mpfree(g);
+	mpfree(b);
+	mpfree(x);
+	mpfree(n);
+	mpfree(s);
+	mpfree(e);
+	}
+void misqrt(mpint *a, mpint *p, mpint *r){
+	mpint *e = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	uitomp(4UL, tmp1);
+	mpmod(p, tmp1, tmp1);
+	mpint *tmp2 = mpnew(0);
+	uitomp(3UL, tmp2);
+	if(mpcmp(tmp1, tmp2) == 0){
+		uitomp(3UL, e);
+		mpsub(p, e, e);
+		mpright(e, 2, e);
+		mpexp(a, e, p, r);
+		}else{
+		msqrt(a, p, r);
+		if(mpcmp(r, mpzero) != 0){
+			mpinvert(r, p, r);
+			}
+		}
+	mpfree(tmp1);
+	mpfree(tmp2);
+	mpfree(e);
+	}

@@ -3,7 +3,6 @@
 #include "dat.h"
 
 /* res = b**e */
-/* */
 /* knuth, vol 2, pp 398-400 */
 
 enum {
@@ -21,6 +20,8 @@ mpexp(mpint *b, mpint *e, mpint *m, mpint *res)
 	int tofree;
 	mpdigit d, bit;
 	int i, j;
+
+	res->flags |= b->flags & MPtimesafe;
 
 	i = mpcmp(e,mpzero);
 	if(i==0){
@@ -57,24 +58,22 @@ mpexp(mpint *b, mpint *e, mpint *m, mpint *res)
 	j = 0;
 	for(;;){
 		for(; bit != 0; bit >>= 1){
-			mpmul(t[j], t[j], t[j^1]);
-			if(bit & d)
-				mpmul(t[j^1], b, t[j]);
+			if(m != nil)
+				mpmodmul(t[j], t[j], m, t[j^1]);
 			else
+				mpmul(t[j], t[j], t[j^1]);
+			if(bit & d){
+				if(m != nil)
+					mpmodmul(t[j^1], b, m, t[j]);
+				else
+					mpmul(t[j^1], b, t[j]);
+			}else
 				j ^= 1;
-			if(m != nil && t[j]->top > m->top){
-				mpmod(t[j], m, t[j^1]);
-				j ^= 1;
-			}
 		}
 		if(--i < 0)
 			break;
 		bit = mpdighi;
 		d = e->p[i];
-	}
-	if(m != nil){
-		mpmod(t[j], m, t[j^1]);
-		j ^= 1;
 	}
 	if(t[j] == res){
 		mpfree(t[j^1]);
