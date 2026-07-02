@@ -15,7 +15,7 @@ fcallfmt(Fmt *fmt)
 	int fid, type, tag, i;
 	char buf[512], tmp[200];
 	char *p, *e;
-	Dir *d;
+	Dir d;
 	Qid *q;
 
 	e = buf+sizeof(buf);
@@ -124,24 +124,20 @@ fcallfmt(Fmt *fmt)
 		break;
 	case Rstat:
 		p = seprint(buf, e, "Rstat tag %ud ", tag);
-		if(f->stat == nil || f->nstat > sizeof tmp)
+		if(f->stat == nil || f->nstat > sizeof tmp || convM2D(f->stat, f->nstat, &d, tmp) == 0)
 			seprint(p, e, " stat(%d bytes)", f->nstat);
 		else{
-			d = (Dir*)tmp;
-			convM2D(f->stat, f->nstat, d, (char*)(d+1));
 			seprint(p, e, " stat ");
-			fdirconv(p+6, e, d);
+			fdirconv(p+6, e, &d);
 		}
 		break;
 	case Twstat:	/* 126 */
 		p = seprint(buf, e, "Twstat tag %ud fid %ud", tag, fid);
-		if(f->stat == nil || f->nstat > sizeof tmp)
+		if(f->stat == nil || f->nstat > sizeof tmp || convM2D(f->stat, f->nstat, &d, tmp) == 0)
 			seprint(p, e, " stat(%d bytes)", f->nstat);
 		else{
-			d = (Dir*)tmp;
-			convM2D(f->stat, f->nstat, d, (char*)(d+1));
 			seprint(p, e, " stat ");
-			fdirconv(p+6, e, d);
+			fdirconv(p+6, e, &d);
 		}
 		break;
 	case Rwstat:
