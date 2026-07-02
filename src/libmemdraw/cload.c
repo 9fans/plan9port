@@ -14,6 +14,7 @@ _cloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 	bpl = bytesperline(r, i->depth);
 	u = data;
 	eu = data+ndata;
+	memset(mem, 0, sizeof mem);
 	memp = mem;
 	emem = mem+NMEM;
 	y = r.min.y;
