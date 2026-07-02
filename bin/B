@@ -23,10 +23,6 @@ if [ "x$DISPLAY" = "x" ]
 then
 	sam="/tmp/.sam.$USER"
 else
-	if [ "$DISPLAY" = ":0" ]
-	then
-		DISPLAY=:0.0
-	fi
 	sam="/tmp/.sam.$USER.$DISPLAY"
 fi
 
