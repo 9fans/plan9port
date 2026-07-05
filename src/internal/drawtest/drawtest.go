@@ -58,6 +58,26 @@ func Frames(t *testing.T, name string) []image.Image {
 	return frames
 }
 
+// FramesAndCursor loads the window frames (name.0, name.1, ...) and the matching
+// cursor frames (name.cursor.0, ...) that devdraw wrote in lockstep -- one cursor
+// frame per window frame -- and returns them interleaved as
+// window,cursor,window,cursor,..., the sequence [Check] and the golden GIF use
+// (see encodeGIF). The two streams must be the same length.
+func FramesAndCursor(t *testing.T, name string) []image.Image {
+	t.Helper()
+	win := Frames(t, name)
+	cur := Frames(t, name+".cursor")
+	if len(win) != len(cur) {
+		t.Errorf("window/cursor frame count mismatch: %d window, %d cursor", len(win), len(cur))
+		return win
+	}
+	out := make([]image.Image, 0, 2*len(win))
+	for i := range win {
+		out = append(out, win[i], cur[i])
+	}
+	return out
+}
+
 // readImage reads a Plan 9 image file -- the compressed format devdraw writes
 // (image(6); the decoder is libmemdraw/cload.c) -- into an image.RGBA. It
 // preserves the image's rectangle, so a frame whose top-left corner is not the
@@ -238,7 +258,6 @@ func writePNG(t *testing.T, file string, m image.Image) {
 	}
 }
 
-
 // Check checks the frames loaded by [Frames] against expected frames stored in
 // the golden file, as a single animated GIF. The frames are the per-operation
 // diffs (see Frames); each is compared and stored at its own rectangle, so no
@@ -267,7 +286,7 @@ func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 			t.Errorf("extra frames: have %d, want %d", len(frames), len(want))
 			return
 		}
-		if diff := imageDiff(frame, want[i]); diff.Dx() > 0 {
+		if diff := imageDiff(frame, want[i]); !diff.Empty() {
 			t.Errorf("frame %d differs from %v in bounding box %v", i, golden, diff)
 			have := filepath.Join(filepath.Dir(golden), "have."+filepath.Base(golden))
 			if err := os.WriteFile(have, encodeGIF(t, frames), 0666); err != nil {
@@ -308,7 +327,11 @@ func imageDiff(p, q image.Image) image.Rectangle {
 	if xmin > xmax {
 		return image.Rect(0, 0, 0, 0)
 	}
-	return image.Rect(xmin, ymin, xmax, ymax)
+	// xmax/ymax are the last differing pixel; return an exclusive (half-open)
+	// rectangle so a difference that is only one pixel wide or tall -- e.g. the
+	// frame tick's 1-pixel vertical line -- still has a non-zero Dx/Dy and is
+	// not mistaken for "no difference".
+	return image.Rect(xmin, ymin, xmax+1, ymax+1)
 }
 
 // decodeGIF decodes an animated GIF and composites its frames back into full images.
@@ -329,20 +352,32 @@ func decodeGIF(t *testing.T, data []byte) []image.Image {
 	return frames
 }
 
-// encodeGIF encodes the diff frames as an animated GIF, one GIF frame per diff,
-// stored at its rectangle exactly as given. No transparency is computed: a diff
-// is already the change from the previous frame, and GIF's "none" disposal makes
-// the frames overlay into the full window when viewed. It fails if the frames
-// use more than 256 colors.
+// encodeGIF encodes the frames as an animated GIF, one GIF frame per input
+// frame, stored at its rectangle exactly as given. It fails if the frames use
+// more than 256 colors.
+//
+// The frames are interleaved window,cursor,window,cursor,... pairs (see
+// [FramesAndCursor]): even indices are opaque window diffs, odd indices are the
+// transparent cursor sprite at its real position. A cursor frame is given
+// gif.DisposalPrevious and a non-zero delay, and the window frame it follows a
+// zero delay, so a compliant viewer paints the window, overlays the cursor for
+// the delay, then removes it before the next window frame -- compositing the
+// cursor for us without disturbing the window comparison.
 func encodeGIF(t *testing.T, frames []image.Image) []byte {
 	t.Helper()
 
 	if len(frames) == 0 {
 		t.Fatalf("encodeGIF: no frames")
 	}
+	if len(frames)%2 != 0 {
+		t.Fatalf("encodeGIF: odd frame count %d (expected window,cursor pairs)", len(frames))
+	}
 
-	// Build the palette from every color across the diffs, and the logical
-	// screen from the union of their rectangles (the largest the window was).
+	// Build the palette from every color across the frames, and the logical
+	// screen from the union of their rectangles (the largest the window was). A
+	// fully transparent pixel (the cursor background) contributes the color
+	// rgba(0) -- which sorts first, so the transparent palette index is 0, the
+	// index gif.EncodeAll uses for transparency.
 	colors := map[rgba]bool{}
 	var canvas image.Rectangle
 	for _, m := range frames {
@@ -371,14 +406,21 @@ func encodeGIF(t *testing.T, frames []image.Image) []byte {
 	}
 
 	g := &gif.GIF{Config: image.Config{ColorModel: pal, Width: canvas.Max.X, Height: canvas.Max.Y}}
-	for _, frame := range frames {
+	for i, frame := range frames {
 		p := image.NewPaletted(frame.Bounds(), pal)
 		for x, y := range points(frame.Bounds()) {
 			p.SetColorIndex(x, y, uint8(index[rgbaOf(frame.At(x, y))]))
 		}
 		g.Image = append(g.Image, p)
-		g.Delay = append(g.Delay, 100) // 1s/frame when viewed
-		g.Disposal = append(g.Disposal, gif.DisposalNone)
+		if i%2 == 1 {
+			// Cursor frame: overlay it, then undo it before the next window frame.
+			g.Delay = append(g.Delay, 100)
+			g.Disposal = append(g.Disposal, gif.DisposalPrevious)
+		} else {
+			// Window frame, about to be overlaid by its cursor: show it instantly.
+			g.Delay = append(g.Delay, 0)
+			g.Disposal = append(g.Disposal, gif.DisposalNone)
+		}
 	}
 	var buf bytes.Buffer
 	if err := gif.EncodeAll(&buf, g); err != nil {
