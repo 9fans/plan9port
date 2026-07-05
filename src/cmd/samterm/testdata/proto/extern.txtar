@@ -1,0 +1,10 @@
+Open a file through the legacy extern FIFO (the no-plumber "B" file-open path):
+the terminal reads the FIFO via extproc, feeds it as keyboard input, and types
+the request into the command window, exactly as a plumbed showfile would.
+
+-- input --
+extern B sample.txt\n
+-- waitframes --
+28 49
+-- drawops --
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{46}l{11}dddxdd

@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"syscall"
 
 	p9 "9fans.net/go/plan9"
 	"9fans.net/go/plan9/client"
@@ -91,6 +92,97 @@ func (t *Term) dumperrmsg(count, typ, count0, c int) {
 		count, typ, count0, c, t.rcvstring())
 }
 
+// removeextern unlinks the extern FIFO. C registers it with atexit; Go calls it
+// from main() on the normal exit path (and from extstart's own error paths). It
+// is a no-op once exname has been cleared.
+func (t *Term) removeextern() {
+	if t.exname != "" {
+		os.Remove(t.exname)
+	}
+}
+
+// extproc reads raw "B filename\n" requests from the extern FIFO into a half of
+// the plumbbuf double buffer and notifies the event loop (waitforio's RPlumb
+// case) with the buffer index, exactly like plumbproc but without the plumb
+// formatting (the FIFO bytes are already in command form). A read error is not
+// fatal: the goroutine just exits, as C's extproc does (threadexits). Faithful
+// to plan9.c extproc.
+func (t *Term) extproc(f *os.File) {
+	i := 0
+	for {
+		i = 1 - i // toggle
+		n, err := f.Read(t.plumbbuf[i].data[:])
+		if n <= 0 || err != nil {
+			fmt.Fprintf(os.Stderr, "samterm: extern read error: %v\n", err)
+			return // not a fatal error
+		}
+		t.plumbbuf[i].n = n
+		t.plumbc <- i
+	}
+}
+
+// extstart sets up the legacy "extern" file-open channel: a named FIFO at
+// /tmp/.sam.$USER[.$DISPLAY] that anything (notably sam's own button-2 "B"
+// command, or older tooling) can write a "B filename\n" request into. It is the
+// pre-plumber mechanism, used only when no plumber is reachable (initio calls it
+// when plumbstart fails). Faithful to plan9.c extstart.
+//
+// Differences from C, none observable: C registers atexit(removeextern); Go has
+// no atexit, so main() calls t.removeextern() on the normal exit path. C clears
+// O_NONBLOCK on the read fd because its extproc issues a blocking read(2)
+// directly; here extproc reads through an *os.File, so the runtime poller
+// provides the blocking, and the lingering writer (opened below, never closed)
+// is what keeps reads from ever seeing EOF.
+func (t *Term) extstart() {
+	user := os.Getenv("USER")
+	if user == "" {
+		return
+	}
+	if disp := os.Getenv("DISPLAY"); disp != "" {
+		t.exname = fmt.Sprintf("/tmp/.sam.%s.%s", user, disp)
+	} else {
+		t.exname = fmt.Sprintf("/tmp/.sam.%s", user)
+	}
+
+	if err := syscall.Mkfifo(t.exname, 0600); err != nil {
+		// Already exists: reuse it if it is a FIFO, else remove and recreate
+		// (matches C's errno==EEXIST + stat + S_ISFIFO check).
+		var st syscall.Stat_t
+		if err != syscall.EEXIST || syscall.Stat(t.exname, &st) != nil {
+			t.exname = ""
+			return
+		}
+		if uint32(st.Mode)&syscall.S_IFMT != syscall.S_IFIFO {
+			t.removeextern()
+			if syscall.Mkfifo(t.exname, 0600) != nil {
+				t.exname = ""
+				return
+			}
+		}
+	}
+
+	// Open the FIFO for reading. O_NONBLOCK so the open does not block waiting
+	// for a writer to appear.
+	rfd, err := syscall.Open(t.exname, syscall.O_RDONLY|syscall.O_NONBLOCK, 0)
+	if err != nil {
+		t.removeextern()
+		t.exname = ""
+		return
+	}
+	// Provide ourselves as a lingering writer (intentionally never closed) so
+	// the reader never sees end-of-file when the last client closes. If that
+	// open fails, give up on the extern mechanism.
+	if _, err := syscall.Open(t.exname, syscall.O_WRONLY, 0); err != nil {
+		syscall.Close(rfd)
+		t.removeextern()
+		t.exname = ""
+		return
+	}
+
+	t.plumbc = make(chan int)
+	go t.extproc(os.NewFile(uintptr(rfd), t.exname))
+}
+
 // plumbformat renders a "showfile" plumb message into plumbbuf[i] as the sam
 // command "B <data>\n<addr>\n" (typed into the command window to open the file).
 // It returns false for messages it can't handle (empty, too large, or a
@@ -145,8 +237,8 @@ func (t *Term) plumbproc(fid *client.Fid) {
 // available, launches plumbproc. The send port is optional ("not open is ok" in
 // C); plumbfd >= 0 (here: a non-nil plumbsendfid) is what enables the button-2
 // "plumb" menu item. Returns -1 if plumbing is unavailable (no plumber running),
-// in which case the terminal runs without it -- exactly as before this port.
-// (C's extstart fallback for the legacy 9fs "extern" mechanism is not ported.)
+// in which case the terminal runs without it -- and initio falls back to the
+// legacy extern FIFO (extstart) just as C does.
 func (t *Term) plumbstart() int {
 	fsys, err := plumb.Mount()
 	if err != nil {

@@ -14,7 +14,12 @@ func (t *Term) initio() {
 	t.mouse = t.display.InitMouse()
 	t.keyboardctl = t.display.InitKeyboard()
 	t.hoststart()
-	t.plumbstart()
+	if t.plumbstart() < 0 && t.extfallback {
+		// No plumber: fall back to the legacy extern FIFO (C does this
+		// unconditionally; t.extfallback gates it on so the in-process tests --
+		// which also lack a plumber -- don't create a real /tmp/.sam.* FIFO).
+		t.extstart()
+	}
 }
 
 func (t *Term) getmouse() {

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 
 	"9fans.net/plan9port/draw"
 	"9fans.net/plan9port/internal/sam"
@@ -18,6 +19,21 @@ func main() {
 	// NewTerm (so they can run it in-process for coverage and wire the host to a
 	// pipe), so this fd-and-os.Args wrapper is exercised only by the real binary.
 	t := newTerm()
+	t.extfallback = true // real binary: enable the legacy extern FIFO if no plumber
+
+	// Ignore interrupts, like C samterm's note handler (notifyf): it catches the
+	// "interrupt" note and continues (noted(NCONT)) so a stray ^C doesn't kill the
+	// editor mid-session, while other signals keep their default, terminating
+	// behavior (noted(NDFLT)). signal.Ignore(os.Interrupt) is the exact analogue.
+	// untested: see top of main
+	signal.Ignore(os.Interrupt)
+
+	// sam talks to us on fds 0 and 1; move them off 0/1 before anything can
+	// scribble on stdout. (Must precede getscreen/initdraw, which may open fds.)
+	// untested: see top of main
+	// TODO duplicating code below
+	t.hostr, t.hostw = hostFiles()
+
 	// untested: see top of main
 	if err := t.getscreen(os.Args[1:]); err != nil {
 		// untested: see top of main
@@ -26,9 +42,6 @@ func main() {
 	}
 	// sam talks to us on stdin/stdout. Move these elsewhere so that if we
 	// accidentally use them in other code, nothing bad happens.
-	// untested: see top of main
-	t.hostr = os.Stdin
-	t.hostw = os.Stdout
 	if f, err := os.Open(os.DevNull); err == nil {
 		// untested: see top of main
 		os.Stdin = f
@@ -51,6 +64,40 @@ func main() {
 	signal.Ignore(os.Interrupt)
 	t.startup()
 	t.run()
+	t.removeextern() // C does this via atexit(removeextern)
+}
+
+// hostFiles performs samterm's fd-isolation dance (osamterm/main.c threadmain):
+// sam talks to us on fds 0 and 1, so move them off 0/1 -- so that if any other
+// code accidentally reads fd 0 or writes fd 1, it cannot corrupt the sam
+// protocol stream -- then reopen fd 0 on /dev/null and fd 1 on /dev/tty (falling
+// back to /dev/null), exactly as C does.
+//
+// C pins the moved descriptors to fds 3 and 4; we instead let dup(2) pick the
+// lowest free descriptors, because the Go runtime may already hold 3/4 (kqueue/
+// epoll, the signal pipe, ...) and forcing them with dup2 would break it. The
+// intent -- nothing of ours left on 0/1 -- is identical. The reopen of 0 then 1
+// relies on open(2) returning the lowest free fd, just as C does.
+//
+// untested: only the real binary runs this; the tests wire host I/O to a pipe
+// via NewTerm.
+func hostFiles() (hostr io.Reader, hostw io.Writer) {
+	in, err1 := syscall.Dup(0)
+	out, err2 := syscall.Dup(1)
+	if err1 != nil || err2 != nil {
+		// untested: dup of stdin/stdout should not fail under sam.
+		return os.Stdin, os.Stdout
+	}
+	syscall.Close(0)
+	syscall.Close(1)
+	// Reopen fd 0 (read) on /dev/null and fd 1 (write) on /dev/tty, /dev/null if
+	// no tty. open(2) hands back the lowest free fd, so these land on 0 then 1.
+	syscall.Open("/dev/null", syscall.O_RDONLY, 0)
+	if _, err := syscall.Open("/dev/tty", syscall.O_WRONLY, 0); err != nil {
+		// untested: no controlling tty; fall back to /dev/null for fd 1.
+		syscall.Open("/dev/null", syscall.O_WRONLY, 0)
+	}
+	return os.NewFile(uintptr(in), "sam-host-in"), os.NewFile(uintptr(out), "sam-host-out")
 }
 
 // newTerm builds a Term with the field defaults shared by main and NewTerm.

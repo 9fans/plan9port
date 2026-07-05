@@ -127,6 +127,8 @@ type Term struct {
 	// io.c / plan9.c
 	protodebug  bool
 	plumbfd     int
+	exname      string // path of the legacy extern FIFO (plan9.c extstart); "" if none
+	extfallback bool   // enable the legacy extern FIFO when no plumber (set by main, off in tests)
 	got         int
 	block       int
 	kbdc        int
