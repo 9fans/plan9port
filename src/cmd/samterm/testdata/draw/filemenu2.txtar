@@ -2,26 +2,26 @@ Open a file window, select text, and use its button-2 menu (the file-window
 genmenu2 path, distinct from the command window's genmenu2c).
 
 -- input --
-move 300 200
+move 150 4
 button 4
-move 300 116
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 250 200
+move 125 100
 button 1
-move 320 200
+move 160 100
 button 0
-move 300 250
+move 150 50
 button 2
-move 300 318
+move 150 118
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 103 103 105 105 105 105 125 128 153 153 169 169
+29 29 51 54 55 55 57 63 107 107 109 109 109 109 129 132 154 154 170 170
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{15}cl{8}bd{6}bddsdsdsdsdsdsddsdddsdcd{16}llldddxd{24}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{15}cl{8}bd{6}bddsdsdsdsdsdsddsdddsdcd{16}llldddxd{19}

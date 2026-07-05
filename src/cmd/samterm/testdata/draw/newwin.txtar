@@ -1,15 +1,15 @@
 Open a new window with the button-3 "new" menu item and a rectangle sweep.
 
 -- input --
-move 300 200
+move 150 100
 button 4
-move 300 116
+move 150 58
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{12}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdc
 -- waitframes --
-29 29 51 54 55 55 57 63 103
+29 29 51 54 55 55 55 55 55

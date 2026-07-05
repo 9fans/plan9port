@@ -2,15 +2,15 @@ Select text in the command window and pick plumb (item 3) from the button-2 menu
 
 -- input --
 type hello world example
-move 30 10
+move 25 5
 button 1
-move 95 10
+move 47 5
 button 0
-move 300 200
+move 150 50
 button 2
-move 300 251
+move 150 101
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --

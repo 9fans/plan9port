@@ -3,14 +3,15 @@ the CUT/COPY/PASTE branches of the typing handler.
 
 -- input --
 type hello world test
-move 30 10
+move 25 5
 button 1
-move 110 10
+move 55 5
 button 0
 key cmd-c
 key cmd-x
+delay 100
 key cmd-v
 -- waitframes --
-29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 93 95 98 98 98 106 117
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 93 95 98 98 98 106 106 117
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddlddxddddxddlddxddddxd{7}xdxd{15}xd{11}x

@@ -10,36 +10,36 @@ file line 6
 file line 7
 file line 8
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 114
+move 150 114
 button 0
-move 200 150
+move 100 75
 button 4
-move 460 300
+move 230 150
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 29
+move 150 29
 button 0
-move 250 220
-button 4
-button 0
-move 200 320
-button 4
-move 450 385
-button 0
-move 300 8
-button 4
-move 300 63
-button 0
-move 300 350
+move 125 110
 button 4
 button 0
-move 100 10
+move 100 130
+button 4
+move 225 185
+button 0
+move 150 4
+button 4
+move 150 63
+button 0
+move 150 175
+button 4
+button 0
+move 50 5
 button 1
 button 0
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{8}dddx{8}d{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{20}xxxd{22}clbd{6}bddsdsdsdsdsdsdsddsdddsdcd{25}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{5}dddxxxxd{6}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{20}xxxd{6}bd{8}xxxxd{23}clbd{6}bddsdsdsdsdsdsdsddsdddsdcd{26}
 -- waitframes --
-29 29 51 54 55 55 57 63 115 115 137 140 141 141 141 141 141 143 149 186 186 208 211 212 212 221 221 221 237 237
+29 29 51 54 55 55 57 63 110 110 132 135 136 136 136 136 136 138 144 175 175 197 200 201 201 211 211 211 227 227

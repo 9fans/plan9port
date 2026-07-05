@@ -37,7 +37,7 @@ var update = flag.Bool("update", false, "update committed goldens in testdata")
 // dependent capture to settle on. The host paces purely on that frame count: a
 // normal run replays the per-step counts recorded in the "waitframes" golden
 // (waitFrame), which -update discovers by settling (waitIdle). With a fixed
-// 600x400 window, fixed dpi and the built-in default font, the frame sequences
+// 300x200 window, fixed dpi and the built-in default font, the frame sequences
 // are reproducible and identical between the Go and C samterm.
 
 // protoHost speaks the wire protocol to a samterm over r/w.
@@ -198,13 +198,19 @@ func TestProto(t *testing.T) {
 			}
 
 			frames, goCounts, goOps := runGoProto(t, input, counts)
-			drawtest.Check(t, frames, golden, *update)
 			if *update {
+				// Record the goldens from a replay-paced run, not the waitIdle
+				// discovery run: pacing can change behavior at the margins, and
+				// normal runs (Go and C) replay with waitFrame. The discovery
+				// run contributes only the counts (see TestDraw for the same
+				// two-pass update).
 				counts = goCounts
 				ar.WriteFile("waitframes", formatInts(goCounts))
+				frames, _, goOps = runGoProto(t, input, counts)
 				ar.WriteFile("drawops", []byte(goOps+"\n"))
 				ar.Save(t)
 			}
+			drawtest.Check(t, frames, golden, *update)
 			// The "drawops" golden is the sequence of devdraw opcodes the run
 			// produced (see readDrawops). Comparing it -- not just the rendered
 			// frames -- catches a divergence in the draw protocol even when it
@@ -239,7 +245,7 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
 	t.Setenv("DEVDRAW_DRAWLOG", drawlog)
 
-	disp, err := draw.Init(nil, "", "sam", "600x400")
+	disp, err := draw.Init(nil, "", "sam", "300x200")
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
@@ -277,7 +283,7 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 
 	h2tR, h2tW, _ := os.Pipe()
 	t2hR, t2hW, _ := os.Pipe()
-	cmd := exec.Command(oldExe(), "-W", "600x400")
+	cmd := exec.Command(oldExe(), "-W", "300x200")
 	cmd.Stdin = h2tR
 	cmd.Stdout = t2hW
 	errf, _ := os.Create(filepath.Join(img, "stderr"))

@@ -301,13 +301,25 @@ func TestDraw(t *testing.T) {
 			// Run the Go samterm in-process (runLocal) so it counts toward
 			// coverage; the C samterm can only run as a subprocess (runSam).
 			frames, goH, goT, goOps, goCounts := runLocal(t, file, goScript)
-			drawtest.Check(t, frames, golden, *update)
 			if *update {
+				// The goldens must record what a replay-paced run produces:
+				// pacing can change behavior at the margins (e.g. how a host
+				// round-trip interleaves with the final input), and both the
+				// normal Go run and the C run replay with waitframe. So use the
+				// waitidle discovery run only for the counts, then re-run with
+				// those counts and record the replayed frames, ops and streams
+				// as the goldens.
 				frameCounts = goCounts
 				ar.WriteFile("waitframes", formatInts(goCounts))
+				replayScript := filepath.Join(dir, "goreplay")
+				if err := os.WriteFile(replayScript, []byte(pacedScript(steps, frameCounts)), 0666); err != nil {
+					t.Fatal(err)
+				}
+				frames, goH, goT, goOps, _ = runLocal(t, file, replayScript)
 				ar.WriteFile("drawops", []byte(goOps+"\n"))
 				ar.Save(t)
 			}
+			drawtest.Check(t, frames, golden, *update)
 			// The "drawops" golden is the sequence of devdraw opcodes the run
 			// produced (see readDrawops). Comparing it -- not just the rendered
 			// frames -- catches a divergence in the draw protocol even when it
@@ -496,7 +508,7 @@ func checkStream(t *testing.T, label string, go_, c []byte) {
 		if lo < 0 {
 			lo = 0
 		}
-		hi := at + 8
+		hi := at + 64
 		if hi > len(b) {
 			hi = len(b)
 		}
@@ -576,7 +588,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	hostr := io.TeeReader(samOutR, hbuf)
 	hostw := io.MultiWriter(samInW, tbuf)
 
-	disp, err := draw.Init(nil, "", "sam", "600x400")
+	disp, err := draw.Init(nil, "", "sam", "300x200")
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
@@ -648,7 +660,7 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 	samTR.Close()
 	samHW.Close()
 
-	ot := exec.Command(samtermExe, "-W", "600x400")
+	ot := exec.Command(samtermExe, "-W", "300x200")
 	ot.Stdin = otHR
 	ot.Stdout = otTW
 	ot.Stderr = quietStderr(t, "samterm")
@@ -722,7 +734,7 @@ func TestGetscreen(t *testing.T) {
 	t.Setenv("tabstop", "4")
 	os.Unsetenv("font")
 	term := &Term{maxtab: 8, hostlock: 1, typestart: -1, typeend: -1, typeesc: -1, kpeekc: -1, plumbfd: -1}
-	if err := term.getscreen([]string{"-a", "-W", "600x400"}); err != nil {
+	if err := term.getscreen([]string{"-a", "-W", "300x200"}); err != nil {
 		t.Skipf("no display: %v", err)
 	}
 	if !term.autoindent {

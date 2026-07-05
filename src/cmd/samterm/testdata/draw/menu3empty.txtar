@@ -2,18 +2,18 @@ Select button-3 "zerox" then "write" but click on empty space, not a window
 (menu3hit's no-target setcursor paths).
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 29
+move 150 29
 button 0
-move 550 380
+move 275 190
 button 4
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 80
+move 150 80
 button 0
-move 550 380
+move 275 190
 button 4
 button 0
 -- waitframes --

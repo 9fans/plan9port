@@ -6,6 +6,6 @@ origin 0 20
 origin 0 0
 origin 0 90
 -- waitframes --
-56 70 98 128 150
+28 33 43 54 65
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{13}dddxxxxd{20}lllddddxxd{12}xxxd{22}xd{7}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{10}dddxxd{13}lllddddxxd{17}xxd{19}xd{7}

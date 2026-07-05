@@ -2,15 +2,15 @@ In a file window, type a line then erase by word (^W) and line (^U), exercising
 ctlw/ctlu and the local-cut backspacing across word boundaries.
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 116
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 250 170
+move 125 85
 button 1
 button 0
 type aa bb cc
@@ -19,10 +19,16 @@ key ctrl-w
 key ctrl-u
 key ctrl-u
 key ctrl-w
-move 100 10
+type dd
+key enter
+type e
+key ctrl-u
+key ctrl-u
+delay 100
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 107 107 109 109 113 117 121 125 129 133 137 141 145 149 153 160 166 166 182 182
+29 29 51 54 55 55 57 63 107 107 109 109 115 123 132 141 150 159 168 177 187 197 207 207 207 214 222 228 234 241 251 251 251 267 267
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{17}xddddxddddxddlddxddddxddddxddddxddddxd{67}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{19}xd{8}xd{9}xddld{7}xd{9}xd{9}xd{9}xd{9}xd{60}xd{12}xd{14}xd{47}

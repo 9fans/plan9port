@@ -58,6 +58,8 @@ func (t *Term) snarfswap(fromsam []byte) (tosam []byte) {
 	buf := make([]byte, SNARFSIZE)
 	got, size, err := t.display.ReadSnarf(buf)
 	if err != nil {
+		// untested: ReadSnarf fails only on a dead display RPC (an empty snarf
+		// reads back as zero bytes, not an error).
 		return nil
 	}
 	if size > 0 {

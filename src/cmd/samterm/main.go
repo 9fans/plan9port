@@ -33,11 +33,13 @@ func main() {
 		// untested: see top of main
 		os.Stdin = f
 	}
+	// untested: see top of main
 	f, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
 	if err != nil {
 		// untested: see top of main
 		f, err = os.OpenFile(os.DevNull, os.O_WRONLY, 0)
 	}
+	// untested: see top of main
 	if err == nil {
 		// untested: see top of main
 		os.Stdout = f
@@ -161,11 +163,12 @@ func (t *Term) run() {
 			if tx.lock == 0 && t.hostlock == 0 {
 				// untested: see above
 				w := t.windex(tx, t.which)
-				if t.chord&2 != 0 {
+				switch {
+				case t.chord&2 != 0:
 					// untested: see above
 					t.cut(tx, w, true, true)
 					t.chord &^= 2
-				} else if t.chord&4 != 0 {
+				case t.chord&4 != 0:
 					// untested: see above
 					t.paste(tx, w)
 					t.chord &^= 4

@@ -2,18 +2,18 @@ Select text in the command window and pick Send (item 6) from the button-2 menu.
 
 -- input --
 type hello world example
-move 30 10
+move 25 5
 button 1
-move 95 10
+move 47 5
 button 0
-move 300 200
+move 150 50
 button 2
-move 300 302
+move 150 152
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}xbbdbbcl{13}bd{6}bddsdsdsdsdsdsdsddsdddsdcddxdxddllldddxd{11}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}xbbdbbcl{13}bd{6}bddsdsdsdsdsdsdsddsdddsdcddxdxddllldddxd{5}
 -- waitframes --
-29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 105 107 110 110 110 132 135 149 149 151 151
+29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 105 107 110 110 110 132 135 146 146 147 147

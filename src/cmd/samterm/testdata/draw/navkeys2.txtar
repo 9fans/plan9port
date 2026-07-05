@@ -3,14 +3,14 @@ covering the right-arrow and escape branches of the typing handler.
 
 -- input --
 type hello world
-move 30 10
+move 25 5
 button 1
-move 70 10
+move 35 5
 button 0
 type X
 key right
 key esc
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --

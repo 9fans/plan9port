@@ -12,6 +12,6 @@ movname 3 zzz
 newname 4
 movname 4 abcd
 -- waitframes --
-56 62 62 62 62 62 62 62 62 62
+28 31 31 31 31 31 31 31 31 31
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

@@ -7,6 +7,6 @@ setdot 0 5 10
 setdot 0 3 15
 setdot 0 6 9
 -- waitframes --
-56 62 68 76 84
+28 31 34 38 42
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{21}ddxddddxdxdxdxdx

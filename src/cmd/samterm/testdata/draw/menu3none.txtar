@@ -1,11 +1,12 @@
 Release the button-3 menu with the cursor off the menu (no item selected).
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 560 8
+move 250 100
+delay 100
 button 0
 -- waitframes --
-29 29 51 52 53
+29 29 51 52 52 53
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsddc

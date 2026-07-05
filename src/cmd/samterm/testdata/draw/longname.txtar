@@ -4,11 +4,11 @@ genmenu3's name-width and middle-truncation rendering.
 -- filename --
 this_is_a_very_long_file_name_that_exceeds_sixty_four_characters_for_truncation.txt
 -- input --
-move 300 8
+move 150 4
 button 4
-move 560 8
+move 150 8
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --

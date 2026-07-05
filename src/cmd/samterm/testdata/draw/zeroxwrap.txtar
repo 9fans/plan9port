@@ -2,36 +2,36 @@ Like zeroxswitch but with the second (zerox) layer focused, so the menu3 window
 cycle wraps past NL back to slot 0 (the i==NL reset branch).
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 114
+move 150 114
 button 0
-move 200 150
+move 100 75
 button 4
-move 470 320
+move 235 160
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 29
+move 150 29
 button 0
-move 250 250
+move 125 125
 button 4
 button 0
-move 200 345
+move 60 140
 button 4
-move 450 395
+move 190 190
 button 0
-move 250 370
+move 125 175
 button 1
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 114
+move 150 114
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 176 176 178 178 178 200 203 220 220 236 236
+29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 170 170 172 172 172 194 197 215 215 231 231
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{24}clbd{6}bddsdsdsdsdsdsdsddsdddsdcd{32}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{5}bd{7}xd{29}clbd{6}bddsdsdsdsdsdsdsddsdddsdcd{33}

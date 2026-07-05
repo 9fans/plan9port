@@ -2,15 +2,15 @@ Choose button-3 "new" but sweep a rectangle too small to accept, cancelling the
 new window (sweeptext's getr-false return).
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 200 200
+move 100 100
 button 4
-move 250 230
+move 125 115
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --

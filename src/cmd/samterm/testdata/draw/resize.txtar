@@ -3,7 +3,7 @@ Resize the window; the command window re-lays-out.
 -- input --
 type hello world
 resize 500 350
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --

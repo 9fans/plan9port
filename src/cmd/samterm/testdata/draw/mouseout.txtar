@@ -1,8 +1,8 @@
 Move the mouse outside the screen rectangle (handlemouse's off-screen unblock).
 
 -- input --
-move 700 700
-move 300 200
+move 350 350
+move 150 100
 button 1
 button 0
 -- waitframes --

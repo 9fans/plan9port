@@ -2,33 +2,33 @@ Create two overlapping file windows, then close the partially-covered (Some) bac
 window, exercising flclose's partial-visibility path.
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 150 150
+move 75 75
 button 4
-move 400 300
+move 200 150
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 280 240
+move 140 120
 button 4
-move 530 380
+move 265 190
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 63
+move 150 63
 button 0
-move 200 180
+move 100 90
 button 4
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 103 103 127 130 131 131 133 139 181 181 207 210 211 211 211 213 213 229 229
+29 29 51 54 55 55 57 63 103 103 127 130 131 131 133 139 189 189 215 218 219 219 219 221 221 237 237
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsdsddsdddsdcd{32}bbd{27}l{8}ddddxxd{12}cbd{6}bddsdsdsdsdsdsdsdsdsddsdddsdcbd{19}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsdsddsdddsdcd{32}bbd{27}l{8}dddxd{20}xd{9}cbd{6}bddsdsdsdsdsdsdsdsdsddsdddsdcbd{19}

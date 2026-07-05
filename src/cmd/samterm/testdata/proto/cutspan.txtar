@@ -5,6 +5,6 @@ growdata 0 0 0123456789abcdefghijklmnopqrstuvwxyz\n
 origin 0 10
 cut 0 5 10
 -- waitframes --
-56 62 78 90
+28 32 42 48
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{35}ddxd{30}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{35}dddxxd{31}

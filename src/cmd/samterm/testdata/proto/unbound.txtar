@@ -9,6 +9,6 @@ growdata 99 0 nope\n
 close 99
 bindname 99 12345
 -- waitframes --
-56 62 62 62 62 62 62
+28 31 31 31 31 31 31
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}llddxdd

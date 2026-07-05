@@ -32,24 +32,24 @@ this is line number 28 of the file
 this is line number 29 of the file
 this is line number 30 of the file
 -- input --
-move 300 200
+move 150 100
 button 4
-move 300 216
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 250 250
+move 125 125
 button 1
 button 0
-move 205 290
+move 110 145
 button 1
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{12}dddx{11}d{12}lldddxd{35}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{9}dddx{5}d{6}ld{6}lldddxd{34}
 -- waitframes --
-29 29 51 54 55 55 57 63 121 121 123 123 123 125 126 126 142 142
+29 29 51 54 55 55 57 63 115 115 117 117 117 118 119 119 135 135

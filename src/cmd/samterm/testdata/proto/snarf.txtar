@@ -6,6 +6,6 @@ setsnarf hello snarf buffer
 setsnarf second buffer contents
 plumb plumbed text here
 -- waitframes --
-56 62 62 62 62
+28 31 31 31 31
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{7}ddxdd

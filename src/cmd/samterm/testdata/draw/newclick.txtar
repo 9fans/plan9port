@@ -1,14 +1,14 @@
 Open a new window by selecting "new" then single-clicking (placement, not sweep).
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 300 250
+move 150 125
 button 4
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --

@@ -2,9 +2,9 @@ Select text in the command window with a button-1 drag.
 
 -- input --
 type hello world example
-move 30 10
+move 25 5
 button 1
-move 95 10
+move 47 5
 button 0
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}x

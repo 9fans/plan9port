@@ -9,6 +9,6 @@ grow 0 1 2
 data 0 1 ..
 cut 0 0 2
 -- waitframes --
-56 62 78 82 82 82 82
+28 32 40 42 42 42 42
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{46}ddxd{18}x
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{46}dddxxd{16}x

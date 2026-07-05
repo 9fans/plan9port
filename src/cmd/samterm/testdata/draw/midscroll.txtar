@@ -123,15 +123,15 @@ this is line number 118 of a fairly long test file for scrolling
 this is line number 119 of a fairly long test file for scrolling
 this is line number 120 of a fairly long test file for scrolling
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 116
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 300 240
+move 150 120
 button 1
 button 0
 key down
@@ -139,6 +139,6 @@ key down
 key down
 key pgdown
 -- waitframes --
-29 29 51 54 55 55 57 63 121 121 123 123 145 166 192 213
+29 29 51 54 55 55 57 63 115 115 117 117 117 117 117 117
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{13}dddx{11}d{12}lldddxd{31}x{6}d{25}x{6}d{24}xxdddldddx{5}d{25}x{6}d{10}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{11}dddx{5}d{12}lldddxd{15}

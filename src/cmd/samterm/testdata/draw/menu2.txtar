@@ -2,10 +2,10 @@ Open the button-2 menu over the command window and pick the first item (cut).
 
 -- input --
 type hello world
-move 100 40
+move 50 20
 button 2
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --

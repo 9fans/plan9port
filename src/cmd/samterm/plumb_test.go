@@ -175,7 +175,7 @@ func goSamterm(t *testing.T) (*protoHost, *Term) {
 	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
 	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
 	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
-	disp, err := draw.Init(nil, "", "sam", "600x400")
+	disp, err := draw.Init(nil, "", "sam", "300x200")
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}

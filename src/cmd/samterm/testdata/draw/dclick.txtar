@@ -4,7 +4,7 @@ Double-click a word in the command window (Tdclick -> host selects the word).
 type hello world example
 click 50 10 1
 click 50 10 1
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --

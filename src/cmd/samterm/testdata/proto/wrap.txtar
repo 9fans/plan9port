@@ -3,6 +3,6 @@ A long line that wraps.
 -- input --
 growdata 0 0 the quick brown fox jumps over the lazy dog and then keeps going to wrap\n
 -- waitframes --
-56 66
+28 34
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{27}dddxxdd
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{27}dddxxd{6}

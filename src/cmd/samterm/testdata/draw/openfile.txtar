@@ -10,19 +10,19 @@ line six
 line seven
 line eight
 -- input --
-move 300 200
+move 150 100
 button 4
-move 300 216
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
 
-move 100 10
+move 50 5
 button 1
 button 0
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}lllldddx{8}d{5}lldddxd{28}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llldddx{5}d{6}lldddxd{28}
 -- waitframes --
-29 29 51 54 55 55 57 63 115 115 131 131
+29 29 51 54 55 55 57 63 111 111 127 127

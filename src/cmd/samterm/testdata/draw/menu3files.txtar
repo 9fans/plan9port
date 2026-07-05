@@ -2,26 +2,26 @@ Open a second (new) file window and type in it so the file menu lists two
 entries, one dirty, exercising genmenu3's file-name rendering and width calc.
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 250 200
+move 125 100
 button 1
 button 0
 type abc
-move 300 8
+move 150 4
 button 4
-move 560 8
+move 150 8
 button 0
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 103 103 105 105 109 113 117 117 141 142 143 143 159 159
+29 29 51 54 55 55 57 63 103 103 105 105 109 113 117 117 141 144 145 145 145 145
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{17}xddlddxddddxddclbd{6}bddsdsdsdsdsdsdsdsddsddcd{16}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{27}lldddxd{17}xddlddxddddxddclbd{6}bddsdsdsdsdsdsdsdsddsdddsdc

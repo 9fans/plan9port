@@ -275,6 +275,9 @@ sky/here
 src/**/o.*
 src/cmd/awk/proctab.c
 src/cmd/osamterm/rasptest
+src/cmd/samterm/testdata/*/have.*.gif
+src/cmd/samterm/testdata/*/*.frame*.have.png
+src/cmd/samterm/testdata/*/*.frame*.want.png
 src/cmd/awk/y.output
 src/cmd/bc.tab.c
 src/cmd/bc.tab.h

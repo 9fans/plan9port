@@ -8,7 +8,7 @@ key ctrl-e
 key ctrl-w
 key ctrl-w
 key ctrl-w
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --

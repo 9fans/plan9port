@@ -91,7 +91,7 @@ func (t *Term) menu3hit() {
 	m := draw.MenuHit(3, t.mouse, &t.menu3, nil)
 	switch m {
 	case -1:
-		// nothing
+		break // nothing
 
 	case New:
 		if t.hostlock == 0 {

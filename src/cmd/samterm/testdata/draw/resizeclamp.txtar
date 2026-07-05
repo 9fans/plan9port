@@ -4,30 +4,30 @@ so flresize snaps its edges back to the screen rectangle -- the small-rect clamp
 branches a moderate resize never reaches.
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 116
+move 150 116
 button 0
-move 150 100
+move 75 50
 button 4
-move 450 250
+move 225 125
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 29
+move 150 29
 button 0
-move 350 200
+move 175 100
 button 4
 button 0
-move 280 180
+move 140 90
 button 4
-move 560 340
+move 280 170
 button 0
 resize 96 96
-move 100 10
+move 50 5
 button 1
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 170 186 186 186 186
+29 29 51 54 55 55 57 63 107 107 129 132 133 133 133 133 133 135 141 170 186 186 203 203
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{5}bd{7}xd{26}JIqFAbd{9}xxd{6}bd{7}xd{6}bd{6}xd{9}bd{7}xd{10}bd{7}xd{8}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}llddxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{19}xd{5}bd{7}xd{26}JIqFAbd{9}xxd{6}bd{7}xd{6}bd{6}xd{9}bd{7}xd{10}bd{7}xd{25}

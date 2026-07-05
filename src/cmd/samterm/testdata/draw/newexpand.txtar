@@ -2,28 +2,28 @@ Choose button-3 "new" then click without sweeping near each edge of the command
 window, so getr auto-expands the tiny rectangle toward that edge.
 
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 300 250
-button 4
-button 0
-move 300 8
-button 4
-move 300 11
-button 0
-move 300 0
+move 150 125
 button 4
 button 0
-move 300 8
+move 150 4
 button 4
-move 300 11
+move 150 11
 button 0
-move 0 250
+move 150 0
 button 4
 button 0
-move 100 10
+move 150 8
+button 4
+move 150 11
+button 0
+move 0 125
+button 4
+button 0
+move 50 5
 button 1
 button 0
 -- waitframes --

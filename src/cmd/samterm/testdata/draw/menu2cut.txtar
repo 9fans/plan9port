@@ -2,15 +2,15 @@ Select text in the command window then cut it via the button-2 menu.
 
 -- input --
 type hello world example
-move 30 10
+move 25 5
 button 1
-move 95 10
+move 47 5
 button 0
-move 200 10
+move 100 5
 button 2
 button 0
 
-move 540 360
+move 270 180
 -- drawops --
 JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}lddxddlddxddlddxddddxddlddxddlddxddlddxddddxddlddxddddxddlddxddddxddddxddlddxddlddxddlddxddlddxddddxddddxd{7}xbbdbbcl{13}bd{6}bddsdsdsdsdsdsdsddsdcdxd{12}
 -- waitframes --

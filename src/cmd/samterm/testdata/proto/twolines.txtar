@@ -4,6 +4,6 @@ Two lines inserted in separate growdata messages.
 growdata 0 0 first line\n
 growdata 0 11 second line\n
 -- waitframes --
-56 62 70
+28 31 34
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxddllldddxdd
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{28}l{9}ddxddllldddx
