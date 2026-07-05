@@ -265,12 +265,28 @@ func writePNG(t *testing.T, file string, m image.Image) {
 // instead of comparing against it.
 func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 	t.Helper()
+	check(t, frames, golden, update, true)
+}
+
+// CheckNoCursor is Check for a plain window-frame sequence (Frames, not
+// FramesAndCursor). TestDraw uses it: its scenarios move the real mouse, and
+// client cursor warps reach devdraw at flush-dependent moments that the
+// setmouse deferral does not cover under script input (t_rpc_setmouse feeds
+// warps back through gfx_mousetrack), so Go and C cursor frames land on
+// different frame boundaries and are not comparable yet.
+func CheckNoCursor(t *testing.T, frames []image.Image, golden string, update bool) {
+	t.Helper()
+	check(t, frames, golden, update, false)
+}
+
+func check(t *testing.T, frames []image.Image, golden string, update, cursor bool) {
+	t.Helper()
 	if update {
 		if err := os.MkdirAll(filepath.Dir(golden), 0777); err != nil {
 			t.Error(err)
 			return
 		}
-		if err := os.WriteFile(golden, encodeGIF(t, frames), 0666); err != nil {
+		if err := os.WriteFile(golden, encodeGIF(t, frames, cursor), 0666); err != nil {
 			t.Error(err)
 			return
 		}
@@ -289,7 +305,7 @@ func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 		if diff := imageDiff(frame, want[i]); !diff.Empty() {
 			t.Errorf("frame %d differs from %v in bounding box %v", i, golden, diff)
 			have := filepath.Join(filepath.Dir(golden), "have."+filepath.Base(golden))
-			if err := os.WriteFile(have, encodeGIF(t, frames), 0666); err != nil {
+			if err := os.WriteFile(have, encodeGIF(t, frames, cursor), 0666); err != nil {
 				t.Fatal(err)
 			}
 			t.Errorf("new frames in %v", have)
@@ -363,13 +379,13 @@ func decodeGIF(t *testing.T, data []byte) []image.Image {
 // zero delay, so a compliant viewer paints the window, overlays the cursor for
 // the delay, then removes it before the next window frame -- compositing the
 // cursor for us without disturbing the window comparison.
-func encodeGIF(t *testing.T, frames []image.Image) []byte {
+func encodeGIF(t *testing.T, frames []image.Image, cursor bool) []byte {
 	t.Helper()
 
 	if len(frames) == 0 {
 		t.Fatalf("encodeGIF: no frames")
 	}
-	if len(frames)%2 != 0 {
+	if cursor && len(frames)%2 != 0 {
 		t.Fatalf("encodeGIF: odd frame count %d (expected window,cursor pairs)", len(frames))
 	}
 
@@ -412,7 +428,11 @@ func encodeGIF(t *testing.T, frames []image.Image) []byte {
 			p.SetColorIndex(x, y, uint8(index[rgbaOf(frame.At(x, y))]))
 		}
 		g.Image = append(g.Image, p)
-		if i%2 == 1 {
+		if !cursor {
+			// Plain window frames: show each for 1s when viewed.
+			g.Delay = append(g.Delay, 100)
+			g.Disposal = append(g.Disposal, gif.DisposalNone)
+		} else if i%2 == 1 {
 			// Cursor frame: overlay it, then undo it before the next window frame.
 			g.Delay = append(g.Delay, 100)
 			g.Disposal = append(g.Disposal, gif.DisposalPrevious)

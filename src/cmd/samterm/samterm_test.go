@@ -324,7 +324,7 @@ func TestDraw(t *testing.T) {
 				ar.WriteFile("drawops", []byte(goOps+"\n"))
 				ar.Save(t)
 			}
-			drawtest.Check(t, frames, golden, *update)
+			drawtest.CheckNoCursor(t, frames, golden, *update)
 			// The "drawops" golden is the sequence of devdraw opcodes the run
 			// produced (see readDrawops). Comparing it -- not just the rendered
 			// frames -- catches a divergence in the draw protocol even when it
@@ -343,7 +343,7 @@ func TestDraw(t *testing.T) {
 						t.Fatal(err)
 					}
 					frames, cH, cT, cOps := runSam(t, oldExe(), file, cScript)
-					drawtest.Check(t, frames, golden, false)
+					drawtest.CheckNoCursor(t, frames, golden, false)
 					if cOps != wantOps {
 						t.Errorf("C drawops differ from golden:\n  have %s\n  want %s", cOps, wantOps)
 					}

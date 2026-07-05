@@ -138,7 +138,7 @@ func runScript(t *testing.T, file, script string) (string, []image.Image) {
 	for pos, line := range parseScript(file, script) {
 		r.runLine(t, pos, line)
 	}
-	return r.out.String(), drawtest.Frames(t, prefix)
+	return r.out.String(), drawtest.FramesAndCursor(t, prefix)
 }
 
 // runScriptC runs script through the C reference implementation,
@@ -165,7 +165,7 @@ func runScriptC(t *testing.T, script string) (string, []image.Image) {
 	if err := cmd.Run(); err != nil {
 		t.Errorf("frametest: %v\n%s", err, out.String())
 	}
-	return out.String(), drawtest.Frames(t, prefix)
+	return out.String(), drawtest.FramesAndCursor(t, prefix)
 }
 
 func parseScript(file, script string) iter.Seq2[string, string] {
