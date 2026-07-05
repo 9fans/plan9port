@@ -111,6 +111,7 @@ struct Client
 
 	// Test mode support (DEVDRAW_TEST_*); see test-screen.c, test-output.c.
 	int		testoutn;	// next DEVDRAW_TEST_OUTPUT frame number
+	int		testoutdone;	// frames fully written (window AND cursor file); see waitframe
 	int		testcursorset;	// non-zero if testcursor is valid (else default arrow)
 	Cursor		testcursor;	// current cursor, recorded for output compositing
 	Point		testmousexy;	// last requested cursor position, uncoalesced (for cursor frames)
@@ -124,6 +125,16 @@ struct Client
 	Point		testpendxy;	// pending cursor position (deferral in flight)
 	int		testpend;	// non-zero while a deferral is in flight
 	int		testpendn;	// frames remaining before testpendxy takes effect
+	int		testwarpecho;	// non-zero while t_rpc_setmouse echoes the warp into gfx_mousetrack
+	// Deferred setcursor (DEVDRAW_TEST_SETCURSOR_DELAYS): the sprite change from
+	// the k-th setcursor is likewise held testscdelay[k] frames (see test_setcursor).
+	int		*testscdelay;	// per-setcursor delay list, parsed from the env
+	int		testscn;	// length of testscdelay
+	int		testsci;	// next setcursor index
+	int		testcurpend;	// non-zero while a sprite deferral is in flight
+	int		testcurpendn;	// frames remaining before the pending sprite takes effect
+	int		testcurpendset;	// pending testcursorset value
+	Cursor		testcurpendcur;	// pending testcursor value
 };
 
 struct Refresh
@@ -279,5 +290,7 @@ extern char *testinfile;
 extern int testnocoalesce;	// $DEVDRAW_TEST_NOCOALESCE: queue every mouse move
 void test_output(Client*, Rectangle);	// write window subimage r to testoutfile.N
 void test_setmouselog(Client*);		// log this setmouse's frame index (DEVDRAW_TEST_SETMOUSE_DELAYS)
+void test_setcursor(Client*, Cursor*);	// record the client's cursor sprite for output compositing
+int test_hasscriptinput(void);		// non-zero if DEVDRAW_TEST_INPUT is set
 int drawlogfd(void);		// fd of the $DEVDRAW_DRAWLOG opcode trace, or -1
 void test_input_start(Client*);	// start the scripted-input reader proc

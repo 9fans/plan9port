@@ -94,22 +94,67 @@ writeframefile(char *prefix, char *suffix, int n, Memimage *m)
 // test_setmouselog appends the current frame index to <testoutfile>.setmouse,
 // one line per setmouse. -update reads C's and the Go port's logs and sets each
 // scenario's per-setmouse deferral to C_frame[k]-Go_frame[k].
-void
-test_setmouselog(Client *c)
+// test_setcursor does the same for cursor-sprite changes (<testoutfile>.setcursor).
+
+// logframe appends the current frame index to <testoutfile><suffix>,
+// opening the file on first use (*fd caches the descriptor).
+static void
+logframe(Client *c, char *suffix, int *fd)
 {
-	static int fd = -1;
 	char *f;
 
 	if(testoutfile == nil)
 		return;
-	if(fd < 0){
-		f = smprint("%s.setmouse", testoutfile);
-		fd = create(f, OWRITE, 0666);
+	if(*fd < 0){
+		f = smprint("%s%s", testoutfile, suffix);
+		*fd = create(f, OWRITE, 0666);
 		free(f);
-		if(fd < 0)
+		if(*fd < 0)
 			return;
 	}
-	fprint(fd, "%d\n", c->testoutn);
+	fprint(*fd, "%d\n", c->testoutn);
+}
+
+void
+test_setmouselog(Client *c)
+{
+	static int fd = -1;
+
+	logframe(c, ".setmouse", &fd);
+}
+
+// test_setcursor records the client's cursor sprite (cur == nil means the
+// default arrow) for output compositing. Like t_rpc_setmouse, the change is
+// routed through a pend applied by writecursor whenever device input is
+// scripted or a calibrated delay is in force, so which cursor frame first
+// shows the new sprite is deterministic against the in-flight draw burst;
+// otherwise (acme -D) it applies immediately, as it always did.
+void
+test_setcursor(Client *c, Cursor *cur)
+{
+	static int fd = -1;
+	int delay;
+	Cursor zero;
+
+	if(testoutfile == nil)
+		return;
+	logframe(c, ".setcursor", &fd);
+	delay = c->testsci < c->testscn ? c->testscdelay[c->testsci] : 0;
+	c->testsci++;
+	if(!test_hasscriptinput() && delay <= 0){
+		if(cur == nil)
+			c->testcursorset = 0;
+		else{
+			c->testcursorset = 1;
+			c->testcursor = *cur;
+		}
+		return;
+	}
+	memset(&zero, 0, sizeof zero);
+	c->testcurpendset = cur != nil;
+	c->testcurpendcur = cur != nil ? *cur : zero;
+	c->testcurpendn = delay;
+	c->testcurpend = 1;
 }
 
 static void
@@ -123,6 +168,15 @@ writecursor(Client *c, int n)
 			c->testpend = 0;
 		}else
 			c->testpendn--;
+	}
+	// Likewise a deferred setcursor (DEVDRAW_TEST_SETCURSOR_DELAYS).
+	if(c->testcurpend){
+		if(c->testcurpendn <= 0){
+			c->testcursorset = c->testcurpendset;
+			c->testcursor = c->testcurpendcur;
+			c->testcurpend = 0;
+		}else
+			c->testcurpendn--;
 	}
 	Memimage *cm;
 	Cursor *cur;
@@ -234,4 +288,11 @@ test_output(Client *c, Rectangle r)
 	// window frame N has a matching cursor frame N. The harness interleaves the
 	// two streams into window,cursor,window,cursor,... pairs.
 	writecursor(c, n);
+
+	// Only now does frame n fully exist. The input script's waitframe polls
+	// testoutdone, not testoutn: testoutn is incremented above before either
+	// file is written, and injecting input in that window (this thread can be
+	// descheduled arbitrarily long under load) would let a scripted move slip
+	// into frame n's cursor instead of frame n+1's.
+	c->testoutdone = n + 1;
 }

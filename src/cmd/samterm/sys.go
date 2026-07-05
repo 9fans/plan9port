@@ -134,11 +134,11 @@ func (t *Term) extproc(f *os.File) {
 // provides the blocking, and the lingering writer (opened below, never closed)
 // is what keeps reads from ever seeing EOF.
 func (t *Term) extstart() {
-	user := os.Getenv("USER")
+	user := t.getenv("USER")
 	if user == "" {
 		return
 	}
-	if disp := os.Getenv("DISPLAY"); disp != "" {
+	if disp := t.getenv("DISPLAY"); disp != "" {
 		t.exname = fmt.Sprintf("/tmp/.sam.%s.%s", user, disp)
 	} else {
 		t.exname = fmt.Sprintf("/tmp/.sam.%s", user)

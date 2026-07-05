@@ -231,6 +231,72 @@ func formatInts(counts []int) []byte {
 	return []byte(b.String())
 }
 
+// arrivals holds the frame indices devdraw logged for each setmouse warp
+// (<img>.setmouse) and each setcursor sprite change (<img>.setcursor);
+// see test_setmouselog and test_setcursor in cmd/devdraw.
+type arrivals struct {
+	setmouse  []int
+	setcursor []int
+}
+
+// frameDelays returns the signed per-call delay list that lands the Go and C
+// runs' k-th cursor change on the same frame: d[k] = carr[k]-garr[k], so a
+// positive delay defers the Go run and a negative one defers the C run
+// (setmouse warps arrive later in C, whose draw flushing is lazier; setcursor
+// changes arrive later in Go, which flushes eagerly before switching). ok is
+// false if the runs disagree on the number of calls. splitDelays turns the
+// signed list into the two runs' DEVDRAW_TEST_SET{MOUSE,CURSOR}_DELAYS values.
+func frameDelays(carr, garr []int) (s string, allZero, ok bool) {
+	if len(carr) != len(garr) {
+		return "", false, false
+	}
+	allZero = true
+	var b strings.Builder
+	for k := range carr {
+		d := carr[k] - garr[k]
+		if d != 0 {
+			allZero = false
+		}
+		if k > 0 {
+			b.WriteByte(' ')
+		}
+		fmt.Fprintf(&b, "%d", d)
+	}
+	return b.String(), allZero, true
+}
+
+// splitDelays splits a signed frameDelays list into the Go run's and the C
+// run's non-negative delay lists (positive entries defer Go, negative defer C).
+// A list that is empty or all-zero on one side comes back "" for that side.
+func splitDelays(s string) (goDelays, cDelays string) {
+	var g, c []string
+	gZero, cZero := true, true
+	for _, f := range strings.Fields(s) {
+		d, err := strconv.Atoi(f)
+		if err != nil {
+			return "", ""
+		}
+		gd, cd := 0, 0
+		if d > 0 {
+			gd = d
+			gZero = false
+		} else if d < 0 {
+			cd = -d
+			cZero = false
+		}
+		g = append(g, strconv.Itoa(gd))
+		c = append(c, strconv.Itoa(cd))
+	}
+	goDelays, cDelays = strings.Join(g, " "), strings.Join(c, " ")
+	if gZero {
+		goDelays = ""
+	}
+	if cZero {
+		cDelays = ""
+	}
+	return goDelays, cDelays
+}
+
 func TestDraw(t *testing.T) {
 	files, err := filepath.Glob("testdata/draw/*.txtar")
 	if err != nil {
@@ -305,7 +371,9 @@ func TestDraw(t *testing.T) {
 			//
 			// Run the Go samterm in-process (runLocal) so it counts toward
 			// coverage; the C samterm can only run as a subprocess (runSam).
-			frames, goH, goT, goOps, goCounts := runLocal(t, file, goScript)
+			goSM, cSM := splitDelays(strings.TrimSpace(string(ar.ReadFile("setmousedelay"))))
+			goSC, cSC := splitDelays(strings.TrimSpace(string(ar.ReadFile("setcursordelay"))))
+			frames, goH, goT, goOps, goCounts, garr := runLocal(t, file, goScript, goSM, goSC)
 			if *update {
 				// The goldens must record what a replay-paced run produces:
 				// pacing can change behavior at the margins (e.g. how a host
@@ -320,11 +388,47 @@ func TestDraw(t *testing.T) {
 				if err := os.WriteFile(replayScript, []byte(pacedScript(steps, frameCounts)), 0666); err != nil {
 					t.Fatal(err)
 				}
-				frames, goH, goT, goOps, _ = runLocal(t, file, replayScript)
+				frames, goH, goT, goOps, _, garr = runLocal(t, file, replayScript, "", "")
+				// Calibrate the Go cursor deferrals against C (see frameDelays):
+				// run the C terminal once for its arrival logs, defer each Go
+				// setmouse warp and setcursor sprite change by the difference,
+				// and re-record the goldens with the deferrals in force so the
+				// C run matches them frame for frame. Rewrite or drop the
+				// members even when all-zero, so a stale delay from an earlier
+				// misaligned port cannot survive.
+				cScript := filepath.Join(dir, "cupdate")
+				if err := os.WriteFile(cScript, []byte(pacedScript(steps, frameCounts)), 0666); err != nil {
+					t.Fatal(err)
+				}
+				_, _, _, _, carr := runSam(t, oldExe(), file, cScript, "", "")
+				sm, smZero, smOK := frameDelays(carr.setmouse, garr.setmouse)
+				sc, scZero, scOK := frameDelays(carr.setcursor, garr.setcursor)
+				if !smOK || !scOK {
+					t.Errorf("cursor arrivals not calibratable: setmouse Go %v C %v, setcursor Go %v C %v",
+						garr.setmouse, carr.setmouse, garr.setcursor, carr.setcursor)
+					sm, smZero = "", true
+					sc, scZero = "", true
+				}
+				if smZero {
+					ar.Delete("setmousedelay")
+				} else {
+					// Trailing newline so testar's Encode leaves the value clean.
+					ar.WriteFile("setmousedelay", []byte(sm+"\n"))
+				}
+				if scZero {
+					ar.Delete("setcursordelay")
+				} else {
+					ar.WriteFile("setcursordelay", []byte(sc+"\n"))
+				}
+				goSM, cSM = splitDelays(sm)
+				goSC, cSC = splitDelays(sc)
+				if goSM != "" || goSC != "" {
+					frames, goH, goT, goOps, _, _ = runLocal(t, file, replayScript, goSM, goSC)
+				}
 				ar.WriteFile("drawops", []byte(goOps+"\n"))
 				ar.Save(t)
 			}
-			drawtest.CheckNoCursor(t, frames, golden, *update)
+			drawtest.Check(t, frames, golden, *update)
 			// The "drawops" golden is the sequence of devdraw opcodes the run
 			// produced (see readDrawops). Comparing it -- not just the rendered
 			// frames -- catches a divergence in the draw protocol even when it
@@ -342,8 +446,8 @@ func TestDraw(t *testing.T) {
 					if err := os.WriteFile(cScript, []byte(pacedScript(steps, frameCounts)), 0666); err != nil {
 						t.Fatal(err)
 					}
-					frames, cH, cT, cOps := runSam(t, oldExe(), file, cScript)
-					drawtest.CheckNoCursor(t, frames, golden, false)
+					frames, cH, cT, cOps, _ := runSam(t, oldExe(), file, cScript, cSM, cSC)
+					drawtest.Check(t, frames, golden, false)
 					if cOps != wantOps {
 						t.Errorf("C drawops differ from golden:\n  have %s\n  want %s", cOps, wantOps)
 					}
@@ -534,7 +638,16 @@ func checkStream(t *testing.T, label string, go_, c []byte) {
 // own samterm, so we hand its stdout to the in-process terminal's host reader
 // and its stdin to the terminal's host writer -- exactly the streams sam would
 // otherwise wire to a forked samterm.
-func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte, string, []int) {
+// readArrivals reads the setmouse and setcursor arrival logs devdraw wrote
+// alongside the frame files for img.
+func readArrivals(img string) arrivals {
+	return arrivals{
+		setmouse:  parseInts(readFile(img + ".setmouse")),
+		setcursor: parseInts(readFile(img + ".setcursor")),
+	}
+}
+
+func runLocal(t *testing.T, file, script, smDelays, scDelays string) ([]image.Image, []byte, []byte, string, []int, arrivals) {
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
 	if d := os.Getenv("GOIMG"); d != "" {
@@ -570,6 +683,13 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 		"DEVDRAW_TEST_DONE="+donefile,
 		"DEVDRAW_DRAWLOG="+drawlogfile,
 		"DEVDRAW_TEST_SETTLE="+settlefile,
+		// The scenario's calibrated per-warp cursor deferral (empty means
+		// none): the Go client's eager flushing can deliver a cursor warp a
+		// few frames before C's lazier flushing does, so the Go run defers
+		// each warp to land its cursor on the same frame as C (see
+		// t_rpc_setmouse, test_setcursor, and frameDelays).
+		"DEVDRAW_TEST_SETMOUSE_DELAYS="+smDelays,
+		"DEVDRAW_TEST_SETCURSOR_DELAYS="+scDelays,
 	)
 
 	// sam -R: the host speaks the protocol on stdin/stdout. sam writes
@@ -634,7 +754,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		<-done
 	}
-	return drawtest.Frames(t, img), hraw, traw, readDrawops(drawlogfile), parseInts(readFile(settlefile))
+	return drawtest.FramesAndCursor(t, img), hraw, traw, readDrawops(drawlogfile), parseInts(readFile(settlefile)), readArrivals(img)
 }
 
 // runSam drives the C samterm (samtermExe, a subprocess -- the only way to run
@@ -644,7 +764,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 // invocations. It returns the rendered frames and the raw H (sam->samterm) and
 // T (samterm->sam) protocol streams captured up to settlement, so TestDraw can
 // confirm the Go and C runs are byte-identical after normalization.
-func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byte, []byte, string) {
+func runSam(t *testing.T, samtermExe, file, script, smDelays, scDelays string) ([]image.Image, []byte, []byte, string, arrivals) {
 	img := filepath.Join(t.TempDir(), "img")
 	if d := os.Getenv("COIMG"); d != "" {
 		img = d
@@ -684,7 +804,11 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 		"DEVDRAW_TEST_DONE="+donefile,
 		"DEVDRAW_DRAWLOG="+drawlogfile,
 		"DEVDRAW_TEST_NOCOALESCE=1", // see runLocal: deterministic per-event frames
-		cov.Env(t),                  // per-run LLVM_PROFILE_FILE when -uncoverc is set
+		// The C side of the scenario's calibrated cursor deferrals (the
+		// negative half of the signed lists; see frameDelays, splitDelays).
+		"DEVDRAW_TEST_SETMOUSE_DELAYS="+smDelays,
+		"DEVDRAW_TEST_SETCURSOR_DELAYS="+scDelays,
+		cov.Env(t), // per-run LLVM_PROFILE_FILE when -uncoverc is set
 	)
 	ot.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := ot.Start(); err != nil {
@@ -723,7 +847,7 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 	if cov.Enabled() {
 		time.Sleep(300 * time.Millisecond)
 	}
-	return drawtest.Frames(t, img), hraw, traw, readDrawops(drawlogfile)
+	return drawtest.FramesAndCursor(t, img), hraw, traw, readDrawops(drawlogfile), readArrivals(img)
 }
 
 func haveOld() bool {

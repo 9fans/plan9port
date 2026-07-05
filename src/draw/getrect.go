@@ -40,25 +40,30 @@ func SweepRect(but int, mc *Mousectl) Rectangle {
 	for mc.Buttons != 0 {
 		mc.Read()
 	}
+	// An abort (another button pressed while waiting for the sweep to start)
+	// must still fall through to the cursor restore and drain below, like C
+	// getrect's goto Return -- an early return here would leave the sweep
+	// cursor switched in.
+	abort := false
 	for mc.Buttons&but == 0 {
 		mc.Read()
 		if mc.Buttons&(7^but) != 0 {
-			for mc.Buttons != 0 {
-				mc.Read()
-			}
-			return ZR
+			abort = true
+			break
 		}
 	}
-	r := Rectangle{Min: mc.Point, Max: mc.Point}
 	var rc Rectangle
-	for {
-		rc = r.Canon()
-		drawgetrect(mc.Display, rc, true)
-		mc.Read()
-		drawgetrect(mc.Display, rc, false)
-		r.Max = mc.Point
-		if mc.Buttons != but {
-			break
+	if !abort {
+		r := Rectangle{Min: mc.Point, Max: mc.Point}
+		for {
+			rc = r.Canon()
+			drawgetrect(mc.Display, rc, true)
+			mc.Read()
+			drawgetrect(mc.Display, rc, false)
+			r.Max = mc.Point
+			if mc.Buttons != but {
+				break
+			}
 		}
 	}
 

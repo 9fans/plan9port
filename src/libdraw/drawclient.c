@@ -348,6 +348,11 @@ _displaymoveto(Display *d, Point p)
 {
 	Wsysmsg tx, rx;
 
+	// Send any buffered draw ops first, so the warp cannot overtake them on
+	// the wire and land at a chunking-dependent point in the devdraw
+	// operation stream (the Go port's draw.MoveCursor does the same).
+	// When the buffer is empty this is a no-op.
+	flushimage(d, 0);
 	tx.type = Tmoveto;
 	tx.mouse.xy = p;
 	if(displayrpc(d, &tx, &rx, nil) < 0)
@@ -360,6 +365,9 @@ int
 _displaycursor(Display *d, Cursor *c, Cursor2 *c2)
 {
 	Wsysmsg tx, rx;
+
+	// Keep the cursor change ordered after buffered draws; see _displaymoveto.
+	flushimage(d, 0);
 
 	tx.type = Tcursor2;
 	if(c == nil){

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"9fans.net/plan9port/draw"
 	"9fans.net/plan9port/draw/frame"
 )
@@ -35,7 +37,7 @@ func (a *Acme) border() int    { return a.disp.ScaleSize(2) }
 
 // initdraw opens the display, font, and colors (acme.c threadmain + iconinit).
 func (a *Acme) initdraw(label, winsize string) error {
-	d, err := draw.Init(nil, "", label, winsize)
+	d, err := draw.Init(nil, "", label, winsize, os.Environ())
 	if err != nil {
 		// untested: draw.Init failure needs an unopenable display
 		return err

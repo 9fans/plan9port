@@ -22,9 +22,30 @@ import (
 	"testing"
 )
 
-// Frames loads output images from the files name.0, name.1, ...,
-// and returns them in numeric order.
-func Frames(t *testing.T, name string) []image.Image {
+// FramesAndCursor loads the window frames (name.0, name.1, ...) and the matching
+// cursor frames (name.cursor.0, ...) that devdraw wrote in lockstep -- one cursor
+// frame per window frame -- and returns them interleaved as
+// window,cursor,window,cursor,..., the sequence [Check] and the golden GIF use
+// (see encodeGIF). The two streams must be the same length.
+func FramesAndCursor(t *testing.T, name string) []image.Image {
+	t.Helper()
+	win := frames(t, name)
+	cur := frames(t, name+".cursor")
+	if len(win) != len(cur) {
+		t.Errorf("window/cursor frame count mismatch: %d window, %d cursor", len(win), len(cur))
+		return win
+	}
+	out := make([]image.Image, 0, 2*len(win))
+	for i := range win {
+		out = append(out, win[i], cur[i])
+	}
+	return out
+}
+
+// frames loads the numbered image files name.0, name.1, ... that devdraw
+// wrote, in order (files with non-numeric suffixes, like name.cursor.3 when
+// name has no dot suffix itself, are skipped).
+func frames(t *testing.T, name string) []image.Image {
 	t.Helper()
 	matches, _ := filepath.Glob(name + ".*")
 	var nums []int
@@ -51,31 +72,11 @@ func Frames(t *testing.T, name string) []image.Image {
 	// and encodeGIF), which keeps reconstruction -- a full-window copy per frame
 	// -- out of the hot path. The diffs still composite visually when the GIF is
 	// viewed, because GIF frames overlay with disposal "none".
-	frames := make([]image.Image, len(nums))
+	fs := make([]image.Image, len(nums))
 	for i, num := range nums {
-		frames[i] = readImage(t, fmt.Sprint(name, ".", num))
+		fs[i] = readImage(t, fmt.Sprint(name, ".", num))
 	}
-	return frames
-}
-
-// FramesAndCursor loads the window frames (name.0, name.1, ...) and the matching
-// cursor frames (name.cursor.0, ...) that devdraw wrote in lockstep -- one cursor
-// frame per window frame -- and returns them interleaved as
-// window,cursor,window,cursor,..., the sequence [Check] and the golden GIF use
-// (see encodeGIF). The two streams must be the same length.
-func FramesAndCursor(t *testing.T, name string) []image.Image {
-	t.Helper()
-	win := Frames(t, name)
-	cur := Frames(t, name+".cursor")
-	if len(win) != len(cur) {
-		t.Errorf("window/cursor frame count mismatch: %d window, %d cursor", len(win), len(cur))
-		return win
-	}
-	out := make([]image.Image, 0, 2*len(win))
-	for i := range win {
-		out = append(out, win[i], cur[i])
-	}
-	return out
+	return fs
 }
 
 // readImage reads a Plan 9 image file -- the compressed format devdraw writes
@@ -265,28 +266,17 @@ func writePNG(t *testing.T, file string, m image.Image) {
 // instead of comparing against it.
 func Check(t *testing.T, frames []image.Image, golden string, update bool) {
 	t.Helper()
-	check(t, frames, golden, update, true)
+	check(t, frames, golden, update)
 }
 
-// CheckNoCursor is Check for a plain window-frame sequence (Frames, not
-// FramesAndCursor). TestDraw uses it: its scenarios move the real mouse, and
-// client cursor warps reach devdraw at flush-dependent moments that the
-// setmouse deferral does not cover under script input (t_rpc_setmouse feeds
-// warps back through gfx_mousetrack), so Go and C cursor frames land on
-// different frame boundaries and are not comparable yet.
-func CheckNoCursor(t *testing.T, frames []image.Image, golden string, update bool) {
-	t.Helper()
-	check(t, frames, golden, update, false)
-}
-
-func check(t *testing.T, frames []image.Image, golden string, update, cursor bool) {
+func check(t *testing.T, frames []image.Image, golden string, update bool) {
 	t.Helper()
 	if update {
 		if err := os.MkdirAll(filepath.Dir(golden), 0777); err != nil {
 			t.Error(err)
 			return
 		}
-		if err := os.WriteFile(golden, encodeGIF(t, frames, cursor), 0666); err != nil {
+		if err := os.WriteFile(golden, encodeGIF(t, frames), 0666); err != nil {
 			t.Error(err)
 			return
 		}
@@ -305,7 +295,7 @@ func check(t *testing.T, frames []image.Image, golden string, update, cursor boo
 		if diff := imageDiff(frame, want[i]); !diff.Empty() {
 			t.Errorf("frame %d differs from %v in bounding box %v", i, golden, diff)
 			have := filepath.Join(filepath.Dir(golden), "have."+filepath.Base(golden))
-			if err := os.WriteFile(have, encodeGIF(t, frames, cursor), 0666); err != nil {
+			if err := os.WriteFile(have, encodeGIF(t, frames), 0666); err != nil {
 				t.Fatal(err)
 			}
 			t.Errorf("new frames in %v", have)
@@ -379,13 +369,13 @@ func decodeGIF(t *testing.T, data []byte) []image.Image {
 // zero delay, so a compliant viewer paints the window, overlays the cursor for
 // the delay, then removes it before the next window frame -- compositing the
 // cursor for us without disturbing the window comparison.
-func encodeGIF(t *testing.T, frames []image.Image, cursor bool) []byte {
+func encodeGIF(t *testing.T, frames []image.Image) []byte {
 	t.Helper()
 
 	if len(frames) == 0 {
 		t.Fatalf("encodeGIF: no frames")
 	}
-	if cursor && len(frames)%2 != 0 {
+	if len(frames)%2 != 0 {
 		t.Fatalf("encodeGIF: odd frame count %d (expected window,cursor pairs)", len(frames))
 	}
 
@@ -428,11 +418,7 @@ func encodeGIF(t *testing.T, frames []image.Image, cursor bool) []byte {
 			p.SetColorIndex(x, y, uint8(index[rgbaOf(frame.At(x, y))]))
 		}
 		g.Image = append(g.Image, p)
-		if !cursor {
-			// Plain window frames: show each for 1s when viewed.
-			g.Delay = append(g.Delay, 100)
-			g.Disposal = append(g.Disposal, gif.DisposalNone)
-		} else if i%2 == 1 {
+		if i%2 == 1 {
 			// Cursor frame: overlay it, then undo it before the next window frame.
 			g.Delay = append(g.Delay, 100)
 			g.Disposal = append(g.Disposal, gif.DisposalPrevious)

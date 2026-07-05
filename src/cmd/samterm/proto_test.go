@@ -9,8 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
@@ -144,24 +146,27 @@ func scriptUsesExtern(script []byte) bool {
 	return false
 }
 
-// externFIFO configures the deterministic FIFO path for an extern scenario and
-// returns it. $NAMESPACE is already empty (TestMain), so both terminals' plumbstart
-// fails and they fall back to extstart. We pin $USER (and clear $DISPLAY) so the
-// path -- /tmp/.sam.$USER -- is identical and computable for the in-process Go run
-// and the C subprocess. Pid keeps concurrent runs apart; the file is cleaned up.
-func externFIFO(t *testing.T) string {
-	user := "samtermextern" + strconv.Itoa(os.Getpid())
-	t.Setenv("USER", user)
-	if d, ok := os.LookupEnv("DISPLAY"); ok {
-		// Clear $DISPLAY so C's getenv("DISPLAY")==nil arm is taken (no display
-		// suffix on the path); restore it after the test.
-		os.Unsetenv("DISPLAY")
-		t.Cleanup(func() { os.Setenv("DISPLAY", d) })
-	}
+// externSeq distinguishes concurrent extern scenarios' FIFO paths.
+var externSeq atomic.Int32
+
+// externEnv adapts env for an extern scenario and returns the FIFO path the
+// terminal will derive from it. $NAMESPACE is already empty (TestMain), so
+// both terminals' plumbstart fails and they fall back to extstart. $USER is
+// overridden -- uniquely per run, so parallel extern scenarios do not collide
+// -- and $DISPLAY dropped (C's extstart appends any non-nil $DISPLAY to the
+// path), so the path, /tmp/.sam.$USER, is identical and computable for the
+// in-process Go run and the C subprocess. The process environment is not
+// touched: t.Setenv would forbid t.Parallel.
+func externEnv(t *testing.T, env []string) ([]string, string) {
+	t.Helper()
+	user := "samtermextern" + strconv.Itoa(os.Getpid()) + "." + strconv.Itoa(int(externSeq.Add(1)))
+	env = slices.Clone(env)
+	env = slices.DeleteFunc(env, func(kv string) bool { return strings.HasPrefix(kv, "DISPLAY=") })
+	env = append(env, "USER="+user)
 	path := "/tmp/.sam." + user
 	os.Remove(path)
 	t.Cleanup(func() { os.Remove(path) })
-	return path
+	return env, path
 }
 
 // writeExtern writes data into the terminal's extern FIFO, exercising the
@@ -310,10 +315,6 @@ func TestProto(t *testing.T) {
 // -update; otherwise it replays them.
 func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
-	useExtern := scriptUsesExtern(script)
-	if useExtern {
-		externFIFO(t) // sets $USER/$DISPLAY; the actual path is read from term.exname below
-	}
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 	// Built as a slice, not with t.Setenv, so parallel tests can configure
@@ -323,6 +324,10 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 		"DEVDRAW_TEST_OUTPUT="+img,
 		"DEVDRAW_DRAWLOG="+drawlog,
 	)
+	externPath := ""
+	if scriptUsesExtern(script) {
+		env, externPath = externEnv(t, env) // extstart derives the FIFO from $USER
+	}
 
 	disp, err := draw.Init(nil, "", "sam", "300x200", env)
 	if err != nil {
@@ -342,10 +347,11 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 	h2tR, h2tW, _ := os.Pipe()
 	t2hR, t2hW, _ := os.Pipe()
 	term := NewTerm(disp, h2tR, t2hW, env)
+	term.extfallback = externPath != "" // extern scenarios opt in to the FIFO
 	term.startup()
 	go term.run()
 
-	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img}
+	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img, extern: externPath}
 	h.handshake(t)
 	go h.drain()
 	got := runProtoScript(t, h, script, counts)
@@ -356,10 +362,6 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 // runOldProto runs the C samterm subprocess against the identical host script.
 func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
-	externPath := ""
-	if scriptUsesExtern(script) {
-		externPath = externFIFO(t) // C computes the same /tmp/.sam.$USER from the env
-	}
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 
@@ -371,12 +373,17 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 	errf, _ := os.Create(filepath.Join(img, "stderr"))
 	defer errf.Close()
 	cmd.Stderr = errf
-	cmd.Env = append(os.Environ(),
+	env := append(os.Environ(),
 		"DEVDRAW_TEST_MEMORY=1",
 		"DEVDRAW_TEST_OUTPUT="+img,
 		"DEVDRAW_DRAWLOG="+drawlog,
 		cov.Env(t), // per-run LLVM_PROFILE_FILE when -uncoverc is set
 	)
+	externPath := ""
+	if scriptUsesExtern(script) {
+		env, externPath = externEnv(t, env) // C computes the same /tmp/.sam.$USER
+	}
+	cmd.Env = env
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
 		t.Fatalf("start c samterm: %v", err)
@@ -411,6 +418,7 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 //	growdata TAG POS TEXT   insert TEXT (\t \n \\ escaped) at rune POS in tag TAG
 //	setdot TAG P0 P1        Hsetdot: highlight runes [P0,P1) in tag TAG
 //	cut TAG A OLD           Hcut: delete OLD runes at A in tag TAG
+// FIX document all the verbs or delete
 //
 // Operations are delivered over a single ordered pipe and the terminal
 // processes them in order, writing one frame per drawing operation (see

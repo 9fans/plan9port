@@ -47,7 +47,9 @@ func TestStartSamterm(t *testing.T) {
 	// sam -R) happens to send its shutdown messages -- e.g. whether the "q" is
 	// erased before or after a window closes -- so we compare just the stable
 	// startup prefix.
-	const nstable = 12
+	// The frames are window,cursor pairs (see drawtest.FramesAndCursor), so
+	// the stable prefix is 2*12 entries.
+	const nstable = 2 * 12
 	stable := func(f []image.Image) []image.Image {
 		if len(f) < nstable {
 			t.Fatalf("got %d frames, want at least %d", len(f), nstable)
@@ -95,5 +97,5 @@ func runSam(t *testing.T, samExe, file, script string) []image.Image {
 		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		t.Errorf("sam did not exit after %v; killed", timeout)
 	}
-	return drawtest.Frames(t, img)
+	return drawtest.FramesAndCursor(t, img)
 }

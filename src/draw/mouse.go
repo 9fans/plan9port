@@ -77,6 +77,15 @@ func (mc *Mousectl) Read() Mouse {
 func (d *Display) MoveCursor(pt Point) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	// Send any buffered draw ops first, so the warp cannot overtake them on
+	// the wire: how much was still buffered here varies with how the event
+	// loop's flushes interleaved with the protocol pipe's chunking, and an
+	// overtaking warp lands at a load-dependent point in the devdraw
+	// operation stream. C libdraw has the same hazard (its scheduling is
+	// stable in practice); when the buffer is empty this is a no-op.
+	if err := d.flushBuffer(); err != nil {
+		return err
+	}
 	err := d.conn.MoveTo(pt)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "MoveTo: %v\n", err)
@@ -92,6 +101,10 @@ func (d *Display) MoveCursor(pt Point) error {
 func (d *Display) SwitchCursor(c *Cursor) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	// Keep the cursor change ordered after buffered draws; see MoveCursor.
+	if err := d.flushBuffer(); err != nil {
+		return err
+	}
 	err := d.conn.Cursor((*drawfcall.Cursor)(c))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "SetCursor: %v\n", err)
@@ -106,6 +119,10 @@ func (d *Display) SwitchCursor(c *Cursor) error {
 func (d *Display) SwitchCursor2(c *Cursor, c2 *Cursor2) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	// Keep the cursor change ordered after buffered draws; see MoveCursor.
+	if err := d.flushBuffer(); err != nil {
+		return err
+	}
 	err := d.conn.Cursor2((*drawfcall.Cursor)(c), (*drawfcall.Cursor2)(c2))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "SetCursor: %v\n", err)

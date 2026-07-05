@@ -100,7 +100,7 @@ func (t *Term) menu3hit() {
 
 	case Zerox, Resize:
 		if t.hostlock == 0 {
-			t.display.SwitchCursor(&bullseye)
+			t.setcursor(&bullseye)
 			t.buttons(Down)
 			cursor := true
 			if t.mouse.Buttons&4 != 0 {
@@ -119,7 +119,7 @@ func (t *Term) menu3hit() {
 
 	case Close:
 		if t.hostlock == 0 {
-			t.display.SwitchCursor(&bullseye)
+			t.setcursor(&bullseye)
 			t.buttons(Down)
 			if l := t.flwhich(t.mouse.Point); (t.mouse.Buttons&4) != 0 && l != nil && t.hostlock == 0 {
 				tx := l.user1
@@ -136,7 +136,7 @@ func (t *Term) menu3hit() {
 
 	case Write:
 		if t.hostlock == 0 {
-			t.display.SwitchCursor(&bullseye)
+			t.setcursor(&bullseye)
 			t.buttons(Down)
 			if l := t.flwhich(t.mouse.Point); (t.mouse.Buttons&4) != 0 && l != nil {
 				t.outTs(sam.Twrite, l.user1.tag)

@@ -60003,18 +60003,22 @@ line 000059997 zz
 line 000059998 zz
 line 000059999 zz
 -- input --
-move 300 8
+move 150 4
 button 4
-move 300 116
+move 150 116
 button 0
-move 200 150
+move 100 75
 button 4
-move 480 330
+move 240 165
 button 0
-move 208 250
+move 150 120
+button 1
+button 0
+move 110 160
 button 2
+move 110 120
 button 0
 -- waitframes --
-29 29 29 29 29 29 51 52 53 53 53 53
+29 29 51 54 55 55 57 63 115 115 117 117 117 120 123 145
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsddc
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{5}dddx{5}d{6}lld{6}lldddxd{37}lldddx{5}d{6}

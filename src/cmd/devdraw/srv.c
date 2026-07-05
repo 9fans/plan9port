@@ -293,12 +293,11 @@ runmsg(Client *c, Wsysmsg *m)
 
 	case Tcursor:
 		if(m->arrowcursor) {
-			c->testcursorset = 0;
+			test_setcursor(c, nil);
 			c->impl->rpc_setcursor(c, nil, nil);
 		} else {
 			scalecursor(&m->cursor2, &m->cursor);
-			c->testcursorset = 1;
-			c->testcursor = m->cursor;
+			test_setcursor(c, &m->cursor);
 			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
 		}
 		replymsg(c, m);
@@ -306,11 +305,10 @@ runmsg(Client *c, Wsysmsg *m)
 
 	case Tcursor2:
 		if(m->arrowcursor) {
-			c->testcursorset = 0;
+			test_setcursor(c, nil);
 			c->impl->rpc_setcursor(c, nil, nil);
 		} else {
-			c->testcursorset = 1;
-			c->testcursor = m->cursor;
+			test_setcursor(c, &m->cursor);
 			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
 		}
 		replymsg(c, m);
@@ -494,8 +492,15 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 	// Record the true (clamped) position for the test cursor frames, before the
 	// coalescing gate below can drop it. Under -D no one reads mouse events, so
 	// c->mouse.last.xy would otherwise stick at the first queued move; the cursor
-	// frames must follow every moveto, not the queue's leftovers.
-	c->testmousexy = Pt(x, y);
+	// frames must follow every moveto, not the queue's leftovers. A warp's own
+	// echo (t_rpc_setmouse under script input, marked by testwarpecho) must NOT
+	// update here: its position is applied by the draw thread's pend, which is
+	// what makes the warped cursor's first frame deterministic. Any other move
+	// arriving later supersedes the warp, so it cancels the pend.
+	if(!c->testwarpecho){
+		c->testpend = 0;
+		c->testmousexy = Pt(x, y);
+	}
 
 	// If reader has stopped reading, don't bother.
 	// If reader is completely caught up, definitely queue.

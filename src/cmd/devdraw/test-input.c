@@ -158,21 +158,24 @@ sendtext(Client *c, char *s)
 	}
 }
 
-// waitframe blocks until the client has emitted at least n image frames
-// (c->testoutn >= n). It lets the script synchronize with the output stream so
-// that a following command (e.g. a mouse move) lands at a deterministic frame
-// boundary instead of racing the client's redraws. It gives up after a few
-// seconds so a wedged client cannot hang the test indefinitely.
+// waitframe blocks until the client has fully emitted at least n image frames
+// (c->testoutdone >= n; testoutdone counts frames whose window AND cursor file
+// are both on disk, unlike testoutn, which is bumped before either is written).
+// It lets the script synchronize with the output stream so that a following
+// command (e.g. a mouse move) lands at a deterministic frame boundary instead
+// of racing the client's redraws -- or frame n-1's still-unwritten cursor. It
+// gives up after a few seconds so a wedged client cannot hang the test
+// indefinitely.
 static void
 waitframe(Client *c, int n)
 {
 	uint end;
 
 	end = msec() + 5000;
-	while(c->testoutn < n){
+	while(c->testoutdone < n){
 		if((int)(msec() - end) >= 0){
 			fprint(2, "devdraw test input: waitframe %d timed out (have %d)\n",
-				n, c->testoutn);
+				n, c->testoutdone);
 			return;
 		}
 		sleep(5);
@@ -198,7 +201,7 @@ recordsettle(Client *c)
 			fd = create(p, OWRITE, 0666);
 	}
 	if(fd >= 0){
-		snprint(buf, sizeof buf, "%d\n", c->testoutn);
+		snprint(buf, sizeof buf, "%d\n", c->testoutdone);
 		write(fd, buf, strlen(buf));
 	}
 }
@@ -215,14 +218,14 @@ waitidle(Client *c, int ms)
 	uint quiet, now, end;
 
 	now = msec();
-	last = c->testoutn;
+	last = c->testoutdone;
 	quiet = now;
 	end = now + 5000;
 	for(;;){
 		sleep(5);
 		now = msec();
-		if(c->testoutn != last){
-			last = c->testoutn;
+		if(c->testoutdone != last){
+			last = c->testoutdone;
 			quiet = now;
 		}else if((int)(now - quiet) >= ms)
 			return;

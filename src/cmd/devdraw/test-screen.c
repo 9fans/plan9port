@@ -49,6 +49,35 @@ msec(void)
 	return nsec()/1000000;
 }
 
+// parsedelays parses the "d0 d1 ..." frame-delay list in $env
+// into a malloced array, returning its length.
+static int
+parsedelays(char *env, int **out)
+{
+	char *e, *s, *t;
+	int cap, n;
+
+	e = getenv(env);
+	if(e == nil || e[0] == 0){
+		free(e);
+		return 0;
+	}
+	s = strdup(e);
+	free(e);
+	cap = 8;
+	*out = malloc(cap*sizeof(int));
+	n = 0;
+	for(t = strtok(s, " ,\n"); t != nil; t = strtok(nil, " ,\n")){
+		if(n >= cap){
+			cap *= 2;
+			*out = realloc(*out, cap*sizeof(int));
+		}
+		(*out)[n++] = atoi(t);
+	}
+	free(s);
+	return n;
+}
+
 // t_allocscreen allocates a fresh in-memory window image of the given size.
 static Memimage*
 t_allocscreen(Rectangle r)
@@ -89,27 +118,11 @@ t_rpc_attach(Client *c, char *label, char *winsize)
 	c->mouse.last.xy = Pt(Dx(wr) - 25, Dy(wr) - 25);
 	c->testmousexy = c->mouse.last.xy; // initial cursor frame position
 
-	// Per-setmouse deferral list, "d0 d1 ...": the k-th setmouse's cursor change
-	// is held testsmdelay[k] frames so the Go port matches C's flush timing.
-	{
-		char *e, *s, *t;
-		int cap;
-		e = getenv("DEVDRAW_TEST_SETMOUSE_DELAYS");
-		if(e != nil && e[0] != 0){
-			s = strdup(e);
-			cap = 8;
-			c->testsmdelay = malloc(cap*sizeof(int));
-			c->testsmn = 0;
-			for(t = strtok(s, " ,\n"); t != nil; t = strtok(nil, " ,\n")){
-				if(c->testsmn >= cap){
-					cap *= 2;
-					c->testsmdelay = realloc(c->testsmdelay, cap*sizeof(int));
-				}
-				c->testsmdelay[c->testsmn++] = atoi(t);
-			}
-			free(s);
-		}
-	}
+	// Per-setmouse and per-setcursor deferral lists, "d0 d1 ...": the k-th
+	// call's cursor change is held delay[k] frames so the Go port matches C's
+	// flush timing.
+	c->testsmn = parsedelays("DEVDRAW_TEST_SETMOUSE_DELAYS", &c->testsmdelay);
+	c->testscn = parsedelays("DEVDRAW_TEST_SETCURSOR_DELAYS", &c->testscdelay);
 
 	return t_allocscreen(wr);
 }
@@ -164,10 +177,10 @@ t_rpc_resizewindow(Client *c, Rectangle r)
 	gfx_replacescreenimage0(c, t_allocscreen(nr));
 }
 
-// hasscriptinput reports whether DEVDRAW_TEST_INPUT is set, i.e. device input
-// is being scripted (cached after the first call).
-static int
-hasscriptinput(void)
+// test_hasscriptinput reports whether DEVDRAW_TEST_INPUT is set, i.e. device
+// input is being scripted (cached after the first call).
+int
+test_hasscriptinput(void)
 {
 	static int v = -1;
 	char *p;
@@ -192,10 +205,6 @@ t_rpc_setmouse(Client *c, Point p)
 {
 	int delay;
 
-	if(hasscriptinput()){
-		gfx_mousetrack(c, p.x, p.y, c->mouse.last.buttons, msec());
-		return;
-	}
 	// (clamp to mouserect, matching gfx_mousetrack, for the cursor-frame pos.)
 	if(p.x < c->mouserect.min.x)
 		p.x = c->mouserect.min.x;
@@ -211,6 +220,26 @@ t_rpc_setmouse(Client *c, Point p)
 	test_setmouselog(c);
 	delay = c->testsmi < c->testsmn ? c->testsmdelay[c->testsmi] : 0;
 	c->testsmi++;
+	if(test_hasscriptinput()){
+		// Script-driven run: the warp feeds the injected mouse, so the client
+		// sees the moved position immediately -- but the cursor-frame position
+		// goes through the pend queue even with no calibrated delay. The draw
+		// thread applies pends in writecursor, serializing the cursor change
+		// against frame writes, so which frame first shows the warped cursor
+		// is deterministic instead of racing the in-flight draw burst
+		// (gfx_mousetrack skips its own testmousexy update while a pend is
+		// outstanding; see gfx_mousetrack).
+		c->testpendxy = p;
+		c->testpendn = delay;
+		c->testpend = 1;
+		// testwarpecho tells gfx_mousetrack this move is the warp's own echo,
+		// so it must not update testmousexy (the pend above will) or cancel
+		// the pend the way a genuine later move does.
+		c->testwarpecho = 1;
+		gfx_mousetrack(c, p.x, p.y, c->mouse.last.buttons, msec());
+		c->testwarpecho = 0;
+		return;
+	}
 	if(delay <= 0){
 		c->testmousexy = p;	// apply immediately (no deferral)
 		return;

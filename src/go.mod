@@ -3,7 +3,7 @@ module 9fans.net/plan9port
 go 1.26.0
 
 require (
-	9fans.net/go v0.0.7
+	9fans.net/go v0.0.8-0.20260606045824-22881eb8f51a
 	golang.org/x/tools v0.46.0
 	rsc.io/getopt v0.0.0-20170811000552-20be20937449
 )
