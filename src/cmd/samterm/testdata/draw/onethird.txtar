@@ -51,6 +51,6 @@ button 2
 button 0
 type x
 -- waitframes --
-29 29 51 54 55 55 57 63 117 117 119 119 119 123 137 157
+29 29 29 29 29 29 51 52 53 53 53 53 53 53 53 57
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}l{12}dddx{11}d{6}lldddxd{35}xxd{20}x{11}d{6}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsddcddxdd

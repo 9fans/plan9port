@@ -119,7 +119,7 @@ func (b *safeBuffer) Bytes() []byte {
 // paces with waitidle to discover each action's settled frame count (see
 // pacedScript and devdraw's recordsettle). It is generous so that a momentary
 // stall does not record too small a count.
-const updateSettleMS = 200
+const updateSettleMS = 50
 
 // typeText expands a string into one keystroke command per rune. Spaces and
 // tabs are sent via "key" because the "type" command's argument parser strips

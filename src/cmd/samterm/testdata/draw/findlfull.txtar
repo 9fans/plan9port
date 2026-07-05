@@ -73,6 +73,6 @@ button 4
 move 380 280
 button 0
 -- waitframes --
-29 29 51 54 55 55 57 63 110 110 132 135 136 136 136 136 136 138 144 178 178 200 200 201 201 201 201 201 203 209 243 243 265 265 266 266 266 266 266 268 274 308 308 330 330 331 331 331 331 331 333 339 373 373 395 395 396 396 396 396 396 398 404 408
+29 29 29 29 29 29 51 52 53 53 53 53 53 53 53 53 53 75 76 77 77 77 77 77 77 77 77 77 99 100 101 101 101 101 101 101 101 101 101 123 124 125 125 125 125 125 125 125 125 125 147 148 149 149 149 149 149 149 149 149 149 171 172 173
 -- drawops --
-JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsdddsdcb{5}d{32}bbd{25}lldddxxxd{5}lldddxd{12}cbd{6}bddsdsdsdsdsdsdsddsdddsdcd{24}bbd{20}xxxd{5}bd{8}xxxd{28}clbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}bbd{24}xxxd{13}bd{8}xxxd{8}cbd{6}bddsdsdsdsdsdsdsddsdcd{24}
+JIqbbAbddbbbbdbbbbdbbbYbilbbd{5}bbd{30}bbdbbcl{18}bd{6}bddsdsdsdsdsdsdsddsddccbd{6}bddsdsdsdsdsdsdsddsddccbd{6}bddsdsdsdsdsdsdsddsddccbd{6}bddsdsdsdsdsdsdsddsddccbd{6}bddsdsdsdsdsdsdsddsddccbd{6}bddsdsdsdsdsdsdsddsddc

@@ -48,6 +48,23 @@ type Font struct {
 	hidpi *Font
 }
 
+// LoDPI returns the low-resolution variant of the font. On a non-hi-dpi display,
+// or for a font with no separate hi-dpi variant, this is the font itself. It
+// mirrors C libdraw's Font.lodpi (which is always non-nil), and lets callers
+// such as acme's session dump record the underlying font names.
+func (f *Font) LoDPI() *Font {
+	if f.lodpi != nil {
+		return f.lodpi
+	}
+	return f
+}
+
+// HiDPI returns the high-resolution variant of the font, or nil if it has no
+// separate one (C libdraw's Font.hidpi).
+func (f *Font) HiDPI() *Font {
+	return f.hidpi
+}
+
 func (f *Font) lock() {
 	if f.Display != nil {
 		f.Display.mu.Lock()
