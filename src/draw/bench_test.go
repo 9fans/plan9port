@@ -16,7 +16,7 @@ var (
 
 func testInit() {
 	var err error
-	testDisplay, err = Init(nil, "", "drawtest", "")
+	testDisplay, err = Init(nil, "", "drawtest", "", nil)
 	if err != nil {
 		panic(err)
 	}

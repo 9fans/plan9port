@@ -535,30 +535,37 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	if d := os.Getenv("GOIMG"); d != "" {
 		img = d
 	}
-	os.Unsetenv("font")
-	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
-	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
-	t.Setenv("DEVDRAW_TEST_INPUT", script)
-	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
-	// Disable devdraw's mouse-move coalescing so every scripted event is
-	// delivered distinctly: the frame sequence then depends only on the input,
-	// not on how fast the client drained the mouse queue. Disable the Go draw
-	// library's image GC finalizer so a stray garbage collection cannot free an
-	// image (and emit draws) at a nondeterministic point. Together these make
-	// the Go and C runs produce the same frames, so the goldens can hold the
-	// full settled sequence rather than only the final frame.
-	t.Setenv("DEVDRAW_TEST_NOCOALESCE", "1")
-	t.Setenv("DRAW_TEST_NOFINALIZER", "1")
 	donefile := filepath.Join(filepath.Dir(img), "done")
 	drawlogfile := filepath.Join(filepath.Dir(img), "drawlog")
 	settlefile := filepath.Join(filepath.Dir(img), "settle")
 	os.Remove(donefile) // clear markers from a prior run sharing this dir
 	os.Remove(settlefile)
-	t.Setenv("DEVDRAW_TEST_DONE", donefile)
-	t.Setenv("DEVDRAW_DRAWLOG", drawlogfile)
-	// waitidle records its settle points here (only under -update, whose script
-	// paces with waitidle); a normal waitframe run leaves the file empty.
-	t.Setenv("DEVDRAW_TEST_SETTLE", settlefile)
+	// The run's environment: built as a slice, not with t.Setenv, so parallel
+	// tests can configure their own displays independently. draw.Init uses it
+	// for its lookups and for the devdraw subprocess (later entries override
+	// earlier ones).
+	//
+	// NOCOALESCE disables devdraw's mouse-move coalescing so every scripted
+	// event is delivered distinctly: the frame sequence then depends only on
+	// the input, not on how fast the client drained the mouse queue.
+	// NOFINALIZER disables the Go draw library's image GC finalizer so a stray
+	// garbage collection cannot free an image (and emit draws) at a
+	// nondeterministic point. Together these make the Go and C runs produce
+	// the same frames, so the goldens can hold the full settled sequence
+	// rather than only the final frame. SETTLE is where waitidle records its
+	// settle points (only under -update, whose script paces with waitidle); a
+	// normal waitframe run leaves the file empty.
+	env := append(os.Environ(),
+		"DEVDRAW="+filepath.Join(plan9root, "bin/devdraw"),
+		"DEVDRAW_TEST_MEMORY=1",
+		"DEVDRAW_TEST_INPUT="+script,
+		"DEVDRAW_TEST_OUTPUT="+img,
+		"DEVDRAW_TEST_NOCOALESCE=1",
+		"DRAW_TEST_NOFINALIZER=1",
+		"DEVDRAW_TEST_DONE="+donefile,
+		"DEVDRAW_DRAWLOG="+drawlogfile,
+		"DEVDRAW_TEST_SETTLE="+settlefile,
+	)
 
 	// sam -R: the host speaks the protocol on stdin/stdout. sam writes
 	// H-messages to its stdout (-> samterm host reader) and reads T-messages
@@ -569,6 +576,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	// echoes into the window is the stable "f", not the temp dir's random name.
 	cmd := exec.Command(plan9root+"/bin/sam", "-R", filepath.Base(file))
 	cmd.Dir = filepath.Dir(file)
+	cmd.Env = env
 	cmd.Stdin = samInR
 	cmd.Stdout = samOutW
 	cmd.Stderr = quietStderr(t, "sam")
@@ -588,7 +596,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	hostr := io.TeeReader(samOutR, hbuf)
 	hostw := io.MultiWriter(samInW, tbuf)
 
-	disp, err := draw.Init(nil, "", "sam", "300x200")
+	disp, err := draw.Init(nil, "", "sam", "300x200", env)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
@@ -600,7 +608,7 @@ func runLocal(t *testing.T, file, script string) ([]image.Image, []byte, []byte,
 	// down: the draw package's reader goroutines log.Fatal on a closed display,
 	// so the idle terminal goroutines and devdraw are left to be reaped at
 	// test-binary exit.
-	term := NewTerm(disp, hostr, hostw)
+	term := NewTerm(disp, hostr, hostw, env)
 	term.startup()
 	go term.run()
 
@@ -637,7 +645,6 @@ func runSam(t *testing.T, samtermExe, file, script string) ([]image.Image, []byt
 		img = d
 	}
 	t.Helper()
-	os.Unsetenv("font")
 	donefile := filepath.Join(filepath.Dir(img), "done")
 	drawlogfile := filepath.Join(filepath.Dir(img), "drawlog")
 	os.Remove(donefile) // clear any marker from a prior run sharing this dir
@@ -728,12 +735,13 @@ func oldExe() string {
 // TestGetscreen exercises the option parsing and display setup in getscreen
 // directly (main's subprocess entry point is not run in-process under coverage).
 func TestGetscreen(t *testing.T) {
-	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
-	t.Setenv("DEVDRAW_TEST_OUTPUT", filepath.Join(t.TempDir(), "img"))
-	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
-	t.Setenv("tabstop", "4")
-	os.Unsetenv("font")
-	term := &Term{maxtab: 8, hostlock: 1, typestart: -1, typeend: -1, typeesc: -1, kpeekc: -1, plumbfd: -1}
+	env := append(os.Environ(),
+		"DEVDRAW_TEST_MEMORY=1",
+		"DEVDRAW_TEST_OUTPUT="+filepath.Join(t.TempDir(), "img"),
+		"DEVDRAW="+filepath.Join(plan9root, "bin/devdraw"),
+		"tabstop=4",
+	)
+	term := &Term{env: env, maxtab: 8, hostlock: 1, typestart: -1, typeend: -1, typeesc: -1, kpeekc: -1, plumbfd: -1}
 	if err := term.getscreen([]string{"-a", "-W", "300x200"}); err != nil {
 		t.Skipf("no display: %v", err)
 	}

@@ -24,8 +24,15 @@ type Conn struct {
 	tagmap  map[byte]chan []byte
 }
 
-func New() (*Conn, error) {
-	devdraw := os.Getenv("DEVDRAW")
+// New starts a devdraw subprocess (named by $DEVDRAW, default "devdraw")
+// and returns a connection to it. The env holds the environment for both
+// the $DEVDRAW lookup and the subprocess, as "name=value" pairs with later
+// entries overriding earlier ones; nil means os.Environ.
+func New(env []string) (*Conn, error) {
+	if env == nil {
+		env = os.Environ()
+	}
+	devdraw := getenv(env, "DEVDRAW")
 	r1, w1, _ := os.Pipe()
 	r2, w2, _ := os.Pipe()
 	if devdraw == "" {
@@ -34,7 +41,7 @@ func New() (*Conn, error) {
 	cmd := exec.Command(devdraw, os.Args[0], "(devdraw)")
 	cmd.Args[0] = os.Args[0]
 	cmd.Env = []string{"NOLIBTHREADDAEMONIZE=1"}
-	cmd.Env = append(cmd.Env, os.Environ()...)
+	cmd.Env = append(cmd.Env, env...)
 	cmd.Dir = "/"
 	cmd.Stdin = r1
 	cmd.Stdout = w2

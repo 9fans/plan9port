@@ -54,7 +54,7 @@ func TestMain(m *testing.M) {
 // CLAUDE: input rather than calling Insert directly. Kept the direct call since the
 // CLAUDE: script reader decodes UTF-8 and can't carry a lone surrogate.
 func TestInsertInvalidRune(t *testing.T) {
-	disp, err := draw.Init(nil, "", "frametest", "400x400")
+	disp, err := draw.Init(nil, "", "frametest", "400x400", nil)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
@@ -79,7 +79,7 @@ func TestScript(t *testing.T) {
 	for _, file := range files {
 		name := strings.TrimSuffix(filepath.Base(file), ".txtar")
 		t.Run(name, func(t *testing.T) {
-			disp, err := draw.Init(nil, "", "frametest", "400x400")
+			disp, err := draw.Init(nil, "", "frametest", "400x400", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -126,7 +126,7 @@ func runScript(t *testing.T, file, script string) (string, []image.Image) {
 	dir := t.TempDir()
 	prefix := filepath.Join(dir, "img")
 	t.Setenv("DEVDRAW_TEST_OUTPUT", prefix)
-	disp, err := draw.Init(nil, "", "frametest", "600x400")
+	disp, err := draw.Init(nil, "", "frametest", "600x400", nil)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}

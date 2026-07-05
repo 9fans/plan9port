@@ -172,17 +172,22 @@ func startPlumber(t *testing.T) {
 func goSamterm(t *testing.T) (*protoHost, *Term) {
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
-	t.Setenv("DEVDRAW", filepath.Join(plan9root, "bin/devdraw"))
-	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
-	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
-	disp, err := draw.Init(nil, "", "sam", "300x200")
+	// The display env is a slice (see runLocal); $NAMESPACE stays a real
+	// t.Setenv in startPlumber because the plumb client library reads the
+	// process environment, so the plumb tests remain serial.
+	env := append(os.Environ(),
+		"DEVDRAW="+filepath.Join(plan9root, "bin/devdraw"),
+		"DEVDRAW_TEST_MEMORY=1",
+		"DEVDRAW_TEST_OUTPUT="+img,
+	)
+	disp, err := draw.Init(nil, "", "sam", "300x200", env)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
 	disp.ScreenImage.Draw(disp.ScreenImage.Clipr, disp.White, nil, draw.ZP)
 	h2tR, h2tW, _ := os.Pipe()
 	t2hR, t2hW, _ := os.Pipe()
-	term := NewTerm(disp, h2tR, t2hW)
+	term := NewTerm(disp, h2tR, t2hW, env)
 	term.startup()
 	go term.run()
 	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img}

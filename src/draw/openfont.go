@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -47,7 +46,7 @@ func (d *Display) openFont1(name string) (*Font, error) {
 	data, err := ioutil.ReadFile(fname)
 
 	if err != nil && strings.HasPrefix(fname, "/lib/font/bit/") {
-		root := os.Getenv("PLAN9")
+		root := getenv(d.env, "PLAN9")
 		if root == "" {
 			root = "/usr/local/plan9"
 		}
@@ -62,7 +61,7 @@ func (d *Display) openFont1(name string) (*Font, error) {
 	}
 
 	if err != nil && strings.HasPrefix(fname, "/mnt/font/") {
-		data1, err1 := fontPipe(fname[len("/mnt/font/"):])
+		data1, err1 := fontPipe(fname[len("/mnt/font/"):], d.env)
 		if err1 == nil {
 			data, err = data1, err1
 		}
@@ -201,8 +200,10 @@ func (d *Display) openFont(name string) (*Font, error) {
 	return f, nil
 }
 
-func fontPipe(name string) ([]byte, error) {
-	data, err := exec.Command("fontsrv", "-pp", name).CombinedOutput()
+func fontPipe(name string, env []string) ([]byte, error) {
+	cmd := exec.Command("fontsrv", "-pp", name)
+	cmd.Env = env
+	data, err := cmd.CombinedOutput()
 
 	// Success marked with leading \001. Otherwise an error happened.
 	if len(data) > 0 && data[0] != '\001' {

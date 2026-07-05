@@ -78,6 +78,17 @@ type Display struct {
 	lastfont  *Font
 
 	menu menuImages // per-display cache of the menu's colored images
+
+	// env is the display's environment (see Init): "name=value" pairs, later
+	// entries overriding earlier ones. It serves the display's environment
+	// lookups in place of the process environment.
+	env []string
+
+	// noFinalizer, set by $DRAW_TEST_NOFINALIZER, disables the GC finalizer
+	// that frees images automatically. C libdraw has no such automatic free,
+	// so for a faithful draw-stream comparison against the C original the
+	// tests set this and images are freed only by explicit Free/free calls.
+	noFinalizer bool
 }
 
 // menuImages holds a display's cached images for drawing menus (see MenuHit).
@@ -188,20 +199,33 @@ const defontfile = "15 13\n0 255\t*default*\n"
 // The label and size specify the initial window title and diemnsions.
 // The size takes the form "1000x500"; the units are pixels.
 //
+// The env specifies the environment for the display: it is used for the
+// display's environment variable lookups (such as $font and $DEVDRAW) and as
+// the environment of the devdraw subprocess. A nil env means os.Environ.
+// Entries are "name=value" pairs, and later entries override earlier ones of
+// the same name, so appending to os.Environ overrides the process
+// environment. Passing an explicit env lets tests configure concurrent
+// displays differently without mutating the process environment.
+//
 // Unlike the Plan 9 C library's initdraw, Init does not establish any global variables.
 // The C global variables display, font, and screen correspond to the
 // returned value d, d.Font, and d.ScreenImage.
 //
 // TODO: Use the error channel.
-func Init(errch chan<- error, font, label, size string) (d *Display, err error) {
-	c, err := drawfcall.New()
+func Init(errch chan<- error, font, label, size string, env []string) (d *Display, err error) {
+	if env == nil {
+		env = os.Environ()
+	}
+	c, err := drawfcall.New(env)
 	if err != nil {
 		return nil, err
 	}
 	d = &Display{
-		conn:    c,
-		errch:   errch,
-		bufsize: 10000,
+		conn:        c,
+		errch:       errch,
+		bufsize:     10000,
+		env:         env,
+		noFinalizer: getenv(env, "DRAW_TEST_NOFINALIZER") != "",
 	}
 
 	// Lock Display so we maintain the contract within this library.
@@ -239,7 +263,7 @@ func Init(errch chan<- error, font, label, size string) (d *Display, err error) 
 	 * getsubfont reading the embedded defontdata.
 	 */
 	if font == "" {
-		font = os.Getenv("font")
+		font = getenv(env, "font")
 	}
 
 	/*
@@ -460,7 +484,7 @@ func (d *Display) flush(visible bool) error {
 
 func (d *Display) flushInner(visible bool) error {
 	if visible {
-		if os.Getenv(d.env, "DRAWOP_VSTACK") != "" {
+		if getenv(d.env, "DRAWOP_VSTACK") != "" {
 			fmt.Fprintf(os.Stderr, "VFLUSH %d:\n%s\n", drawOpCount.Load()+1, debug.Stack())
 		}
 		d.bufsize++
@@ -492,11 +516,11 @@ func (d *Display) bufimage(n int) []byte {
 	}
 	if drawOpTarget == -2 {
 		drawOpTarget = -1
-		if s := os.Getenv("DRAWOP_STACK"); s != "" {
+		if s := getenv(d.env, "DRAWOP_STACK"); s != "" {
 			drawOpTarget, _ = strconv.Atoi(s)
 		}
 		drawOpLog = -1
-		if os.Getenv("DRAWOP_LOG") != "" {
+		if getenv(d.env, "DRAWOP_LOG") != "" {
 			drawOpLog = 1
 		}
 	}

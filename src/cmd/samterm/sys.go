@@ -23,6 +23,18 @@ func usage() {
 	os.Exit(1)
 }
 
+// getenv returns the value of the environment variable name in t.env
+// (later entries override earlier ones of the same name).
+func (t *Term) getenv(name string) string {
+	v := ""
+	for _, kv := range t.env {
+		if len(kv) > len(name) && kv[len(name)] == '=' && kv[:len(name)] == name {
+			v = kv[len(name)+1:]
+		}
+	}
+	return v
+}
+
 func (t *Term) getscreen(args []string) error {
 	fs := getopt.NewFlagSet("samterm", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
@@ -32,7 +44,7 @@ func (t *Term) getscreen(args []string) error {
 		// untested: see usage
 		usage()
 	}
-	disp, err := draw.Init(nil, "", "sam", t.winsize)
+	disp, err := draw.Init(nil, "", "sam", t.winsize, t.env)
 	if err != nil {
 		// untested: getscreen runs only from main() (which the tests bypass via
 		// NewTerm); the in-process tests call draw.Init themselves.
@@ -41,7 +53,7 @@ func (t *Term) getscreen(args []string) error {
 	t.display = disp
 	t.screen = disp.ScreenImage
 	t.font = disp.Font
-	if ts := os.Getenv("tabstop"); ts != "" {
+	if ts := t.getenv("tabstop"); ts != "" {
 		if n, err := strconv.Atoi(ts); err == nil {
 			t.maxtab = n
 		}

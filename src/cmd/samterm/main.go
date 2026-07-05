@@ -56,6 +56,7 @@ func main() {
 // newTerm builds a Term with the field defaults shared by main and NewTerm.
 func newTerm() *Term {
 	t := &Term{
+		env:       os.Environ(),
 		maxtab:    8,
 		hostlock:  1,
 		typestart: -1,
@@ -70,9 +71,13 @@ func newTerm() *Term {
 }
 
 // NewTerm builds a terminal on display disp, talking the sam protocol over
-// hostr/hostw (fds 3/4 in the real program, a pipe in tests).
-func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer) *Term {
+// hostr/hostw (fds 3/4 in the real program, a pipe in tests). The env is the
+// terminal's environment (see Term.env); nil means os.Environ.
+func NewTerm(disp *draw.Display, hostr io.Reader, hostw io.Writer, env []string) *Term {
 	t := newTerm()
+	if env != nil {
+		t.env = env
+	}
 	t.display = disp
 	t.screen = disp.ScreenImage
 	t.font = disp.Font

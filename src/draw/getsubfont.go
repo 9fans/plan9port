@@ -20,7 +20,7 @@ func getsubfont(d *Display, name string) (*subfont, error) {
 		var err error
 		data, err = ioutil.ReadFile(fname)
 		if err != nil && strings.HasPrefix(fname, "/mnt/font/") {
-			data1, err1 := fontPipe(fname[len("/mnt/font/"):])
+			data1, err1 := fontPipe(fname[len("/mnt/font/"):], d.env)
 			if err1 == nil {
 				data, err = data1, err1
 			}

@@ -12,7 +12,7 @@ func display() *Display {
 	os.Setenv("DEVDRAW_TEST_MEMORY", "1")
 	if theDisplay == nil {
 		var err error
-		theDisplay, err = Init(nil, "", "test", "")
+		theDisplay, err = Init(nil, "", "test", "", nil)
 		if err != nil {
 			panic(err)
 		}

@@ -66,6 +66,13 @@ type Term struct {
 	screen  *draw.Image
 	font    *draw.Font // default UI font (display.Font)
 
+	// env is the terminal's environment: "name=value" pairs, later entries
+	// overriding earlier ones (as in os/exec). It serves the terminal's
+	// environment lookups (see Term.getenv) and is passed to draw.Init, in
+	// place of the process environment, so tests can configure concurrent
+	// in-process terminals independently.
+	env []string
+
 	// main.c
 	cmd         Text
 	scratch     []rune

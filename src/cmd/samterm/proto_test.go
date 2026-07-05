@@ -241,11 +241,15 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
-	t.Setenv("DEVDRAW_TEST_MEMORY", "1")
-	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
-	t.Setenv("DEVDRAW_DRAWLOG", drawlog)
+	// Built as a slice, not with t.Setenv, so parallel tests can configure
+	// their own displays independently (see runLocal).
+	env := append(os.Environ(),
+		"DEVDRAW_TEST_MEMORY=1",
+		"DEVDRAW_TEST_OUTPUT="+img,
+		"DEVDRAW_DRAWLOG="+drawlog,
+	)
 
-	disp, err := draw.Init(nil, "", "sam", "300x200")
+	disp, err := draw.Init(nil, "", "sam", "300x200", env)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}
@@ -262,7 +266,7 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 
 	h2tR, h2tW, _ := os.Pipe()
 	t2hR, t2hW, _ := os.Pipe()
-	term := NewTerm(disp, h2tR, t2hW)
+	term := NewTerm(disp, h2tR, t2hW, env)
 	term.startup()
 	go term.run()
 
@@ -279,7 +283,6 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 	t.Helper()
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
-	t.Setenv("DEVDRAW_TEST_OUTPUT", img)
 
 	h2tR, h2tW, _ := os.Pipe()
 	t2hR, t2hW, _ := os.Pipe()

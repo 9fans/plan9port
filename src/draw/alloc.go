@@ -7,15 +7,10 @@ import (
 	"strings"
 )
 
-// noFinalizer, set by $DRAW_TEST_NOFINALIZER, disables the GC finalizer that
-// frees images automatically. C libdraw has no such automatic free, so for a
-// faithful draw-stream comparison against the C original the test sets this and
-// images are freed only by explicit Free/free calls.
-var noFinalizer = os.Getenv("DRAW_TEST_NOFINALIZER") != ""
-
-// setImageFinalizer sets i's GC finalizer to free it, unless suppressed.
+// setImageFinalizer sets i's GC finalizer to free it, unless suppressed
+// by the display's $DRAW_TEST_NOFINALIZER (see Display.noFinalizer).
 func setImageFinalizer(i *Image) {
-	if !noFinalizer {
+	if !i.Display.noFinalizer {
 		runtime.SetFinalizer(i, (*Image).Free)
 	}
 }
