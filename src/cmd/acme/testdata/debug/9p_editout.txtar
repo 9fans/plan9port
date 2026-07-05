@@ -1,0 +1,6 @@
+-- script --
+win
+write 1/editout "x"
+-- stdout --
+win 1
+error permission denied

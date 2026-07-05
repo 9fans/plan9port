@@ -1,0 +1,8 @@
+-- script --
+win
+body 1 hello world
+b1 1 0 5
+read 1/rdsel
+-- stdout --
+win 1
+data "hello"

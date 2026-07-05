@@ -1,0 +1,19 @@
+-- script --
+win
+type 1 line1\nline2\nline3\nline4\nline5\n
+dot 1 0 0
+tag 1 Edit 2,4
+b2 1.tag 23 31
+print 1
+-- stdout --
+win 1
+  tag nc=31 dot=0,0
+  tag text= Del Snarf Undo | Look Edit 2,4
+win 1 name=
+  body nc=30 dot=6,24
+  body text=line1
+line2
+line3
+line4
+line5
+

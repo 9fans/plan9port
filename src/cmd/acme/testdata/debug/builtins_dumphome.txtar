@@ -1,0 +1,23 @@
+-- script --
+newcol
+win
+body 1 hi
+win
+body 2 Dump
+b2 2 0 4
+catdump acme.dump
+-- stdout --
+col 0
+win 1
+win 2
+$ROOT
+/usr/local/plan9/font/lucsans/euro.8.font
+/usr/local/plan9/font/lucsans/euro.8.font
+  0.0000000
+w Newcol Kill Putall Dump Exit ^J
+c          0 New Cut Paste Snarf Sort Zerox Delcol ^J
+F          0           0           0           0   2.2636485           2 ^J
+          1          18           2           0           1  Del Snarf | Look ^J
+hiF          0           1           0           0   6.6577896           4 ^J
+          2          18           4           0           1  Del Snarf | Look ^J
+Dump^D

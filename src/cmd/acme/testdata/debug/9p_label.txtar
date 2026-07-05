@@ -1,0 +1,8 @@
+-- script --
+win
+write label "my title"
+read label
+-- stdout --
+win 1
+wrote 8
+data ""

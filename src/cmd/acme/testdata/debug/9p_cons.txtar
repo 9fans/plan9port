@@ -1,0 +1,13 @@
+-- script --
+write cons "an error\n"
+dump
+-- stdout --
+wrote 9
+row ncol=1
+col 0 nw=1
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 1 name=+Errors
+  body nc=9 dot=9,9
+  body text=an error
+

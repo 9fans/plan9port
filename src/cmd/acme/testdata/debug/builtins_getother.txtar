@@ -1,0 +1,15 @@
+-- script --
+win
+tag 1 Get other.txt
+b2 1.tag 18 31
+print 1
+-- other.txt --
+hello from other
+-- stdout --
+win 1
+  tag nc=31 dot=31,31
+  tag text= Del Snarf | Look Get other.txt
+win 1 name=
+  body nc=17 dot=0,0
+  body text=hello from other
+

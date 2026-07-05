@@ -1,0 +1,9 @@
+-- script --
+win
+type 1.tag hi
+key 1.tag left
+print 1.tag
+-- stdout --
+win 1
+  tag nc=29 dot=1,1
+  tag text=hi Del Snarf Undo Put | Look ^J

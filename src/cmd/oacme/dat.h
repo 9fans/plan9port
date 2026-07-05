@@ -556,6 +556,10 @@ extern int			messagesize;		/* negotiated in 9P version setup */
 extern int			globalautoindent;
 extern int			dodollarsigns;
 extern char*		mtpt;
+extern int			dflag;		/* -D debug-conversation driver (debug.c) */
+extern char*		trimpre;	/* -T prefix (testing) */
+extern Rune*		trimprer;	/* -T prefix as runes (testing) */
+extern int			ntrimpre;
 
 enum
 {

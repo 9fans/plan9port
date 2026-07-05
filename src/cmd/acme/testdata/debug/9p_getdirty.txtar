@@ -1,0 +1,14 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+type 1 X
+write 1/ctl "get"
+read 1/body
+-- f --
+orig
+-- stdout --
+win 1
+wrote 3
+wrote 3
+data "Xorig\n"

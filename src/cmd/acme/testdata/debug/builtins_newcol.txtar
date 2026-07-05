@@ -1,0 +1,20 @@
+-- script --
+win
+body 1 Newcol
+b2 1 0 6
+dump
+-- stdout --
+win 1
+row ncol=2
+col 0 nw=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=6 dot=0,0
+  body text=Newcol
+col 1 nw=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 2 name=
+  body nc=0 dot=0,0
+  body text=

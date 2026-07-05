@@ -1,0 +1,10 @@
+-- script --
+win
+body 1 New f
+b2 1 0 5
+read 2/body
+-- f --
+from disk
+-- stdout --
+win 1
+data "from disk\n"

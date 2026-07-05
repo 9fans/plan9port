@@ -338,12 +338,12 @@ e_cmd(Text *t, Cmd *cp)
 	elogdelete(f, q0, q1);
 	nulls = 0;
 	loadfile(fd, q1, &nulls, readloader, f, nil);
-	free(s);
 	close(fd);
 	if(nulls)
 		warning(nil, "%s: NUL bytes elided\n", s);
 	else if(allreplaced && samename)
 		f->editclean = TRUE;
+	free(s);
 	return TRUE;
 }
 

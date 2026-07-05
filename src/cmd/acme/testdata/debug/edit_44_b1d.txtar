@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 abcabc
+tag 1 Edit ?b?+#1d
+b2 1.tag 23 35
+print 1
+-- stdout --
+win 1
+  tag nc=35 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ?b?+#1d
+win 1 name=
+  body nc=6 dot=6,6
+  body text=abcabc

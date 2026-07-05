@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/ctl "get"
+read 1/body
+-- stdout --
+win 1
+wrote 3
+data ""

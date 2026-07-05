@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 hello
+type 1.tag /tmp/foo
+undo 1
+print 1
+-- stdout --
+win 1
+  tag nc=39 dot=0,0
+  tag text=/tmp/fo Del Snarf Undo Redo Put | Look ^J
+win 1 name=/tmp/fo
+  body nc=5 dot=5,5
+  body text=hello

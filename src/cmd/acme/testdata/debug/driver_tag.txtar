@@ -1,0 +1,9 @@
+-- script --
+win
+name 1 /a/b
+tag 1  hello
+print 1.tag
+-- stdout --
+win 1
+  tag nc=27 dot=0,0
+  tag text=/a/b Del Snarf | Look hello

@@ -1,0 +1,17 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+type 1 saved
+write 1/ctl "put"
+write 1/ctl "get"
+read 1/body
+read 1/tag
+-- f --
+-- stdout --
+win 1
+wrote 3
+wrote 3
+wrote 3
+data "saved"
+data "f Del Snarf Put | Look "

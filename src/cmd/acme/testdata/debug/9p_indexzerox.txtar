@@ -1,0 +1,9 @@
+-- script --
+win
+type 1 hi
+tag 1 Zerox
+b2 1.tag 23 28
+read index
+-- stdout --
+win 1
+data "          2          28           2           0           1  Del Snarf Undo | Look Zerox\n"

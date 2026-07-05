@@ -1,0 +1,15 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+open log
+type 1 z
+write 1/ctl "put"
+read log
+-- f --
+x
+-- stdout --
+win 1
+wrote 3
+wrote 3
+data "1 put f\n"

@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 hello
+tag 1 Edit ,|tr a-z A-Z
+b2 1.tag 23 40
+print 1
+-- stdout --
+win 1
+  tag nc=40 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,|tr a-z A-Z
+win 1 name=
+  body nc=5 dot=0,0
+  body text=HELLO

@@ -1,0 +1,25 @@
+-- script --
+newcol
+win
+body 1 hello from window one
+newcol
+win
+body 2 second window content here
+resize 800 600
+rects
+-- stdout --
+col 0
+win 1
+col 1
+win 2
+row ncol=2 r=0,0,800,600
+col 0 r=0,17,478,600
+  win 1 r=0,34,478,600
+    tag r=16,34,478,49
+    body r=16,50,478,590
+    scroll r=0,50,12,600
+col 1 r=480,17,800,600
+  win 2 r=480,34,800,600
+    tag r=496,34,800,49
+    body r=496,50,800,590
+    scroll r=0,50,12,600

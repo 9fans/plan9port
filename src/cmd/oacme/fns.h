@@ -5,6 +5,7 @@
 
 void	warning(Mntdir*, char*, ...);
 void	warningew(Window*, Mntdir*, char*, ...);
+void	debugthread(void*);	/* -D driver (debug.c) */
 
 #define	fbufalloc()	emalloc(BUFSIZE)
 #define	fbuffree(x)	free(x)

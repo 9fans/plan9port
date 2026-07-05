@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/body "a\"b\\c\td\ne\rf"
+read 1/body
+-- stdout --
+win 1
+wrote 11
+data "a\"b\\c\td\ne\rf"

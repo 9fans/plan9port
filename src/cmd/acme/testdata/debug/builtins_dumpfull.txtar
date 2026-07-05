@@ -1,0 +1,56 @@
+-- script --
+newcol
+win
+win
+name 2 ff
+write 2/ctl "get"
+win
+write 3/ctl "dumpdir /d\n"
+write 3/ctl "dump cmd3\n"
+win
+write 4/ctl "dump cmd4\n"
+win
+open 5/event
+newcol
+win
+body 6 Dump session.dump
+b2 6 0 17
+catdump session.dump
+-- ff --
+file one
+file two
+-- stdout --
+col 0
+win 1
+win 2
+wrote 3
+win 3
+wrote 11
+wrote 10
+win 4
+wrote 10
+win 5
+col 1
+win 6
+$ROOT
+/usr/local/plan9/font/lucsans/euro.8.font
+/usr/local/plan9/font/lucsans/euro.8.font
+  0.0000000  59.9609375
+w Newcol Kill Putall Dump Exit ^J
+c          0 New Cut Paste Snarf Sort Zerox Delcol ^J
+c          1 New Cut Paste Snarf Sort Zerox Delcol ^J
+F          0           0           0           0   2.2636485           0 ^J
+          1          18           0           0           0  Del Snarf | Look ^J
+f          0           2           0           0   4.5272969 ^J
+          2          20          18           0           0 ff Del Snarf | Look ^J
+e          0           0           0           0   8.9214381 ^J
+          3          18           0           0           0  Del Snarf | Look ^J
+/d
+cmd3
+e          0           0           0           0  11.1850866 ^J
+          4          18           0           0           0  Del Snarf | Look ^J
+
+cmd4
+F          1           0           0           0   2.2636485          17 ^J
+          6          18          17           0           1  Del Snarf | Look ^J
+Dump session.dump^D

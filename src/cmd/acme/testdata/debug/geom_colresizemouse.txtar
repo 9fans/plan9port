@@ -1,0 +1,15 @@
+-- script --
+win
+win
+colresize 0 0 17 1024 768
+colclose 2
+rects
+-- stdout --
+win 1
+win 2
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,768
+    tag r=16,34,1024,49
+    body r=16,50,1024,755
+    scroll r=0,50,12,768

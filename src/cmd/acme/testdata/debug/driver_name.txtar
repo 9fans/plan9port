@@ -1,0 +1,12 @@
+-- script --
+win
+name 1 /tmp/file.txt
+body 1 some text
+print 1
+-- stdout --
+win 1
+  tag nc=31 dot=0,0
+  tag text=/tmp/file.txt Del Snarf | Look ^J
+win 1 name=/tmp/file.txt
+  body nc=9 dot=0,0
+  body text=some text

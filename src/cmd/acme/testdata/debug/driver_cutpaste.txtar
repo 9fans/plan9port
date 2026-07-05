@@ -1,0 +1,15 @@
+-- script --
+win
+type 1 hello world
+b1 1 0 6
+tag 1 Cut Paste
+b2 1.tag 23 26
+b2 1.tag 27 32
+print 1
+-- stdout --
+win 1
+  tag nc=32 dot=0,0
+  tag text= Del Snarf Undo | Look Cut Paste
+win 1 name=
+  body nc=11 dot=0,6
+  body text=hello world

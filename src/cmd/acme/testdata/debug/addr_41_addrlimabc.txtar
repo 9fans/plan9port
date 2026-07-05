@@ -1,0 +1,8 @@
+-- script --
+win
+body 1 abc abc abc
+dot 1 0 0
+addrlim 1 0 5 /abc/
+-- stdout --
+win 1
+addr 0 3 eval=1

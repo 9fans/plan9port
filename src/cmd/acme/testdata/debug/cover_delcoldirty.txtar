@@ -1,0 +1,21 @@
+-- script --
+win
+type 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+tag 1 Delcol
+b2 1.tag 23 29
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=2
+  tag nc=29 dot=0,0
+  tag text= Del Snarf Undo | Look Delcol
+win 1 name=
+  body nc=150 dot=150,150
+  body text=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=22 dot=0,22
+  body text=unnamed file modified
+

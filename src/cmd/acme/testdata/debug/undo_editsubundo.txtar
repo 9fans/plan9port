@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 aaaa
+tag 1 Edit ,s/a/XY/g
+b2 1.tag 23 37
+undo 1
+print 1
+-- stdout --
+win 1
+  tag nc=42 dot=0,0
+  tag text= Del Snarf Undo Redo | Look Edit ,s/a/XY/g
+win 1 name=
+  body nc=4 dot=0,4
+  body text=aaaa

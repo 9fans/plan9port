@@ -1,0 +1,8 @@
+-- script --
+win
+read 1/body
+read 1/tag
+-- stdout --
+win 1
+data ""
+data " Del Snarf | Look "

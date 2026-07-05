@@ -1,0 +1,11 @@
+-- script --
+win
+name 1 /a/b
+tag 1  extra
+b1 1.tag 99 99
+write 1/ctl "cleartag"
+read 1/tag
+-- stdout --
+win 1
+wrote 8
+data "/a/b Del Snarf |"

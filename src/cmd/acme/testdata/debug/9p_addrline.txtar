@@ -1,0 +1,11 @@
+-- script --
+win
+body 1 a\nb\nc\n
+write 1/addr "2"
+read 1/addr
+read 1/data
+-- stdout --
+win 1
+wrote 1
+data "          2           4 "
+data "b\nc\n"

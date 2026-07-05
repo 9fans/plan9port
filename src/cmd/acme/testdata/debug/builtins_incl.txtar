@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 <f>
+tag 1 Incl .
+b2 1.tag 23 29
+open 1/event
+b3 1 1 1
+read 1/event
+-- f --
+x
+-- stdout --
+win 1
+data "Ed11 17 0 0 \nEi11 12 0 1 |\nDL1 1 7 0 \nDL1 2 5 1 f\n"

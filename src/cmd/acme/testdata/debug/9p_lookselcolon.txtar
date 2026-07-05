@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 ab:xy
+b1 1 0 5
+b3 1 1 1
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=5 dot=0,5
+  body text=ab:xy

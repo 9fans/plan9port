@@ -1,0 +1,17 @@
+-- script --
+win
+body 1 line00\nline01\nline02\nline03\nline04\nline05\nline06\nline07\nline08\nline09\nline10\nline11\nline12\nline13\nline14\nline15\nline16\nline17\nline18\nline19\nline20\nline21\nline22\nline23\nline24\nline25\nline26\nline27\nline28\nline29\nline30\nline31\nline32\nline33\nline34\nline35\nline36\nline37\nline38\nline39\nline40\nline41\nline42\nline43\nline44\nline45\nline46\nline47\nline48\nline49\nline50\nline51\nline52\nline53\nline54\nline55\nline56\nline57\nline58\nline59\nline60\nline61\nline62\nline63\nline64\nline65\nline66\nline67\nline68\nline69\nline70\nline71\nline72\nline73\nline74\nline75\nline76\nline77\nline78\nline79
+key 1 scrolldown
+key 1 scrolldown
+key 1 scrollup
+key 1.tag scrolldown
+key 1.tag scrollup
+rects
+-- stdout --
+win 1
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,768
+    tag r=16,34,1024,49
+    body r=16,50,1024,755
+    scroll r=0,58,12,482

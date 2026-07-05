@@ -1,0 +1,22 @@
+-- script --
+win
+win
+name 2 /aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+key 2.tag up
+win
+colclose 1
+rects
+-- stdout --
+win 1
+win 2
+win 3
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 2 r=0,34,1024,64
+    tag r=16,34,1024,64
+    body r=16,64,1024,64
+    scroll r=0,64,12,64
+  win 3 r=0,68,1024,768
+    tag r=16,68,1024,83
+    body r=16,84,1024,759
+    scroll r=0,84,12,768

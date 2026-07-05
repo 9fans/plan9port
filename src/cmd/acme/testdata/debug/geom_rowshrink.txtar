@@ -1,0 +1,23 @@
+-- script --
+win
+body 1 x
+newcol
+win
+body 2 y
+rowresize 0 0 700 768
+rects
+-- stdout --
+win 1
+col 1
+win 2
+row ncol=2 r=0,0,700,768
+col 0 r=0,17,418,768
+  win 1 r=0,34,418,768
+    tag r=16,34,418,49
+    body r=16,50,418,755
+    scroll r=0,50,12,768
+col 1 r=420,17,700,768
+  win 2 r=420,34,700,768
+    tag r=436,34,700,49
+    body r=436,50,700,755
+    scroll r=0,50,12,768

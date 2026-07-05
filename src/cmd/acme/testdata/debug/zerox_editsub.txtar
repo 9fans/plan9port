@@ -1,0 +1,22 @@
+-- script --
+win
+type 1 hello
+tag 1 Zerox
+b2 1.tag 23 28
+tag 1 Edit ,s/l/LL/g
+b2 1.tag 28 42
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=2
+  tag nc=42 dot=0,0
+  tag text= Del Snarf Undo | Look ZeroxEdit ,s/l/LL/g
+win 1 name=
+  body nc=7 dot=0,7
+  body text=heLLLLo
+  tag nc=28 dot=28,28
+  tag text= Del Snarf Undo | Look Zerox
+win 2 name=
+  body nc=7 dot=7,7
+  body text=heLLLLo

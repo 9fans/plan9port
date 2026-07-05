@@ -1,0 +1,7 @@
+-- script --
+win
+body 1 Exit
+b2 1 0 4
+print 1
+-- stdout --
+win 1

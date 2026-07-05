@@ -1,0 +1,26 @@
+-- script --
+win
+name 1 f
+writefile f 1000000000 old
+write 1/ctl "get"
+writefile f 2000000000 new
+write 1/ctl "put"
+dump
+-- stdout --
+win 1
+wrote 3
+wrote 3
+row ncol=1
+col 0 nw=2
+  tag nc=19 dot=19,19
+  tag text=f Del Snarf | Look ^J
+win 1 name=f
+  body nc=3 dot=0,0
+  body text=old
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=77 dot=0,77
+  body text=f modified since last read
+	was 2001/09/09 01:46:40; now 2033/05/18 03:33:20
+

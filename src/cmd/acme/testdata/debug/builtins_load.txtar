@@ -1,0 +1,55 @@
+-- script --
+newcol
+win
+name 1 ff
+write 1/ctl "get"
+tag 1 Zerox
+b2 1.tag 20 25
+win
+body 3 scratch line
+newcol
+win
+body 4 Dump session.dump
+b2 4 0 17
+win
+body 5 Load session.dump
+b2 5 0 17
+dumpto after
+catdump after
+-- ff --
+file aaa
+file bbb
+-- stdout --
+col 0
+win 1
+wrote 3
+win 3
+col 1
+win 4
+win 5
+$ROOT
+/usr/local/plan9/font/lucsans/euro.8.font
+/usr/local/plan9/font/lucsans/euro.8.font
+  0.0000000  59.9609375
+w Newcol Kill Putall Dump Exit ^J
+c          0 New Cut Paste Snarf Sort Zerox Delcol ^J
+c          1 New Cut Paste Snarf Sort Zerox Delcol ^J
+f          0           1           0           0   2.2636485 ^J
+          1          25          18           0           0 ff Del Snarf | Look Zerox
+f          0           6           0           0   4.5272969 ^J
+          6          25          18           0           0 ff Del Snarf | Look Zerox
+x          0           6           0           0   6.7909454 ^J
+          7          25          18           0           0 ff Del Snarf | Look Zerox
+F          0           3           0           0  11.1850866          12 ^J
+          8          18          12           0           1  Del Snarf | Look ^J
+scratch linex          0           1           0           0  17.7097204 ^J
+          2          25          18           0           0 ff Del Snarf | Look Zerox
+F          0           5           0           0  19.9733688          12 ^J
+          3          18          12           0           1  Del Snarf | Look ^J
+scratch lineF          1           0           0           0   2.2636485          17 ^J
+          4          18          17           0           1  Del Snarf | Look ^J
+Dump session.dumpF          1           1           0           0   4.5272969          17 ^J
+          9          18          17           0           1  Del Snarf | Look ^J
+Dump session.dumpF          1           2           0           0  13.9813582          17 ^J
+          5          18          17           0           1  Del Snarf | Look ^J
+Load session.dump^D

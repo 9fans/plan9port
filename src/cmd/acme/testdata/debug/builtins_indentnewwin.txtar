@@ -1,0 +1,19 @@
+-- script --
+win
+body 1 Indent ON
+b2 1 0 9
+win
+key 3 tab
+type 3 ab
+key 3 nl
+type 3 c
+print 3
+-- stdout --
+win 1
+win 3
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 3 name=
+  body nc=6 dot=6,6
+  body text=	ab
+	c

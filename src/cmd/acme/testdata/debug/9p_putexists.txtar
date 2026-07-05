@@ -1,0 +1,12 @@
+-- script --
+win
+name 1 f
+type 1 new
+write 1/ctl "put"
+read 1/tag
+-- f --
+old
+-- stdout --
+win 1
+wrote 3
+data "f Del Snarf Undo Put | Look "

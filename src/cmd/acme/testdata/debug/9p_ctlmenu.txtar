@@ -1,0 +1,11 @@
+-- script --
+win
+name 1 /a/b
+write 1/ctl "nomenu"
+write 1/ctl "menu"
+read 1/tag
+-- stdout --
+win 1
+wrote 6
+wrote 4
+data "/a/b Del Snarf | Look "

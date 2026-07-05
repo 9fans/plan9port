@@ -1,0 +1,9 @@
+-- script --
+win
+name 1 /a/b/x
+write 1/errors "oops\n"
+read 2/body
+-- stdout --
+win 1
+wrote 5
+data "oops\n"

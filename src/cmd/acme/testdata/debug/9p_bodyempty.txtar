@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 x
+write 1/body ""
+read 1/body
+-- stdout --
+win 1
+wrote 0
+data "x"

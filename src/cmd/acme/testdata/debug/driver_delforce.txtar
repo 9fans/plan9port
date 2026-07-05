@@ -1,0 +1,10 @@
+-- script --
+win
+type 1 hello
+tag 1 Delete
+b2 1.tag 23 29
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=0

@@ -1,0 +1,20 @@
+-- script --
+win
+win
+which 5 5
+which 5 20
+which 500 40
+which 500 58
+which 500 100
+which 500 760
+which 2000 400
+-- stdout --
+win 1
+win 2
+which rowtag
+which coltag
+which 1 tag
+which 2 tag
+which 2 body
+which none
+which none

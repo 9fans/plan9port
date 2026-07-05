@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 hello
+write 1/addr "#x"
+read 1/addr
+-- stdout --
+win 1
+error bad address syntax
+data "          0           0 "

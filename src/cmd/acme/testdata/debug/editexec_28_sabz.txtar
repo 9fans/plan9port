@@ -1,0 +1,15 @@
+-- script --
+win
+type 1 a/b\n
+dot 1 0 0
+tag 1 Edit ,s/a\\/b/Z/
+b2 1.tag 23 38
+print 1
+-- stdout --
+win 1
+  tag nc=38 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,s/a\/b/Z/
+win 1 name=
+  body nc=2 dot=0,2
+  body text=Z
+

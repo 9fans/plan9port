@@ -1,0 +1,24 @@
+-- script --
+win
+name 1 foo
+type 1 x
+write 1/ctl "put"
+win
+name 2 foobar
+type 2 y
+write 2/ctl "put"
+win
+type 3 x fo
+key 3 ^f
+print 3
+-- stdout --
+win 1
+wrote 3
+win 2
+wrote 3
+win 3
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 3 name=
+  body nc=5 dot=5,5
+  body text=x foo

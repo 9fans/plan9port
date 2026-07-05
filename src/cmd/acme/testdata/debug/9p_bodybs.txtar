@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 hello
+write 1/body "XYZ\x08\x08Q"
+read 1/body
+-- stdout --
+win 1
+wrote 6
+data "helloXQ"

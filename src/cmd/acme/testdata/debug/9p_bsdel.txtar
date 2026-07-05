@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 h
+write 1/body "\x08\x08\x08X"
+read 1/body
+-- stdout --
+win 1
+wrote 4
+data "X"

@@ -1,0 +1,15 @@
+-- script --
+win
+load 1 f
+print 1
+-- f --
+hello world
+-- stdout --
+win 1
+load n=12 nulls=0
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=12 dot=0,0
+  body text=hello world
+

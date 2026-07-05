@@ -1,0 +1,14 @@
+-- script --
+win
+load 1 f
+print 1
+-- f --
+a^@b^@^@c^D
+-- stdout --
+win 1
+load n=3 nulls=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=3 dot=0,0
+  body text=abc

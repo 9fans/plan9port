@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 hello world
+dot 1 0 0
+tag 1 Edit /world/c/there/
+b2 1.tag 23 43
+print 1
+-- stdout --
+win 1
+  tag nc=43 dot=0,0
+  tag text= Del Snarf Undo | Look Edit /world/c/there/
+win 1 name=
+  body nc=11 dot=6,11
+  body text=hello there

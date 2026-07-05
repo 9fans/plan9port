@@ -1,0 +1,16 @@
+-- script --
+win
+type 1 hi
+tag 1 Edit
+win
+body 2 =x
+b2arg 1.tag 23 27 2 0 2
+print 1
+-- stdout --
+win 1
+win 2
+  tag nc=27 dot=0,0
+  tag text= Del Snarf Undo | Look Edit
+win 1 name=
+  body nc=2 dot=2,2
+  body text=hi

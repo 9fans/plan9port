@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 aayb
+tag 1 Edit ,s/x|y/[&]/
+b2 1.tag 23 39
+print 1
+-- stdout --
+win 1
+  tag nc=39 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,s/x|y/[&]/
+win 1 name=
+  body nc=6 dot=0,6
+  body text=aa[y]b

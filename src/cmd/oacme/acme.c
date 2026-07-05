@@ -31,6 +31,10 @@ int		snarffd = -1;
 int		mainpid;
 int		swapscrollbuttons = FALSE;
 char		*mtpt;
+int		dflag;		/* -D: debug-conversation driver (see debug.c) */
+char		*trimpre;	/* -T: prefix trimmed from displayed file names (testing) */
+Rune		*trimprer;	/* -T prefix as runes */
+int		ntrimpre;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -73,9 +77,12 @@ threadmain(int argc, char *argv[])
 	loadfile = nil;
 	ARGBEGIN{
 	case 'D':
-		{extern int _threaddebuglevel;
-		_threaddebuglevel = ~0;
-		}
+		dflag = 1;
+		break;
+	case 'T':	/* trim this prefix from displayed file names (testing) */
+		trimpre = ARGF();
+		if(trimpre == nil)
+			goto Usage;
 		break;
 	case 'a':
 		globalautoindent = TRUE;
@@ -127,6 +134,8 @@ threadmain(int argc, char *argv[])
 
 	fontnames[0] = estrdup(fontnames[0]);
 	fontnames[1] = estrdup(fontnames[1]);
+	if(trimpre != nil)
+		trimprer = bytetorune(trimpre, &ntrimpre);
 
 	quotefmtinstall();
 	fmtinstall('t', timefmt);
@@ -156,6 +165,9 @@ threadmain(int argc, char *argv[])
 	bind("/acme/bin", "/bin", MBEFORE);
 */
 	getwd(wdir, sizeof wdir);
+
+	if(dflag)
+		winsize = "1024x768";	/* deterministic, display-independent geometry */
 
 /*
 	if(geninitdraw(nil, derror, fontnames[0], "acme", nil, Refnone) < 0){
@@ -236,7 +248,11 @@ threadmain(int argc, char *argv[])
 
 	#define	WPERCOL	8
 	disk = diskinit();
-	if(!loadfile || !rowload(&row, loadfile, TRUE)){
+	if(dflag){
+		/* debug-conversation mode: start with an empty row; the script
+		 * builds columns and windows via newcol/win. */
+		rowinit(&row, screen->clipr);
+	}else if(!loadfile || !rowload(&row, loadfile, TRUE)){
 		rowinit(&row, screen->clipr);
 		if(ncol < 0){
 			if(argc == 0)
@@ -269,8 +285,17 @@ threadmain(int argc, char *argv[])
 	flushimage(display, 1);
 
 	acmeerrorinit();
-	threadcreate(keyboardthread, nil, STACK);
-	threadcreate(mousethread, nil, STACK);
+	if(dflag){
+		/* the scripted driver replaces the keyboard thread, but keeps the
+		 * real mousethread: debugthread feeds mouse events through
+		 * mousectl->c so they are dispatched by the unmodified mousethread
+		 * (see debug.c). */
+		threadcreate(debugthread, nil, STACK);
+		threadcreate(mousethread, nil, STACK);
+	}else{
+		threadcreate(keyboardthread, nil, STACK);
+		threadcreate(mousethread, nil, STACK);
+	}
 	threadcreate(waitthread, nil, STACK);
 	threadcreate(xfidallocthread, nil, STACK);
 	threadcreate(newwindowthread, nil, STACK);
@@ -1097,6 +1122,8 @@ acmeputsnarf(void)
 	Fmt f;
 	char *s;
 
+	if(dflag)		/* deterministic: don't touch the host clipboard */
+		return;
 	if(snarfbuf.nc==0)
 		return;
 
@@ -1122,6 +1149,8 @@ acmegetsnarf(void)
 	int nb, nr, nulls, len;
 	Rune *r;
 
+	if(dflag)		/* deterministic: don't touch the host clipboard */
+		return;
 	s = getsnarf();
 	if(s == nil || s[0]==0){
 		free(s);

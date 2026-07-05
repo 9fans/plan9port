@@ -1,0 +1,45 @@
+-- script --
+win
+body 1 tail
+write 1/addr "#0"
+write 1/data "a01\na02\na03\na04\na05\na06\na07\na08\na09\na10\na11\na12\na13\na14\na15\na16\na17\na18\na19\na20\na21\na22\na23\na24\na25\na26\na27\na28\na29\na30\n"
+print 1
+-- stdout --
+win 1
+wrote 2
+wrote 120
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=124 dot=120,120
+  body text=a01
+a02
+a03
+a04
+a05
+a06
+a07
+a08
+a09
+a10
+a11
+a12
+a13
+a14
+a15
+a16
+a17
+a18
+a19
+a20
+a21
+a22
+a23
+a24
+a25
+a26
+a27
+a28
+a29
+a30
+tail

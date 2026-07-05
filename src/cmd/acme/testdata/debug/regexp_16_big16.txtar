@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 xx(ab)cyy
+tag 1 Edit ,s/\\(([a-z]+)\\)/[\\1]/
+b2 1.tag 23 49
+print 1
+-- stdout --
+win 1
+  tag nc=49 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,s/\(([a-z]+)\)/[\1]/
+win 1 name=
+  body nc=9 dot=0,9
+  body text=xx[ab]cyy

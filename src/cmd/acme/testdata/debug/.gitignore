@@ -1,0 +1,5 @@
+# Transient artifacts written by drawtest.Check on a frame mismatch, and by
+# ad-hoc probe scenarios. Only *.txtar scripts and *.gif goldens are tracked.
+have.*.gif
+*.frame*.png
+zz_*

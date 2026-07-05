@@ -1,0 +1,13 @@
+-- script --
+win
+name 1 /a/b
+body 1 c
+b3 1 0 0
+print 1
+-- stdout --
+win 1
+  tag nc=22 dot=0,0
+  tag text=/a/b Del Snarf | Look ^J
+win 1 name=/a/b
+  body nc=1 dot=0,1
+  body text=c

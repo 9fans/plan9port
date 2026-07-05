@@ -1,0 +1,15 @@
+-- script --
+win
+type 1 x
+tag 1 Edit ,|echo hello world; sleep 1; echo more text
+b2 1.tag 23 71
+print 1
+-- stdout --
+win 1
+  tag nc=71 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,|echo hello world; sleep 1; echo more text
+win 1 name=
+  body nc=22 dot=0,0
+  body text=hello world
+more text
+

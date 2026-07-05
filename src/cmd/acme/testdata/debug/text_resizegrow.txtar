@@ -1,0 +1,15 @@
+-- script --
+newcol
+win
+body 1 hello from window one
+resize 1280 900
+rects
+-- stdout --
+col 0
+win 1
+row ncol=1 r=0,0,1280,900
+col 0 r=0,17,1280,900
+  win 1 r=0,34,1280,900
+    tag r=16,34,1280,49
+    body r=16,50,1280,890
+    scroll r=0,50,12,900

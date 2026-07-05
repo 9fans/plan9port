@@ -1,0 +1,15 @@
+-- script --
+win
+body 1 hello world
+write 1/addr "#0,#5"
+read 1/addr
+write 1/data "HELLO"
+read 1/body
+read 1/addr
+-- stdout --
+win 1
+wrote 5
+data "          0           5 "
+wrote 5
+data "HELLO world"
+data "          5           5 "

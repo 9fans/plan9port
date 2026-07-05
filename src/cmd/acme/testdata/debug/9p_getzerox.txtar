@@ -1,0 +1,13 @@
+-- script --
+win
+tag 1 Zerox
+b2 1.tag 18 23
+name 1 f
+write 1/ctl "get"
+read 1/body
+-- f --
+shared
+-- stdout --
+win 1
+wrote 3
+data "shared\n"

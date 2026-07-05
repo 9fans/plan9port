@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/body "\xc3\xA9z"
+read 1/body
+-- stdout --
+win 1
+wrote 3
+data "\xc3\xa9z"

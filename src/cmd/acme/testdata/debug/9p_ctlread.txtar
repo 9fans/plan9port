@@ -1,0 +1,8 @@
+-- script --
+win
+name 1 /a/b
+type 1 hi
+read 1/ctl
+-- stdout --
+win 1
+data "          1          31           2           0           1        1008 /usr/local/plan9/font/lucsans/euro.8.font          36           1           0 "

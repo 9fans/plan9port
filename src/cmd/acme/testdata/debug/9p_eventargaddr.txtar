@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 Edit
+win
+name 2 /foo
+body 2 ,p
+open 1/event
+b2arg 1 0 4 2 0 2
+read 1/event
+-- stdout --
+win 1
+win 2
+data "DX0 4 9 4 Edit\nDX0 0 0 2 ,p\nDX0 0 0 10 /foo:#0,#2\n"

@@ -1,0 +1,12 @@
+-- script --
+win
+body 1 hello
+open 1/event
+write 1/addr "#0,#2"
+write 1/data ""
+read 1/event
+-- stdout --
+win 1
+wrote 5
+wrote 0
+data "FD0 2 0 0 \n"

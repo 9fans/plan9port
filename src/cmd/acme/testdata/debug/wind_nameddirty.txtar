@@ -1,0 +1,21 @@
+-- script --
+win
+name 1 /tmp/f
+type 1 hi
+b2 1.tag 7 10
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=2
+  tag nc=33 dot=0,0
+  tag text=/tmp/f Del Snarf Undo Put | Look ^J
+win 1 name=/tmp/f
+  body nc=2 dot=2,2
+  body text=hi
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=16 dot=0,16
+  body text=/tmp/f modified
+

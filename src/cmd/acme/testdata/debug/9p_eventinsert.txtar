@@ -1,0 +1,9 @@
+-- script --
+win
+open 1/event
+write 1/body "hi"
+read 1/event
+-- stdout --
+win 1
+wrote 2
+data "EI0 2 0 2 hi\n"

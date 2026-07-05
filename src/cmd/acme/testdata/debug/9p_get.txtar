@@ -1,0 +1,13 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+read 1/body
+read 1/tag
+-- f --
+disk content
+-- stdout --
+win 1
+wrote 3
+data "disk content\n"
+data "f Del Snarf | Look "

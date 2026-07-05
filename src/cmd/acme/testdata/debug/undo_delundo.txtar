@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 hello world
+b1 1 0 6
+key 1 bs
+undo 1
+print 1
+-- stdout --
+win 1
+  tag nc=28 dot=0,0
+  tag text= Del Snarf Undo Redo | Look ^J
+win 1 name=
+  body nc=11 dot=0,6
+  body text=hello world

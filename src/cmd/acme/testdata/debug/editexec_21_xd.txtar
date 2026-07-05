@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 x\ny\nz\n
+dot 1 0 0
+tag 1 Edit ,x d
+b2 1.tag 23 32
+print 1
+-- stdout --
+win 1
+  tag nc=32 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,x d
+win 1 name=
+  body nc=0 dot=0,0
+  body text=

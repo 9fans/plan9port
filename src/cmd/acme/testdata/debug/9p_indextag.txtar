@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/tag "\nmore"
+read index
+-- stdout --
+win 1
+wrote 5
+data "          1          23           0           0           0  Del Snarf | Look \n"

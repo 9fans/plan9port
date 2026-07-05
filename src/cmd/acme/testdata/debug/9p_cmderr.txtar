@@ -1,0 +1,19 @@
+-- script --
+win
+cmderr /work boom
+dump
+-- stdout --
+win 1
+wrote 4
+row ncol=1
+col 0 nw=2
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=31 dot=0,0
+  tag text=/work/+Errors Del Snarf | Look ^J
+win 2 name=/work/+Errors
+  body nc=4 dot=4,4
+  body text=boom

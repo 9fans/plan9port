@@ -8,6 +8,7 @@ OFILES=\
 	addr.$O\
 	buff.$O\
 	cols.$O\
+	debug.$O\
 	disk.$O\
 	ecmd.$O\
 	edit.$O\
@@ -35,6 +36,19 @@ HFILES=dat.h\
 <$PLAN9/src/mkdirs
 
 edit.$O ecmd.$O elog.$O:	edit.h
+
+# Coverage-enabled oacme for testing (uncover -x). Mirrors osamterm's rule.
+COVCFLAGS=-fprofile-instr-generate -fcoverage-mapping
+COVLDFLAGS=-fprofile-instr-generate
+COVOFILES=${OFILES:%.$O=%.cover.$O}
+
+$O.$TARG.cover:	$COVOFILES
+	$LD -o $O.$TARG.cover $COVLDFLAGS $COVOFILES $LDFLAGS
+
+%.cover.$O:	%.c $HFILES
+	$CC $CFLAGS $COVCFLAGS -o $stem.cover.$O $stem.c
+
+CLEANFILES=$CLEANFILES $COVOFILES $O.oacme.cover
 
 likeplan9:V:
 	mkdir -p likeplan9

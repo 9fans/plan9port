@@ -1,0 +1,18 @@
+-- script --
+win
+type 1 a\nb\nc\nd
+tag 1 Edit { 3a/Y/\n1a/X/\n}
+b2 1.tag 23 43
+print 1
+-- stdout --
+win 1
+  tag nc=43 dot=0,0
+  tag text= Del Snarf Undo | Look Edit { 3a/Y/
+1a/X/
+}
+win 1 name=
+  body nc=9 dot=2,3
+  body text=a
+Xb
+cY
+d

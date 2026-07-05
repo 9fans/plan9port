@@ -1,0 +1,61 @@
+-- script --
+win
+body 1 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 2 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 3 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 4 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 5 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 6 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 7 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 8 a\nb\nc\nd\ne\nf\ng\nh
+rects
+-- stdout --
+win 1
+win 2
+win 3
+win 4
+win 5
+win 6
+win 7
+win 8
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,170
+    tag r=16,34,1024,49
+    body r=16,50,1024,170
+    scroll r=0,50,12,170
+  win 2 r=0,172,1024,308
+    tag r=16,172,1024,187
+    body r=16,188,1024,308
+    scroll r=0,188,12,308
+  win 3 r=0,310,1024,446
+    tag r=16,310,1024,325
+    body r=16,326,1024,446
+    scroll r=0,326,12,446
+  win 4 r=0,448,1024,584
+    tag r=16,448,1024,463
+    body r=16,464,1024,584
+    scroll r=0,464,12,584
+  win 5 r=0,586,1024,662
+    tag r=16,586,1024,601
+    body r=16,602,1024,662
+    scroll r=0,602,12,634
+  win 6 r=0,664,1024,679
+    tag r=16,664,1024,679
+    body r=16,679,1024,679
+    scroll r=0,677,12,679
+  win 7 r=0,681,1024,727
+    tag r=16,681,1024,696
+    body r=16,697,1024,727
+    scroll r=0,697,12,705
+  win 8 r=0,729,1024,768
+    tag r=16,729,1024,744
+    body r=16,745,1024,760
+    scroll r=0,745,12,768

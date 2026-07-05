@@ -1,0 +1,12 @@
+-- script --
+win
+body 1 Local echo hello from local
+b2 1 0 24
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=27 dot=0,0
+  body text=Local echo hello from local

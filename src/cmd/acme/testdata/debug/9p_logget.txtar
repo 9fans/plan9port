@@ -1,0 +1,12 @@
+-- script --
+win
+name 1 f
+open log
+write 1/ctl "get"
+read log
+-- f --
+x
+-- stdout --
+win 1
+wrote 3
+data "1 get f\n"

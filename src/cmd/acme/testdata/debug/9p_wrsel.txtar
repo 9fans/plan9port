@@ -1,0 +1,10 @@
+-- script --
+win
+body 1 hello world
+b1 1 0 5
+write 1/wrsel "HI"
+read 1/body
+-- stdout --
+win 1
+wrote 2
+data "HI world"

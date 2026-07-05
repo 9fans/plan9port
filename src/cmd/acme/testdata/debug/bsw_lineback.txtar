@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 abc\ndefg
+key 1 ^u
+print 1
+-- stdout --
+win 1
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=4 dot=4,4
+  body text=abc
+

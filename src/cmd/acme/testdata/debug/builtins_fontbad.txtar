@@ -1,0 +1,8 @@
+-- script --
+win
+body 1 Font /nope.font
+b2 1 0 15
+read 1/ctl
+-- stdout --
+win 1
+data "          1          18          15           0           1        1008 /usr/local/plan9/font/lucsans/euro.8.font          36           0           0 "

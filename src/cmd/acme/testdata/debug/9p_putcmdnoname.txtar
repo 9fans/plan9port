@@ -1,0 +1,6 @@
+-- script --
+win
+body 1 Put
+b2 1 0 3
+-- stdout --
+win 1

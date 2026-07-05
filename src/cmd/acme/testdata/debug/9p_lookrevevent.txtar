@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 foo bar foo
+open 1/event
+b3r 1 9 9
+read 1/event
+-- stdout --
+win 1
+data "DR9 9 2 0 \nDR8 11 0 3 foo\n"

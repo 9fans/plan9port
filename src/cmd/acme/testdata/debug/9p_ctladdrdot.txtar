@@ -1,0 +1,10 @@
+-- script --
+win
+body 1 hello
+b1 1 1 4
+write 1/ctl "addr=dot"
+read 1/addr
+-- stdout --
+win 1
+wrote 8
+data "          0           0 "

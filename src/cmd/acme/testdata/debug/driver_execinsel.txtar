@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 Undo
+b1 1 0 4
+b2 1 2 2
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=4 dot=0,4
+  body text=Undo

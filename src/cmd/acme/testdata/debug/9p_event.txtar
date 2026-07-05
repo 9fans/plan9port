@@ -1,0 +1,9 @@
+-- script --
+win
+type 1 hello
+open 1/event
+b2 1 0 5
+read 1/event
+-- stdout --
+win 1
+data "Ed11 17 0 0 \nEi11 12 0 1 |\nDX0 5 0 5 hello\n"

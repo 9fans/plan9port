@@ -1,0 +1,10 @@
+-- script --
+newcol
+read new/ctl
+write 1/body "hi"
+read 1/body
+-- stdout --
+col 0
+data "          1          18           0           0           0        1008 /usr/local/plan9/font/lucsans/euro.8.font          36           0           0 "
+wrote 2
+data "hi"

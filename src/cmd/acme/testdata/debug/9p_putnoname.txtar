@@ -1,0 +1,9 @@
+-- script --
+win
+type 1 hi
+write 1/ctl "put"
+read 1/tag
+-- stdout --
+win 1
+wrote 3
+data " Del Snarf Undo | Look "

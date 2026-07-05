@@ -1,0 +1,40 @@
+-- script --
+win
+name 1 /a/one
+body 1 hello
+win
+name 2 /a/two
+body 2 world
+tag 1 Zerox
+b2 1.tag 24 29
+win
+type 4 x
+tag 4 Edit X/o/ ,s/o/0/g
+b2 4.tag 23 41
+dump
+-- stdout --
+win 1
+win 2
+win 4
+row ncol=1
+col 0 nw=4
+  tag nc=38 dot=0,0
+  tag text=/a/one Del Snarf Undo Put | Look Zerox
+win 1 name=/a/one
+  body nc=5 dot=0,0
+  body text=hell0
+  tag nc=33 dot=0,0
+  tag text=/a/two Del Snarf Undo Put | Look ^J
+win 2 name=/a/two
+  body nc=5 dot=0,5
+  body text=w0rld
+  tag nc=38 dot=38,38
+  tag text=/a/one Del Snarf Undo Put | Look Zerox
+win 3 name=/a/one
+  body nc=5 dot=0,4
+  body text=hell0
+  tag nc=41 dot=0,0
+  tag text= Del Snarf Undo | Look Edit X/o/ ,s/o/0/g
+win 4 name=
+  body nc=1 dot=1,1
+  body text=x

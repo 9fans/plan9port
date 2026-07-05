@@ -1,0 +1,14 @@
+-- script --
+win
+name 1 /a/one
+body 1 hi
+newcol
+win
+name 2 /a/two
+body 2 yo
+read index
+-- stdout --
+win 1
+col 1
+win 2
+data "          1          24           2           0           1 /a/one Del Snarf | Look \n          2          24           2           0           1 /a/two Del Snarf | Look \n"

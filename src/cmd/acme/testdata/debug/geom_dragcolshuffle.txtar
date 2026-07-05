@@ -1,0 +1,22 @@
+-- script --
+win
+newcol
+col 1
+win
+dragcol 0 3 6 25 700 25
+rects
+-- stdout --
+win 1
+col 1
+win 2
+row ncol=2 r=0,0,1024,768
+col 0 r=0,17,698,768
+  win 2 r=0,34,698,768
+    tag r=16,34,698,49
+    body r=16,50,698,755
+    scroll r=0,50,12,768
+col 1 r=700,17,1024,768
+  win 1 r=700,34,1024,768
+    tag r=716,34,1024,49
+    body r=716,50,1024,755
+    scroll r=0,50,12,768

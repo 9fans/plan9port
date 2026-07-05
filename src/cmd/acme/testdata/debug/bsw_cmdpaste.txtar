@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 hello
+b1 1 0 3
+key 1 %x %v
+print 1
+-- stdout --
+win 1
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=5 dot=0,3
+  body text=hello

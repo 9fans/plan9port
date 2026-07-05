@@ -1,0 +1,12 @@
+-- script --
+win
+name 1 /x
+type 1 hi
+open 1/event
+write 1/event "Mx3 6\n"
+dump
+-- stdout --
+win 1
+wrote 6
+row ncol=1
+col 0 nw=0

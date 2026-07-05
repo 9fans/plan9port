@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 foo bar foo
+write 1/event "MR8 11\n"
+write 1/ctl "addr=dot"
+read 1/addr
+-- stdout --
+win 1
+wrote 7
+wrote 8
+data "          0           0 "
+-- setmousedelay --
+0 1

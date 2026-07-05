@@ -1,0 +1,23 @@
+-- script --
+win
+body 1 echo hello world; sleep 1; echo more text
+b2 1 0 41
+wait 12
+print 2
+wait 22
+print 2
+-- stdout --
+win 1
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=12 dot=12,12
+  body text=hello world
+
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=22 dot=22,22
+  body text=hello world
+more text
+

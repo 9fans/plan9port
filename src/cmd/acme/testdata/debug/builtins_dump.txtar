@@ -1,0 +1,23 @@
+-- script --
+newcol
+win
+body 1 hello world
+win
+body 2 Dump session.dump
+b2 2 0 17
+catdump session.dump
+-- stdout --
+col 0
+win 1
+win 2
+$ROOT
+/usr/local/plan9/font/lucsans/euro.8.font
+/usr/local/plan9/font/lucsans/euro.8.font
+  0.0000000
+w Newcol Kill Putall Dump Exit ^J
+c          0 New Cut Paste Snarf Sort Zerox Delcol ^J
+F          0           0           0           0   2.2636485          11 ^J
+          1          18          11           0           1  Del Snarf | Look ^J
+hello worldF          0           1           0           0   6.6577896          17 ^J
+          2          18          17           0           1  Del Snarf | Look ^J
+Dump session.dump^D

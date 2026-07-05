@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/body "héllo"
+read 1/body
+-- stdout --
+win 1
+wrote 6
+data "h\xc3\xa9llo"

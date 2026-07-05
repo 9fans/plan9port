@@ -1,0 +1,14 @@
+-- script --
+win
+write index "x"
+read editout
+read consctl
+write 1/rdsel "x"
+read 1/wrsel
+-- stdout --
+win 1
+error permission denied
+error permission denied
+error permission denied
+error permission denied
+error permission denied

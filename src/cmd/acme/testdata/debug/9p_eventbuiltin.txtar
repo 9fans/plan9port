@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 Undo
+open 1/event
+b2 1 0 4
+read 1/event
+-- stdout --
+win 1
+data "DX0 4 1 4 Undo\n"

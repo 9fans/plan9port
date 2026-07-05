@@ -1,0 +1,11 @@
+-- script --
+win
+body 1 foo bar baz
+write 1/addr "/bar/"
+read 1/addr
+read 1/data
+-- stdout --
+win 1
+wrote 5
+data "          4           7 "
+data "bar baz"

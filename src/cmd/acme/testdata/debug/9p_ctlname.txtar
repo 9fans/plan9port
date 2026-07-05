@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/ctl "name /x/y\n"
+read 1/tag
+-- stdout --
+win 1
+wrote 10
+data "/x/y Del Snarf Undo Put | Look "

@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 abc
+tag 1 Edit 1d 5d
+b2 1.tag 18 28
+print 1
+-- stdout --
+win 1
+  tag nc=28 dot=0,0
+  tag text= Del Snarf | Look Edit 1d 5d
+win 1 name=
+  body nc=3 dot=0,0
+  body text=abc

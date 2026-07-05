@@ -1,0 +1,12 @@
+-- script --
+win
+type 1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+tag 1 Edit
+win
+body 2 e
+b2arg 1.tag 23 27 2 0 1
+read 1/ctl
+-- stdout --
+win 1
+win 2
+data "          1          27         100           0           0        1008 /usr/local/plan9/font/lucsans/euro.8.font          36           1           0 "

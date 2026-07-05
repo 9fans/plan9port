@@ -1,0 +1,10 @@
+-- script --
+win
+name 1 ./x
+body 1 Put sub
+open log
+b2 1 0 7
+read log
+-- stdout --
+win 1
+data "1 put ./x\n"

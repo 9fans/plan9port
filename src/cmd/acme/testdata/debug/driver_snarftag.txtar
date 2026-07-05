@@ -1,0 +1,12 @@
+-- script --
+win
+body 1 hi
+tag 1 Snarf
+b1 1.tag 1 4
+b1 1 0 0
+b2 1.tag 18 23
+print 1.tag
+-- stdout --
+win 1
+  tag nc=23 dot=1,4
+  tag text= Del Snarf | Look Snarf

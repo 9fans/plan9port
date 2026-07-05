@@ -1,0 +1,91 @@
+-- script --
+win
+type 1 line0\nline1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12\nline13\nline14\nline15\nline16\nline17\nline18\nline19\nline20\nline21\nline22\nline23\nline24\nline25\nline26\nline27\nline28\nline29\nline30\nline31\nline32\nline33\nline34\nline35\nline36\nline37\nline38\nline39\nline40\nline41\nline42\nline43\nline44\nline45\nline46\nline47\nline48\nline49\nline50\nline51\nline52\nline53\nline54\nline55\nline56\nline57\nline58\nline59\nline60\nline61\nline62\nline63\nline64\nline65\nline66\nline67\nline68\nline69\nline70\nline71\nline72\nline73\nline74\nline75\nline76\nline77\nline78\nline79\nline80\nline81\nline82\nline83\nline84\nline85\nline86\nline87\nline88\nline89\nline90\nline91\nline92\nline93\nline94\nline95\nline96\nline97\nline98\nline99\nline100\nline101\nline102\nline103\nline104\nline105\nline106\nline107\nline108\nline109\nline110\nline111\nline112\nline113\nline114\nline115\nline116\nline117\nline118\nline119\nline120\nline121\nline122\nline123\nline124\nline125\nline126\nline127\nline128\nline129\nline130\nline131\nline132\nline133\nline134\nline135\nline136\nline137\nline138\nline139\nline140\nline141\nline142\nline143\nline144\nline145\nline146\nline147\nline148\nline149\nline150\nline151\nline152\nline153\nline154\nline155\nline156\nline157\nline158\nline159\nline160\nline161\nline162\nline163\nline164\nline165\nline166\nline167\nline168\nline169\nline170\nline171\nline172\nline173\nline174\nline175\nline176\nline177\nline178\nline179\nline180\nline181\nline182\nline183\nline184\nline185\nline186\nline187\nline188\nline189\nline190\nline191\nline192\nline193\nline194\nline195\nline196\nline197\nline198\nline199\n
+key 1 home
+key 1 pgdn pgdn pgup down down up
+type 1 Z
+b1 1 10 900
+key 1 bs
+print 1
+-- stdout --
+win 1
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=600 dot=9,9
+  body text=line0
+linne126
+line127
+line128
+line129
+line130
+line131
+line132
+line133
+line134
+line135
+line136
+line137
+line138
+line139
+line140
+line141
+line142
+line143
+line144
+line145
+line146
+line147
+line148
+line149
+line150
+line151
+line152
+line153
+line154
+line155
+line156
+line157
+line158
+line159
+line160
+line161
+line162
+line163
+line164
+line165
+line166
+line167
+line168
+line169
+line170
+line171
+line172
+line173
+line174
+line175
+line176
+line177
+line178
+line179
+line180
+line181
+line182
+line183
+line184
+line185
+line186
+line187
+line188
+line189
+line190
+line191
+line192
+line193
+line194
+line195
+line196
+line197
+line198
+line199
+Z

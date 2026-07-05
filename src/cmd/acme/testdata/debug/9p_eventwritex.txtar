@@ -1,0 +1,21 @@
+-- script --
+win
+body 1 Newcol
+write 1/event "MX0 6\n"
+dump
+-- stdout --
+win 1
+wrote 6
+row ncol=2
+col 0 nw=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=6 dot=0,0
+  body text=Newcol
+col 1 nw=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 2 name=
+  body nc=0 dot=0,0
+  body text=

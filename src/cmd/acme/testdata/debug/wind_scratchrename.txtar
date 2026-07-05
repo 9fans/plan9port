@@ -1,0 +1,11 @@
+-- script --
+win
+name 1 /tmp/+Errors
+name 1 /tmp/+Errors
+name 1 /tmp/plain
+b2 1.tag 11 14
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=0

@@ -1,0 +1,34 @@
+-- script --
+win
+body 1 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 2 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 3 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 4 a\nb\nc\nd\ne\nf\ng\nh
+colgrow 2 2
+rects
+-- stdout --
+win 1
+win 2
+win 3
+win 4
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,49
+    tag r=16,34,1024,49
+    body r=16,49,1024,49
+    scroll r=0,47,12,49
+  win 2 r=0,51,1024,734
+    tag r=16,51,1024,66
+    body r=16,67,1024,727
+    scroll r=0,67,12,734
+  win 3 r=0,736,1024,751
+    tag r=16,736,1024,751
+    body r=16,751,1024,751
+    scroll r=0,749,12,751
+  win 4 r=0,753,1024,768
+    tag r=16,753,1024,768
+    body r=16,768,1024,768
+    scroll r=0,766,12,768

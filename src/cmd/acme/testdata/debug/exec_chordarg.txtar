@@ -1,0 +1,17 @@
+-- script --
+win
+body 1 echo
+win
+body 2 hello
+b2arg 1 0 4 2 0 5
+wait 6
+print 3
+-- stdout --
+win 1
+win 2
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 3 name=+Errors
+  body nc=6 dot=6,6
+  body text=hello
+

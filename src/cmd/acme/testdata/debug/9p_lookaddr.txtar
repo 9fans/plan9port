@@ -1,0 +1,14 @@
+-- script --
+win
+body 1 f:2
+b3 1 0 0
+write 2/ctl "addr=dot"
+read 2/addr
+-- f --
+line one
+line two
+line three
+-- stdout --
+win 1
+wrote 8
+data "          0           0 "

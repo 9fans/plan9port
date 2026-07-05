@@ -1,0 +1,10 @@
+-- script --
+win
+name 1 newfile
+body 1 Put
+open log
+b2 1 0 3
+read log
+-- stdout --
+win 1
+data "1 put newfile\n"

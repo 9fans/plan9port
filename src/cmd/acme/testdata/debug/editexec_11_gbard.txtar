@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 foo bar foo
+dot 1 0 0
+tag 1 Edit ,g/bar/d
+b2 1.tag 23 36
+print 1
+-- stdout --
+win 1
+  tag nc=36 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,g/bar/d
+win 1 name=
+  body nc=0 dot=0,0
+  body text=

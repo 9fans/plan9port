@@ -1,0 +1,92 @@
+-- script --
+win
+body 1 line00 here\nline01 here\nline02 here\nline03 here\nline04 here\nline05 here\nline06 here\nline07 here\nline08 here\nline09 here\nline10 here\nline11 here\nline12 here\nline13 here\nline14 here\nline15 here\nline16 here\nline17 here\nline18 here\nline19 here\nline20 here\nline21 here\nline22 here\nline23 here\nline24 here\nline25 here\nline26 here\nline27 here\nline28 here\nline29 here\nline30 here\nline31 here\nline32 here\nline33 here\nline34 here\nline35 here\nline36 here\nline37 here\nline38 here\nline39 here\nline40 here\nline41 here\nline42 here\nline43 here\nline44 here\nline45 here\nline46 here\nline47 here\nline48 here\nline49 here\nline50 here\nline51 here\nline52 here\nline53 here\nline54 here\nline55 here\nline56 here\nline57 here\nline58 here\nline59 here\nline60 here\nline61 here\nline62 here\nline63 here\nline64 here\nline65 here\nline66 here\nline67 here\nline68 here\nline69 here\nline70 here\nline71 here\nline72 here\nline73 here\nline74 here\nline75 here\nline76 here\nline77 here\nline78 here\nline79 here
+scroll 1 3 200
+scroll 1 3 500
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=959 dot=0,0
+  body text=line00 here
+line01 here
+line02 here
+line03 here
+line04 here
+line05 here
+line06 here
+line07 here
+line08 here
+line09 here
+line10 here
+line11 here
+line12 here
+line13 here
+line14 here
+line15 here
+line16 here
+line17 here
+line18 here
+line19 here
+line20 here
+line21 here
+line22 here
+line23 here
+line24 here
+line25 here
+line26 here
+line27 here
+line28 here
+line29 here
+line30 here
+line31 here
+line32 here
+line33 here
+line34 here
+line35 here
+line36 here
+line37 here
+line38 here
+line39 here
+line40 here
+line41 here
+line42 here
+line43 here
+line44 here
+line45 here
+line46 here
+line47 here
+line48 here
+line49 here
+line50 here
+line51 here
+line52 here
+line53 here
+line54 here
+line55 here
+line56 here
+line57 here
+line58 here
+line59 here
+line60 here
+line61 here
+line62 here
+line63 here
+line64 here
+line65 here
+line66 here
+line67 here
+line68 here
+line69 here
+line70 here
+line71 here
+line72 here
+line73 here
+line74 here
+line75 here
+line76 here
+line77 here
+line78 here
+line79 here

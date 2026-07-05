@@ -1,0 +1,7 @@
+-- script --
+win
+body 1 ab
+write 1/event "M"
+-- stdout --
+win 1
+error bad event syntax

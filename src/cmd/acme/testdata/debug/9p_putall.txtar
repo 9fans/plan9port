@@ -1,0 +1,19 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+type 1 X
+newcol
+win
+body 2 Putall
+open log
+b2 2 0 6
+read log
+-- f --
+orig
+-- stdout --
+win 1
+wrote 3
+col 1
+win 2
+data "1 put f\n"

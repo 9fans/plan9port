@@ -1,0 +1,10 @@
+-- script --
+win
+write 1/ctl "lock"
+write 1/ctl "unlock"
+read 1/tag
+-- stdout --
+win 1
+wrote 4
+wrote 6
+data " Del Snarf | Look "

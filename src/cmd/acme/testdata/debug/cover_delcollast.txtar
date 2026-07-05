@@ -1,0 +1,8 @@
+-- script --
+win
+body 1 Delcol
+b2 1 0 6
+dump
+-- stdout --
+win 1
+row ncol=0

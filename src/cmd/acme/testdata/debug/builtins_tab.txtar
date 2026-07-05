@@ -1,0 +1,12 @@
+-- script --
+win
+body 1 Tab 8
+b2 1 0 5
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=5 dot=0,0
+  body text=Tab 8

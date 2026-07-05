@@ -1,0 +1,23 @@
+-- script --
+win
+name 1 /b/x
+win
+name 2 /a/y
+body 1 Sort
+b2 1 0 4
+dump
+-- stdout --
+win 1
+win 2
+row ncol=1
+col 0 nw=2
+  tag nc=22 dot=0,0
+  tag text=/a/y Del Snarf | Look ^J
+win 2 name=/a/y
+  body nc=0 dot=0,0
+  body text=
+  tag nc=22 dot=0,0
+  tag text=/b/x Del Snarf | Look ^J
+win 1 name=/b/x
+  body nc=4 dot=0,0
+  body text=Sort

@@ -1,0 +1,21 @@
+-- script --
+win
+tag 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+key 1.tag up
+rects
+key 1.tag down
+rects
+-- stdout --
+win 1
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,768
+    tag r=16,34,1024,49
+    body r=16,50,1024,755
+    scroll r=0,50,12,768
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,768
+    tag r=16,34,1024,64
+    body r=16,65,1024,755
+    scroll r=0,65,12,768

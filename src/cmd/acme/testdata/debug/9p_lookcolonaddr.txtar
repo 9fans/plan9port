@@ -1,0 +1,12 @@
+-- script --
+win
+body 1 foo:23 rest
+b3 1 0 0
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=11 dot=0,3
+  body text=foo:23 rest

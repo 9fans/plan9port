@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/ctl "name a\x01b\n"
+read 1/tag
+-- stdout --
+win 1
+error bad character in file name
+data "a\x01b Del Snarf Undo Put | Look "

@@ -1,0 +1,15 @@
+-- script --
+win
+type 1 hello\nworld\n
+dot 1 0 0
+tag 1 Edit 2d
+b2 1.tag 23 30
+print 1
+-- stdout --
+win 1
+  tag nc=30 dot=0,0
+  tag text= Del Snarf Undo | Look Edit 2d
+win 1 name=
+  body nc=6 dot=6,6
+  body text=hello
+

@@ -1,0 +1,6 @@
+-- script --
+win
+write 1/event "Ml0 0\n"
+-- stdout --
+win 1
+wrote 6

@@ -1,0 +1,23 @@
+-- script --
+win
+name 1 foo
+type 1 x
+write 1/ctl "put"
+win
+name 2 bar
+type 2 y
+write 2/ctl "put"
+win
+name 3 .
+write 3/ctl "get"
+read 3/body
+read 3/tag
+-- stdout --
+win 1
+wrote 3
+win 2
+wrote 3
+win 3
+wrote 3
+data "bar\t\tfoo\n"
+data "./ Del Snarf Get | Look "

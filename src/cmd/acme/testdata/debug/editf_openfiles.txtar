@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 x
+tag 1 Edit
+win
+body 2 B f
+b2arg 1.tag 23 27 2 0 3
+read 3/body
+-- f --
+bb
+-- stdout --
+win 1
+win 2
+data "bb\n"

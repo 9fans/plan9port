@@ -1,0 +1,32 @@
+-- script --
+win
+name 1 hello
+win
+readdir 1
+readdir /
+readdir acme
+-- stdout --
+win 1
+win 2
+dir name=addr type=0 perm=0600
+dir name=body type=64 perm=010000000600
+dir name=ctl type=0 perm=0600
+dir name=data type=0 perm=0600
+dir name=editout type=0 perm=0200
+dir name=errors type=0 perm=0200
+dir name=event type=0 perm=0600
+dir name=rdsel type=0 perm=0400
+dir name=wrsel type=0 perm=0200
+dir name=tag type=64 perm=010000000600
+dir name=xdata type=0 perm=0600
+dir name=acme type=128 perm=020000000500
+dir name=cons type=0 perm=0600
+dir name=consctl type=0 perm=0
+dir name=draw type=128 perm=020000000000
+dir name=editout type=0 perm=0200
+dir name=index type=0 perm=0400
+dir name=label type=0 perm=0600
+dir name=log type=0 perm=0400
+dir name=new type=128 perm=020000000500
+dir name=1 type=128 perm=020000000700
+dir name=2 type=128 perm=020000000700

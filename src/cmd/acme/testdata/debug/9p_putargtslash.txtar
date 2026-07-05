@@ -1,0 +1,14 @@
+-- script --
+win
+body 1 Put
+newcol
+win
+body 2 ./sub
+open log
+b2arg 1 0 3 2 0 5
+read log
+-- stdout --
+win 1
+col 1
+win 2
+data "1 put \n"

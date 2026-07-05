@@ -1,0 +1,15 @@
+-- script --
+win
+type 1 x
+tag 1 Incl f
+b2 1.tag 23 29
+print 1
+-- f --
+y
+-- stdout --
+win 1
+  tag nc=29 dot=0,0
+  tag text= Del Snarf Undo | Look Incl f
+win 1 name=
+  body nc=1 dot=1,1
+  body text=x

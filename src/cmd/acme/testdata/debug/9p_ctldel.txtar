@@ -1,0 +1,10 @@
+-- script --
+win
+body 1 x
+write 1/ctl "del"
+dump
+-- stdout --
+win 1
+wrote 3
+row ncol=1
+col 0 nw=0

@@ -1,0 +1,11 @@
+-- script --
+win
+name 1 g
+write 1/ctl "get"
+read 1/body
+-- f --
+ignored
+-- stdout --
+win 1
+wrote 3
+data ""

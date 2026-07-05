@@ -1,0 +1,16 @@
+-- script --
+win
+type 1 ab\n
+b1 1 0 3
+tag 1 Send
+b2 1.tag 23 27
+print 1
+-- stdout --
+win 1
+  tag nc=27 dot=0,0
+  tag text= Del Snarf Undo | Look Send
+win 1 name=
+  body nc=6 dot=6,6
+  body text=ab
+ab
+

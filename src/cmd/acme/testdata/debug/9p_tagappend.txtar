@@ -1,0 +1,9 @@
+-- script --
+win
+name 1 /a/b
+write 1/tag " More"
+read 1/tag
+-- stdout --
+win 1
+wrote 5
+data "/a/b Del Snarf | Look  More"

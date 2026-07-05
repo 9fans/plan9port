@@ -1,0 +1,9 @@
+-- script --
+win
+type 1 hello
+name 1 /tmp/f
+print 1.tag
+-- stdout --
+win 1
+  tag nc=33 dot=0,0
+  tag text=/tmp/f Del Snarf Undo Put | Look ^J

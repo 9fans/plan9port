@@ -1,0 +1,21 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+tag 1 Edit
+win
+body 2 e
+b2arg 1.tag 19 23 2 0 1
+print 1
+-- f --
+data
+-- stdout --
+win 1
+wrote 3
+win 2
+  tag nc=32 dot=28,28
+  tag text=f Del Snarf Undo Put | Look Edit
+win 1 name=f
+  body nc=5 dot=0,0
+  body text=data
+

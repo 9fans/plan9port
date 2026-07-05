@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 aaaaaaaaaaaaaaaaaaaa
+tag 1 Edit ?[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*?d
+b2 1.tag 23 631
+print 1
+-- stdout --
+win 1
+  tag nc=631 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ?[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*[a]*?d
+win 1 name=
+  body nc=20 dot=20,20
+  body text=aaaaaaaaaaaaaaaaaaaa

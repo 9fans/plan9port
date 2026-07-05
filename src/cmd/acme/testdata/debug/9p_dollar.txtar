@@ -1,0 +1,11 @@
+-- script --
+win
+body 1 abc
+write 1/addr "$"
+write 1/data "DEF"
+read 1/body
+-- stdout --
+win 1
+wrote 1
+wrote 3
+data "abcDEF"

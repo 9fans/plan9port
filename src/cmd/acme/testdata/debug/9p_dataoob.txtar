@@ -1,0 +1,15 @@
+-- script --
+win
+body 1 hello
+write 1/addr "$"
+b1 1 0 5
+key 1 bs
+read 1/data
+write 1/data "X"
+read 1/body
+-- stdout --
+win 1
+wrote 1
+error address out of range
+error address out of range
+data ""

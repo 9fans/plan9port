@@ -1,0 +1,9 @@
+-- script --
+win
+body 1 hello world
+write 1/ctl "font /usr/local/plan9/font/lucsans/euro.7.font\n"
+read 1/ctl
+-- stdout --
+win 1
+wrote 47
+data "          1          18          11           0           1        1008 /usr/local/plan9/font/lucsans/euro.7.font          32           0           0 "

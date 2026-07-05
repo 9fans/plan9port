@@ -1,0 +1,33 @@
+-- script --
+win
+body 1 hello world foo bar
+m1 1 0 6 cut
+print 1
+m1 1 0 0 paste
+print 1
+m1 1 0 5 cut paste
+print 1
+m1 1 0 0 paste cut
+print 1
+-- stdout --
+win 1
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=13 dot=0,0
+  body text=world foo bar
+  tag nc=23 dot=0,0
+  tag text= Del Snarf Undo | Look ^J
+win 1 name=
+  body nc=19 dot=0,6
+  body text=hello world foo bar
+  tag nc=28 dot=0,0
+  tag text= Del Snarf Undo Redo | Look ^J
+win 1 name=
+  body nc=19 dot=0,5
+  body text=hello world foo bar
+  tag nc=28 dot=0,0
+  tag text= Del Snarf Undo Redo | Look ^J
+win 1 name=
+  body nc=19 dot=0,0
+  body text=hello world foo bar

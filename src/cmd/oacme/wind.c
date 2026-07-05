@@ -382,6 +382,11 @@ winsetname(Window *w, Rune *name, int n)
 	static Rune Lpluserrors[] = { '+', 'E', 'r', 'r', 'o', 'r', 's', 0 };
 
 	t = &w->body;
+	/* -T: trim the temp-root prefix so opened names are stable for testing */
+	if(ntrimpre>0 && n>ntrimpre && runeeq(trimprer, ntrimpre, name, ntrimpre)==TRUE && name[ntrimpre]=='/'){
+		name += ntrimpre+1;
+		n -= ntrimpre+1;
+	}
 	if(runeeq(t->file->name, t->file->nname, name, n) == TRUE)
 		return;
 	w->isscratch = FALSE;
@@ -640,13 +645,14 @@ winaddincl(Window *w, Rune *r, int n)
 		r = runerealloc(r, n+1);
 		r[n] = 0;
 	}
-	free(a);
 	if((d->qid.type&QTDIR) == 0){
 		free(d);
 		warning(nil, "%s: not a directory\n", a);
+		free(a);
 		free(r);
 		return;
 	}
+	free(a);
 	free(d);
 	w->nincl++;
 	w->incl = realloc(w->incl, w->nincl*sizeof(Rune*));

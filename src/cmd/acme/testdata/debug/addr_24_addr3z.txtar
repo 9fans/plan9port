@@ -1,0 +1,8 @@
+-- script --
+win
+body 1 line1\nline2\nline3\nline4\nline5\n
+dot 1 0 0
+addr 1 3z
+-- stdout --
+win 1
+addr 12 18 eval=1

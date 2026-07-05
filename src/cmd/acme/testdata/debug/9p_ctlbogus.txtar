@@ -1,0 +1,8 @@
+-- script --
+win
+write 1/ctl "zzz"
+read 1/tag
+-- stdout --
+win 1
+error ill-formed control message
+data " Del Snarf | Look "

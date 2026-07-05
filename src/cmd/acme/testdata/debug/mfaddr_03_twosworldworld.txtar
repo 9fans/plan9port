@@ -1,0 +1,21 @@
+-- script --
+win
+name 1 /a/one
+body 1 hello
+win
+name 2 /a/two
+body 2 world
+win
+type 3 x
+tag 3 Edit "two",s/world/WORLD/
+b2 3.tag 23 48
+print 2
+-- stdout --
+win 1
+win 2
+win 3
+  tag nc=24 dot=0,0
+  tag text=/a/two Del Snarf | Look ^J
+win 2 name=/a/two
+  body nc=5 dot=0,0
+  body text=world

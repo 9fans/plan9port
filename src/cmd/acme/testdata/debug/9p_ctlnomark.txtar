@@ -1,0 +1,18 @@
+-- script --
+win
+body 1 abc
+write 1/ctl "nomark"
+write 1/addr "#0,#0"
+write 1/data "X"
+undo 1
+print 1
+-- stdout --
+win 1
+wrote 6
+wrote 5
+wrote 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=4 dot=1,1
+  body text=Xabc

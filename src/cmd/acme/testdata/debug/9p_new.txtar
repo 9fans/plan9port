@@ -1,0 +1,14 @@
+-- script --
+newcol
+read new/ctl
+dump
+-- stdout --
+col 0
+data "          1          18           0           0           0        1008 /usr/local/plan9/font/lucsans/euro.8.font          36           0           0 "
+row ncol=1
+col 0 nw=1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=0 dot=0,0
+  body text=

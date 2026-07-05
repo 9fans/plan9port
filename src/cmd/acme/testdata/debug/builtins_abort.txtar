@@ -1,0 +1,13 @@
+-- script --
+win
+body 1 Abort
+b2 1 0 5
+print 2
+-- stdout --
+win 1
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 2 name=+Errors
+  body nc=40 dot=0,40
+  body text=executing Abort again will call abort()
+

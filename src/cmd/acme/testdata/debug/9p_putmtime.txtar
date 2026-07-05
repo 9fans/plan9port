@@ -1,0 +1,21 @@
+-- script --
+win
+name 1 f
+write 1/ctl "get"
+mtime f 1234567890
+write 1/ctl "put"
+dump
+-- f --
+hello
+-- stdout --
+win 1
+wrote 3
+wrote 3
+row ncol=1
+col 0 nw=1
+  tag nc=19 dot=19,19
+  tag text=f Del Snarf | Look ^J
+win 1 name=f
+  body nc=6 dot=0,0
+  body text=hello
+

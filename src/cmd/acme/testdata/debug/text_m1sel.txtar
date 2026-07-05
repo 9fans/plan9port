@@ -1,0 +1,20 @@
+-- script --
+win
+body 1 hello world foo bar
+m1 1 0 5
+print 1
+m1 1 6 6
+m1 1 6 6
+print 1
+-- stdout --
+win 1
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=19 dot=0,5
+  body text=hello world foo bar
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=19 dot=6,11
+  body text=hello world foo bar

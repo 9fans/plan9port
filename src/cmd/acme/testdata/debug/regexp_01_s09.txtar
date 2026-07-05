@@ -1,0 +1,13 @@
+-- script --
+win
+type 1 abc123def
+tag 1 Edit ,s/[0-9]+/[&]/
+b2 1.tag 23 42
+print 1
+-- stdout --
+win 1
+  tag nc=42 dot=0,0
+  tag text= Del Snarf Undo | Look Edit ,s/[0-9]+/[&]/
+win 1 name=
+  body nc=11 dot=0,11
+  body text=abc[123]def

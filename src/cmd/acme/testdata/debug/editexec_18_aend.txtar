@@ -1,0 +1,14 @@
+-- script --
+win
+type 1 abc
+dot 1 0 0
+tag 1 Edit $a/END/
+b2 1.tag 23 35
+print 1
+-- stdout --
+win 1
+  tag nc=35 dot=0,0
+  tag text= Del Snarf Undo | Look Edit $a/END/
+win 1 name=
+  body nc=6 dot=3,6
+  body text=abcEND

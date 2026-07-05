@@ -1,0 +1,30 @@
+-- script --
+win
+type 1 x
+tag 1 Edit
+win
+name 2 f
+write 2/ctl "get"
+win
+body 3 D f
+b2arg 1.tag 23 27 3 0 3
+dump
+-- f --
+z
+-- stdout --
+win 1
+win 2
+wrote 3
+win 3
+row ncol=1
+col 0 nw=2
+  tag nc=27 dot=0,0
+  tag text= Del Snarf Undo | Look Edit
+win 1 name=
+  body nc=1 dot=1,1
+  body text=x
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 3 name=
+  body nc=3 dot=0,3
+  body text=D f

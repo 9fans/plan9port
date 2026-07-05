@@ -1,0 +1,29 @@
+-- script --
+win
+name 1 trimfile
+body 1 ab  \ncd\t\t\nef
+tag 1  Indent on Put
+dump
+b2 1.tag 26 35
+b2 1.tag 36 39
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=1
+  tag nc=39 dot=0,0
+  tag text=trimfile Del Snarf | Look Indent on Put
+win 1 name=trimfile
+  body nc=12 dot=0,0
+  body text=ab  ^J
+cd		^J
+ef
+row ncol=1
+col 0 nw=1
+  tag nc=44 dot=0,0
+  tag text=trimfile Del Snarf Undo | Look Indent on Put
+win 1 name=trimfile
+  body nc=8 dot=0,0
+  body text=ab
+cd
+ef

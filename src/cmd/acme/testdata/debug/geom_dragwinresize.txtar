@@ -1,0 +1,18 @@
+-- script --
+win
+win
+dragwin 2 3 6 58 6 300
+rects
+-- stdout --
+win 1
+win 2
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,290
+    tag r=16,34,1024,49
+    body r=16,50,1024,290
+    scroll r=0,50,12,290
+  win 2 r=0,292,1024,768
+    tag r=16,292,1024,307
+    body r=16,308,1024,758
+    scroll r=0,308,12,768

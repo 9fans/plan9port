@@ -1,0 +1,10 @@
+-- script --
+win
+type 1 x
+open log
+tag 1 Zerox
+b2 1.tag 23 28
+read log
+-- stdout --
+win 1
+data "2 zerox \n"

@@ -1,0 +1,185 @@
+-- script --
+win
+body 1 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 2 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 3 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 4 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 5 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 6 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 7 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 8 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 9 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 10 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 11 a\nb\nc\nd\ne\nf\ng\nh
+win
+body 12 a\nb\nc\nd\ne\nf\ng\nh
+dump
+-- stdout --
+win 1
+win 2
+win 3
+win 4
+win 5
+win 6
+win 7
+win 8
+win 9
+win 10
+win 11
+win 12
+row ncol=1
+col 0 nw=12
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 2 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 3 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 4 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 5 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 6 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 7 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 8 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 9 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 10 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 11 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 12 name=
+  body nc=15 dot=0,0
+  body text=a
+b
+c
+d
+e
+f
+g
+h

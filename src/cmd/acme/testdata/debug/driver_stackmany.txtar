@@ -1,0 +1,145 @@
+-- script --
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+win
+dump
+-- stdout --
+win 1
+win 2
+win 3
+win 4
+win 5
+win 6
+win 7
+win 8
+win 9
+win 10
+win 11
+win 12
+win 13
+win 14
+win 15
+win 16
+win 17
+win 18
+win 19
+win 20
+row ncol=1
+col 0 nw=20
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 1 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 2 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 3 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 4 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 5 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 6 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 7 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 8 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 9 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 10 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 11 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 12 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 13 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 14 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 15 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 16 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 17 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 18 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 19 name=
+  body nc=0 dot=0,0
+  body text=
+  tag nc=18 dot=0,0
+  tag text= Del Snarf | Look ^J
+win 20 name=
+  body nc=0 dot=0,0
+  body text=

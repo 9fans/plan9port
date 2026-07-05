@@ -1,0 +1,18 @@
+-- script --
+newcol
+write cons "one\n"
+write cons "two\n"
+dump
+-- stdout --
+col 0
+wrote 4
+wrote 4
+row ncol=1
+col 0 nw=1
+  tag nc=25 dot=0,0
+  tag text=+Errors Del Snarf | Look ^J
+win 1 name=+Errors
+  body nc=8 dot=8,8
+  body text=one
+two
+

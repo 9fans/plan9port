@@ -1,0 +1,8 @@
+-- script --
+win
+m2 1.tag 1 4
+dump
+-- stdout --
+win 1
+row ncol=1
+col 0 nw=0

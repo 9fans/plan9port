@@ -1,0 +1,20 @@
+-- script --
+win
+win
+body 1 L00\nL01\nL02\nL03\nL04\nL05\nL06\nL07\nL08\nL09\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21\nL22\nL23\nL24\nL25\nL26\nL27\nL28\nL29\nL30\nL31\nL32\nL33\nL34\nL35\nL36\nL37\nL38\nL39\nL40\nL41\nL42\nL43\nL44\nL45\nL46\nL47\nL48\nL49\nL50\nL51\nL52\nL53\nL54\nL55\nL56\nL57\nL58\nL59
+dot 1 120 120
+type 1 Z
+rects
+-- stdout --
+win 1
+win 2
+row ncol=1 r=0,0,1024,768
+col 0 r=0,17,1024,768
+  win 1 r=0,34,1024,90
+    tag r=16,34,1024,49
+    body r=16,50,1024,80
+    scroll r=0,70,12,72
+  win 2 r=0,92,1024,768
+    tag r=16,92,1024,107
+    body r=16,108,1024,768
+    scroll r=0,108,12,768

@@ -1,0 +1,18 @@
+-- script --
+win
+name 1 hello
+body 1 hi there
+stat 1/ctl
+stat 1/body
+stat 1/tag
+stat index
+stat log
+stat 1
+-- stdout --
+win 1
+stat name=ctl path=268 type=0 perm=0600 length=0
+stat name=body path=267 type=64 perm=010000000600 length=0
+stat name=tag path=275 type=64 perm=010000000600 length=0
+stat name=index path=6 type=0 perm=0400 length=0
+stat name=log path=8 type=0 perm=0400 length=0
+stat name=. path=256 type=128 perm=020000000500 length=0
