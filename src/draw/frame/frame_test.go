@@ -79,6 +79,7 @@ func TestScript(t *testing.T) {
 	for _, file := range files {
 		name := strings.TrimSuffix(filepath.Base(file), ".txtar")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			disp, err := draw.Init(nil, "", "frametest", "400x400", nil)
 			if err != nil {
 				t.Fatal(err)
@@ -125,8 +126,10 @@ func runScript(t *testing.T, file, script string) (string, []image.Image) {
 	t.Helper()
 	dir := t.TempDir()
 	prefix := filepath.Join(dir, "img")
-	t.Setenv("DEVDRAW_TEST_OUTPUT", prefix)
-	disp, err := draw.Init(nil, "", "frametest", "600x400", nil)
+	// Built as a slice, not with t.Setenv, so parallel tests can configure
+	// their own displays independently.
+	env := append(os.Environ(), "DEVDRAW_TEST_OUTPUT="+prefix)
+	disp, err := draw.Init(nil, "", "frametest", "600x400", env)
 	if err != nil {
 		t.Skipf("no display: %v", err)
 	}

@@ -42,6 +42,7 @@ func TestRaspScript(t *testing.T) {
 	for _, file := range files {
 		name := strings.TrimSuffix(filepath.Base(file), ".txtar")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			ar := testar.Open(t, file)
 			script := string(ar.ReadFile("script"))
 			if script == "" {

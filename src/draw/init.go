@@ -79,6 +79,11 @@ type Display struct {
 
 	menu menuImages // per-display cache of the menu's colored images
 
+	// SweepRect's cached border temporaries (see drawgetrect). Per-display,
+	// like menu, so concurrent clients in one process do not share images.
+	grTmp [4]*Image
+	grRed *Image
+
 	// env is the display's environment (see Init): "name=value" pairs, later
 	// entries overriding earlier ones. It serves the display's environment
 	// lookups in place of the process environment.

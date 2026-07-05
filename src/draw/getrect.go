@@ -4,11 +4,6 @@ import (
 	"log"
 )
 
-var (
-	grTmp [4]*Image
-	grRed *Image
-)
-
 var sweep = Cursor{
 	Point{-7, -7},
 	[2 * 16]uint8{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0x07,
@@ -77,14 +72,14 @@ func SweepRect(but int, mc *Mousectl) Rectangle {
 	return rc
 }
 
-func freegrtmp() {
-	grTmp[0].Free()
-	grTmp[1].Free()
-	grTmp[2].Free()
-	grTmp[3].Free()
-	grRed.Free()
-	grTmp = [4]*Image{}
-	grRed = nil
+func freegrtmp(display *Display) {
+	display.grTmp[0].Free()
+	display.grTmp[1].Free()
+	display.grTmp[2].Free()
+	display.grTmp[3].Free()
+	display.grRed.Free()
+	display.grTmp = [4]*Image{}
+	display.grRed = nil
 }
 
 func max(a, b int) int {
@@ -102,17 +97,13 @@ func drawgetrect(display *Display, rc Rectangle, up bool) {
 	 * is unallocated and we ask to restore the screen, it would be nice
 	 * to complain, but we silently make a mess.
 	 */
-	if grTmp[0] != nil && grTmp[0].Display != display {
-		// The cached temporaries belong to a different display (e.g. several
-		// in-process clients in one test process); they cannot be drawn with
-		// this display. Abandon them without freeing -- freeing would send RPCs
-		// to the other (possibly defunct) display -- and reallocate below.
-		grTmp = [4]*Image{}
-		grRed = nil
-	}
+	// The cached temporaries live in the Display, not in package globals, so
+	// several clients in one process (e.g. parallel in-process terminals in a
+	// test) each sweep with images their own devdraw knows.
+	grTmp := &display.grTmp
 	if up && grTmp[0] != nil {
 		if grTmp[0].R.Dx() < rc.Dx() || grTmp[2].R.Dy() < rc.Dy() {
-			freegrtmp()
+			freegrtmp(display)
 		}
 	}
 	if grTmp[0] == nil {
@@ -123,9 +114,9 @@ func drawgetrect(display *Display, rc Rectangle, up bool) {
 		r = Rect(0, 0, W, max(screen.R.Dy(), rc.Dy()))
 		grTmp[2], _ = display.AllocImage(r, screen.Pix, false, White)
 		grTmp[3], _ = display.AllocImage(r, screen.Pix, false, White)
-		grRed, _ = display.AllocImage(Rect(0, 0, 1, 1), screen.Pix, true, Red)
-		if grTmp[0] == nil || grTmp[1] == nil || grTmp[2] == nil || grTmp[3] == nil || grRed == nil {
-			freegrtmp()
+		display.grRed, _ = display.AllocImage(Rect(0, 0, 1, 1), screen.Pix, true, Red)
+		if grTmp[0] == nil || grTmp[1] == nil || grTmp[2] == nil || grTmp[3] == nil || display.grRed == nil {
+			freegrtmp(display)
 			log.Fatalf("getrect: allocimage failed")
 		}
 	}
@@ -138,6 +129,6 @@ func drawgetrect(display *Display, rc Rectangle, up bool) {
 	}
 	for i := 0; i < 4; i++ {
 		grTmp[i].Draw(Rect(0, 0, rects[i].Dx(), rects[i].Dy()), screen, nil, rects[i].Min)
-		screen.Draw(rects[i], grRed, nil, ZP)
+		screen.Draw(rects[i], display.grRed, nil, ZP)
 	}
 }
