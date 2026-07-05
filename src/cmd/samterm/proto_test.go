@@ -42,14 +42,18 @@ var update = flag.Bool("update", false, "update committed goldens in testdata")
 
 // protoHost speaks the wire protocol to a samterm over r/w.
 type protoHost struct {
-	w   io.Writer
-	r   *bufio.Reader
-	img string // image output directory
+	w      io.Writer
+	r      *bufio.Reader
+	img    string // image output directory
+	extern string // legacy extern FIFO path, for the "extern" op ("" if unused)
 }
 
-// nframe returns how many image frames samterm has emitted so far.
+// nframe returns how many window frames samterm has emitted so far. devdraw also
+// writes a cursor frame (img.cursor.N) per window frame; those are excluded here
+// (the pattern requires a digit after the dot) so the waitframes counts stay in
+// terms of drawing operations, unaffected by cursor capture.
 func (h *protoHost) nframe() int {
-	files, _ := filepath.Glob(h.img + ".*")
+	files, _ := filepath.Glob(h.img + ".[0-9]*")
 	return len(files)
 }
 
@@ -126,6 +130,68 @@ func (h *protoHost) recv() (typ sam.Tmesg, payload []byte, err error) {
 		return
 	}
 	return sam.Tmesg(hdr[0]), payload, nil
+}
+
+// scriptUsesExtern reports whether a scenario's input uses the "extern" op, which
+// needs the legacy extern FIFO set up (extstart). A scenario that doesn't use it
+// is unaffected -- no FIFO, no env changes -- so existing goldens are unchanged.
+func scriptUsesExtern(script []byte) bool {
+	for line := range strings.Lines(string(script)) {
+		if f := strings.Fields(line); len(f) > 0 && f[0] == "extern" {
+			return true
+		}
+	}
+	return false
+}
+
+// externFIFO configures the deterministic FIFO path for an extern scenario and
+// returns it. $NAMESPACE is already empty (TestMain), so both terminals' plumbstart
+// fails and they fall back to extstart. We pin $USER (and clear $DISPLAY) so the
+// path -- /tmp/.sam.$USER -- is identical and computable for the in-process Go run
+// and the C subprocess. Pid keeps concurrent runs apart; the file is cleaned up.
+func externFIFO(t *testing.T) string {
+	user := "samtermextern" + strconv.Itoa(os.Getpid())
+	t.Setenv("USER", user)
+	if d, ok := os.LookupEnv("DISPLAY"); ok {
+		// Clear $DISPLAY so C's getenv("DISPLAY")==nil arm is taken (no display
+		// suffix on the path); restore it after the test.
+		os.Unsetenv("DISPLAY")
+		t.Cleanup(func() { os.Setenv("DISPLAY", d) })
+	}
+	path := "/tmp/.sam." + user
+	os.Remove(path)
+	t.Cleanup(func() { os.Remove(path) })
+	return path
+}
+
+// writeExtern writes data into the terminal's extern FIFO, exercising the
+// no-plumber file-open path (extproc -> externload -> the RPlumb block in run ->
+// externchar typing into the command window). It waits for the terminal to have
+// created the FIFO (extstart runs during its startup, asynchronously for the C
+// subprocess); O_WRONLY then blocks only until the terminal has the read end open.
+func (h *protoHost) writeExtern(t *testing.T, data []byte) {
+	t.Helper()
+	if h.extern == "" {
+		t.Fatal("extern op used but no extern FIFO was set up")
+	}
+	deadline := time.Now().Add(frametimeout)
+	for {
+		if fi, err := os.Stat(h.extern); err == nil && fi.Mode()&os.ModeNamedPipe != 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("extern: FIFO %s never appeared", h.extern)
+		}
+		time.Sleep(time.Millisecond)
+	}
+	f, err := os.OpenFile(h.extern, os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatalf("extern: open %s: %v", h.extern, err)
+	}
+	if _, err := f.Write(data); err != nil {
+		t.Fatalf("extern: write %s: %v", h.extern, err)
+	}
+	f.Close()
 }
 
 func pShort(v int) []byte {
@@ -244,6 +310,10 @@ func TestProto(t *testing.T) {
 // -update; otherwise it replays them.
 func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
+	useExtern := scriptUsesExtern(script)
+	if useExtern {
+		externFIFO(t) // sets $USER/$DISPLAY; the actual path is read from term.exname below
+	}
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 	// Built as a slice, not with t.Setenv, so parallel tests can configure
@@ -280,12 +350,16 @@ func runGoProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int
 	go h.drain()
 	got := runProtoScript(t, h, script, counts)
 
-	return drawtest.Frames(t, img), got, readDrawops(drawlog)
+	return drawtest.FramesAndCursor(t, img), got, readDrawops(drawlog)
 }
 
 // runOldProto runs the C samterm subprocess against the identical host script.
 func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []int, string) {
 	t.Helper()
+	externPath := ""
+	if scriptUsesExtern(script) {
+		externPath = externFIFO(t) // C computes the same /tmp/.sam.$USER from the env
+	}
 	img := filepath.Join(t.TempDir(), "img")
 	drawlog := filepath.Join(filepath.Dir(img), "drawlog")
 
@@ -310,7 +384,7 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 	h2tR.Close()
 	t2hW.Close()
 
-	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img}
+	h := &protoHost{w: h2tW, r: bufio.NewReader(t2hR), img: img, extern: externPath}
 	h.handshake(t)
 	go h.drain() // consume the C terminal's replies so it never blocks on a full pipe
 	got := runProtoScript(t, h, script, counts)
@@ -328,7 +402,7 @@ func runOldProto(t *testing.T, script []byte, counts []int) ([]image.Image, []in
 		syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		<-done
 	}
-	return drawtest.Frames(t, img), got, readDrawops(drawlog)
+	return drawtest.FramesAndCursor(t, img), got, readDrawops(drawlog)
 }
 
 // runProtoScript executes a scenario's host operations (the txtar "input" section,
@@ -444,6 +518,15 @@ func runProtoScript(t *testing.T, h *protoHost, script []byte, counts []int) []i
 			data := []byte(unescape(rest[1]))
 			h.send(sam.Hplumb, pShort(len(data)))
 			h.w.Write(data)
+		case "extern": // extern TEXT: write TEXT (\t \n \\ escaped) into the legacy
+			// extern FIFO -- the no-plumber file-open channel. The terminal reads it
+			// (extproc), feeds it as keyboard input, and types it into the command
+			// window, so it renders just like a plumbed "B file" request.
+			rest := strings.SplitN(line, " ", 2)
+			if len(rest) < 2 {
+				t.Fatalf("bad extern: %q", line)
+			}
+			h.writeExtern(t, []byte(unescape(rest[1])))
 		case "exit": // exit: Hexit -- the terminal stops responding (run returns)
 			// and draws nothing more, so there is no frame to sync on; just send
 			// it and finish. The handler still runs (coverage), and the C samterm
