@@ -113,6 +113,17 @@ struct Client
 	int		testoutn;	// next DEVDRAW_TEST_OUTPUT frame number
 	int		testcursorset;	// non-zero if testcursor is valid (else default arrow)
 	Cursor		testcursor;	// current cursor, recorded for output compositing
+	Point		testmousexy;	// last requested cursor position, uncoalesced (for cursor frames)
+	// Deferred setmouse (DEVDRAW_TEST_SETMOUSE_DELAYS): the cursor change from the
+	// k-th setmouse is held until testsmdelay[k] more frames have been written, so
+	// the Go port's eager draw-buffer flushing lands the cursor on the same frame
+	// as C's lazier flushing (see test-screen.c, test-output.c).
+	int		*testsmdelay;	// per-setmouse delay list, parsed from the env
+	int		testsmn;	// length of testsmdelay
+	int		testsmi;	// next setmouse index
+	Point		testpendxy;	// pending cursor position (deferral in flight)
+	int		testpend;	// non-zero while a deferral is in flight
+	int		testpendn;	// frames remaining before testpendxy takes effect
 };
 
 struct Refresh
@@ -206,6 +217,7 @@ void	gfx_abortcompose(Client*);
 void	gfx_keystroke(Client*, int);
 void	gfx_main(void);
 void	gfx_mousetrack(Client*, int, int, int, uint);
+void	gfx_replacescreenimage0(Client*, Memimage*);
 void	gfx_replacescreenimage(Client*, Memimage*);
 void	gfx_mouseresized(Client*);
 void	gfx_started(void);
@@ -266,5 +278,6 @@ extern char *testoutfile;
 extern char *testinfile;
 extern int testnocoalesce;	// $DEVDRAW_TEST_NOCOALESCE: queue every mouse move
 void test_output(Client*, Rectangle);	// write window subimage r to testoutfile.N
+void test_setmouselog(Client*);		// log this setmouse's frame index (DEVDRAW_TEST_SETMOUSE_DELAYS)
 int drawlogfd(void);		// fd of the $DEVDRAW_DRAWLOG opcode trace, or -1
 void test_input_start(Client*);	// start the scripted-input reader proc

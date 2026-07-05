@@ -87,6 +87,29 @@ t_rpc_attach(Client *c, char *label, char *winsize)
 	// [xy-1, xy+15); we want that exclusive bottom-right (xy+15) 10px up and
 	// 10px left of the window's bottom-right corner, i.e. xy = corner - 25.
 	c->mouse.last.xy = Pt(Dx(wr) - 25, Dy(wr) - 25);
+	c->testmousexy = c->mouse.last.xy; // initial cursor frame position
+
+	// Per-setmouse deferral list, "d0 d1 ...": the k-th setmouse's cursor change
+	// is held testsmdelay[k] frames so the Go port matches C's flush timing.
+	{
+		char *e, *s, *t;
+		int cap;
+		e = getenv("DEVDRAW_TEST_SETMOUSE_DELAYS");
+		if(e != nil && e[0] != 0){
+			s = strdup(e);
+			cap = 8;
+			c->testsmdelay = malloc(cap*sizeof(int));
+			c->testsmn = 0;
+			for(t = strtok(s, " ,\n"); t != nil; t = strtok(nil, " ,\n")){
+				if(c->testsmn >= cap){
+					cap *= 2;
+					c->testsmdelay = realloc(c->testsmdelay, cap*sizeof(int));
+				}
+				c->testsmdelay[c->testsmn++] = atoi(t);
+			}
+			free(s);
+		}
+	}
 
 	return t_allocscreen(wr);
 }
@@ -133,15 +156,68 @@ t_rpc_resizewindow(Client *c, Rectangle r)
 	if(Dx(nr) <= 0 || Dy(nr) <= 0)
 		return;
 	c->mouserect = nr;
-	gfx_replacescreenimage(c, t_allocscreen(nr));
+	// Quiet swap: do NOT notify the client here. A client-initiated Tresize
+	// (acme -D, via drawresizewindow) redraws explicitly and must not see the
+	// resize echoed back on the mouse/resize channels. The scripted-input
+	// "resize" command, which simulates a user resize, fires gfx_mouseresized
+	// itself afterward (see test-input.c).
+	gfx_replacescreenimage0(c, t_allocscreen(nr));
 }
 
-// t_rpc_setmouse moves the cursor: record the move as a mouse event so the
-// next mouse read reflects it (the current button state is preserved).
+// hasscriptinput reports whether DEVDRAW_TEST_INPUT is set, i.e. device input
+// is being scripted (cached after the first call).
+static int
+hasscriptinput(void)
+{
+	static int v = -1;
+	char *p;
+
+	if(v < 0){
+		p = getenv("DEVDRAW_TEST_INPUT");
+		v = p != nil && p[0] != 0;
+		free(p);
+	}
+	return v;
+}
+
+// t_rpc_setmouse moves the cursor (the client's moveto/setcursor). With scripted
+// device input (DEVDRAW_TEST_INPUT) the warp echoes back as a readable mouse
+// event, as a real window system would, and clients like samterm rely on that.
+// Without it the backend delivers no device events at all (see file header), so
+// the self-warp echo is dropped, keeping only the cursor-frame position: acme -D
+// in particular runs the real mousethread reading mousectl->c, where an echoed
+// warp would feed back and race the scripted events the debug driver sends.
 static void
 t_rpc_setmouse(Client *c, Point p)
 {
-	gfx_mousetrack(c, p.x, p.y, c->mouse.last.buttons, msec());
+	int delay;
+
+	if(hasscriptinput()){
+		gfx_mousetrack(c, p.x, p.y, c->mouse.last.buttons, msec());
+		return;
+	}
+	// (clamp to mouserect, matching gfx_mousetrack, for the cursor-frame pos.)
+	if(p.x < c->mouserect.min.x)
+		p.x = c->mouserect.min.x;
+	if(p.x > c->mouserect.max.x)
+		p.x = c->mouserect.max.x;
+	if(p.y < c->mouserect.min.y)
+		p.y = c->mouserect.min.y;
+	if(p.y > c->mouserect.max.y)
+		p.y = c->mouserect.max.y;
+	// Record the frame index at which this setmouse arrived, so -update can
+	// compute the Go-vs-C deferral (C's lazier flush makes the same setmouse
+	// arrive a few frames later relative to the draws).
+	test_setmouselog(c);
+	delay = c->testsmi < c->testsmn ? c->testsmdelay[c->testsmi] : 0;
+	c->testsmi++;
+	if(delay <= 0){
+		c->testmousexy = p;	// apply immediately (no deferral)
+		return;
+	}
+	c->testpendxy = p;	// hold until delay more frames are written
+	c->testpend = 1;
+	c->testpendn = delay;
 }
 
 // The cursor shape is recorded in the Client by srv.c for output compositing;

@@ -30,10 +30,13 @@ draw_initdisplaymemimage(Client *c, Memimage *m)
 	c->op = SoverD;
 }
 
-// gfx_replacescreenimage replaces c's screen image with m.
-// It is called by the host driver on the main host thread.
+// gfx_replacescreenimage0 swaps c's screen image to m WITHOUT notifying the
+// client of a resize. Split out so the test backend can resize the in-memory
+// window quietly for a client-initiated Tresize (see test-screen.c): under -D
+// the scripted driver redraws explicitly and does not want the resize echoed
+// back through the mouse/resize channels.
 void
-gfx_replacescreenimage(Client *c, Memimage *m)
+gfx_replacescreenimage0(Client *c, Memimage *m)
 {
 	/*
 	 * Replace the screen image because the screen
@@ -57,6 +60,15 @@ gfx_replacescreenimage(Client *c, Memimage *m)
 		_freememimage(om);
 	}
 	qunlock(&drawlk);
+}
+
+// gfx_replacescreenimage swaps the screen image and notifies the client that
+// the window was resized. It is called by the host driver on the main host
+// thread.
+void
+gfx_replacescreenimage(Client *c, Memimage *m)
+{
+	gfx_replacescreenimage0(c, m);
 	gfx_mouseresized(c);
 }
 

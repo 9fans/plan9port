@@ -289,8 +289,12 @@ docmd(Client *c, char *line)
 		sendkey(c, p);
 	}else if(strcmp(cmd, "resize") == 0){
 		n = tokenize(p, args, nelem(args));
-		if(n >= 2)
+		if(n >= 2){
 			c->impl->rpc_resizewindow(c, Rect(0, 0, atoi(args[0]), atoi(args[1])));
+			// rpc_resizewindow swaps the screen quietly now; a scripted user
+			// resize must still notify the client (samterm relies on this).
+			gfx_mouseresized(c);
+		}
 	}else if(strcmp(cmd, "retina") == 0){
 		gfx_keystroke(c, Kcmd+'r');
 	}else if(strcmp(cmd, "label") == 0){

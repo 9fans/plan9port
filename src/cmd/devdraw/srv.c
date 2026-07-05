@@ -491,6 +491,12 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 	if(y > c->mouserect.max.y)
 		y = c->mouserect.max.y;
 
+	// Record the true (clamped) position for the test cursor frames, before the
+	// coalescing gate below can drop it. Under -D no one reads mouse events, so
+	// c->mouse.last.xy would otherwise stick at the first queued move; the cursor
+	// frames must follow every moveto, not the queue's leftovers.
+	c->testmousexy = Pt(x, y);
+
 	// If reader has stopped reading, don't bother.
 	// If reader is completely caught up, definitely queue.
 	// Otherwise, queue only button change events -- unless testnocoalesce, which
