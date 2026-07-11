@@ -142,6 +142,10 @@ threadmain(int argc, char *argv[])
 					scroll(which, 3);
 				else
 					menu3hit();
+			}else if((mousep->buttons&8)){
+				scroll(which, 4);
+			}else if((mousep->buttons&16)){
+				scroll(which, 5);
 			}
 			mouseunblock();
 		}
