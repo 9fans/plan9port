@@ -2,7 +2,7 @@
 
 [ -f $PLAN9/config ] && . $PLAN9/config
 
-if [ "x$X11" = "x" ]; then 
+if [ "x$X11" = "x" ]; then
 	if [ -d /usr/X11R6 ]; then
 		X11=/usr/X11R6
 	elif [ -d /usr/local/X11R6 ]; then
@@ -29,6 +29,8 @@ if [ "x$WSYSTYPE" = "x" ]; then
 			exit 1
 		fi
 		WSYSTYPE=mac
+	elif [ "x$XDG_SESSION_TYPE" = "xwayland" ]; then
+		WSYSTYPE=wayland
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -43,7 +45,7 @@ if [ "x$WSYSTYPE" = "xx11" -a "x$X11H" = "x" ]; then
 		X11H=""
 	fi
 fi
-	
+
 echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
 echo 'X11H='$X11H
@@ -58,6 +60,12 @@ elif [ $WSYSTYPE = mac ]; then
 	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o'
 	echo 'WSYSHFILES='
 	echo 'MACARGV=macargv.o'
+elif [ $WSYSTYPE = wayland ]; then
+	echo 'LDFLAGS=$LDFLAGS -lwayland-client -lxkbcommon'
+	XO=`ls wayland*.c 2>/dev/null | sed 's/\.c/\.o/'`
+	echo 'WSYSOFILES=$WSYSOFILES '$XO
+	XH=`ls wayland*.h 2>/dev/null`
+	echo 'WSYSHFILES='$XH
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
