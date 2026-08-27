@@ -204,6 +204,7 @@ struct Display
 	int		_isnewdisplay;
 	struct Mux	*mux;
 	int		srvfd;
+	int		srvwfd;
 	int		dpi;
 	
 	Font	*firstfont;

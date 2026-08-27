@@ -30,6 +30,16 @@ _displayconnect(Display *d)
 	fmtinstall('W', drawfcallfmt);
 	fmtinstall('H', encodefmt);
 
+	char *devdraw;
+	devdraw = getenv("DEVDRAW");
+	if(devdraw == nil)
+		devdraw = "devdraw";
+	if(devdraw[0]=='-' && devdraw[1]=='\0') {
+		d->srvfd = 0;
+		d->srvwfd = 1;
+		return 0;
+	}
+
 	wsysid = getenv("wsysid");
 	if(wsysid != nil) {
 		// Connect to running devdraw service.
@@ -85,6 +95,7 @@ _displayconnect(Display *d)
 			return -1;
 		}
 		d->srvfd = fd;
+		d->srvwfd = fd;
 		return 0;
 	}
 
@@ -96,11 +107,6 @@ _displayconnect(Display *d)
 		return -1;
 	}
 	if(pid == 0){
-		char *devdraw;
-
-		devdraw = getenv("DEVDRAW");
-		if(devdraw == nil)
-			devdraw = "devdraw";
 		close(p[0]);
 		dup(p[1], 0);
 		dup(p[1], 1);
@@ -121,16 +127,14 @@ _displayconnect(Display *d)
 		 * instead.
 		 */
 		putenv("NOLIBTHREADDAEMONIZE", "1");
-		devdraw = getenv("DEVDRAW");
-		if(devdraw == nil)
-			devdraw = "devdraw";
 		if(argv0 == nil)
-			argv0 = devdraw;
+			argv0 = "devdraw";
 		execl(devdraw, argv0, argv0, "(devdraw)", nil);
 		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);
 	d->srvfd = p[0];
+	d->srvwfd = p[0];
 	return 0;
 }
 
@@ -163,7 +167,7 @@ drawsend(Mux *mux, void *vmsg)
 	msg = vmsg;
 	GET(msg, n);
 	d = mux->aux;
-	return write(d->srvfd, msg, n);
+	return write(d->srvwfd, msg, n);
 }
 
 static int
