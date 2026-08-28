@@ -171,17 +171,3 @@ encode32(uchar *output, u32int *input, ulong len)
 		*output++ = x;
 	}
 }
-
-DigestState*
-hmac_sha2_224(uchar *p, ulong len, uchar *key, ulong klen, uchar *digest,
-	DigestState *s)
-{
-	return hmac_x(p, len, key, klen, digest, s, sha2_224, SHA2_224dlen);
-}
-
-DigestState*
-hmac_sha2_256(uchar *p, ulong len, uchar *key, ulong klen, uchar *digest,
-	DigestState *s)
-{
-	return hmac_x(p, len, key, klen, digest, s, sha2_256, SHA2_256dlen);
-}

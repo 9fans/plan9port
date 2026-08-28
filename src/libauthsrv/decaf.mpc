@@ -1,0 +1,130 @@
+void decaf_neg(mpint *p, mpint *n, mpint *r){
+	mpint *m = mpnew(0);
+	mpmodsub(mpzero, r, p, m);
+	mpint *tmp1 = mpnew(0);
+	mpsub(p, mpone, tmp1);
+	mpright(tmp1, 1, tmp1);
+	mpsel(-mpcmp(n, tmp1) >> (sizeof(int)*8-1), m, r, r);
+	mpfree(tmp1);
+	mpfree(m);
+	}
+void decaf_encode(mpint *p, mpint *a, mpint *d, mpint *X, mpint *Y, mpint *Z, mpint *T, mpint *s){
+	mpint *u = mpnew(0);
+	mpint *r = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	mpint *tmp2 = mpnew(0);
+	mpint *tmp3 = mpnew(0);
+	mpmodsub(a, d, p, tmp3);
+	mpint *tmp4 = mpnew(0);
+	mpmodadd(Z, Y, p, tmp4);
+	mpmodmul(tmp3, tmp4, p, tmp2);
+	mpfree(tmp3);
+	mpfree(tmp4);
+	tmp4 = mpnew(0);
+	mpmodsub(Z, Y, p, tmp4);
+	mpmodmul(tmp2, tmp4, p, tmp1);
+	mpfree(tmp2);
+	mpfree(tmp4);
+	misqrt(tmp1, p, r);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	mpmodsub(a, d, p, tmp1);
+	mpmodmul(tmp1, r, p, u);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	tmp4 = mpnew(0);
+	mpmodadd(u, u, p, tmp4); // 2*u
+	mpmodmul(tmp4, Z, p, tmp1);
+	mpfree(tmp4);
+	mpmodsub(mpzero, tmp1, p, tmp1);
+	decaf_neg(p, tmp1, r);
+	mpfree(tmp1);
+	tmp1 = mpnew(0);
+	tmp4 = mpnew(0);
+	tmp2 = mpnew(0);
+	tmp3 = mpnew(0);
+	mpmodmul(a, Z, p, tmp3);
+	mpmodmul(tmp3, X, p, tmp2);
+	mpfree(tmp3);
+	tmp3 = mpnew(0);
+	mpint *tmp5 = mpnew(0);
+	mpmodmul(d, Y, p, tmp5);
+	mpmodmul(tmp5, T, p, tmp3);
+	mpfree(tmp5);
+	mpmodsub(tmp2, tmp3, p, tmp2);
+	mpfree(tmp3);
+	mpmodmul(r, tmp2, p, tmp4);
+	mpfree(tmp2);
+	mpmodadd(tmp4, Y, p, tmp4);
+	mpmodmul(u, tmp4, p, tmp1);
+	mpfree(tmp4);
+	tmp4 = mpnew(0);
+	mpinvert(a, p, tmp4);
+	mpmodmul(tmp1, tmp4, p, s);
+	mpfree(tmp4);
+	mpfree(tmp1);
+	decaf_neg(p, s, s);
+	mpfree(u);
+	mpfree(r);
+	}
+void decaf_decode(mpint *p, mpint *a, mpint *d, mpint *s, mpint *ok, mpint *X, mpint *Y, mpint *Z, mpint *T){
+	mpint *w = mpnew(0);
+	mpint *v = mpnew(0);
+	mpint *u = mpnew(0);
+	mpint *ss = mpnew(0);
+	mpint *tmp1 = mpnew(0);
+	mpsub(p, mpone, tmp1);
+	mpright(tmp1, 1, tmp1);
+	if(mpcmp(s, tmp1) > 0){
+		mpassign(mpzero, ok);
+		}else{
+		mpmodmul(s, s, p, ss);
+		mpmodmul(a, ss, p, Z);
+		mpmodadd(mpone, Z, p, Z);
+		mpmodmul(Z, Z, p, u);
+		mpint *tmp2 = mpnew(0);
+		mpint *tmp3 = mpnew(0);
+		mpint *tmp4 = mpnew(0);
+		uitomp(4UL, tmp4);
+		mpmodmul(tmp4, d, p, tmp3);
+		mpfree(tmp4);
+		mpmodmul(tmp3, ss, p, tmp2);
+		mpfree(tmp3);
+		mpmodsub(u, tmp2, p, u);
+		mpfree(tmp2);
+		mpmodmul(u, ss, p, v);
+		if(mpcmp(v, mpzero) == 0){
+			mpassign(mpone, ok);
+			}else{
+			msqrt(v, p, ok);
+			if(mpcmp(ok, mpzero) != 0){
+				mpinvert(ok, p, v);
+				mpassign(mpone, ok);
+				}
+			}
+		if(mpcmp(ok, mpzero) != 0){
+			mpint *tmp5 = mpnew(0);
+			mpmodmul(u, v, p, tmp5);
+			decaf_neg(p, tmp5, v);
+			mpfree(tmp5);
+			tmp5 = mpnew(0);
+			mpmodmul(v, s, p, tmp5);
+			mpint *tmp6 = mpnew(0);
+			mpmodsub(mptwo, Z, p, tmp6);
+			mpmodmul(tmp5, tmp6, p, w);
+			mpfree(tmp5);
+			mpfree(tmp6);
+			if(mpcmp(s, mpzero) == 0){
+				mpmodadd(w, mpone, p, w);
+				}
+			mpmodadd(s, s, p, X); // 2*s
+			mpmodmul(w, Z, p, Y);
+			mpmodmul(w, X, p, T);
+			}
+		}
+	mpfree(tmp1);
+	mpfree(w);
+	mpfree(v);
+	mpfree(u);
+	mpfree(ss);
+	}

@@ -71,6 +71,44 @@ void	bfECBencrypt(uchar*, int, BFstate*);
 void	bfECBdecrypt(uchar*, int, BFstate*);
 
 /*******************************************************/
+/* Chacha definitions */
+/*******************************************************/
+
+enum
+{
+	ChachaBsize=	64,
+	ChachaKeylen=	256/8,
+	ChachaIVlen=	96/8,
+	XChachaIVlen=	192/8,
+};
+
+typedef struct Chachastate Chachastate;
+struct Chachastate
+{
+	union{
+		u32int	input[16];
+		struct {
+			u32int	constant[4];
+			u32int	key[8];
+			u32int	counter;
+			u32int	iv[3];
+		};
+	};
+	u32int	xkey[8];
+	int	rounds;
+	int	ivwords;
+};
+
+void	setupChachastate(Chachastate*, uchar*, ulong, uchar*, ulong, int);
+void	chacha_setiv(Chachastate*, uchar*);
+void	chacha_setblock(Chachastate*, u64int);
+void	chacha_encrypt(uchar*, ulong, Chachastate*);
+void	chacha_encrypt2(uchar*, uchar*, ulong, Chachastate*);
+
+void	ccpoly_encrypt(uchar *dat, ulong ndat, uchar *aad, ulong naad, uchar tag[16], Chachastate *cs);
+int	ccpoly_decrypt(uchar *dat, ulong ndat, uchar *aad, ulong naad, uchar tag[16], Chachastate *cs);
+
+/*******************************************************/
 /* DES definitions */
 /*******************************************************/
 
@@ -140,7 +178,10 @@ enum
 	SHA2_384dlen=	48,	/* SHA-384 digest length */
 	SHA2_512dlen=	64,	/* SHA-512 digest length */
 	MD4dlen=	16,	/* MD4 digest length */
-	MD5dlen=	16	/* MD5 digest length */
+	MD5dlen=	16,	/* MD5 digest length */
+	Poly1305dlen=	16,	/* Poly1305 digest length */
+
+	Hmacblksz=	64,	/* in bytes; from rfc2104 */
 };
 
 typedef struct DigestState DigestState;
@@ -165,6 +206,17 @@ typedef struct DigestState SHA2_512state;
 typedef struct DigestState MD5state;
 typedef struct DigestState MD4state;
 
+/* Poly1305 uses its own state structure to avoid expanding DigestState */
+typedef struct Poly1305state Poly1305state;
+struct Poly1305state
+{
+	u32int	state[14];	/* r[5], h[5], pad[4] */
+	uchar	buf[16];
+	int	blen;
+	char	malloced;
+	char	seeded;
+};
+
 DigestState* md4(uchar*, ulong, uchar*, DigestState*);
 DigestState* md5(uchar*, ulong, uchar*, DigestState*);
 DigestState* sha1(uchar*, ulong, uchar*, DigestState*);
@@ -172,6 +224,7 @@ DigestState* sha2_224(uchar*, ulong, uchar*, DigestState*);
 DigestState* sha2_256(uchar*, ulong, uchar*, DigestState*);
 DigestState* sha2_384(uchar*, ulong, uchar*, DigestState*);
 DigestState* sha2_512(uchar*, ulong, uchar*, DigestState*);
+Poly1305state* poly1305(uchar*, ulong, uchar*, ulong, uchar*, Poly1305state*);
 DigestState* hmac_md5(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
 DigestState* hmac_sha1(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
 DigestState* hmac_sha2_224(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
@@ -180,6 +233,13 @@ DigestState* hmac_sha2_384(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
 DigestState* hmac_sha2_512(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
 DigestState* hmac_x(uchar*, ulong, uchar*, ulong, uchar*, DigestState*,
 	DigestState*(*)(uchar*, ulong, uchar*, DigestState*), int);
+void	pbkdf2_x(uchar *p, ulong plen, uchar *s, ulong slen,
+	ulong rounds, uchar *d, ulong dlen,
+	DigestState* (*x)(uchar*, ulong, uchar*, ulong, uchar*, DigestState*), int xlen);
+void	hkdf_x(uchar *salt, ulong nsalt, uchar *info, ulong ninfo,
+	uchar *key, ulong nkey, uchar *d, ulong dlen,
+	DigestState* (*x)(uchar*, ulong, uchar*, ulong, uchar*, DigestState*), int xlen);
+
 char* sha1pickle(SHA1state*);
 SHA1state* sha1unpickle(char*);
 
@@ -190,6 +250,7 @@ void	genrandom(uchar *buf, int nbytes);
 void	prng(uchar *buf, int nbytes);
 ulong	fastrand(void);
 ulong	nfastrand(ulong);
+int	tsmemcmp(void*, void*, ulong);
 
 /*******************************************************/
 /* primes */
