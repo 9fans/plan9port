@@ -27,6 +27,7 @@ enum Menu2
 	Snarf,
 	Plumb,
 	Look,
+	Indent,
 	Exch,
 	Search,
 	NMENU2 = Search,
@@ -50,6 +51,7 @@ char	*menu2str[] = {
 	"snarf",
 	"plumb",
 	"look",
+	"indent",
 	"<rio>",
 	0,		/* storage for last pattern */
 };
@@ -75,6 +77,9 @@ menu2hit(void)
 
 	if(hversion==0 || plumbfd<0)
 		menu2str[Plumb] = "(plumb)";
+
+	menu2str[Indent] = autoindent? "noindent" : "indent";
+
 	m = menuhit(2, mousectl, t==&cmd? &menu2c : &menu2, nil);
 	if(hostlock || t->lock)
 		return;
@@ -106,6 +111,10 @@ menu2hit(void)
 	case Look:
 		outTsll(Tlook, t->tag, which->p0, which->p1);
 		setlock();
+		break;
+
+	case Indent:
+		autoindent ^= 1;
 		break;
 
 	case Search:
