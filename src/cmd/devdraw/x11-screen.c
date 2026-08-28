@@ -578,6 +578,11 @@ xattach(Client *client, char *label, char *winsize)
 	if(winsize && winsize[0]){
 		if(parsewinsize(winsize, &r, &havemin) < 0)
 			sysfatal("%r");
+		if(havemin){
+			x = r.min.x;
+			y = r.min.y;
+			r = Rect(0,0,Dx(r),Dy(r));
+		}
 	}else{
 		/*
 		 * Parse the various X resources.  Thanks to Peter Canning.
@@ -675,6 +680,11 @@ xattach(Client *client, char *label, char *winsize)
 		normalhint.flags |= USSize;
 		normalhint.width = Dx(r);
 		normalhint.height = Dy(r);
+		if(havemin){
+			normalhint.flags |= USPosition;
+			normalhint.x = x;
+			normalhint.y = y;
+		}
 	}else{
 		if((mask & WidthValue) && (mask & HeightValue)){
 			normalhint.flags &= ~PSize;
@@ -717,18 +727,6 @@ xattach(Client *client, char *label, char *winsize)
 	);
 	XFlush(_x.display);
 
-	if(havemin){
-		XWindowChanges ch;
-
-		memset(&ch, 0, sizeof ch);
-		ch.x = r.min.x;
-		ch.y = r.min.y;
-		XConfigureWindow(_x.display, w->drawable, CWX|CWY, &ch);
-		/*
-		 * Must pretend origin is 0,0 for X.
-		 */
-		r = Rect(0,0,Dx(r),Dy(r));
-	}
 	/*
 	 * Look up clipboard atom.
 	 */
