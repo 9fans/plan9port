@@ -418,11 +418,11 @@ opens a file on the 9P server
 for reading or writing but returns a Unix file descriptor
 instead of a fid structure.
 The file descriptor is actually one end of a
-.MR pipe 2 .
+.MR socketpair 2 .
 A proxy process on the other end is ferrying data
-between the pipe and the 9P fid.
-Because of the implementation as a pipe,
-the only signal of a read or write error is the closing of the pipe.
+between the socket and the 9P fid.
+Because of the implementation as a socket,
+the only signal of a read or write error is the closing of the socket.
 The file descriptor remains valid even after the
 .B CFsys
 is unmounted.
