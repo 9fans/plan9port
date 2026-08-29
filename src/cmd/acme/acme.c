@@ -57,6 +57,12 @@ derror(Display *d, char *errorstr)
 	error(errorstr);
 }
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char *argv[])
 {
