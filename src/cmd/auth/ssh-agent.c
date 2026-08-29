@@ -1034,7 +1034,7 @@ runmsg(Aconn *a)
 			goto Failure;
 		}
 		if(chatty)
-			fprint(2, "request identities\n", nk);
+			fprint(2, "request %d identities\n", nk);
 		reply(a, &m);
 		break;
 
