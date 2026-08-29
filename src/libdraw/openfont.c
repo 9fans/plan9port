@@ -306,6 +306,7 @@ _fontpipe(char *name)
 		}
 		if(c == '\001')
 			break;
+		buf[nbuf] = c;
 	}
 	return p[0];
 }
