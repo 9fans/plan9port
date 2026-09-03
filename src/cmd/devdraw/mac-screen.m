@@ -84,7 +84,9 @@ gfx_main(void)
 void
 rpc_shutdown(void)
 {
-	[NSApp terminate:myApp];
+	dispatch_sync(dispatch_get_main_queue(), ^(void) {
+		[NSApp terminate:myApp];
+	});
 }
 
 @implementation AppDelegate
