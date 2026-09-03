@@ -157,11 +157,13 @@ rpc_shutdown(void)
 		[cbuf presentDrawable:drawable];
 		drawable = nil;
 		[cbuf addCompletedHandler:^(id<MTLCommandBuffer> cmdBuff){
-			if(cmdBuff.error){
-				NSLog(@"command buffer finished with error: %@",
-					cmdBuff.error.localizedDescription);
-			}else
-				LOG(@"command buffer finishes present drawable");
+			@autoreleasepool{
+				if(cmdBuff.error){
+					NSLog(@"command buffer finished with error: %@",
+						cmdBuff.error.localizedDescription);
+				}else
+					LOG(@"command buffer finishes present drawable");
+			}
 		}];
 		[cbuf commit];
 	}
