@@ -545,6 +545,80 @@ runxevent(XEvent *xev)
 }
 
 
+/*
+ * Build the resource database from the screen and display resource
+ * strings, falling back to ~/.Xdefaults if the server has none.
+ * Thanks to Peter Canning.
+ */
+static XrmDatabase
+xresources(XScreen *xscreen)
+{
+	char *screen_resources, *display_resources, *home, *file;
+	XrmDatabase database;
+
+	database = XrmGetDatabase(_x.display);
+	screen_resources = XScreenResourceString(xscreen);
+	if(screen_resources != nil){
+		XrmCombineDatabase(XrmGetStringDatabase(screen_resources), &database, False);
+		XFree(screen_resources);
+	}
+
+	display_resources = XResourceManagerString(_x.display);
+	if(display_resources == nil){
+		home = getenv("HOME");
+		if(home!=nil && (file=smprint("%s/.Xdefaults", home)) != nil){
+			XrmCombineFileDatabase(file, &database, False);
+			free(file);
+		}
+		free(home);
+	}else
+		XrmCombineDatabase(XrmGetStringDatabase(display_resources), &database, False);
+
+	return database;
+}
+
+/*
+ * X cannot be asked for the display's resolution directly.
+ * XWayland reports a zero physical size for every output, and the core
+ * screen dimensions span all monitors at once, so on a multi-head
+ * display they describe no real screen.  Prefer whatever the user or
+ * the desktop configured, and only measure the screen as a last resort,
+ * when the result looks believable.
+ */
+static int
+xdpi(XScreen *xscreen, XrmDatabase database)
+{
+	char *e, *type;
+	int dpi, mm;
+	XrmValue v;
+
+	if((dpi = dpioverride()) != 0)
+		return dpi;
+
+	if(XrmGetResource(database, "Xft.dpi", "String", &type, &v) == True && v.addr != nil){
+		dpi = atoi(v.addr);
+		if(dpi >= Dpimin && dpi <= Dpimax)
+			return dpi;
+	}
+
+	/* what GTK and Qt clients fall back to when Xft.dpi is unset */
+	if((e = getenv("GDK_SCALE")) != nil){
+		dpi = atoi(e) * 96;
+		free(e);
+		if(dpi >= Dpimin && dpi <= Dpimax)
+			return dpi;
+	}
+
+	mm = WidthMMOfScreen(xscreen);
+	if(mm > 0){
+		dpi = (WidthOfScreen(xscreen)*254 + mm*5) / (mm*10);
+		if(dpi >= Dpimin && dpi <= Dpimax)
+			return dpi;
+	}
+
+	return Dpidefault;
+}
+
 static Memimage*
 xattach(Client *client, char *label, char *winsize)
 {
@@ -553,6 +627,7 @@ xattach(Client *client, char *label, char *winsize)
 	Rectangle r;
 	XClassHint classhint;
 	XDrawable pmid;
+	XrmDatabase database;
 	XScreen *xscreen;
 	XSetWindowAttributes attr;
 	XSizeHints normalhint;
@@ -563,9 +638,11 @@ xattach(Client *client, char *label, char *winsize)
 	Atom atoms[2];
 	Xwin *w;
 
-	USED(client);
 	xscreen = DefaultScreenOfDisplay(_x.display);
 	xrootwin = DefaultRootWindow(_x.display);
+
+	database = xresources(xscreen);
+	client->displaydpi = xdpi(xscreen, database);
 
 	/*
 	 * We get to choose the initial rectangle size.
@@ -579,41 +656,12 @@ xattach(Client *client, char *label, char *winsize)
 		if(parsewinsize(winsize, &r, &havemin) < 0)
 			sysfatal("%r");
 	}else{
-		/*
-		 * Parse the various X resources.  Thanks to Peter Canning.
-		 */
-		char *screen_resources, *display_resources, *geom,
-			*geomrestype, *home, *file, *dpitype;
-		XrmDatabase database;
-		XrmValue geomres, dpires;
+		char *geom, *geomrestype;
+		XrmValue geomres;
 
-		database = XrmGetDatabase(_x.display);
-		screen_resources = XScreenResourceString(xscreen);
-		if(screen_resources != nil){
-			XrmCombineDatabase(XrmGetStringDatabase(screen_resources), &database, False);
-			XFree(screen_resources);
-		}
-
-		display_resources = XResourceManagerString(_x.display);
-		if(display_resources == nil){
-			home = getenv("HOME");
-			if(home!=nil && (file=smprint("%s/.Xdefaults", home)) != nil){
-				XrmCombineFileDatabase(file, &database, False);
-				free(file);
-			}
-			free(home);
-		}else
-			XrmCombineDatabase(XrmGetStringDatabase(display_resources), &database, False);
-
-		if (XrmGetResource(database, "Xft.dpi", "String", &dpitype, &dpires) == True) {
-			if (dpires.addr) {
-				client->displaydpi = atoi(dpires.addr);
-			}
-		}
 		geom = smprint("%s.geometry", label);
 		if(geom && XrmGetResource(database, geom, nil, &geomrestype, &geomres))
 			mask = XParseGeometry(geomres.addr, &x, &y, (uint*)&width, (uint*)&height);
-		XrmDestroyDatabase(database);
 		free(geom);
 
 		if((mask & WidthValue) && (mask & HeightValue)){
@@ -634,6 +682,7 @@ xattach(Client *client, char *label, char *winsize)
 		}
 		havemin = 0;
 	}
+	XrmDestroyDatabase(database);
 	w = newxwin(client);
 
 	memset(&attr, 0, sizeof attr);

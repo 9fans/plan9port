@@ -34,6 +34,40 @@ usage(void)
 	threadexitsall("usage");
 }
 
+/*
+ * $DEVDRAWDPI overrides the display resolution reported to clients,
+ * or is 0 when unset.  It exists because the window system cannot
+ * always be asked: XWayland gives every output a zero physical size,
+ * and nothing sets Xft.dpi unless a desktop environment does it.
+ */
+int
+dpioverride(void)
+{
+	static int dpi = -1;
+	char *p;
+
+	if(dpi < 0){
+		dpi = 0;
+		if((p = getenv("DEVDRAWDPI")) != nil){
+			dpi = atoi(p);
+			if(dpi < Dpimin || dpi > Dpimax)
+				dpi = 0;
+			free(p);
+		}
+	}
+	return dpi;
+}
+
+static int
+initialdpi(void)
+{
+	int dpi;
+
+	if((dpi = dpioverride()) != 0)
+		return dpi;
+	return Dpidefault;
+}
+
 void
 threadmain(int argc, char **argv)
 {
@@ -65,7 +99,7 @@ threadmain(int argc, char **argv)
 			fprint(2, "initdraw: allocating client0: out of memory");
 			abort();
 		}
-		client0->displaydpi = 100;
+		client0->displaydpi = initialdpi();
 		client0->rfd = 3;
 		client0->wfd = 4;
 
@@ -129,7 +163,7 @@ listenproc(void *v)
 			fprint(2, "initdraw: allocating client0: out of memory");
 			abort();
 		}
-		c->displaydpi = 100;
+		c->displaydpi = initialdpi();
 		c->rfd = fd;
 		c->wfd = fd;
 		proccreate(serveproc, c, 0);
