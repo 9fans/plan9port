@@ -525,6 +525,8 @@ extern Image		*colbutton;
 extern Image		*button;
 extern Image		*but2col;
 extern Image		*but3col;
+extern Image		*desktopcol;
+extern Image		*bordercol;
 extern Cursor		boxcursor;
 extern Cursor2		boxcursor2;
 extern Row			row;
@@ -537,6 +539,7 @@ extern Text			*typetext;		/* global because Text.close needs to clear it */
 extern Text			*barttext;		/* shared between mousetask and keyboardthread */
 extern int			bartflag;
 extern int			swapscrollbuttons;
+extern int			darkmode;
 extern Window		*activewin;
 extern Column		*activecol;
 extern Buffer		snarfbuf;

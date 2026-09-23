@@ -59,6 +59,10 @@ void	get(Text*, Text*, Text*, int, int, Rune*, int);
 void	put(Text*, Text*, Text*, int, int, Rune*, int);
 void	putfile(File*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
+void	darkcmd(Text*, Text*, Text*, int, int, Rune*, int);
+void	lightcmd(Text*, Text*, Text*, int, int, Rune*, int);
+void	freecolors(void);
+void	recolor(void);
 #undef isalnum
 #define isalnum acmeisalnum
 int	isalnum(Rune);

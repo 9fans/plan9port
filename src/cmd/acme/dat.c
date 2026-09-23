@@ -24,6 +24,8 @@ Image		*colbutton;
 Image		*button;
 Image		*but2col;
 Image		*but3col;
+Image		*desktopcol;
+Image		*bordercol;
 Row			row;
 int			timerpid;
 Disk			*disk;
@@ -32,7 +34,6 @@ Text			*argtext;
 Text			*mousetext;	/* global because Text.close needs to clear it */
 Text			*typetext;		/* global because Text.close needs to clear it */
 Text			*barttext;		/* shared between mousetask and keyboardthread */
-int			bartflag;
 Window		*activewin;
 Column		*activecol;
 Rectangle		nullrect;
@@ -42,7 +43,6 @@ char			*objtype;
 char			*acmeshell;
 //char			*fontnames[2];
 extern char		wdir[]; /* must use extern because no dimension given */
-int			globalautoindent;
 int			dodollarsigns;
 
 Channel	*cplumb;		/* chan(Plumbmsg*) */

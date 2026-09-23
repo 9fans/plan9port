@@ -55,6 +55,8 @@ void	sendx(Text*, Text*, Text*, int, int, Rune*, int);
 void	sort(Text*, Text*, Text*, int, int, Rune*, int);
 void	tab(Text*, Text*, Text*, int, int, Rune*, int);
 void	zeroxx(Text*, Text*, Text*, int, int, Rune*, int);
+void	darkcmd(Text*, Text*, Text*, int, int, Rune*, int);
+void	lightcmd(Text*, Text*, Text*, int, int, Rune*, int);
 
 typedef struct Exectab Exectab;
 struct Exectab
@@ -96,6 +98,9 @@ static Rune LTab[] = { 'T', 'a', 'b', 0 };
 static Rune LUndo[] = { 'U', 'n', 'd', 'o', 0 };
 static Rune LZerox[] = { 'Z', 'e', 'r', 'o', 'x', 0 };
 
+static Rune LDark[] = { 'D', 'a', 'r', 'k', 0 };
+static Rune LLight[] = { 'L', 'i', 'g', 'h', 't', 0 };
+
 Exectab exectab[] = {
 	{ LAbort,		doabort,	FALSE,	XXX,		XXX,		},
 	{ LCut,		cut,		TRUE,	TRUE,	TRUE	},
@@ -126,8 +131,44 @@ Exectab exectab[] = {
 	{ LTab,		tab,		FALSE,	XXX,		XXX		},
 	{ LUndo,		undo,	FALSE,	TRUE,	XXX		},
 	{ LZerox,		zeroxx,	FALSE,	XXX,		XXX		},
+	{ LDark,		darkcmd,	FALSE,	XXX,		XXX		},
+	{ LLight,		lightcmd,	FALSE,	XXX,		XXX		},
 	{ nil, 			0,		0,		0,		0		}
 };
+
+void
+darkcmd(Text *et, Text *t, Text *argt, int flag, int flag1, Rune *arg, int narg)
+{
+	USED(et);
+	USED(t);
+	USED(argt);
+	USED(flag);
+	USED(flag1);
+	USED(arg);
+	USED(narg);
+
+	if(darkmode == FALSE){
+		darkmode = TRUE;
+		recolor();
+	}
+}
+
+void
+lightcmd(Text *et, Text *t, Text *argt, int flag, int flag1, Rune *arg, int narg)
+{
+	USED(et);
+	USED(t);
+	USED(argt);
+	USED(flag);
+	USED(flag1);
+	USED(arg);
+	USED(narg);
+
+	if(darkmode == TRUE){
+		darkmode = FALSE;
+		recolor();
+	}
+}
 
 Exectab*
 lookup(Rune *r, int n)
