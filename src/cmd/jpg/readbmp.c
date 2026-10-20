@@ -487,6 +487,9 @@ ReadBMP(Biobuf *b, int *width, int *height)
 		/* load bitmasks */
 		num_coltab = 3;
 
+	if(num_coltab > nelem(clut))
+		num_coltab = nelem(clut);
+
 	if(num_coltab) {
 		int i;
 		Bseek(b, bmih.size + sizeof(Infohdr), 0);
