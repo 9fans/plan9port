@@ -140,22 +140,25 @@ static int
 load_4C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 {
 	long ix, iy = height -1;
+	int c;
 	uint val, valS, skip;
 	Rgb* p;
 
 	while(iy >= 0) {
 		ix = 0;
 		while(ix < width) {
-			val = Bgetc(b);
+			if((c = Bgetc(b)) < 0)	/* truncated input */
+				return 0;
+			val = c;
 
 			if(0 != val) {
 				valS = (uint)Bgetc(b);
 				p = &buf[ix + iy * width];
-				while(val--) {
+				while(val-- && ix < width) {
 					*p = clut[0xf & (valS >> 4)];
 					p++;
 					ix++;
-					if(0 < val) {
+					if(0 < val && ix < width) {
 						*p = clut[0xf & valS];
 						p++;
 						ix++;
@@ -188,12 +191,12 @@ load_4C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 						else
 							skip = 0;
 
-						while(val--) {
+						while(val-- && ix < width) {
 							valS = (uint)Bgetc(b);
 							*p = clut[0xf & (valS >> 4)];
 							p++;
 							ix++;
-							if(0 < val) {
+							if(0 < val && ix < width) {
 								*p = clut[0xf & valS];
 								p++;
 								ix++;
@@ -242,12 +245,14 @@ load_8C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 		ix = 0;
 		while(ix < width) {
 			val = Bgetc(b);
+			if(val < 0)	/* truncated input */
+				return 0;
 
 			if(0 != val) {
 				valS = Bgetc(b);
 				p = &buf[ix + iy * width];
-				while(val--) {
-					*p = clut[valS];
+				while(val-- && ix < width) {
+					*p = clut[valS & 0xff];
 					p++;
 					ix++;
 				}
@@ -276,9 +281,9 @@ load_8C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 						else
 							skip = 0;
 
-						while(val--) {
+						while(val-- && ix < width) {
 							valS = Bgetc(b);
-							*p = clut[valS];
+							*p = clut[valS & 0xff];
 							p++;
 							ix++;
 						}
