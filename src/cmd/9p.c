@@ -501,7 +501,7 @@ void
 xls(int argc, char **argv)
 {
 	char *err, *name, *xname, *f[4], buf[4096];
-	int i, j, l, sort;
+	int arg, i, j, l, sort;
 	int lflag, dflag, tflag, n, len[4];
 	Dir *d;
 	CFid *fid;
@@ -534,8 +534,8 @@ xls(int argc, char **argv)
 		argv = dot;
 		argc = 1;
 	}
-	for(i=0; i<argc; i++){
-		name = argv[i];
+	for(arg=0; arg<argc; i++){
+		name = argv[arg];
 		fs = xparse(name, &xname);
 		if((d = fsdirstat(fs, xname)) == nil){
 			fprint(2, "dirstat %s: %r\n", name);
