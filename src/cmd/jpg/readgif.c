@@ -267,7 +267,7 @@ readone(Header *h)
 
 	if(Bread(h->fd, h->buf, 9) != 9)
 		giferror(h, "ReadGIF: can't read image descriptor: %r");
-	i = malloc(sizeof(Rawimage));
+	i = mallocz(sizeof(Rawimage), 1);
 	if(i == nil)
 		giferror(h, memerr);
 	left = h->buf[0]+(h->buf[1]<<8);
@@ -440,6 +440,8 @@ decode(Header *h, Rawimage *i, Entry *tbl)
 
 			/* special case for KwKwK */
 			if(code == nentry) {
+				if(ocode < 0)
+					giferror(h, "ReadGIF: bad code %x %x", code, nentry);
 				stack[stacki--] = fc;
 				code = ocode;
 			}
