@@ -440,6 +440,7 @@ static Rgb*
 ReadBMP(Biobuf *b, int *width, int *height)
 {
 	int colours, num_coltab = 0;
+	vlong npix;
 	Filehdr bmfh;
 	Infohdr bmih;
 	Rgb clut[256];
@@ -505,6 +506,10 @@ ReadBMP(Biobuf *b, int *width, int *height)
 	*width = bmih.width;
 	*height = bmih.height;
 	colours = bmih.bpp;
+
+	npix = (vlong)*width * (*height < 0 ? -(vlong)*height : (vlong)*height);
+	if(*width <= 0 || *height == 0 || npix > 0x7fffffff)
+		sysfatal("bad image size %d x %d", *width, *height);
 
 	Bseek(b, bmfh.offbits, 0);
 
