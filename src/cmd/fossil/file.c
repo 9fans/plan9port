@@ -1239,8 +1239,8 @@ fileRemove(File *f, char *uid)
 	for(ff=f->down; ff; ff=ff->next)
 		assert(ff->removed);
 
-	sourceRemove(f->source);
 	f->source->file = nil;		/* erase back pointer */
+	sourceRemove(f->source);
 	f->source = nil;
 	if(f->msource){
 		sourceRemove(f->msource);
