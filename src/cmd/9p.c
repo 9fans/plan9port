@@ -534,7 +534,7 @@ xls(int argc, char **argv)
 		argv = dot;
 		argc = 1;
 	}
-	for(arg=0; arg<argc; i++){
+	for(arg=0; arg<argc; arg++){
 		name = argv[arg];
 		fs = xparse(name, &xname);
 		if((d = fsdirstat(fs, xname)) == nil){
