@@ -1,4 +1,6 @@
 # rcmain: Plan 9 on Unix version
+PWD=()
+# unset to avoid passing a value inconsistent with the actual working dir
 if(~ $#home 0) home=$HOME
 if(~ $#home 0) home=/
 if(~ $#ifs 0) ifs=' 	
