@@ -206,11 +206,10 @@ struct Fusefid
 	int gen;
 	int isnodeid;
 
-	/* directory read state */
+	/* directory read cache; FUSE cookies are indices into d0 */
 	Dir *d0;
-	Dir *d;
+	Dir *dstr;	/* fsdirreadall block holding name strings */
 	int nd;
-	int off;
 };
 
 Fusefid **fusefid;
@@ -246,10 +245,11 @@ freefusefid(Fusefid *f)
 		fsclose(f->fid);
 	if(f->d0)
 		free(f->d0);
-	f->off = 0;
+	if(f->dstr)
+		free(f->dstr);
 	f->d0 = nil;
+	f->dstr = nil;
 	f->fid = nil;
-	f->d = nil;
 	f->nd = 0;
 	f->next = freefusefidlist;
 	f->isnodeid = -1;
@@ -882,21 +882,25 @@ fusereadlink(FuseMsg *m)
  * Readdir.
  * Read from file handle in->fh at offset in->offset for size in->size.
  * We truncate size to maxwrite just to keep the buffer reasonable.
- * We assume 9P directory read semantics: a read at offset 0 rewinds
- * and a read at any other offset starts where we left off.
- * If it became necessary, we could implement a crude seek
- * or cache the entire list of directory entries.
- * Directory entries read from 9P but not yet handed to FUSE
- * are stored in m->d,nd,d0.
+ *
+ * FUSE READDIR cookies are not 9P directory offsets.  The kernel may
+ * resume at an arbitrary cookie after taking only a prefix of a
+ * previous reply (user getdents buffers are often 2KB; we send 4KB).
+ * Cache the whole directory and treat the cookie as an index.
+ * Each dirent's off is the index of the next entry.
+ *
+ * Fuse assumes that it can always read two directory entries.
+ * If it gets just one, it will double it in the dirread results.
+ * Adding . as the first directory entry works around this.
  */
 int canpack(Dir*, uvlong, uchar**, uchar*);
-Dir *dotdir(CFid*);
+int loaddir(Fusefid*);
 void
 fusereaddir(FuseMsg *m)
 {
 	struct fuse_read_in *in;
 	uchar *buf, *p, *ep;
-	int n;
+	int n, i;
 	Fusefid *ff;
 
 	in = m->tx;
@@ -904,11 +908,15 @@ fusereaddir(FuseMsg *m)
 		replyfuseerrno(m, ESTALE);
 		return;
 	}
-	if(in->offset == 0){
-		fsseek(ff->fid, 0, 0);
-		free(ff->d0);
-		ff->d0 = ff->d = dotdir(ff->fid);
-		ff->nd = 1;
+	if(in->offset == 0 || ff->d0 == nil){
+		if(loaddir(ff) < 0){
+			replyfuseerrstr(m);
+			return;
+		}
+	}
+	if(in->offset >= (uvlong)ff->nd){
+		replyfuse(m, nil, 0);
+		return;
 	}
 	n = in->size;
 	if(n > fusemaxwrite)
@@ -916,47 +924,38 @@ fusereaddir(FuseMsg *m)
 	buf = emalloc(n);
 	p = buf;
 	ep = buf + n;
-	for(;;){
-		while(ff->nd > 0){
-			if(!canpack(ff->d, ff->off, &p, ep))
-				goto out;
-			ff->off++;
-			ff->d++;
-			ff->nd--;
-		}
-		free(ff->d0);
-		ff->d0 = nil;
-		ff->d = nil;
-		if((ff->nd = fsdirread(ff->fid, &ff->d0)) < 0){
-			replyfuseerrstr(m);
-			free(buf);
-			return;
-		}
-		if(ff->nd == 0)
+	for(i = in->offset; i < ff->nd; i++)
+		if(!canpack(ff->d0+i, i+1, &p, ep))
 			break;
-		ff->d = ff->d0;
-	}
-out:
 	replyfuse(m, buf, p - buf);
 	free(buf);
 }
 
-/*
- * Fuse assumes that it can always read two directory entries.
- * If it gets just one, it will double it in the dirread results.
- * Thus if a directory contains just "a", you see "a" twice.
- * Adding . as the first directory entry works around this.
- * We could add .. too, but it isn't necessary.
- */
-Dir*
-dotdir(CFid *f)
+int
+loaddir(Fusefid *ff)
 {
-	Dir *d;
+	int n;
+	Dir *all, *d;
 
-	d = emalloc(1*sizeof *d);
+	free(ff->d0);
+	free(ff->dstr);
+	ff->d0 = nil;
+	ff->dstr = nil;
+	ff->nd = 0;
+	fsseek(ff->fid, 0, 0);
+	n = fsdirreadall(ff->fid, &all);
+	if(n < 0)
+		return -1;
+	d = emalloc((n+1)*sizeof(Dir));
+	memset(d, 0, (n+1)*sizeof(Dir));
 	d[0].name = ".";
-	d[0].qid = fsqid(f);
-	return d;
+	d[0].qid = fsqid(ff->fid);
+	if(n > 0)
+		memmove(d+1, all, n*sizeof(Dir));
+	ff->d0 = d;
+	ff->dstr = all;
+	ff->nd = n+1;
+	return 0;
 }
 
 int
