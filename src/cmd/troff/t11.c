@@ -141,12 +141,10 @@ getfont(char *name, int pos)	/* create width tab for font */
 				} else if (ch[0] == '\\' && ch[1] == '0') {
 					n = strtol(ch+1, 0, 0);	/* \0octal or \0xhex */
 					chtemp[n].num = n;
-#ifdef UNICODE
 				} else if (mbtowc(&wc, ch, strlen(ch)) > 1) {
 					chtemp[nw].num = chadd(ch,  MBchar, Install);
 					n = nw;
 					nw++;
-#endif	/*UNICODE*/
 				} else {
 					if (strcmp(ch, "---") == 0) { /* no name */
 						sprintf(ch, "%d", code);

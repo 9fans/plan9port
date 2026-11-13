@@ -12,7 +12,8 @@ int	iflist[NIF];
 int	ifx;
 int	ifnum = 0;	/* trying numeric expression for .if or .ie condition */
 
-void casead(void)
+void 
+casead(void)
 {
 	int i;
 
@@ -37,11 +38,12 @@ void casead(void)
 	case '0':
 	case '2':
 	case '4':
-		ad = 0;
+		ad = 0; /* FALLTHROUGHT */
 	case '1':
 	case '3':
 	case '5':
 		admod = (i - '0') / 2;
+		break;
 	}
 }
 
@@ -257,9 +259,9 @@ void casepo(void)
 {
 	int i;
 
-	if (skip())
+	if (skip()) {
 		i = po1;
-	else {
+	} else {
 		i = max(hnumb(&po), 0);
 		if (nonumb)
 			i = po1;
@@ -313,7 +315,8 @@ void casewh(void)
 }
 
 
-void casech(void)
+void 
+casech(void)
 {
 	int i, j, k;
 
@@ -342,11 +345,12 @@ findn(int i)
 	for (k = 0; k < NTRAP; k++)
 		if ((nlist[k] == i) && (mlist[k] != 0))
 			break;
-	return(k);
+	return k;
 }
 
 
-void casepn(void)
+void 
+casepn(void)
 {
 	int i;
 
@@ -361,7 +365,8 @@ void casepn(void)
 }
 
 
-void casebp(void)
+void
+casebp(void)
 {
 	int i;
 	Stack *savframe;
@@ -381,13 +386,15 @@ void casebp(void)
 	eject(savframe);
 }
 
-void casetm(void)
+void
+casetm(void)
 {
 	casetm1(0, stderr);
 }
 
 
-void casefm(void)
+void
+casefm(void)
 {
 	static struct fcache {
 		char *name;
@@ -409,7 +416,7 @@ void casefm(void)
 		return;
 	}
 	if (fcache[i].fp == NULL) {
-		if( (fcache[i].fp = fopen(unsharp(nextf), "w")) == NULL) {
+		if ((fcache[i].fp = fopen(unsharp(nextf), "w")) == NULL) {
 			ERROR "fm: cannot open %s", nextf WARN;
 			return;
 		}
@@ -418,7 +425,8 @@ void casefm(void)
 	casetm1(0, fcache[i].fp);
 }
 
-void casetm1(int ab, FILE *out)
+void 
+casetm1(int ab, FILE *out)
 {
 	int i, j, c;
 	char *p;
@@ -427,12 +435,12 @@ void casetm1(int ab, FILE *out)
 	lgf++;
 	copyf++;
 	if (ab) {
-		if (skip())
+		if (skip()) {
 			ERROR "User Abort" WARN;
-		else {
+		} else {
 			extern int error;
 			int savtrac = trace;
-			i = trace = 0;
+			trace = 0;
 			noscale++;
 			i = inumb(&trace);
 			noscale--;
@@ -524,11 +532,8 @@ void casesp1(int a)
 	if (i < j)
 		j = i;
 	savlss = lss;
-	if (dip != d)
-		i = dip->dnl;
-	else
-		i = numtabp[NL].val;
-	if ((i + j) < 0)
+	i = dip != d ? dip->dnl : numtabp[NL].val;
+	if (i + j < 0)
 		j = -i;
 	lss = j;
 	newline(0);
@@ -634,12 +639,14 @@ void caseie(void)
 }
 
 
-void caseif(void)
+void 
+caseif(void)
 {
 	caseif1(0);
 }
 
-void caseif1(int x)
+void 
+caseif1(int x)
 {
 	extern int falsef;
 	int notflag, true;
@@ -851,20 +858,21 @@ rdtty(void)
 	return(0);
 }
 
-
-void caseec(void)
+void 
+caseec(void)
 {
 	eschar = chget('\\');
 }
 
 
-void caseeo(void)
+void 
+caseeo(void)
 {
 	eschar = 0;
 }
 
-
-void caseta(void)
+void 
+caseta(void)
 {
 	int i, j, k;
 
@@ -927,9 +935,7 @@ void casetr(void)
 	lgf++;
 	skip();
 	while ((i = cbits(k=getch())) != '\n') {
-		if (ismot(k))
-			return;
-		if (ismot(k = getch()))
+		if (ismot(k) || ismot(k = getch()))
 			return;
 		if ((j = cbits(k)) == '\n')
 			j = ' ';
@@ -954,7 +960,7 @@ void caseul(void)
 	i = max(atoi0(), 0);
 	if (nonumb)
 		i = 1;
-	if (ul && (i == 0)) {
+	if (ul && i == 0) {
 		font = sfont;
 		ul = cu = 0;
 	}

@@ -29,7 +29,8 @@ int savname;		/* name of macro/string being defined */
 int savslot;		/* place in Contab of savname */
 int freeslot = -1;	/* first (possible) free slot in contab */
 
-void prcontab(Contab *p)
+void 
+prcontab(Contab *p)
 {
 	int i;
 	for (i = 0; i < nm; i++)
@@ -42,8 +43,8 @@ void prcontab(Contab *p)
 			fprintf(stderr, "slot %d empty\n", i);
 }
 
-
-void blockinit(void)
+void 
+blockinit(void)
 {
 	blist = (Blockp *) calloc(NBLIST, sizeof(Blockp));
 	if (blist == NULL) {
@@ -52,8 +53,8 @@ void blockinit(void)
 	}
 	nblist = NBLIST;
 	blist[0].nextoff = blist[1].nextoff = -1;
-	blist[0].bp = (Tchar *) calloc(BLK, sizeof(Tchar));
-	blist[1].bp = (Tchar *) calloc(BLK, sizeof(Tchar));
+	blist[0].bp = (Tchar *)calloc(BLK, sizeof(Tchar));
+	blist[1].bp = (Tchar *)calloc(BLK, sizeof(Tchar));
 		/* -1 prevents blist[0] from being used; temporary fix */
 		/* for a design botch: offset==0 is overloaded. */
 		/* blist[1] reserved for .rd indicator -- also unused. */
@@ -61,19 +62,20 @@ void blockinit(void)
 	bfree = 2;
 }
 
-
-char *grow(char *ptr, int num, int size)	/* make array bigger */
+char *
+grow(char *ptr, int num, int size)	/* make array bigger */
 {
 	char *p;
 
 	if (ptr == NULL)
-		p = (char *) calloc(num, size);
+		p = (char *)calloc(num, size);
 	else
-		p = (char *) realloc(ptr, num * size);
+		p = (char *)realloc(ptr, num * size);
 	return p;
 }
 
-void mnspace(void)
+void 
+mnspace(void)
 {
 	nm = sizeof(contab)/sizeof(Contab) + MDELTA;
 	freeslot = sizeof(contab)/sizeof(Contab) + 1;
@@ -91,7 +93,8 @@ void mnspace(void)
 
 }
 
-void caseig(void)
+void 
+caseig(void)
 {
 	int i;
 	Offset oldoff = offset;
@@ -104,7 +107,8 @@ void caseig(void)
 }
 
 
-void casern(void)
+void 
+casern(void)
 {
 	int i, j, k;
 
@@ -125,7 +129,8 @@ void casern(void)
 	}
 }
 
-void maddhash(Contab *rp)
+void 
+maddhash(Contab *rp)
 {
 	Contab **hp;
 
@@ -136,7 +141,8 @@ void maddhash(Contab *rp)
 	*hp = rp;
 }
 
-void munhash(Contab *mp)
+void 
+munhash(Contab *mp)
 {
 	Contab *p;
 	Contab **lp;
@@ -156,7 +162,8 @@ void munhash(Contab *mp)
 	}
 }
 
-void mrehash(void)
+void 
+mrehash(void)
 {
 	Contab *p;
 	int i;
@@ -258,19 +265,19 @@ de1:
 	ds = app = 0;
 }
 
-
-int findmn(int i)
+int 
+findmn(int i)
 {
 	Contab *p;
 
 	for (p = mhash[MHASH(i)]; p; p = p->link)
 		if (i == p->rq)
 			return(p - contabp);
-	return(-1);
+	return -1;
 }
 
-
-void clrmn(int i)
+void 
+clrmn(int i)
 {
 	if (i >= 0) {
 		if (contabp[i].mx)
@@ -289,7 +296,8 @@ void clrmn(int i)
 	}
 }
 
-void growcontab(void)
+void 
+growcontab(void)
 {
 	nm += MDELTA;
 	contabp = (Contab *) grow((char *) contabp , nm, sizeof(Contab));
@@ -303,8 +311,8 @@ void growcontab(void)
 	}
 }
 
-
-Offset finds(int mn)
+Offset 
+finds(int mn)
 {
 	int i;
 	Offset savip;
@@ -349,21 +357,22 @@ Offset finds(int mn)
 		}
 	}
 	app = 0;
-	return(offset = nextb);
+	return offset = nextb;
 }
 
-int skip(void)
+int 
+skip(void)
 {
 	Tchar i;
 
 	while (cbits(i = getch()) == ' ' || ismot(i))
 		;
 	ch = i;
-	return(nlflg);
+	return nlflg;
 }
 
-
-int copyb(void)
+int 
+copyb(void)
 {
 	int i, j, state;
 	Tchar ii;
@@ -403,24 +412,20 @@ int copyb(void)
 					break;
 			}
 			state = 0;
-			goto c0;
 		}
-		if (i == '\n') {
+		else if (i == '\n') {
 			state = 1;
 			nlflg = 0;
-			goto c0;
 		}
-		if (state == 1 && i == '.') {
+		else if (state == 1 && i == '.') {
 			state++;
 			savoff = offset;
-			goto c0;
 		}
-		if (state == 2 && i == j) {
+		else if (state == 2 && i == j) {
 			state++;
-			goto c0;
+		} else {
+			state = 0;
 		}
-		state = 0;
-c0:
 		if (offset)
 			wbf(ii);
 	}
@@ -482,8 +487,9 @@ Offset alloc(void)	/* return free Offset in nextb */
 }
 
 
-void ffree(Offset i)	/* free list of blocks starting at blist(o) */
-{			/* (doesn't actually free the blocks, just the pointers) */
+void 
+ffree(Offset i)	/* free list of blocks starting at blist(o) */
+{		/* (doesn't actually free the blocks, just the pointers) */
 	int j;
 
 	for ( ; blist[j = bindex(i)].nextoff != -1; ) {
@@ -496,7 +502,8 @@ void ffree(Offset i)	/* free list of blocks starting at blist(o) */
 }
 
 
-void wbf(Tchar i)	/* store i into offset, get ready for next one */
+void 
+wbf(Tchar i)	/* store i into offset, get ready for next one */
 {
 	int j, off;
 
@@ -521,25 +528,26 @@ void wbf(Tchar i)	/* store i into offset, get ready for next one */
 }
 
 
-Tchar rbf(void)	/* return next char from blist[] block */
+Tchar 
+rbf(void)	/* return next char from blist[] block */
 {
 	Tchar i, j;
 
 	if (ip == RD_OFFSET) {		/* for rdtty */
 		if (j = rdtty())
-			return(j);
+			return j;
 		else
-			return(popi());
+			return popi();
 	}
 
 	i = rbf0(ip);
 	if (i == 0) {
 		if (!app)
 			i = popi();
-		return(i);
+		return i;
 	}
 	ip = incoff(ip);
-	return(i);
+	return i;
 }
 
 
@@ -552,7 +560,7 @@ Offset xxxincoff(Offset p)		/* get next blist[] block */
 			done2(-5);
 		}
 	}
-	return(p);
+	return p;
 }
 
 
@@ -570,7 +578,7 @@ Tchar popi(void)
 	ip = p->pip;
 	pendt = p->ppendt;
 	lastpbp = p->lastpbp;
-	return(p->pch);
+	return p->pch;
 }
 
 /*
@@ -600,23 +608,25 @@ Offset pushi(Offset newip, int  mname)
 		nxf += 1;
 	else
 		nxf = (Stack *)argtop;
-	return(ip = newip);
+	return ip = newip;
 }
 
 
-void *setbrk(int x)
+void *
+setbrk(int x)
 {
-	char *i;
+	void *i;
 
-	if ((i = (char *) calloc(x, 1)) == 0) {
+	if ((i = calloc(x, 1)) == NULL) {
 		ERROR "Core limit reached" WARN;
 		edone(0100);
 	}
-	return(i);
+	return i;
 }
 
 
-int getsn(void)
+int 
+getsn(void)
 {
 	int i;
 
@@ -624,19 +634,19 @@ int getsn(void)
 		return(0);
 	if (i == '(')
 		return(getrq());
-	else
-		return(i);
+	return i;
 }
 
 
-Offset setstr(void)
+Offset 
+setstr(void)
 {
 	int i, j;
 
 	lgf++;
 	if ((i = getsn()) == 0 || (j = findmn(i)) == -1 || !contabp[j].mx) {
 		lgf--;
-		return(0);
+		return 0;
 	} else {
 		SPACETEST(nxf, sizeof(Stack));
 		nxf->nargs = 0;
@@ -646,9 +656,8 @@ Offset setstr(void)
 	}
 }
 
-
-
-void collect(void)
+void 
+collect(void)
 {
 	int j;
 	Tchar i, *strp, *lim, **argpp, **argppend;
@@ -658,9 +667,10 @@ void collect(void)
 	copyf++;
 	nxf->nargs = 0;
 	savnxf = nxf;
-	if (skip())
-		goto rtn;
-
+	if (skip()) {
+		copyf--;
+		return;
+	}
 	{
 		char *memp;
 		memp = (char *)savnxf;
@@ -684,9 +694,7 @@ void collect(void)
 	argppend = &argpp[APERMAC];
 	SPACETEST(argppend, sizeof(Tchar *));
 	strp = (Tchar *)argppend;
-	/*
-	 *	Zero out all the string pointers before filling them in.
-	 */
+	/* Zero out all the string pointers before filling them in. */
 	for (j = 0; j < APERMAC; j++)
 		argpp[j] = 0;
 	/* ERROR "savnxf=0x%x,nxf=0x%x,argpp=0x%x,strp=argppend=0x%x, lim=0x%x",
@@ -702,7 +710,6 @@ void collect(void)
 			ch = i;
 		while (1) {
 			i = getch();
-/* fprintf(stderr, "collect %c %d\n", cbits(i), cbits(i)); */
 			if (nlflg || (!quote && argpp != argppend && cbits(i) == ' '))
 				break;	/* collects rest into $9 */
 			if (   quote
@@ -713,7 +720,6 @@ void collect(void)
 			}
 			*strp++ = i;
 			if (strflg && strp >= lim) {
-				/* ERROR "strp=0x%x, lim = 0x%x", strp, lim WARN; */
 				ERROR "Macro argument too long" WARN;
 				copyf--;
 				edone(004);
@@ -725,12 +731,12 @@ void collect(void)
 	nxf = savnxf;
 	nxf->nargs = argpp - (Tchar **)(savnxf + 1);
 	argtop = strp;
-rtn:
 	copyf--;
 }
 
 
-void seta(void)
+void 
+seta(void)
 {
 	int i;
 
@@ -740,13 +746,15 @@ void seta(void)
 }
 
 
-void caseda(void)
+void 
+caseda(void)
 {
 	app++;
 	casedi();
 }
 
-void casegd(void)
+void 
+casegd(void)
 {
 	int i, j;
 
@@ -764,7 +772,8 @@ void casegd(void)
 #define FINDDIV(o) if ((o =  findmn(dip->curd)) < 0) \
 			ERROR "lost diversion %s", unpair(dip->curd) WARN
 
-void casedi(void)
+void 
+casedi(void)
 {
 	int i, j, *k;
 
@@ -814,7 +823,8 @@ rtn:
 }
 
 
-void casedt(void)
+void 
+casedt(void)
 {
 	lgf++;
 	dip->dimac = dip->ditrap = dip->ditf = 0;
@@ -827,7 +837,8 @@ void casedt(void)
 }
 
 #define LNSIZE 4000
-void casetl(void)
+void 
+casetl(void)
 {
 	int j;
 	int w[3];
@@ -911,13 +922,15 @@ void casetl(void)
 }
 
 
-void casepc(void)
+void 
+casepc(void)
 {
 	pagech = chget(IMP);
 }
 
 
-void casepm(void)
+void 
+casepm(void)
 {
 	int i, k;
 	int xx, cnt, tcnt, kk, tot;
@@ -941,7 +954,8 @@ void casepm(void)
 	fprintf(stderr, "pm: total %d, macros %d, space %d\n", tcnt, cnt, kk);
 }
 
-void stackdump(void)	/* dumps stack of macros in process */
+void 
+stackdump(void)	/* dumps stack of macros in process */
 {
 	Stack *p;
 
