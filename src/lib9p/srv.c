@@ -673,15 +673,15 @@ swstat(Srv *srv, Req *r)
 		respond(r, "wstat -- attempt to change dev");
 		return;
 	}
-	if((uchar)~r->d.qid.type || (ulong)~r->d.qid.vers || (uvlong)~r->d.qid.path){
+	if((uchar)~r->d.qid.type || (uint)~r->d.qid.vers || (uvlong)~r->d.qid.path){
 		respond(r, "wstat -- attempt to change qid");
 		return;
 	}
-	if(r->d.muid && r->d.muid[0]){
+	if(r->d.muid && r->d.muid[0] && (r->d.name == nil || r->d.name[0] == 0)){
 		respond(r, "wstat -- attempt to change muid");
 		return;
 	}
-	if((ulong)~r->d.mode && ((r->d.mode&DMDIR)>>24) != (r->fid->qid.type&QTDIR)){
+	if((uint)~r->d.mode && ((r->d.mode&DMDIR)>>24) != (r->fid->qid.type&QTDIR)){
 		respond(r, "wstat -- attempt to change DMDIR bit");
 		return;
 	}

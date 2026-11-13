@@ -154,8 +154,8 @@ readnvram(Nvrsafe *safep, int flag)
 		for(;;){
 			if(xreadcons("password", nil, 1, in, sizeof in) == nil)
 				goto Out;
-			if(passtokey(safe->machkey, in))
-				break;
+			passtodeskey(safe->machkey, in);
+			break;
 		}
 		safe->machsum = nvcsum(safe->machkey, DESKEYLEN);
 		safe->configsum = nvcsum(safe->config, CONFIGLEN);

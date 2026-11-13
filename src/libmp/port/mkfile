@@ -13,12 +13,20 @@ FILES=\
 	mpsub\
 	mpcmp\
 	mpfactorial\
+	cnfield\
+	gmfield\
+	mpfield\
 	mpmul\
+	mpmodop\
 	mpleft\
 	mpright\
+	mpnrand\
+	mpsel\
 	mpvecadd\
 	mpvecsub\
 	mpvecdigmuladd\
+	mpvectscmp\
+	mptober\
 	mpveccmp\
 	mpdigdiv\
 	mpdiv\

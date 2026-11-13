@@ -19,6 +19,8 @@ typedef struct	Nvrsafe		Nvrsafe;
 typedef struct	Passwordreq	Passwordreq;
 typedef struct	OChapreply	OChapreply;
 typedef struct	OMSchapreply	OMSchapreply;
+typedef struct	Authkey		Authkey;
+typedef struct	PAKpriv		PAKpriv;
 
 enum
 {
@@ -26,15 +28,26 @@ enum
 	AERRLEN=	64,		/* maximum size of errstr in previous proto */
 	DOMLEN=		48,		/* length of an authentication domain name */
 	DESKEYLEN=	7,		/* length of a des key for encrypt/decrypt */
+	AESKEYLEN=	16,		/* length of an aes key for encrypt/decrypt */
 	CHALLEN=	8,		/* length of a plan9 sk1 challenge */
 	NETCHLEN=	16,		/* max network challenge length (used in AS protocol) */
 	CONFIGLEN=	14,
+	PASSWDLEN=	28,		/* maximum size of password in newer proto */
 	SECRETLEN=	32,		/* max length of a secret */
+	NONCELEN=	32,		/* nonce length in newer auth protocol */
 
 	KEYDBOFF=	8,		/* length of random data at the start of key file */
 	OKEYDBLEN=	ANAMELEN+DESKEYLEN+4+2,	/* length of an entry in old key file */
 	KEYDBLEN=	OKEYDBLEN+SECRETLEN,	/* length of an entry in key file */
-	OMD5LEN=	16
+	OMD5LEN=	16,
+
+	/* AuthPAK constants */
+	PAKKEYLEN=	32,
+	PAKSLEN=	(448+7)/8,
+	PAKPLEN=	4*PAKSLEN,
+	PAKHASHLEN=	2*PAKPLEN,
+	PAKXLEN=	PAKSLEN,
+	PAKYLEN=	PAKSLEN
 };
 
 /* encryption numberings (anti-replay) */
@@ -53,6 +66,7 @@ enum
 	AuthCram=12,	/* CRAM verification for IMAP (RFC2195 & rfc2104) */
 	AuthHttp=13,	/* http domain login */
 	AuthVNC=14,	/* VNC server login (deprecated) */
+	AuthPAK=19,	/* authenticated diffie hellman key agreement */
 
 
 	AuthTs=64,	/* ticket encrypted with server's key */
@@ -80,27 +94,32 @@ struct Ticket
 	char	chal[CHALLEN];		/* server challenge */
 	char	cuid[ANAMELEN];		/* uid on client */
 	char	suid[ANAMELEN];		/* uid on server */
-	char	key[DESKEYLEN];		/* nonce DES key */
+	uchar	key[NONCELEN];		/* nonce key */
+	char	form;			/* 0 = legacy DES, 1 = form1/ccpoly */
 };
 #define	TICKETLEN	(CHALLEN+2*ANAMELEN+DESKEYLEN+1)
+#define	MAXTICKETLEN	(12+CHALLEN+2*ANAMELEN+NONCELEN+16)
 
 struct Authenticator
 {
 	char	num;			/* replay protection */
 	char	chal[CHALLEN];
 	ulong	id;			/* authenticator id, ++'d with each auth */
+	uchar	rand[NONCELEN];		/* form1 client/server nonce */
 };
 #define	AUTHENTLEN	(CHALLEN+4+1)
+#define	MAXAUTHENTLEN	(12+CHALLEN+NONCELEN+16)
 
 struct Passwordreq
 {
 	char	num;
-	char	old[ANAMELEN];
-	char	new[ANAMELEN];
+	char	old[PASSWDLEN];
+	char	new[PASSWDLEN];
 	char	changesecret;
 	char	secret[SECRETLEN];	/* new secret */
 };
 #define	PASSREQLEN	(2*ANAMELEN+1+1+SECRETLEN)
+#define	MAXPASSREQLEN	(12+2*PASSWDLEN+1+SECRETLEN+16)
 
 struct	OChapreply
 {
@@ -116,24 +135,41 @@ struct	OMSchapreply
 	char	NTresp[24];		/* NT response */
 };
 
+struct	Authkey
+{
+	char	des[DESKEYLEN];		/* DES key from password */
+	uchar	aes[AESKEYLEN];		/* AES key from password */
+	uchar	pakkey[PAKKEYLEN];	/* shared AuthPAK key */
+	uchar	pakhash[PAKHASHLEN];	/* hashed AuthPAK points */
+};
+
+struct	PAKpriv
+{
+	int	isclient;
+	uchar	x[PAKXLEN];
+	uchar	y[PAKYLEN];
+};
+
 /*
  *  convert to/from wire format
  */
 extern	int	convT2M(Ticket*, char*, char*);
 extern	void	convM2T(char*, Ticket*, char*);
 extern	void	convM2Tnoenc(char*, Ticket*);
-extern	int	convA2M(Authenticator*, char*, char*);
-extern	void	convM2A(char*, Authenticator*, char*);
+extern	int	convA2M(Authenticator*, char*, Ticket*);
+extern	void	convM2A(char*, Authenticator*, Ticket*);
 extern	int	convTR2M(Ticketreq*, char*);
 extern	void	convM2TR(char*, Ticketreq*);
-extern	int	convPR2M(Passwordreq*, char*, char*);
-extern	void	convM2PR(char*, Passwordreq*, char*);
+extern	int	convPR2M(Passwordreq*, char*, Ticket*);
+extern	void	convM2PR(char*, Passwordreq*, Ticket*);
 
 /*
- *  convert ascii password to DES key
+ *  convert ascii password to auth key
  */
 extern	int	opasstokey(char*, char*);
-extern	int	passtokey(char*, char*);
+extern	void	passtokey(Authkey*, char*);
+extern	void	passtodeskey(char key[DESKEYLEN], char *p);
+extern	void	passtoaeskey(uchar key[AESKEYLEN], char *p);
 
 /*
  *  Nvram interface
@@ -168,10 +204,18 @@ extern	int	authdial(char *netroot, char *authdom);
 /*
  *  exchange messages with auth server
  */
-extern	int	_asgetticket(int, char*, char*);
+extern	int	_asrequest(int, Ticketreq*);
+extern	int	_asgetticket(int, Ticketreq*, char*, int);
 extern	int	_asrdresp(int, char*, int);
 extern	int	sslnegotiate(int, Ticket*, char**, char**);
 extern	int	srvsslnegotiate(int, Ticket*, char**, char**);
+
+/*
+ *  AuthPAK protocol
+ */
+extern	void	authpak_hash(Authkey *k, char *u);
+extern	void	authpak_new(PAKpriv *p, Authkey *k, uchar y[PAKYLEN], int isclient);
+extern	int	authpak_finish(PAKpriv *p, Authkey *k, uchar y[PAKYLEN]);
 #ifdef __cplusplus
 }
 #endif

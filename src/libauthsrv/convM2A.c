@@ -2,22 +2,28 @@
 #include <libc.h>
 #include <authsrv.h>
 
-#define	CHAR(x)		f->x = *p++
-#define	SHORT(x)	f->x = (p[0] | (p[1]<<8)); p += 2
-#define	VLONG(q)	q = (p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24)); p += 4
-#define	LONG(x)		VLONG(f->x)
-#define	STRING(x,n)	memmove(f->x, p, n); p += n
+extern int form1M2B(char *ap, int n, uchar key[32]);
 
 void
-convM2A(char *ap, Authenticator *f, char *key)
+convM2A(char *ap, Authenticator *f, Ticket *t)
 {
-	uchar *p;
+	uchar buf[MAXAUTHENTLEN], *p;
 
-	if(key)
-		decrypt(key, ap, AUTHENTLEN);
-	p = (uchar*)ap;
-	CHAR(num);
-	STRING(chal, CHALLEN);
-	LONG(id);
-	USED(p);
+	memset(f, 0, sizeof(*f));
+	if(t->form == 1){
+		memmove(buf, ap, MAXAUTHENTLEN);
+		if(form1M2B((char*)buf, MAXAUTHENTLEN, t->key) < 0)
+			return;
+	}else{
+		memmove(buf, ap, AUTHENTLEN);
+		decrypt(t->key, (char*)buf, AUTHENTLEN);
+	}
+
+	p = buf;
+	f->num = *p++;
+	memmove(f->chal, p, CHALLEN), p += CHALLEN;
+	if(t->form == 1)
+		memmove(f->rand, p, NONCELEN);
+	else
+		f->id = p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24);
 }
