@@ -2,6 +2,13 @@
 #define NHASH (1<<5)
 #define HASHMASK (NHASH-1)
 
+enum
+{
+	Dpidefault	= 100,	/* used when the display's resolution is unknown */
+	Dpimin		= 50,	/* detected values outside this range are not believed */
+	Dpimax		= 600
+};
+
 typedef struct Kbdbuf Kbdbuf;
 typedef struct Mousebuf Mousebuf;
 typedef struct Tagbuf Tagbuf;
@@ -229,6 +236,7 @@ int draw_datawrite(Client*, void*, int);
 void draw_initdisplaymemimage(Client*, Memimage*);
 
 // utility routines
+int dpioverride(void);
 int latin1(Rune*, int);
 int mouseswap(int);
 int parsewinsize(char*, Rectangle*, int*);

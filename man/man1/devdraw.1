@@ -68,6 +68,28 @@ there is no way to type
 variants,
 so there is no access to keyboard shortcuts for
 undo, redo, cut, and paste.
+.PP
+.I Devdraw
+scales window borders, scrollbars and fonts to the resolution of the
+display.  On X it looks for that resolution first in the
+.B Xft.dpi
+X resource, then in
+.BR $GDK_SCALE ,
+and last in the physical screen size reported by the server.
+None of the three is dependable under XWayland, which gives every
+output a zero physical size and where nothing sets
+.B Xft.dpi
+unless a desktop environment does it; set
+.B $DEVDRAWDPI
+to say so explicitly.
+.SH ENVIRONMENT
+.TP
+.B DEVDRAWDPI
+Resolution of the display in dots per inch, overriding whatever
+.I devdraw
+would otherwise work out for itself.
+100 suits an ordinary display and 225 a 2x one.
+Values outside the range 50 to 600 are ignored.
 .SH SOURCE
 .B \*9/src/cmd/devdraw
 .SH "SEE ALSO
