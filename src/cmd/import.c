@@ -14,6 +14,7 @@ char *srv;
 char	*addr;
 char *ns;
 int export;
+char *mtpt;
 
 void	shuffle(void *arg);
 int	post(char *srv);
@@ -33,7 +34,7 @@ enum
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-df] [-s service] [-n remote-ns] [-p remote-prog] remote-system\n", argv0);
+	fprint(2, "usage: %s [-df] [-s service] [-n remote-ns] [-p remote-prog] [-m mtpt] remote-system\n", argv0);
 	threadexitsall("usage");
 }
 
@@ -85,6 +86,9 @@ threadmain(int argc, char *argv[])
 	case 's':	/* name of service */
 		srv = EARGF(usage());
 		break;
+    case 'm':
+        mtpt = EARGF(usage());
+        break;
 	case 'R':
 		rem = 1;
 		break;
@@ -156,7 +160,7 @@ post(char *srv)
 		fatal("can't create pipe: %r");
 
 	/* 0 will be server end, 1 will be client end */
-	if(post9pservice(p[1], srv, nil) < 0)
+	if(post9pservice(p[1], srv, mtpt) < 0)
 		fatal("post9pservice plumb: %r");
 	close(p[1]);
 
