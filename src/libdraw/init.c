@@ -242,6 +242,7 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 		return nil;
 	}
 	disp->srvfd = -1;
+	disp->srvwfd = -1;
 	image = nil;
 	if(0){
     Error2:
@@ -270,6 +271,8 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 	if(0){
     Error4:
 		close(disp->srvfd);
+		if(disp->srvwfd >= 0 && disp->srvwfd != disp->srvfd)
+			close(disp->srvwfd);
 		goto Error3;
 	}
 
@@ -323,6 +326,8 @@ closedisplay(Display *disp)
 		freeimage(disp->black);
 	if(disp->srvfd >= 0)
 		close(disp->srvfd);
+	if(disp->srvwfd >= 0 && disp->srvwfd != disp->srvfd)
+		close(disp->srvwfd);
 	free(disp);
 }
 
