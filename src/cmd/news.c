@@ -111,6 +111,10 @@ read_dir(int update)
 			n_list[n_count].length = 0;
 			n_count++;
 			free(d);
+			if(n_list[n_count-1].name == nil){
+				fprint(2, "Memory allocation failed");
+				exits("Memory allocation failed");
+			}
 		}
 		if(update) {
 			fd = create(newstime, OWRITE, 0644);

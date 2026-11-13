@@ -130,6 +130,10 @@ ls(char *s, int multi)
 			*p = 0;
 			/* restore original name; don't use result of stat */
 			dirbuf[ndir].d->name = strdup(p+1);
+			if(dirbuf[ndir].d->name == nil){
+				fprint(2, "ls: malloc fail\n");
+				return 1;
+			}
 		}
 		ndir++;
 	}
