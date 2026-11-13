@@ -216,7 +216,7 @@ render(URLwin *u, Bytes *t, Item *items, int curanchor)
 			renderbytes(t, "=======\n");
 			break;
 		case Iimagetag:
-			if(!aflag)
+			if(!aflag || Iflag)
 				break;
 			im = (Iimage*)il;
 			if(im->imsrc){
