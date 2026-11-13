@@ -682,7 +682,7 @@ xattach(Client *client, char *label, char *winsize)
 			normalhint.width = width;
 			normalhint.height = height;
 		}
-		if((mask & WidthValue) && (mask & HeightValue)){
+		if((mask & XValue) || (mask & YValue)){
 			normalhint.flags |= USPosition;
 			normalhint.x = x;
 			normalhint.y = y;
