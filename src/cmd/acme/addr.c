@@ -207,6 +207,8 @@ address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, i
 				r.q1 = nr.q1;
 			}
 			*qp = q;
+			if (r.q0 > r.q1)
+				*evalp = FALSE;
 			return r;
 		case '+':
 		case '-':
