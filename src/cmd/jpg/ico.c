@@ -201,7 +201,7 @@ Bgeticon(Biobuf *b, Icon *icon)
 	}
 
 	/* this header's info takes precedence over previous one */
-	if(getl(buf) != 40){
+	if(icon->len < 40 || getl(buf) != 40){
 		werrstr("bad icon header");
 		return -1;
 	}
@@ -231,6 +231,13 @@ Bgeticon(Biobuf *b, Icon *icon)
 	}
 	if(icon->nplane != 1){
 		werrstr("don't support %d planes", icon->nplane);
+		return -1;
+	}
+	if(icon->ncolor > (1<<icon->bits))
+		icon->ncolor = 1<<icon->bits;
+	if(40 + 4*icon->ncolor + icon->h*4*((icon->bits*icon->w+31)/32)
+	    + icon->h*4*((icon->w+31)/32) > icon->len){
+		werrstr("short icon data");
 		return -1;
 	}
 
