@@ -41,6 +41,7 @@ static void _xmovewindow(Xwin *w, Rectangle r);
 static int _xtoplan9kbd(XEvent *e);
 static int _xselect(XEvent *e);
 static void _xsetcursor(Xwin *w, Cursor *c);
+static void _xsetcursor2(Xwin *w, Cursor2 *c);
 
 static void	rpc_resizeimg(Client*);
 static void	rpc_resizewindow(Client*, Rectangle);
@@ -796,7 +797,10 @@ xattach(Client *client, char *label, char *winsize)
 		XFreePixmap(_x.display, pmid);
 	}
 
-	_xsetcursor(w, nil);
+	if (client->displaydpi >= DefaultDPI*3/2)
+		_xsetcursor2(w, nil);
+	else
+		_xsetcursor(w, nil);
 
 	return w->screenimage;
 }
@@ -1457,13 +1461,51 @@ _xsetcursor(Xwin *w, Cursor *c)
 	XFlush(_x.display);
 }
 
+static void
+_xsetcursor2(Xwin *w, Cursor2 *c)
+{
+	XColor fg, bg;
+	XCursor xc;
+	Pixmap xsrc, xmask;
+	int i;
+	uchar src[4*32], mask[4*32];
+
+	if(c == nil)
+		c = &bigarrow2;
+
+	for(i=0; i<4*32; i++){
+		src[i] = revbyte(c->set[i]);
+		mask[i] = revbyte(c->set[i] | c->clr[i]);
+	}
+
+	fg = _x.map[0];
+	bg = _x.map[255];
+
+	xsrc = XCreateBitmapFromData(_x.display, w->drawable, (char*)src, 32, 32);
+	xmask = XCreateBitmapFromData(_x.display, w->drawable, (char*)mask, 32, 32);
+	xc = XCreatePixmapCursor(_x.display, xsrc, xmask, &fg, &bg, -c->offset.x, -c->offset.y);
+
+	if(xc != 0){
+		XDefineCursor(_x.display, w->drawable, xc);
+		if(_x.cursor != 0)
+			XFreeCursor(_x.display, _x.cursor);
+		_x.cursor = xc;
+	}
+	XFreePixmap(_x.display, xsrc);
+	XFreePixmap(_x.display, xmask);
+	XFlush(_x.display);
+}
+
 void
 rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 {
 	USED(c2);
 
 	xlock();
-	_xsetcursor((Xwin*)client->view, c);
+	if (client->displaydpi >= DefaultDPI*3/2)
+		_xsetcursor2((Xwin*)client->view, c2);
+	else
+		_xsetcursor((Xwin*)client->view, c);
 	xunlock();
 }
 
