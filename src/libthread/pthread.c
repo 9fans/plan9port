@@ -118,6 +118,20 @@ startpthreadfn(void *v)
 	pthread_exit(0);
 }
 
+static void
+pthreadcreate(pthread_t *id, void (*fn)(void*), void *a)
+{
+	sigset_t all, old;
+
+	sigfillset(&all);
+	pthread_sigmask(SIG_BLOCK, &all, &old);
+	if(pthread_create(id, nil, (void*(*)(void*))fn, a) < 0){
+		fprint(2, "pthread_create: %r\n");
+		abort();
+	}
+	pthread_sigmask(SIG_SETMASK, &old, nil);
+}
+
 void
 _procstart(Proc *p, void (*fn)(Proc*))
 {
@@ -129,10 +143,7 @@ _procstart(Proc *p, void (*fn)(Proc*))
 	a[0] = (void*)fn;
 	a[1] = p;
 
-	if(pthread_create(&p->osprocid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){
-		fprint(2, "pthread_create: %r\n");
-		abort();
-	}
+	pthreadcreate(&p->osprocid, startprocfn, a);
 }
 
 void
@@ -145,13 +156,11 @@ _threadpthreadstart(Proc *p, _Thread *t)
 		sysfatal("_pthreadstart malloc: %r");
 	a[0] = p;
 	a[1] = t;
-	if(pthread_create(&t->osprocid, nil, (void*(*)(void*))startpthreadfn, (void*)a) < 0){
-		fprint(2, "pthread_create: %r\n");
-		abort();
-	}
+	pthreadcreate(&t->osprocid, startpthreadfn, a);
 }
 
 static pthread_key_t prockey;
+static sigset_t procmask;
 
 Proc*
 _threadproc(void)
@@ -165,13 +174,23 @@ _threadproc(void)
 void
 _threadsetproc(Proc *p)
 {
+	sigset_t all;
+
+	if(p == nil){
+		sigfillset(&all);
+		pthread_sigmask(SIG_BLOCK, &all, nil);
+		pthread_setspecific(prockey, nil);
+		return;
+	}
 	pthread_setspecific(prockey, p);
+	pthread_sigmask(SIG_SETMASK, &procmask, nil);
 }
 
 void
 _pthreadinit(void)
 {
 	pthread_key_create(&prockey, 0);
+	pthread_sigmask(SIG_SETMASK, nil, &procmask);
 }
 
 void
