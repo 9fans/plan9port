@@ -84,7 +84,9 @@ gfx_main(void)
 void
 rpc_shutdown(void)
 {
-	[NSApp terminate:myApp];
+	dispatch_sync(dispatch_get_main_queue(), ^(void) {
+		[NSApp terminate:myApp];
+	});
 }
 
 @implementation AppDelegate
@@ -155,11 +157,13 @@ rpc_shutdown(void)
 		[cbuf presentDrawable:drawable];
 		drawable = nil;
 		[cbuf addCompletedHandler:^(id<MTLCommandBuffer> cmdBuff){
-			if(cmdBuff.error){
-				NSLog(@"command buffer finished with error: %@",
-					cmdBuff.error.localizedDescription);
-			}else
-				LOG(@"command buffer finishes present drawable");
+			@autoreleasepool{
+				if(cmdBuff.error){
+					NSLog(@"command buffer finished with error: %@",
+						cmdBuff.error.localizedDescription);
+				}else
+					LOG(@"command buffer finishes present drawable");
+			}
 		}];
 		[cbuf commit];
 	}
@@ -1165,8 +1169,6 @@ setprocname(const char *s)
 {
   CFStringRef process_name;
 
-  process_name = CFStringCreateWithBytes(nil, (uchar*)s, strlen(s), kCFStringEncodingUTF8, false);
-
   // Adapted from Chrome's mac_util.mm.
   // http://src.chromium.org/viewvc/chrome/trunk/src/base/mac/mac_util.mm
   //
@@ -1264,6 +1266,10 @@ setprocname(const char *s)
     return;
   }
 
+  process_name = CFStringCreateWithBytes(nil, (uchar*)s, strlen(s), kCFStringEncodingUTF8, false);
+  if (!process_name)
+    return;
+
   PrivateLSASN asn = ls_get_current_application_asn_func();
   // Constant used by WebKit; what exactly it means is unknown.
   const int magic_session_constant = -2;
@@ -1272,6 +1278,7 @@ setprocname(const char *s)
                                                ls_display_name_key,
                                                process_name,
                                                NULL /* optional out param */);
+  CFRelease(process_name);
   if(err != noErr)
     fprint(2, "Call to set process name failed\n");
 }
