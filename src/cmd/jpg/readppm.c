@@ -183,7 +183,7 @@ readppm(Biobuf *b, Rawimage *a)
 
 	wid = Bgetint(b);
 	ht = Bgetint(b);
-	if(wid <= 0 || ht <= 0)
+	if(wid <= 0 || ht <= 0 || (vlong)wid*ht > 0x7fffffff)
 		goto Error;
 	a->r = Rect(0,0,wid,ht);
 
